@@ -1,0 +1,3 @@
+# The host and private key name for your repo go here
+Host bitbucket.org github.com
+  IdentityFile ~/.ssh/pixyship_deploy

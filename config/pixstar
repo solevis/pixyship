@@ -1,0 +1,28 @@
+# Expires map
+map $sent_http_content_type $expires {
+    default                    off;
+    text/html                  epoch;
+    text/css                   max;
+    application/javascript     max;
+    ~image/                    max;
+}
+
+server {
+    listen 80 default_server;
+    server_name _;
+    gzip on;
+    gzip_types application/javascript application/json text/plain text/html;
+    gzip_min_length 1000;
+
+    expires $expires;
+
+    # Force https
+    #if ($http_x_forwarded_proto = "http") {
+    #    return 301 https://$host$request_uri;
+    #}
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/ubuntu/src/pixyship/pixstar.sock;
+    }
+}
