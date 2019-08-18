@@ -1,4 +1,3 @@
-import os
 import time
 from contextlib import contextmanager
 
@@ -36,8 +35,10 @@ env.config_file = 'config/dev.cfg'
 env.alembic_file = 'config/alembic_dev.ini'
 env.in_cloud = False
 env.alembic_upgrade = 'alembic upgrade head'
-env.venv = 'pixyship_env'
-env.src_dir = 'src/pixyship'
+if not hasattr(env, 'base_name'):
+    env.base_name = 'pixyship'
+env.src_dir = 'src/' + env.base_name
+env.venv = env.base_name + '_env'
 
 
 def lightsail():
@@ -181,7 +182,7 @@ def _setup_base():
         run('mkdir -p src')
         # Get the repo origin URL from deploy repo
         # repo_url = local('git config --get remote.origin.url', capture=True)
-        if not exists('src/pixyship'):
+        if not exists(env.src_dir):
             with cd('src'):
                 # run('ssh -o StrictHostKeyChecking=no git@github.com')
                 run('git clone ' + REPO)
