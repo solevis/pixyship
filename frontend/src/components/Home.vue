@@ -878,6 +878,7 @@ export default {
   td > div {
     text-align: left;
     vertical-align: top;
+    display: block;
   }
 
   figure {
