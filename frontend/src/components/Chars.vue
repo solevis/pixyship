@@ -294,6 +294,10 @@ export default {
 </script>
 
 <style>
+  .layout.row{
+    display: flex;
+  }
+
   html, body {
     background-color: black;
     color: white;

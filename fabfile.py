@@ -94,6 +94,17 @@ def _deploy_base():
             run('pip3 install -r requirements.txt')
 
 
+def restart_web():
+    """Restart the web server"""
+    # This can be called with just a host arg
+    with virtualenv(env.venv), cd(env.src_dir):
+        sudo('service nginx stop')
+        run('pkill uwsgi ||:')
+        sudo('cp config/pixstar /etc/nginx/sites-available/')
+        runbg('uwsgi --ini uwsgi.ini -b 32768')
+        sudo('service nginx restart')
+
+
 def deploy_web():
     """Updates web to the head of it's current branch"""
     # This can be called with just a host arg
@@ -252,6 +263,11 @@ def download_db():
     run('docker cp postgres:/backup.sql .')
     run('gzip -f backup.sql')
     get('backup.sql.gz')
+
+
+def load_local_data():
+    local('docker cp pixy-ls/backup.sql ps_postgres:/dump.sql')
+    local('docker exec ps_postgres psql -U postgres -f dump.sql')
 
 
 def drop_tables():
