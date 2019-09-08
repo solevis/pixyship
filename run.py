@@ -261,6 +261,11 @@ def page_base(path=''):
     return render_template('index.html')
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
+
+
 @app.route('/<path:path>')
 def catch_all(path):
     return flask.redirect("/")
