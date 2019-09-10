@@ -1161,7 +1161,7 @@ class PixelStarshipsApi(metaclass=Singleton):
             'to': grouped_to,
             'from': grouped_from,
             'chars': all_chars,
-            'expires_at': datetime.datetime.now() + datetime.timedelta(minutes=5)
+            'expires_at': datetime.datetime.now() + datetime.timedelta(minutes=1)
         }
 
     @staticmethod
