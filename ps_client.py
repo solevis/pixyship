@@ -5,9 +5,9 @@ from collections import defaultdict, Counter
 from typing import Tuple
 from urllib.parse import quote
 from xml.etree import ElementTree
+from xml.etree.ElementTree import ParseError
 
 import requests
-from contexttimer import Timer
 from sqlalchemy import func
 
 from config import CONFIG
@@ -342,7 +342,9 @@ class PixelStarshipsApi(metaclass=Singleton):
         return self._change_data
 
     def prestige_data(self, char_id):
-        if char_id not in self._prestige_map:
+        if ((char_id not in self._prestige_map)
+                or (self._prestige_map[char_id]['expires_at'] < datetime.datetime.now())):
+
             self._prestige_map[char_id] = self.get_prestige_data(char_id)
         return self._prestige_map[char_id]
 
@@ -1089,7 +1091,14 @@ class PixelStarshipsApi(metaclass=Singleton):
     def get_settings(self):
         url = self.api_url(self.setting, server='http://api.pixelstarships.com')
         r = self.call(url)
-        root = ElementTree.fromstring(r.text)
+        try:
+            root = ElementTree.fromstring(r.text)
+        except ParseError:
+            # Servers are always supposed to return something valid, but don't always
+            url = self.api_url(self.setting, server='http://api2.pixelstarships.com')
+            r = self.call(url)
+            root = ElementTree.fromstring(r.text)
+
         settings = root[0][0].attrib
         fixed_url = self.api_url(self.setting, server='http://' + settings['ProductionServer'])
 
@@ -1101,59 +1110,59 @@ class PixelStarshipsApi(metaclass=Singleton):
         return settings
 
     def get_prestige_data(self, char_id):
-        with Timer():
-            to_url = self.api_url(self.char_prestige_to, char_id=char_id)
-            r = self.call(to_url)
-            root = ElementTree.fromstring(r.text)
-            prestiges = dict_get(
-                etree_to_dict(root), 'CharacterService', 'PrestigeCharacterTo', 'Prestiges', 'Prestige'
-            ) or []
-            if not isinstance(prestiges, list):
-                prestiges = list((prestiges,))
-            p_to = list(set(
-                tuple(sorted([int(x['@CharacterDesignId1']), int(x['@CharacterDesignId2'])]))
-                for x in prestiges
-            ))
+        to_url = self.api_url(self.char_prestige_to, char_id=char_id)
+        r = self.call(to_url)
+        root = ElementTree.fromstring(r.text)
+        prestiges = dict_get(
+            etree_to_dict(root), 'CharacterService', 'PrestigeCharacterTo', 'Prestiges', 'Prestige'
+        ) or []
+        if not isinstance(prestiges, list):
+            prestiges = list((prestiges,))
+        p_to = list(set(
+            tuple(sorted([int(x['@CharacterDesignId1']), int(x['@CharacterDesignId2'])]))
+            for x in prestiges
+        ))
 
-            # Determine which chars to group
-            temp_to = p_to
-            grouped_to = defaultdict(list)
-            while len(temp_to):
-                c = Counter([x for y in temp_to for x in y])
-                [(most_id, _)] = c.most_common(1)
-                # find all the pairs with the id
-                new_to = []
+        # Determine which chars to group
+        temp_to = p_to
+        grouped_to = defaultdict(list)
+        while len(temp_to):
+            c = Counter([x for y in temp_to for x in y])
+            [(most_id, _)] = c.most_common(1)
+            # find all the pairs with the id
+            new_to = []
 
-                for pair in temp_to:
-                    if most_id == pair[0]:
-                        grouped_to[most_id].append(pair[1])
-                    elif most_id == pair[1]:
-                        grouped_to[most_id].append(pair[0])
-                    else:
-                        new_to.append(pair)
+            for pair in temp_to:
+                if most_id == pair[0]:
+                    grouped_to[most_id].append(pair[1])
+                elif most_id == pair[1]:
+                    grouped_to[most_id].append(pair[0])
+                else:
+                    new_to.append(pair)
 
-                temp_to = new_to
+            temp_to = new_to
 
-            from_url = self.api_url(self.char_prestige_from, char_id=char_id)
-            r = self.call(from_url)
-            root = ElementTree.fromstring(r.text)
-            prestiges = dict_get(
-                etree_to_dict(root), 'CharacterService', 'PrestigeCharacterFrom', 'Prestiges', 'Prestige'
-            ) or []
-            p_from = [[int(x['@CharacterDesignId2']), int(x['@ToCharacterDesignId'])] for x in prestiges]
+        from_url = self.api_url(self.char_prestige_from, char_id=char_id)
+        r = self.call(from_url)
+        root = ElementTree.fromstring(r.text)
+        prestiges = dict_get(
+            etree_to_dict(root), 'CharacterService', 'PrestigeCharacterFrom', 'Prestiges', 'Prestige'
+        ) or []
+        p_from = [[int(x['@CharacterDesignId2']), int(x['@ToCharacterDesignId'])] for x in prestiges]
 
-            grouped_from = defaultdict(list)
-            for r in p_from:
-                grouped_from[r[1]].append(r[0])
+        grouped_from = defaultdict(list)
+        for r in p_from:
+            grouped_from[r[1]].append(r[0])
 
-            all_ids = list(set([i for l in p_to for i in l] + [i for l in p_from for i in l] + [char_id]))
-            all_chars = [self.char_map[i] for i in all_ids]
-            # min_chars = [
-            #     {k: d[k] for k in ('name', 'head_sprite', 'body_sprite', 'leg_sprite', 'rarity', 'id')}
-            #     for d in all_chars
-            # ]
+        all_ids = list(set([i for l in p_to for i in l] + [i for l in p_from for i in l] + [char_id]))
+        all_chars = [self.char_map[i] for i in all_ids]
 
-            return {'to': grouped_to, 'from': grouped_from, 'chars': all_chars}
+        return {
+            'to': grouped_to,
+            'from': grouped_from,
+            'chars': all_chars,
+            'expires_at': datetime.datetime.now() + datetime.timedelta(minutes=5)
+        }
 
     @staticmethod
     def _format_daily_offer(desc, items, cost=None, details=None, expires=None):
