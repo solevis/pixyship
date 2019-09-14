@@ -54,11 +54,12 @@ class Device(db.Model):
         # print('cycling token')
         url = (
             PixelStarshipsApi().server +
-            '/UserService/DeviceLogin6'
+            '/UserService/DeviceLogin8'
             '?deviceKey={}'
             '&isJailBroken=false'
             '&checksum={}'
             '&deviceType=DeviceTypeMac'
+            '&languagekey=en'
             '&advertisingKey=%22%22'.format(self.key, self.checksum)
         )
 

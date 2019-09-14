@@ -13,7 +13,6 @@ from run import push_context
 class TestPixStar(unittest.TestCase):
 
     TEST_USER_ID = 2444412  # Sokitume
-    UM_USER_ID = 2212422  # Upper Management
 
     def test_device_key_gen(self):
         device_key = '32598c26ec94'
@@ -41,14 +40,9 @@ class TestPixStar(unittest.TestCase):
         do_ga()
         assert True
 
-    def test_get_pss_access_token(self):
-        psa = PixelStarshipsApi()
-        print(psa.token)
-        assert True
-
     def test_get_ship_data(self):
         psa = PixelStarshipsApi()
-        id = psa.get_user_id('jy3p')
+        id = psa.get_user_id('adam')
         data = psa.inspect_ship(id)
         pprint(data)
         assert True
@@ -151,7 +145,9 @@ class TestPixStar(unittest.TestCase):
 
     def test_setting_service(self):
         psa = PixelStarshipsApi()
-        print(psa.get_settings())
+        s = psa.get_settings()
+        print(s)
+        assert s
 
     def test_update_data(self):
         update_data()
@@ -170,7 +166,6 @@ class TestPixStar(unittest.TestCase):
 
     def test_load_players(self):
         load_players()
-        return True
 
     def test_check_market(self):
         check_market()
