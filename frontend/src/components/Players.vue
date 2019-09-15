@@ -5,33 +5,22 @@
       Players
       <v-container v-if="!showData">
         <v-layout class="column">
-          <v-text-field
+          <v-autocomplete
             v-model="search"
-            append-icon="search"
-            id="search"
+            :items="data"
+            :search-input.sync="searchText"
             label="Search"
             placeholder="search by name"
-          ></v-text-field>
-          <br/>
-          <v-data-table
-            :items="data"
-            :headers="headers"
-            :pagination.sync="pagination"
-            :rows-per-page-items="[10,20,50,100]"
-          >
-            <template slot="items" slot-scope="i">
-              <td class="text-xs-right">
-                {{ i.item.trophies }}
-              </td>
-              <td class="text-xs-left">{{ i.item.name }}</td>
-<!--                <a :href="'/?search=' + i.item.name"></a>-->
-<!--              </td>-->
-              <td class="text-xs-left">
-                <div class="block my-1" :style="spriteStyle(i.item.alliance_sprite)"></div>
-                {{ i.item.alliance }}
-              </td>
+            :no-filter="true"
+            item-text="name">
+            <template slot-scope="s" slot="item">
+              <div class="text-xs-right lh-1 mr-2" style="width: 3em">{{ s.item.trophies}}</div>
+              <div class="text-xs-left lh-1 mr-5" style="width: 10em">{{ s.item.name }}</div>
+              <div class="block my-1 mr-1" :style="spriteStyle(s.item.alliance_sprite)"></div>
+              {{ s.item.alliance }}
             </template>
-          </v-data-table>
+          </v-autocomplete>
+          <br/>
         </v-layout>
       </v-container>
       <div>
@@ -77,6 +66,7 @@ export default {
       message: '',
       pagination: {sortBy: 'trophies', descending: true, rowsPerPage: 100},
       search: '',
+      searchText: '',
       showData: false,
       tab: 0
     }
@@ -87,8 +77,15 @@ export default {
   },
 
   watch: {
-    search(val) {
+    searchText(val) {
+      console.log(val)
       this.getData()
+      console.log(this.data.length)
+    },
+
+    search(val) {
+      this.searchText(val)
+      // This is when we try to get the
     }
   },
 
@@ -96,10 +93,10 @@ export default {
     getData: _.debounce(async function () {
       const res = await axios.get(
         this.playersEndpoint,
-        {params: {search: this.search}}
+        {params: {search: this.searchText}}
       )
       this.data = res.data
-    }, 500),
+    }, 250),
   }
 }
 </script>
@@ -147,6 +144,10 @@ export default {
   td > div {
     text-align: left;
     vertical-align: top;
+  }
+
+  .v-list__tile {
+    height: 24px;
   }
 
 </style>
