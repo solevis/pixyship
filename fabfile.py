@@ -255,7 +255,7 @@ def import_db(pw, host):
 
 
 def load_data():
-    sudo('docker exec postgres psql -U postgres -f dump.sql')
+    sudo('docker exec ps_postgres psql -U postgres -f dump.sql')
 
 
 def download_db():
@@ -266,6 +266,7 @@ def download_db():
 
 
 def load_local_data():
+    # Load data into the local postgres environment.  Drop existing tables first.
     local('docker cp pixy-ls/backup.sql ps_postgres:/dump.sql')
     local('docker exec ps_postgres psql -U postgres -f dump.sql')
 

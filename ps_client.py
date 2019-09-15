@@ -110,7 +110,7 @@ class PixelStarshipsApi(metaclass=Singleton):
                     1800000, 1850000, 1900000, 1950000, 2000000, 2050000, 2100000]
 
     setting = ('/SettingService/getlatestversion3?languagekey=en&deviceType=DeviceTypeAndroid', None)
-    ship_inspect = ('/ShipService/InspectShip?userId={user_id}&version={version}', 'ShipDesignVersion')
+    ship_inspect = ('/ShipService/InspectShip2?userId={user_id}&version={version}', 'ShipDesignVersion')
     user_search = ('/UserService/SearchUsers?searchString={search}', '')
     file_sprites = ('/FileService/ListSprites?version={version}', 'FileVersion')
     ship_designs = ('/ShipService/ListAllShipDesigns2?languageKey=en&version={version}', 'ShipDesignVersion')

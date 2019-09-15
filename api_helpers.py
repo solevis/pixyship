@@ -30,16 +30,22 @@ def search_player(search=None):
     ]
 
 
-def player_data():
+def player_data(search:str = None):
+    print(search)
     from models import Player, Alliance
-    res = (
+    query = (
         db.session
         .query(Player.name, Player.trophies, Alliance.name.label('alliance_name'), Alliance.sprite_id)
         .outerjoin(Alliance, Alliance.id == Player.alliance_id)
-        .order_by(Player.trophies.desc())
-        .limit(4000)
-        .all()
     )
+    if search:
+        query = query.filter(Player.name.ilike('%' + search + '%'))
+    query = (
+        query
+        .order_by(Player.trophies.desc())
+        .limit(100)
+    )
+    res = query.all()
     return [
         {
             'name': x.name,

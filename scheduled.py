@@ -3,7 +3,7 @@ import logging
 from schedule import Scheduler
 import time
 
-from data_load import check_market, update_data
+from data_load import check_market, update_data, load_players
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,6 +30,7 @@ class SafeScheduler(Scheduler):
 scheduler = SafeScheduler()
 scheduler.every(1).minutes.do(check_market)
 scheduler.every(5).minutes.do(update_data)
+scheduler.every(1).day.do(load_players)
 
 while True:
     scheduler.run_pending()

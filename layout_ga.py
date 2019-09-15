@@ -11,7 +11,7 @@ from deap import creator, base, tools, algorithms, gp
 import pixstar
 
 # Target layout
-ship = pixstar.Ship(pixstar.ship_layout)
+ship = pixstar.PsShip(pixstar.ship_layout)
 POP_SIZE = 2000
 GENERATIONS = 100
 IND_SIZE = 2 * 25

@@ -248,9 +248,6 @@ export default {
     this.getDaily()
   },
 
-  watch: {
-  },
-
   methods: {
     getShipData () {
       return Object.values(this.shipList).map(v => ({

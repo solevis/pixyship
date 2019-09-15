@@ -4,10 +4,11 @@ from pprint import pprint
 from config.dev_config import DEV_CONFIG
 from data_load import update_data, load_players, check_market
 from layout_ga import do_ga
-from pixstar import Ship, ship_layout
+from pixstar import PsShip, ship_layout
 from ps_client import PixelStarshipsApi
 # from scheduled import check_market
-from run import push_context
+from run import push_context, app
+from ship import Ship
 
 
 class TestPixStar(unittest.TestCase):
@@ -29,7 +30,7 @@ class TestPixStar(unittest.TestCase):
         print(PixelStarshipsApi().generate_device())
 
     def test_random_layout(self):
-        ship = Ship(ship_layout)
+        ship = PsShip(ship_layout)
         print()
         ship.print()
         ship.place_random_rooms((3, 2))
@@ -41,22 +42,23 @@ class TestPixStar(unittest.TestCase):
         assert True
 
     def test_get_ship_data(self):
-        psa = PixelStarshipsApi()
-        id = psa.get_user_id('adam')
-        data = psa.inspect_ship(id)
-        pprint(data)
+        with app.app_context():
+            psa = PixelStarshipsApi()
+            id = psa.get_user_id('adam')
+            data = psa.inspect_ship(id)
+            pprint(data)
         assert True
 
     def test_ship_data(self):
-        psa = PixelStarshipsApi()
-        # ship, user, chars, rooms = psa.summarize_ship(self.TEST_USER_ID)
-        ship, user, chars, rooms, items = Ship('adam').summarize()
-        if ship:
-            print(ship)
-            # print(user)
-            # print(len(chars), chars)
-            # print(len(rooms), rooms)
-            # print(len(items), items)
+        with app.app_context():
+            s = Ship('adam')
+            ship, user, chars, rooms, items, upgrades = s.summarize()
+            if ship:
+                print(ship)
+                print(user)
+                # print(len(chars), chars)
+                # print(len(rooms), rooms)
+                # print(len(items), items)
         assert True
 
     def test_new_token(self):

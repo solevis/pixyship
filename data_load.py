@@ -13,12 +13,12 @@ log = logging.getLogger(__name__)
 def load_players():
     push_context()
     psa = PixelStarshipsApi()
-    alliances = psa.get_alliances()
 
     users = psa.get_top_users()
     process_users(users)
 
     count = 0
+    alliances = psa.get_alliances()
     for alliance_id, alliance in list(alliances.items()):
         try:
             count += 1

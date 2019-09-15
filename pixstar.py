@@ -15,7 +15,7 @@ ship_layout = """
 """
 
 
-class Ship:
+class PsShip:
     ROOM_MARKERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz'
     SPACE = ' '
     SHIP = '.'
@@ -137,7 +137,7 @@ def main():
     # print('Seed:', seed)
     # random.seed(seed)
 
-    ship = Ship(ship_layout)
+    ship = PsShip(ship_layout)
     ship.print()
     ship.place_random_rooms((3, 2))
     ship.print()

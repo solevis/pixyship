@@ -9,8 +9,8 @@
       <a href="/ships">Ships</a> -
       <a href="/changes">Changes</a> -
       <a href="/collections">Collections</a> -
-      <a href="/research">Research</a>
-         <!--<a href="/players">Players</a>-->
+      <a href="/research">Research</a> -
+      <a href="/players">Players</a>
     </div>
   </div>
 </template>

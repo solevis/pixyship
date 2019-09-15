@@ -91,16 +91,16 @@ class Ship:
         )
         layout = self.psa.get_layout(rooms, ship)
         self.psa.calc_armor_effects(rooms, layout)
-        items = sorted([
-            dict(
-                self.psa.item_map[int(x['@ItemDesignId'])],
-                quantity=int(x['@Quantity']),
-            )
-            for x in ship_d['Items']['Item']
-            if int(x['@Quantity']) > 0
-        ], key=lambda x: (self.psa.item_type[x['type']], x['name']))
+        # items = sorted([
+        #     dict(
+        #         self.psa.item_map[int(x['@ItemDesignId'])],
+        #         quantity=int(x['@Quantity']),
+        #     )
+        #     for x in ship_d['Items']['Item']
+        #     if int(x['@Quantity']) > 0
+        # ], key=lambda x: (self.psa.item_type[x['type']], x['name']))
         upgrades = sorted(self.upgrades, key=itemgetter('amount'))
-        return ship, user, chars, rooms, items, upgrades
+        return ship, user, chars, rooms, [], upgrades
 
     def get_char(self, x, ship_level, order):
         stats = self.psa.char_map[int(x['@CharacterDesignId'])].copy()

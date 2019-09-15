@@ -121,9 +121,31 @@ def check_verification(gas, minerals, name):
 @app.route('/api/players')
 def api_players():
     search = request.args.get('search') or ''
-    response = jsonify(player_data())
+    response = jsonify(player_data(search))
     response.cache_control.max_age = 300
     return response
+
+
+@app.route('/api/name_typeahead')
+def api_name_typeahead():
+    from api_helpers import search_player
+
+    search = request.args.get('search') or ''
+    response = jsonify(search_player(search))
+    response.cache_control.max_age = 300
+    return response
+
+
+@app.route('/api/user/<string:name>')
+@enforce_source
+def api_ship(name):
+    if not name:
+        flask.abort(400)
+
+    key = request.args.get('key') or ''
+
+    d = _get_ship_data(name, key)
+    return d
 
 
 @app.route('/api/daily')
