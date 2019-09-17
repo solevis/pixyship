@@ -44,32 +44,33 @@
                     <svg :x="`${r.column * 25}px`" :y="`${r.row * 25}px`"
                       :viewbox="`${r.sprite.x} ${r.sprite.y} ${r.sprite.width} ${r.sprite.height}`"
                       :width="`${r.sprite.width}px`" :height="`${r.sprite.height}px`">
-                      <foreignObject v-if="r.construction" class="room" width="125" height="75">
-                        <body xmlns="http://www.w3.org/1999/xhtml">
-                        <div :style="spriteStyle(r.construction_sprite)"></div>
-                        </body>
-                      </foreignObject>
-                      <foreignObject v-else class="room" width="125" height="75">
-                        <body xmlns="http://www.w3.org/1999/xhtml">
-                        <div :style="spriteStyle(r.sprite)"></div>
-                        </body>
-                      </foreignObject>
-                      <foreignObject v-if="r.show_frame" class="room" width="125" height="75" x="3" y="11"
-                        :transform="`scale(1 ${r.height/2})`">
-                        <body xmlns="http://www.w3.org/1999/xhtml">
-                        <div class="door" :style="spriteStyle(ship.right_door_sprite)"></div>
-                        </body>
-                      </foreignObject>
-                      <foreignObject v-if="r.show_frame" class="room" width="125" height="75" x="1" y="11"
-                        :transform="`scale(1 ${r.height/2})`">
-                        <body xmlns="http://www.w3.org/1999/xhtml">
-                        <div class="door" :style="spriteStyle(ship.left_door_sprite)"></div>
-                        </body>
-                      </foreignObject>
+<!--                      <foreignObject v-if="r.construction" class="room" width="125" height="75">-->
+<!--                        <body xmlns="http://www.w3.org/1999/xhtml">-->
+<!--                        <div :style="spriteStyle(r.construction_sprite)"></div>-->
+<!--                        </body>-->
+<!--                      </foreignObject>-->
+<!--v-else-->
+<!--                      <foreignObject v-if="r.show_frame" class="room" width="125" height="75" x="1" y="11"-->
+<!--                        :transform="`scale(1 ${r.height/2})`">-->
+<!--                        <body xmlns="http://www.w3.org/1999/xhtml">-->
+<!--                        <div class="door" :style="spriteStyle(ship.left_door_sprite)"></div>-->
+<!--                        </body>-->
+<!--                      </foreignObject>-->
+<!--                      <foreignObject v-if="r.show_frame" class="room" width="125" height="75" x="3" y="11"-->
+<!--                        :transform="`scale(1 ${r.height/2})`">-->
+<!--                        <body xmlns="http://www.w3.org/1999/xhtml">-->
+<!--                        <div class="door" :style="spriteStyle(ship.right_door_sprite)"></div>-->
+<!--                        </body>-->
+<!--                      </foreignObject>-->
                       <foreignObject v-if="r.show_frame" class="room" width="125" height="75"
                         :transform="`scale(${r.sprite.width/75} ${r.sprite.height/50})`">
                         <body xmlns="http://www.w3.org/1999/xhtml">
                         <div :style="spriteStyle(ship.frame_sprite)"></div>
+                        </body>
+                      </foreignObject>
+                      <foreignObject class="room" width="125" height="75">
+                        <body xmlns="http://www.w3.org/1999/xhtml">
+                        <div :style="spriteStyle(r.sprite)"></div>
                         </body>
                       </foreignObject>
                       <rect v-if="r.upgradable && showRoomUpgrades" class="upgradable" x="1" y="1" :width="r.width * 25 - 2" :height="r.height * 25 - 2"></rect>
