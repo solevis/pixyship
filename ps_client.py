@@ -342,10 +342,10 @@ class PixelStarshipsApi(metaclass=Singleton):
         return self._change_data
 
     def prestige_data(self, char_id):
-        if ((char_id not in self._prestige_map)
-                or (self._prestige_map[char_id]['expires_at'] < datetime.datetime.now())):
+        # if ((char_id not in self._prestige_map)
+        #         or (self._prestige_map[char_id]['expires_at'] < datetime.datetime.now())):
 
-            self._prestige_map[char_id] = self.get_prestige_data(char_id)
+        self._prestige_map[char_id] = self.get_prestige_data(char_id)
         return self._prestige_map[char_id]
 
     def sprite_data(self, sprite_id):

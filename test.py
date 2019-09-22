@@ -179,3 +179,9 @@ class TestPixStar(unittest.TestCase):
         r = player_data()
         print(r[-1])
         return True
+
+    def test_prestige(self):
+        push_context()
+        psa = PixelStarshipsApi()
+        r = psa.prestige_data(195)
+        print(r)
