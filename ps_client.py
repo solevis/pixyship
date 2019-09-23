@@ -608,6 +608,7 @@ class PixelStarshipsApi(metaclass=Singleton):
             FROM listing
             WHERE item_id = :item_id
                 AND amount > 0
+                AND sale_at::DATE >= now() - '6 months'::INTERVAL
             GROUP BY item_id, item_name, currency, sale_at::DATE
             ORDER BY item_id, item_name, currency, sale_at::DATE
             """
