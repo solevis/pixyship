@@ -9,6 +9,7 @@
             <v-layout wrap align-center>
               <v-flex xs12 sm5 d-flex>
                 <v-autocomplete
+                  :id="ship-select"
                   v-model="ship"
                   :items="shipList"
                   label="Ship Hull"

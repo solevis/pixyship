@@ -12,6 +12,7 @@
             label="Search"
             placeholder="search by name"
             :no-filter="true"
+            :dense="true"
             item-text="name">
             <template slot-scope="p" slot="item">
               <div class="text-xs-right lh-1 mr-2" style="width: 3em">{{ p.item.trophies}}</div>
@@ -307,9 +308,9 @@ export default {
     vertical-align: top;
   }
 
-  /*.v-list__tile {*/
-  /*  height: 24px;*/
-  /*}*/
+  .v-list--dense .v-list__tile:not(.v-list__tile--avatar) {
+    height: 24px;
+  }
 
   .room-name {
     fill: white;
