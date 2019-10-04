@@ -307,9 +307,9 @@ export default {
     vertical-align: top;
   }
 
-  .v-list__tile {
-    height: 24px;
-  }
+  /*.v-list__tile {*/
+  /*  height: 24px;*/
+  /*}*/
 
   .room-name {
     fill: white;

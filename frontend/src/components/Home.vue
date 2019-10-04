@@ -483,9 +483,9 @@ export default {
     background-color: black !important;
   }
 
-  .v-list__tile {
-    height: 25px;
-  }
+  /*.v-list__tile {*/
+  /*  height: 25px;*/
+  /*}*/
 
   .trophy-count {
     width: 40px;

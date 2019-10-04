@@ -52,13 +52,13 @@ class PixelStarshipsApi(metaclass=Singleton):
         'HealRoomHp': {'name': 'Urgent Repair', 'sprite': 2709},
         'HealSelfHp': {'name': 'First Aid', 'sprite': 2707},
         'AddReload': {'name': 'Rush', 'sprite': 2703},
-        'FireWalk': {'name': 'Fire Walk', 'sprite': 5388},
+        'FireWalk': {'name': 'Fire Walk', 'sprite': 5389},
         'DamageToCurrentEnemy': {'name': 'Critical Strike', 'sprite': 2708},
         'DamageToRoom': {'name': 'Ultra Dismantle', 'sprite': 2710},
         'DeductReload': {'name': 'System Hack', 'sprite': 2704},
         'HealSameRoomCharacters': {'name': 'Healing Rain', 'sprite': 2705},
         'Freeze': {'name': 'Freeze', 'sprite': 5390},
-        'SetFire': {'name': 'Arson', 'sprite': 5389},
+        'SetFire': {'name': 'Arson', 'sprite': 5388},
         'None': {'name': '', 'sprite': 110}  # Empty sprite
     }
 
