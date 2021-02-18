@@ -108,7 +108,6 @@
 import axios from 'axios'
 import Vue from 'vue'
 import {OrbitSpinner} from 'epic-spinners'
-import VueAnalytics from 'vue-analytics'
 import moment from 'moment'
 import Crew from './Crew'
 import Header from './Header'
@@ -118,13 +117,9 @@ import mixins from './Common.vue.js'
 require('../assets/common.css')
 var convert = require('xml-js')
 
-Vue.use(VueAnalytics, {
-  id: 'UA-67866007-2',
-  checkDuplicatedScript: true
-})
-
 Vue.component('crew', Crew)
 Vue.component('ps-header', Header)
+
 Vue.use(VueClipboard)
 
 function styleFromSprite (s, color = '', border = 0, ninepatch = 0) {

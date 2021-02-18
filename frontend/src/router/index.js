@@ -1,7 +1,6 @@
 import 'material-design-icons-iconfont/dist/material-design-icons.css' // Ensure you are using css-loader
 import Vue from 'vue'
 import Router from 'vue-router'
-import VueAnalytics from 'vue-analytics'
 import Vuetify from 'vuetify'
 
 // *** DONT FORGET TO ADD NEW ROUTES TO FLASK TOO !
@@ -33,11 +32,6 @@ Vue.use(Vuetify);
 const router = new Router({
   routes,
   mode: 'history'
-})
-
-Vue.use(VueAnalytics, {
-  id: 'UA-67866007-2',
-  router
 })
 
 export default router

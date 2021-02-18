@@ -58,17 +58,11 @@
 
 import axios from 'axios'
 import Vue from 'vue'
-import VueAnalytics from 'vue-analytics'
 import Crew from './Crew'
 import Header from './Header'
 import 'vuetify/dist/vuetify.min.css'
 import mixins from './Common.vue.js'
 require('../assets/common.css')
-
-Vue.use(VueAnalytics, {
-  id: 'UA-67866007-2',
-  checkDuplicatedScript: true
-})
 
 Vue.component('crew', Crew)
 Vue.component('ps-header', Header)

@@ -265,7 +265,6 @@
 import axios from 'axios'
 import Vue from 'vue'
 import {OrbitSpinner} from 'epic-spinners'
-import VueAnalytics from 'vue-analytics'
 import Collapse from 'vue-collapse'
 import moment from 'moment'
 import Crew from './Crew'
@@ -277,12 +276,9 @@ import mixins from './Common.vue.js'
 require('./DragDropTouch')
 require('../assets/common.css')
 
-Vue.use(VueAnalytics, {
-  id: 'UA-67866007-2',
-  checkDuplicatedScript: true
-})
 Vue.component('crew', Crew)
 Vue.component('ps-header', Header)
+
 Vue.use(VueClipboard)
 
 function styleFromSprite (s, color = '', border = 0) {

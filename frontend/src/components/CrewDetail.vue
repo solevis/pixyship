@@ -150,7 +150,6 @@
 
 import axios from 'axios'
 import Vue from 'vue'
-import VueAnalytics from 'vue-analytics'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -163,10 +162,6 @@ require('../assets/common.css')
 Vue.component('crew', Crew)
 Vue.component('ps-header', Header)
 
-Vue.use(VueAnalytics, {
-  id: 'UA-67866007-2',
-  checkDuplicatedScript: true
-})
 Vue.use(BootstrapVue)
 
 function styleFromSprite (s, color = '', border = 0, ninepatch = 0) {
