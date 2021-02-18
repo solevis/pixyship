@@ -44,7 +44,7 @@
         </v-layout>
       </v-container>
       <div>
-        <a href="http://www.pixelstarships.com">Pixel Starships</a> - The game
+        <a href="http://www.pixelstarships.com">Pixel Starships</a>
       </div>
     </v-app>
   </div>

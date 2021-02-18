@@ -59,6 +59,9 @@ class PixelStarshipsApi(metaclass=Singleton):
         'HealSameRoomCharacters': {'name': 'Healing Rain', 'sprite': 2705},
         'Freeze': {'name': 'Freeze', 'sprite': 5390},
         'SetFire': {'name': 'Arson', 'sprite': 5388},
+        'Bloodlust': {'name': 'Bloodlust', 'sprite': 13866},
+        'Invulnerability': {'name': 'Phase Shift', 'sprite': 13319},
+        'ProtectRoom': {'name': 'Stasis Shield', 'sprite': 13320},
         'None': {'name': '', 'sprite': 110}  # Empty sprite
     }
 

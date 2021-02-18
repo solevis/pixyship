@@ -185,3 +185,6 @@ class TestPixStar(unittest.TestCase):
         psa = PixelStarshipsApi()
         r = psa.prestige_data(195)
         print(r)
+
+if __name__ == '__main__':
+    unittest.main()

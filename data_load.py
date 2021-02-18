@@ -1,4 +1,5 @@
 import logging
+import argparse
 
 from contexttimer import Timer
 
@@ -66,8 +67,20 @@ def check_market():
 
 
 if __name__ == '__main__':
-    with Timer() as t:
-        print('START')
-        load_players()
-        # summarize_names()
-        print('END', t.elapsed)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", action="store_true")
+    parser.add_argument("--players", action="store_true")
+    args = parser.parse_args()
+    
+    if args.data:
+        with Timer() as t:
+            print('START')
+            update_data()
+            print('END', t.elapsed)
+
+    if args.players:
+        with Timer() as t:
+            print('START')
+            load_players()
+            # summarize_names()
+            print('END', t.elapsed)

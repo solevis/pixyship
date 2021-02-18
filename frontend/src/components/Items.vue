@@ -75,7 +75,9 @@
       </div>
       <br/>
       <div></div>
-      <a href="http://www.pixelstarships.com">Pixel Starships</a> guide
+      <div>
+        <a href="http://www.pixelstarships.com">Pixel Starships</a>
+      </div>
     </v-app>
   </div>
 </template>

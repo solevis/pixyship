@@ -1,7 +1,7 @@
 // Common mixins for PixyShip vue controls
 import moment from 'moment'
 
-const apiServer = process.env.NODE_ENV === 'development' ? 'http://dev.pixyship.com:5000/' : '/'
+const apiServer = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '/'
 
 export default {
   data () {

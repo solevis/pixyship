@@ -1,32 +1,60 @@
 # PixyShip
 
+Created by [Sokitume](https://github.com/JThinkable/pixyship)
+
+Forked by [Solevis](https://github.com/solevis/pixyship)
+
 ## Requirements
-* Python 3.5
-* NPM 6.1.0
-* Docker
 
-## Getting Started
-1. Pip install the dev requirements: `pip install -r dev_reqs.txt`
-1. Use Fabric to initialize the virtual env: `fab init_dev`
-1. Install npm packages: `fab npm_install`
-1. Create Postgres database in a container: `fab create_postgres`
-1. Build the UI: `fab build_ui`
+* Python 3.7
+* NPM 5.8.0
 
-Initial data load:
-`fab update_data`
+## Getting Started locally
 
-To run locally:
-1. Start the front-end dev environment: `fab ui`
-2. Start the back end from the virtual environment (activate it) then `python run.py`
+```bash
+# Create virtualenv
+python3 -m venv .venv
+source .venv/bin/activate
 
-Access the web server at localhost:8080
+# Install Python dependencies
+pip install wheel # not mandatory, but easier for installing modules
+pip install -r requirements.txt
+
+# Install npm dependencies
+(cd frontend/ && npm install)
+
+# Configure database
+cp config/alembic_dev.ini alembic.ini
+${EDITOR} alembic.ini # update sqlalchemy.url, user must be SUPERUSER
+
+cp config/config_template.py config/config.py
+${EDITOR} config/config.py # update DSN
+
+# Create database
+alembic upgrade head
+
+# Build UI
+(cd frontend/ && npm run build)
+
+# Initial data load
+python data_load.py --data
+python data_load.py --players
+```
+
+Run :
+
+```bash
+# Frontend
+(cd frontend/ && npm run dev)
+
+# Backend
+python run.py
+```
+
+Access the web server at [http://localhost:8080](http://localhost:8080).
 
 ## Deploying remotely
-The deployment process targets a Ubuntu 16 server with ssh access.
 
-First setup the remote from your local environment: 
-`fab -h <host> setup`
+**TODO: I will soon share an Ansible role for deploying Pixyship.**
 
-Then the first and all subsequent deploys are done with: 
-`fab -h <host> deploy`
 

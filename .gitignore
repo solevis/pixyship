@@ -1,2 +1,9 @@
+.venv
+.vscode
+
+__pycache__
+
 config.py
-favicon.ico
+alembic.ini
+
+dist/

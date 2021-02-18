@@ -20,6 +20,13 @@ APP_NAME = 'pixyship'
 app = Flask(APP_NAME, static_folder="./dist/static", template_folder="./dist")
 app.secret_key = 'Su8#kKpY4wxMFB*P2X9a66k7%DRbHw'
 
+# Security
+app.config.update(
+    SESSION_COOKIE_SECURE = True,
+    SESSION_COOKIE_HTTPONLY = True,
+    SESSION_COOKIE_SAMESITE = 'Lax',
+)
+
 # SQLAlchemy Object
 app.config['SQLALCHEMY_DATABASE_URI'] = CONFIG['DSN']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
