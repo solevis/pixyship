@@ -1,148 +1,148 @@
 <template>
   <div>
-    <ps-header/>
-    Prestige recipies
-    <br/><br/>
-    <div class="center">
-      <crew v-if="loaded" :char="chars[crewId]" name="bottom"/>
-      <v-layout justify-center>
-        <v-data-table
-          id="target-stats"
-          v-if="loaded"
-          :headers="headers"
-          :items="targetChar"
-          hide-actions
-        >
-          <template slot="items" slot-scope="i">
-            <td>
-              <div class="ps-left equip">
-                <div v-for="(s, k) in i.item.equipment">
-                  <div v-if="s.name"
-                    :title="`${k}: +${s.bonus} ${s.enhancement} ${s.extra_bonus ? '+' + s.extra_bonus : ''} ${s.extra_enhancement}`">
-                    <div class="char-item" :style="spriteStyle(s.sprite)"></div>
-                    {{ s.name }}
+    <v-app dark>
+      <ps-header/>
+      Prestige recipies
+      <v-container v-if="!showData">
+        <div class="center">
+          <crew v-if="loaded" :char="chars[crewId]" name="bottom"/>
+          <v-layout justify-center>
+            <v-data-table
+              id="target-stats"
+              v-if="loaded"
+              :headers="headers"
+              :items="targetChar"
+              hide-actions
+            >
+              <template slot="items" slot-scope="i">
+                <td>
+                  <div class="ps-left equip">
+                    <div v-for="(s, k) in i.item.equipment">
+                      <div v-if="s.name"
+                        :title="`${k}: +${s.bonus} ${s.enhancement} ${s.extra_bonus ? '+' + s.extra_bonus : ''} ${s.extra_enhancement}`">
+                        <div class="char-item" :style="spriteStyle(s.sprite)"></div>
+                        {{ s.name }}
+                      </div>
+                      <template v-else>
+                        <div class="unused">{{ k }}</div>
+                      </template>
+                    </div>
                   </div>
-                  <template v-else>
-                    <div class="unused">{{ k }}</div>
-                  </template>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div :class="['rarity', i.item.rarity]">{{ i.item.rarity }}</div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.hp[1] }}<br/>
-                <span>{{ i.item.hp[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.attack[1] }}<br/>
-                <span>{{ i.item.attack[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.repair[1] }}<br/>
-                <span>{{ i.item.repair[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="special-ability">
-                <div :style="spriteStyle(i.item.ability_sprite)" :title="i.item.special_ability"></div>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.ability[1] }}<br/>
-                <span>{{ i.item.ability[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.pilot[1] }}<br/>
-                <span>{{ i.item.pilot[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.science[1] }}<br/>
-                <span>{{ i.item.science[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.research[1] }}<br/>
-                <span>{{ i.item.research[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.engine[1] }}<br/>
-                <span>{{ i.item.engine[0] }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="stat">{{ i.item.weapon[1] }}<br/>
-                <span>{{ i.item.weapon[0] }}</span>
-              </div>
-            </td>
-            <td>{{ i.item.fire_resist }}</td>
-            <td>{{ i.item.training_limit }}</td>
-            <td>
-              <div>{{ `${i.item.walk}:${i.item.run}` }}</div>
-            </td>
-          </template>
-        </v-data-table>
-      </v-layout>
-      <br/>
-      <table class="center">
-        <tr class="top">
-          <td>
-            <table class="curvable">
-              <tr>
-                <td v-if="loaded" colspan="2">Combine both for {{ chars[crewId].name }}</td>
-              </tr>
-              <tr v-for="(olist, t) in to">
-                <td class="right-curve-border">
-                  <table class="fill">
-                    <tr v-for="o in olist">
-                      <td>
-                        <crew :char="chars[o]" name="left"/>
-                      </td>
-                    </tr>
-                  </table>
                 </td>
                 <td>
-                  <crew :char="chars[t]" name="right"/>
-                </td>
-              </tr>
-            </table>
-          </td>
-          <td>
-            <table class="curvable">
-              <tr>
-                <td v-if="loaded" colspan="2">Combine {{ chars[crewId].name }} with &laquo; to get &raquo;</td>
-              </tr>
-              <tr v-for="(olist, t) in from">
-                <td class="right-curve-border">
-                  <table class="fill">
-                    <tr v-for="o in olist">
-                      <td>
-                        <crew :char="chars[o]" name="left"/>
-                      </td>
-                    </tr>
-                  </table>
+                  <div :class="['rarity', i.item.rarity]">{{ i.item.rarity }}</div>
                 </td>
                 <td>
-                  <crew :char="chars[t]" name="right"/>
+                  <div class="stat">{{ i.item.hp[1] }}<br/>
+                    <span>{{ i.item.hp[0] }}</span>
+                  </div>
                 </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </div>
-    <br/>
-    <br/>
-    <div></div>
-    <div>
+                <td>
+                  <div class="stat">{{ i.item.attack[1] }}<br/>
+                    <span>{{ i.item.attack[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.repair[1] }}<br/>
+                    <span>{{ i.item.repair[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="special-ability">
+                    <div :style="spriteStyle(i.item.ability_sprite)" :title="i.item.special_ability"></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.ability[1] }}<br/>
+                    <span>{{ i.item.ability[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.pilot[1] }}<br/>
+                    <span>{{ i.item.pilot[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.science[1] }}<br/>
+                    <span>{{ i.item.science[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.research[1] }}<br/>
+                    <span>{{ i.item.research[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.engine[1] }}<br/>
+                    <span>{{ i.item.engine[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.weapon[1] }}<br/>
+                    <span>{{ i.item.weapon[0] }}</span>
+                  </div>
+                </td>
+                <td>{{ i.item.fire_resist }}</td>
+                <td>{{ i.item.training_limit }}</td>
+                <td>
+                  <div>{{ `${i.item.walk}:${i.item.run}` }}</div>
+                </td>
+              </template>
+            </v-data-table>
+          </v-layout>
+          <br/>
+          <table class="center">
+            <tr class="top">
+              <td>
+                <table class="curvable">
+                  <tr>
+                    <td v-if="loaded" colspan="2">Combine both for {{ chars[crewId].name }}</td>
+                  </tr>
+                  <tr v-for="(olist, t) in to">
+                    <td class="right-curve-border">
+                      <table class="fill">
+                        <tr v-for="o in olist">
+                          <td>
+                            <crew :char="chars[o]" name="left"/>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td>
+                      <crew :char="chars[t]" name="right"/>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td>
+                <table class="curvable">
+                  <tr>
+                    <td v-if="loaded" colspan="2">Combine {{ chars[crewId].name }} with &laquo; to get &raquo;</td>
+                  </tr>
+                  <tr v-for="(olist, t) in from">
+                    <td class="right-curve-border">
+                      <table class="fill">
+                        <tr v-for="o in olist">
+                          <td>
+                            <crew :char="chars[o]" name="left"/>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td>
+                      <crew :char="chars[t]" name="right"/>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </v-container>
+      <div>
         <a href="http://www.pixelstarships.com">Pixel Starships</a>
       </div>
+    </v-app>
   </div>
 </template>
 
@@ -191,6 +191,7 @@ export default {
       to: [],
       data: null,
       loaded: false,
+      showData: false,
       headers: [
         // {text: 'Order', align: 'center', value: 'id'},
         // {text: 'Name', align: 'center', value: 'name'},
@@ -261,6 +262,10 @@ export default {
 
   .v-datatable tr {
     height: unset !important;
+  }
+
+  .application.theme--dark {
+    background-color: black;
   }
 
   .v-datatable tbody tr:hover {
