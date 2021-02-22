@@ -211,7 +211,6 @@ export default {
       this.showData = false;
       this.errorMessage = '';
       const endpoint = this.shipEndpoint + encodeURIComponent(searchName);
-      console.log(endpoint)
       // const key = this.getKeyFromName(searchName);
       axios.get(endpoint, {
         withCredentials: true,
