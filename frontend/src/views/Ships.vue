@@ -82,9 +82,9 @@ import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Header from './Header'
+import Header from '@/components/Header'
 import 'vuetify/dist/vuetify.min.css'
-import mixins from './Common.vue.js'
+import mixins from '@/mixins/Common.vue.js'
 
 Vue.component('ps-header', Header)
 

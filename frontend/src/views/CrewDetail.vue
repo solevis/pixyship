@@ -153,10 +153,10 @@ import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Crew from './Crew'
-import Header from './Header'
+import Crew from '@/components/Crew'
+import Header from '@/components/Header'
 import 'vuetify/dist/vuetify.min.css'
-import mixins from './Common.vue.js'
+import mixins from '@/mixins/Common.vue.js'
 require('../assets/common.css')
 
 Vue.component('crew', Crew)

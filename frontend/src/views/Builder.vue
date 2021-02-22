@@ -267,13 +267,13 @@ import Vue from 'vue'
 import {OrbitSpinner} from 'epic-spinners'
 import Collapse from 'vue-collapse'
 import moment from 'moment'
-import Crew from './Crew'
-import Header from './Header'
+import Crew from '@/components/Crew'
+import Header from '@/components/Header'
 import 'vuetify/dist/vuetify.min.css'
 import virtualList from 'vue-virtual-scroll-list'
 import VueClipboard from 'vue-clipboard2'
-import mixins from './Common.vue.js'
-require('./DragDropTouch')
+import mixins from '@/mixins/Common.vue.js'
+require('../js/DragDropTouch')
 require('../assets/common.css')
 
 Vue.component('crew', Crew)
