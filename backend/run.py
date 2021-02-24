@@ -17,7 +17,7 @@ if __name__ == '__main__':
     DEV_CONFIG['DEV_MODE'] = True
 
 APP_NAME = 'pixyship'
-app = Flask(APP_NAME, static_folder="./dist/static", template_folder="./dist")
+app = Flask(APP_NAME, static_folder="../dist/static", template_folder="../dist")
 app.secret_key = 'Su8#kKpY4wxMFB*P2X9a66k7%DRbHw'
 
 # Security
