@@ -22,9 +22,9 @@ app.secret_key = 'Su8#kKpY4wxMFB*P2X9a66k7%DRbHw'
 
 # Security
 app.config.update(
-    SESSION_COOKIE_SECURE = True,
-    SESSION_COOKIE_HTTPONLY = True,
-    SESSION_COOKIE_SAMESITE = 'Lax',
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
 )
 
 # SQLAlchemy Object

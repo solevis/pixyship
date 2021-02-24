@@ -275,11 +275,11 @@ def drop_tables():
     res = sudo('PGPASSWORD=password psql -t -h localhost -U postgres -c '
                '"SELECT tablename FROM pg_tables '
                'WHERE schemaname = \'public\'"')
-    tables = [l.strip() for l in res.splitlines()]
-    for t in tables:
-        print(t)
+    tables = [line.strip() for line in res.splitlines()]
+    for table in tables:
+        print(table)
         sudo('PGPASSWORD=password psql -t -h localhost '
-             '-U postgres -c "DROP TABLE {} CASCADE"'.format(t))
+             '-U postgres -c "DROP TABLE {} CASCADE"'.format(table))
 
 
 # Dev Environment commands ----------------------------------------------------

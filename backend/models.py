@@ -53,8 +53,7 @@ class Device(db.Model):
         from ps_client import PixelStarshipsApi
         # print('cycling token')
         url = (
-            PixelStarshipsApi().server +
-            '/UserService/DeviceLogin8'
+            PixelStarshipsApi().server + '/UserService/DeviceLogin8'
             '?deviceKey={}'
             '&isJailBroken=false'
             '&checksum={}'
