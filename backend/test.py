@@ -1,4 +1,6 @@
 import unittest
+import pycodestyle
+import os
 from pprint import pprint
 
 from config.dev_config import DEV_CONFIG
@@ -12,7 +14,6 @@ from ship import Ship
 
 
 class TestPixStar(unittest.TestCase):
-
     TEST_USER_ID = 2444412  # Sokitume
 
     def test_device_key_gen(self):
@@ -185,6 +186,13 @@ class TestPixStar(unittest.TestCase):
         psa = PixelStarshipsApi()
         r = psa.prestige_data(195)
         print(r)
+
+    def test_pep8(self):
+        """Test PEP-8 conformity."""
+        style = pycodestyle.StyleGuide(quiet=False, config_file='setup.cfg')
+        report = style.check_files(['./'])
+        self.assertEqual(report.total_errors, 0, 'PEP8 style errors: %d' % report.total_errors)
+
 
 if __name__ == '__main__':
     unittest.main()
