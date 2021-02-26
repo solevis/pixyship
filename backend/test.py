@@ -3,7 +3,7 @@ import pycodestyle
 import os
 from pprint import pprint
 
-from config.dev_config import DEV_CONFIG
+from config.config import CONFIG
 from data_load import update_data, load_players, check_market
 from layout_ga import do_ga
 from pixstar import PsShip, ship_layout
@@ -64,7 +64,7 @@ class TestPixStar(unittest.TestCase):
 
     def test_new_token(self):
         # Force a new token
-        DEV_CONFIG['DEV_MODE'] = True
+        CONFIG['DEV_MODE'] = True
         psa = PixelStarshipsApi()
         print(psa.token)
         psa.get_new_token()

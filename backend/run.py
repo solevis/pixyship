@@ -9,12 +9,11 @@ from flask_cors import CORS
 
 from api_helpers import _get_ship_data, encrypt, player_data
 from config import CONFIG
-from config.dev_config import DEV_CONFIG
 from models import db
 from ps_client import PixelStarshipsApi
 
 if __name__ == '__main__':
-    DEV_CONFIG['DEV_MODE'] = True
+    CONFIG['DEV_MODE'] = True
 
 APP_NAME = 'pixyship'
 app = Flask(APP_NAME, static_folder="../dist/static", template_folder="../dist")
@@ -67,7 +66,7 @@ def error_503(error):   # Maintenance
 
 def enforce_source(func):
     def wrapper(*args, **kwargs):
-        if not(DEV_CONFIG['DEV_MODE']
+        if not(CONFIG['DEV_MODE']
                or (flask.request.referrer
                    and ('//pixyship.com/' in flask.request.referrer
                         or '//www.pixyship.com/' in flask.request.referrer))):

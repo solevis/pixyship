@@ -1,5 +1,7 @@
 # PixyShip
 
+![Pixyship logo](./pixyship.png) 
+
 Created by [Sokitume](https://github.com/JThinkable/pixyship)
 
 Forked by [Solevis](https://github.com/solevis/pixyship)
@@ -50,10 +52,10 @@ pip install wheel # not mandatory, but easier for installing modules
 pip install -r requirements.txt
 
 # Configure database
-cp config/alembic_dev.ini alembic.ini
+cp alembic.ini.dist alembic.ini
 ${EDITOR} alembic.ini # update sqlalchemy.url, user must be SUPERUSER
 
-cp config/config_template.py config/config.py
+cp config/config.py.dist config/config.py
 ${EDITOR} config/config.py # update DSN
 
 # Create database
