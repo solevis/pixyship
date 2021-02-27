@@ -1,14 +1,11 @@
 import unittest
-import pycodestyle
-import os
 from pprint import pprint
 
-from config.config import CONFIG
+import pycodestyle
+
+from config import CONFIG
 from data_load import update_data, load_players, check_market
-from layout_ga import do_ga
-from pixstar import PsShip, ship_layout
 from ps_client import PixelStarshipsApi
-# from scheduled import check_market
 from run import push_context, app
 from ship import Ship
 
@@ -29,18 +26,6 @@ class TestPixStar(unittest.TestCase):
 
     def test_generate_device(self):
         print(PixelStarshipsApi().generate_device())
-
-    def test_random_layout(self):
-        ship = PsShip(ship_layout)
-        print()
-        ship.print()
-        ship.place_random_rooms((3, 2))
-        ship.print()
-        assert True
-
-    def test_ga_layout(self):
-        do_ga()
-        assert True
 
     def test_get_ship_data(self):
         with app.app_context():

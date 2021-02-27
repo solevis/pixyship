@@ -1,6 +1,5 @@
 # from run import db
 import hashlib
-import logging
 from datetime import datetime, timedelta
 from xml.etree import ElementTree
 
@@ -10,9 +9,6 @@ from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID
 
 db = SQLAlchemy()
-
-# logging.basicConfig()
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 
 class Player(db.Model):
