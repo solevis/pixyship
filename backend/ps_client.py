@@ -1158,7 +1158,7 @@ class PixelStarshipsApi(metaclass=Singleton):
         for r in p_from:
             grouped_from[r[1]].append(r[0])
 
-        all_ids = list(set([i for l in p_to for i in l] + [i for l in p_from for i in l] + [char_id]))
+        all_ids = list(set([i for prestige in p_to for i in prestige] + [i for prestige in p_from for i in prestige] + [char_id]))
         all_chars = [self.char_map[i] for i in all_ids]
 
         return {

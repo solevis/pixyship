@@ -3,7 +3,6 @@ from datetime import datetime
 
 from cryptography.fernet import Fernet
 from flask import jsonify
-from sqlalchemy import select
 
 from models import Alliance, db
 from ps_client import PixelStarshipsApi
@@ -30,7 +29,7 @@ def search_player(search=None):
     ]
 
 
-def player_data(search:str = None):
+def player_data(search: str = None):
     print(search)
     from models import Player, Alliance
     query = (

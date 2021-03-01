@@ -1,9 +1,1 @@
-.venv
-.vscode
-
-__pycache__
-
-config.py
-alembic.ini
-
 dist/

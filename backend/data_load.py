@@ -71,7 +71,7 @@ if __name__ == '__main__':
     parser.add_argument("--data", action="store_true")
     parser.add_argument("--players", action="store_true")
     args = parser.parse_args()
-    
+
     if args.data:
         with Timer() as t:
             print('START')

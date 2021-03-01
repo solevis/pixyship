@@ -1,18 +1,16 @@
 import unittest
 from pprint import pprint
 
-from config.dev_config import DEV_CONFIG
+import pycodestyle
+
+from config import CONFIG
 from data_load import update_data, load_players, check_market
-from layout_ga import do_ga
-from pixstar import PsShip, ship_layout
 from ps_client import PixelStarshipsApi
-# from scheduled import check_market
 from run import push_context, app
 from ship import Ship
 
 
 class TestPixStar(unittest.TestCase):
-
     TEST_USER_ID = 2444412  # Sokitume
 
     def test_device_key_gen(self):
@@ -28,18 +26,6 @@ class TestPixStar(unittest.TestCase):
 
     def test_generate_device(self):
         print(PixelStarshipsApi().generate_device())
-
-    def test_random_layout(self):
-        ship = PsShip(ship_layout)
-        print()
-        ship.print()
-        ship.place_random_rooms((3, 2))
-        ship.print()
-        assert True
-
-    def test_ga_layout(self):
-        do_ga()
-        assert True
 
     def test_get_ship_data(self):
         with app.app_context():
@@ -63,7 +49,7 @@ class TestPixStar(unittest.TestCase):
 
     def test_new_token(self):
         # Force a new token
-        DEV_CONFIG['DEV_MODE'] = True
+        CONFIG['DEV_MODE'] = True
         psa = PixelStarshipsApi()
         print(psa.token)
         psa.get_new_token()
@@ -185,6 +171,13 @@ class TestPixStar(unittest.TestCase):
         psa = PixelStarshipsApi()
         r = psa.prestige_data(195)
         print(r)
+
+    def test_pep8(self):
+        """Test PEP-8 conformity."""
+        style = pycodestyle.StyleGuide(quiet=False, config_file='setup.cfg')
+        report = style.check_files(['./'])
+        self.assertEqual(report.total_errors, 0, 'PEP8 style errors: %d' % report.total_errors)
+
 
 if __name__ == '__main__':
     unittest.main()
