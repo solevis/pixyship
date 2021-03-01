@@ -57,8 +57,7 @@ def check_market():
             amount=v['amount'],
             currency=v['currency'],
             price=v['price'],
-            user_id=v['user_id'],
-            modification=v['modification']
+            user_id=v['user_id']
         )
         db.session.merge(listing)
 
@@ -70,6 +69,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", action="store_true")
     parser.add_argument("--players", action="store_true")
+    parser.add_argument("--market", action="store_true")
     args = parser.parse_args()
 
     if args.data:
@@ -83,4 +83,10 @@ if __name__ == '__main__':
             print('START')
             load_players()
             # summarize_names()
+            print('END', t.elapsed)
+
+    if args.market:
+        with Timer() as t:
+            print('START')
+            check_market()
             print('END', t.elapsed)

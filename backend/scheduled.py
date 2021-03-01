@@ -28,8 +28,8 @@ class SafeScheduler(Scheduler):
 
 # Scheduler setup
 scheduler = SafeScheduler()
-scheduler.every(1).minutes.do(check_market)
 scheduler.every(5).minutes.do(update_data)
+scheduler.every(1).hours.do(check_market)
 scheduler.every(1).day.do(load_players)
 
 while True:

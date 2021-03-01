@@ -2,7 +2,8 @@
   <div>
     <v-app dark>
       <ps-header/>
-      Items - 48 hour market prices. Click a row for charts.
+      Items
+      <p><span class="mr-1"><v-icon>info</v-icon></span>Market prices history, click a row for showing charts.</p>
       <div class="center">
         <v-text-field
           v-model="search"
@@ -157,14 +158,14 @@ export default {
       if (Object.keys(h).length > 0) {
         const series = {}
         const currency = []
-        if (this.showStarbux) currency.push('starbux')
-        if (this.showGas) currency.push('gas')
-        if (this.showMineral) currency.push('mineral')
+        if (this.showStarbux) currency.push('Starbux')
+        if (this.showGas) currency.push('Gas')
+        if (this.showMineral) currency.push('Mineral')
 
         const cDetails = {
-          starbux: {color: '122,255,185', short: '$', side: 'left'},
-          gas: {color: '168,89,190', short: 'G', side: 'right'},
-          mineral: {color: '6,152,193', short: 'M', side: 'right'}
+          Starbux: {color: '122,255,185', short: '$', side: 'left'},
+          Gas: {color: '168,89,190', short: 'G', side: 'right'},
+          Mineral: {color: '6,152,193', short: 'M', side: 'right'}
         }
 
         // Get the data series indicated

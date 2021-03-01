@@ -74,7 +74,6 @@ class Listing(db.Model):
     currency = db.Column('currency', db.TEXT, nullable=False)
     price = db.Column('price', db.INT, nullable=False)
     user_id = db.Column('user_id', db.INT, nullable=False)
-    modification = db.Column('modification')
 
 
 class Record(db.Model):

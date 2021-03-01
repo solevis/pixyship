@@ -8,10 +8,10 @@ from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
 import requests
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 from config import CONFIG
-from models import Device, db, Player, Record
+from models import Device, db, Player, Record, Listing
 from user_login_resp import TOKEN_EXPIRED_RE
 
 
@@ -131,6 +131,7 @@ class PixelStarshipsApi(metaclass=Singleton):
     char_prestige_from = ('/CharacterService/PrestigeCharacterFrom?characterDesignId={char_id}', '')
     collections = ('/CollectionService/ListAllCollectionDesigns?version={version}', 'CollectionDesignVersion')
     uri_research = ('/ResearchService/ListAllResearchDesigns2', None)
+    market_item = ('/MarketService/ListSalesByItemDesignId?itemDesignId={item_design_id}&saleStatus={sale_status}&from={start}&to={end}', None)
 
     # 0 - Rock?
     # 1 - Pirate/Dark
@@ -965,54 +966,89 @@ class PixelStarshipsApi(metaclass=Singleton):
             for x in alliances
         }
 
-    def get_market_data(self):
-        # Get market data
-        url = self.api_url(self.message_marketplace)
-        r = self.call(url)
-        root = ElementTree.fromstring(r.text)
-        market_data = etree_to_dict(root)['MessageService']['ListActiveMarketplaceMessages']['Messages']['Message']
-        # TODO: ActivityArgument = "starbux:75" ... don't know what this is about anymore
+    def get_item_sales(self, item, max_sale_id = 0):
+        """Download sales for given item from PSS API."""
+        sales = {}
 
-        out = {}
-        for x in market_data:
-            argument = x['@Argument']
-            message = x['@Message']
-            aparts = argument.split(':', 1)[-1].split('x')
-            if len(aparts) != 2:
+        # offset, API returns sales only by 20 by 20
+        start = 0
+        end = 20
+
+        max_sale_id_reached = False
+        while "sale_id from API not equal to given max_sale_id":
+            url = self.api_url(self.market_item,
+                               item_design_id=int(item['ItemDesignId']),
+                               sale_status='Sold',
+                               start=start,
+                               end=end
+                               )
+            request = self.call(url)
+            root = ElementTree.fromstring(request.text)
+
+            # parse HTTP body as XML and find sales nodes
+            sale_nodes = root.find('.//Sales')
+
+            # no more sales available
+            if len(sale_nodes) == 0:
+                break
+
+            for sale_node in sale_nodes:
+                sale_id = int(sale_node.get('SaleId', '0'))
+
+                sale = {
+                    'sale_at': sale_node.get('StatusDate', '0'),
+                    'currency': sale_node.get('CurrencyType', '0'),
+                    'price': int(sale_node.get('CurrencyValue', '0')),
+                    'user_id': int(sale_node.get('BuyerShipId', '0')),
+                    'amount': int(sale_node.get('Quantity', '0')),
+                    'item_name': item['ItemDesignName'],
+                    'item_id': int(item['ItemDesignId']),
+                }
+
+                if sale_id > max_sale_id:
+                    sales[sale_id] = sale
+                else:
+                    max_sale_id_reached = True
+                    break
+
+            if max_sale_id_reached:
+                break
+
+            # next page
+            start += 20
+            end += 20
+
+        return sales
+
+    def get_market_data(self):
+        # get items from database
+        records = Record.query.filter_by(type='item', current=True).all()
+
+        all_sales = {}
+        for record in records:
+            item = ElementTree.fromstring(record.data).attrib
+
+            # if item not saleable, no need to get sales
+            saleable = (int(item['Flags']) & 1) != 0
+            if not saleable:
                 continue
 
-            item_id = int(aparts[0])
-            amount = int(aparts[1])
-            item = self.item_map[item_id]
-            name = item['name']
-            mod = message.split(name, 1)[-1].strip()
-            if not mod.startswith('('):
-                mod = None
-            mod = mod if mod else None
+            # get max sale_id to retrieve only new sales
+            max_sale_id_result = Listing.query \
+                .filter(Listing.item_id == int(item['ItemDesignId'])) \
+                .order_by(desc(Listing.id)) \
+                .limit(1) \
+                .first()
 
-            price_str = x['@ActivityArgument']
-            parts = price_str.split(':')
-            if len(parts) == 2:
-                currency, price = parts
+            if max_sale_id_result is not None:
+                max_sale_id = max_sale_id_result.id if max_sale_id_result.id is not None else 0
             else:
-                currency = ''
-                price = 0
+                max_sale_id = 0
 
-            out[int(x['@SaleId'])] = {
-                'sale_at': x['@MessageDate'],
-                'message': x['@Message'],
-                'currency': currency,
-                'price': int(price),
-                'activity': x['@ActivityType'],
-                'user_id': int(x['@UserId']),
-                'message_type': x['@MessageType'],
-                'channel_id': int(x['@ChannelId']),
-                'amount': int(amount),
-                'item_name': name,
-                'item_id': item_id,
-                'modification': mod,
-            }
-        return out
+            sales = self.get_item_sales(item, max_sale_id)
+            all_sales.update(sales)
+
+        return all_sales
 
     def get_alliance_users(self, alliance_id):
         # Get the top 100 alliances
