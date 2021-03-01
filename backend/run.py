@@ -68,8 +68,8 @@ def enforce_source(func):
     def wrapper(*args, **kwargs):
         if not(CONFIG['DEV_MODE']
                or (flask.request.referrer
-                   and ('//pixyship.com/' in flask.request.referrer
-                        or '//www.pixyship.com/' in flask.request.referrer))):
+                   and ('//pixyship.net/' in flask.request.referrer
+                        or '//www.pixyship.net/' in flask.request.referrer))):
             flask.abort(404)
         return func(*args, **kwargs)
 
