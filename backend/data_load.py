@@ -1,10 +1,11 @@
 import logging
 import argparse
+from xml.etree import ElementTree
 
 from contexttimer import Timer
 
 from api_helpers import process_users
-from models import Listing, db
+from models import Listing, db, Record
 from ps_client import PixelStarshipsApi
 from run import push_context
 
@@ -46,23 +47,38 @@ def check_market():
     push_context()
     log.info('Checking market prices')
 
-    psa = PixelStarshipsApi()
-    market_data = psa.get_market_data()
-    for k, v in market_data.items():
-        listing = Listing(
-            id=k,
-            sale_at=v['sale_at'],
-            item_name=v['item_name'],
-            item_id=v['item_id'],
-            amount=v['amount'],
-            currency=v['currency'],
-            price=v['price'],
-            user_id=v['user_id']
-        )
-        db.session.merge(listing)
+    # get items from database
+    records = Record.query.filter_by(type='item', current=True).all()
 
-    log.info('{} listings updated'.format(len(market_data)))
-    db.session.commit()
+    psa = PixelStarshipsApi()
+
+    for record in records:
+        item = ElementTree.fromstring(record.data).attrib
+
+        # if item not saleable, no need to get sales
+        saleable = (int(item['Flags']) & 1) != 0
+        if not saleable:
+            continue
+
+        log.info('{}...'.format(item['ItemDesignName']))
+
+        market_data = psa.get_market_data(item)
+        for k, v in market_data.items():
+            listing = Listing(
+                id=k,
+                sale_at=v['sale_at'],
+                item_name=v['item_name'],
+                item_id=v['item_id'],
+                amount=v['amount'],
+                currency=v['currency'],
+                price=v['price'],
+                user_id=v['user_id']
+            )
+
+            db.session.merge(listing)
+
+        log.info('{} listings updated'.format(len(market_data)))
+        db.session.commit()
 
 
 if __name__ == '__main__':

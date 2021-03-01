@@ -1020,35 +1020,21 @@ class PixelStarshipsApi(metaclass=Singleton):
 
         return sales
 
-    def get_market_data(self):
-        # get items from database
-        records = Record.query.filter_by(type='item', current=True).all()
+    def get_market_data(self, item):
+        # get max sale_id to retrieve only new sales
+        max_sale_id_result = Listing.query \
+            .filter(Listing.item_id == int(item['ItemDesignId'])) \
+            .order_by(desc(Listing.id)) \
+            .limit(1) \
+            .first()
 
-        all_sales = {}
-        for record in records:
-            item = ElementTree.fromstring(record.data).attrib
+        if max_sale_id_result is not None:
+            max_sale_id = max_sale_id_result.id if max_sale_id_result.id is not None else 0
+        else:
+            max_sale_id = 0
 
-            # if item not saleable, no need to get sales
-            saleable = (int(item['Flags']) & 1) != 0
-            if not saleable:
-                continue
-
-            # get max sale_id to retrieve only new sales
-            max_sale_id_result = Listing.query \
-                .filter(Listing.item_id == int(item['ItemDesignId'])) \
-                .order_by(desc(Listing.id)) \
-                .limit(1) \
-                .first()
-
-            if max_sale_id_result is not None:
-                max_sale_id = max_sale_id_result.id if max_sale_id_result.id is not None else 0
-            else:
-                max_sale_id = 0
-
-            sales = self.get_item_sales(item, max_sale_id)
-            all_sales.update(sales)
-
-        return all_sales
+        sales = self.get_item_sales(item, max_sale_id)
+        return sales
 
     def get_alliance_users(self, alliance_id):
         # Get the top 100 alliances
