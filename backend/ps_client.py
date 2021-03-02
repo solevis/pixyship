@@ -1245,35 +1245,32 @@ class PixelStarshipsApi(metaclass=Singleton):
             ORDER BY created_at DESC
             LIMIT 500
         """
-        res = db.session.execute(sql).fetchall()
-        d = []
-        for r in res:
-            a = ElementTree.fromstring(r['data']).attrib
-            sprite = None
-            if r['type'] == 'item':
-                sprite = self.item_map[r['type_id']]['sprite']
-            elif r['type'] == 'room':
-                sprite = self.room_map[r['type_id']]['sprite']
-            elif r['type'] == 'ship':
-                sprite = self.ship_map[r['type_id']]['mini_ship_sprite']
-            elif r['type'] == 'char':
-                sprite = self.char_map[r['type_id']]['sprite']
+
+        result = db.session.execute(sql).fetchall()
+        changes = []
+
+        for record in result:
+            record_data = ElementTree.fromstring(record['data']).attrib
+            sprite = self.get_record_sprite(record['type'], record['type_id'])
 
             change = {
-                'type': r['type'],
-                'id': r['type_id'],
-                'name': a[self.type_name_field[r['type']]],
-                'changed_at': r['created_at'],
-                'data': r['data'],
-                'old_data': r['old_data'],
-                'change_type': 'Changed' if r['old_data'] else 'New',
+                'type': record['type'],
+                'id': record['type_id'],
+                'name': record_data[self.type_name_field[record['type']]],
+                'changed_at': record['created_at'],
+                'data': record['data'],
+                'old_data': record['old_data'],
+                'change_type': 'Changed' if record['old_data'] else 'New',
                 'sprite': sprite
             }
-            if r['type'] == 'char':
-                change['char'] = self.char_map[r['type_id']]
-            d.append(change)
 
-        return d
+            # if change's a Character, get all infos of the crew
+            if record['type'] == 'char':
+                change['char'] = self.char_map[record['type_id']]
+
+            changes.append(change)
+
+        return changes
 
     def get_dailies(self):
         # Get settings service data, sales, motd...
@@ -1343,6 +1340,26 @@ class PixelStarshipsApi(metaclass=Singleton):
             else:
                 raise
 
+    def get_record_sprite(self, record_type, record_id, reload_on_error=True):
+        try:
+            if record_type == 'item':
+                return self.item_map[record_id]['sprite']
+            if record_type == 'char':
+                return self.char_map[record_id]['sprite']
+            if record_type == 'room':
+                return self.room_map[record_id]['sprite']
+            if record_type == 'ship':
+                return self.ship_map[record_id]['mini_ship_sprite']
+        except KeyError:
+            # Happens when there's new things, reload
+            if reload_on_error:
+                self._item_map = None
+                self._char_map = None
+                self._room_map = None
+                self._ship_map = None
+                return self.get_record_sprite(record_type, record_id, False)
+            else:
+                raise
 
 def etree_to_dict(t):
     d = {t.tag: {} if t.attrib else None}
