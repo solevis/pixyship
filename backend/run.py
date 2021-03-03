@@ -31,9 +31,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = CONFIG['DSN']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
+
+cors_resources = {
+    r"/api/*": {
+        "origins": [
+            "https://{}".format(CONFIG['DOMAIN']),
+            "http://{}".format(CONFIG['DOMAIN'])
+        ]
+    }
+}
+
 cors = CORS(
     app,
     supports_credentials=True,
+    resources=cors_resources
 )
 
 psa = PixelStarshipsApi()
@@ -68,8 +79,8 @@ def enforce_source(func):
     def wrapper(*args, **kwargs):
         if not(CONFIG['DEV_MODE']
                or (flask.request.referrer
-                   and ('//pixyship.net/' in flask.request.referrer
-                        or '//www.pixyship.net/' in flask.request.referrer))):
+                   and ('//{}/'.format(CONFIG['DOMAIN']) in flask.request.referrer
+                        or '//www.{}/'.format(CONFIG['DOMAIN']) in flask.request.referrer))):
             flask.abort(404)
         return func(*args, **kwargs)
 
