@@ -1332,6 +1332,8 @@ class PixelStarshipsApi(metaclass=Singleton):
                 return self.char_map[oid]
             if object_type == 'Room':
                 return self.room_map[oid]
+            if object_type == 'Ship':
+                return self.ship_map[oid]
         except KeyError:
             print('KeyErrors')
             # Happens when there's new things, reload
@@ -1339,6 +1341,7 @@ class PixelStarshipsApi(metaclass=Singleton):
                 self._item_map = None
                 self._char_map = None
                 self._item_map = None
+                self._ship_map = None
                 return self.get_object(object_type, oid, False)
             else:
                 raise
