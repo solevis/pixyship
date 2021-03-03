@@ -23,7 +23,7 @@ app.secret_key = 'Su8#kKpY4wxMFB*P2X9a66k7%DRbHw'
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SAMESITE='Strict',
 )
 
 # SQLAlchemy Object
@@ -65,9 +65,16 @@ def before_request():
 
 
 @app.after_request
-def after_request(resp):
-    resp.delete_cookie(app.session_cookie_name)
-    return resp
+def after_request(response):
+    response.delete_cookie(app.session_cookie_name)
+
+    # Security headers
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers['Content-Security-Policy'] = "default-src https:"
+
+    return response
 
 
 @app.errorhandler(503)
