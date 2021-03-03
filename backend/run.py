@@ -72,7 +72,12 @@ def after_request(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers['Content-Security-Policy'] = "default-src https:"
+    response.headers['Content-Security-Policy'] = \
+        "default-src 'self';" \
+        "img-src 'self' data: pixelstarships.s3.amazonaws.com;" \
+        "style-src 'self' 'unsafe-inline' 'unsafe-eval';" \
+        "script-src 'self' 'unsafe-eval';" \
+        "report-uri /csp_report;"
 
     return response
 
@@ -310,6 +315,15 @@ def page_base(path=''):
 @app.route('/favicon.ico')
 def favicon():
     return app.send_static_file('favicon.ico')
+
+
+@app.route('/csp_report', methods=['POST'])
+def csp_report():
+    if CONFIG['CSP_REPORT_LOG']:
+        with open(CONFIG['CSP_REPORT_LOG'], "a") as fh:
+            fh.write(request.data.decode() + "\n")
+
+    return 'done'
 
 
 @app.route('/<path:path>')

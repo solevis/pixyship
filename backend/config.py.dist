@@ -2,5 +2,6 @@ CONFIG = dict(
     DSN='postgresql://postgres:password@localhost:5433/postgres',
     DEV_MODE=True,
     MAINTENANCE=False,
-    DOMAIN='localhost:8080'
+    DOMAIN='localhost:8080',
+    CSP_REPORT_LOG=None
 )
