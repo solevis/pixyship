@@ -470,15 +470,18 @@ class PixelStarshipsApi(metaclass=Singleton):
 
     def interiorize(self, room_id, ship_id):
         # Convert rooms to the correct interior
-        room = self.room_map[room_id]
+        room = self.get_object('Room', room_id)
+
         if room['type'] in ('Wall', 'Lift'):
-            ship = self.ship_map[ship_id]
+            ship = self.get_object('Ship', ship_id)
+
             if room['sprite']['source'] in self.interior_map:
                 # Make a new sprite in a new room to keep from overwriting original data
                 room = room.copy()
                 sprite = room['sprite'].copy()
                 sprite['source'] = self.interior_map[room['sprite']['source']][ship['race']]
                 room['sprite'] = sprite
+
         return room
 
     stat_map = {
