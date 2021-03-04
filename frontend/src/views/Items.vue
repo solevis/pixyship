@@ -37,8 +37,7 @@
               <td>
                 <table>
                 <tr v-for="(price, k, ind) in i.item.prices" class="nobreak">
-                  <td>{{ prePriceFormat(price) }}<div class="block" :style="currencySprite(k)"/></td>
-                  <td>{{ price.count }}</td>
+                  <td><div class="block" :style="currencySprite(k)"/></td>
                   <td class="text-xs-left" v-html="priceFormat(price)"></td>
                 </tr>
                 </table>
@@ -126,7 +125,7 @@ export default {
         {text: 'Image', align: 'center', sortable: false},
         {text: 'Name', align: 'center', value: 'name'},
         {text: 'Savy Price', align: 'center', value: 'market_price'},
-        {text: 'Market $ | # | 25-50-75%', align: 'center', value: 'offers'},
+        {text: 'Market $ | 25 - 50 - 75%', align: 'center', value: 'offers'},
         {text: 'Type', align: 'center', value: 'slot'},
         {text: 'Bonus', align: 'center', value: 'bonus'},
         {text: 'Enhancement', align: 'center', value: 'enhancement'},
@@ -185,6 +184,7 @@ export default {
           const line = {shape: 'spline', color: 'rgba(' + cDetails[c].color + ',1)'}
           const bound = {shape: 'spline', color: 'rgba(' + cDetails[c].color + ',0.3)'}
           const fill = 'rgba(' + cDetails[c].color + ',0.2)'
+
           if (c in series) {
             data.push({
               x: series[c].dates,
@@ -195,6 +195,7 @@ export default {
               xaxis: 'x',
               yaxis: 'y2'
             })
+
             const p25 = {
               x: series[c].dates,
               y: series[c].p25,
@@ -202,6 +203,7 @@ export default {
               name: cDetails[c].short + ' 25%',
               line: bound
             }
+
             const p75 = {
               x: series[c].dates,
               y: series[c].p75,
@@ -211,6 +213,7 @@ export default {
               fill: 'tonextx',
               fillcolor: fill
             }
+
             const p50 = {
               x: series[c].dates,
               y: series[c].p50,
@@ -218,16 +221,19 @@ export default {
               name: cDetails[c].short + ' 50%',
               line: line
             }
+
             if (cDetails[c].side === 'right') {
               p25.yaxis = 'y3'
               p50.yaxis = 'y3'
               p75.yaxis = 'y3'
             }
+
             data.push(p25)
             data.push(p75)
             data.push(p50)
           }
         })
+
         let layout = {
           legend: {traceorder: 'reversed'},
           yaxis2: {
@@ -235,25 +241,34 @@ export default {
             title: 'Volume',
             gridcolor: '#222'
           },
+
           xaxis: {
             showgrid: false
           },
+
           paper_bgcolor: 'black',
           plot_bgcolor: 'black',
           margin: {t: 35, b: 30},
           font: {color: 'white'},
           title: `${row.item.name} prices`
         }
+
         if (this.showStarbux) {
           layout.yaxis = {
             domain: [0.3, 1],
             title: 'Starbux',
             gridcolor: '#222'
           }
+
           layout.yaxis3 = {title: 'Gas/Mineral', overlaying: 'y', side: 'right'}
         } else {
-          layout.yaxis3 = {domain: [0.3, 1], title: 'Gas/Mineral'}
+          layout.yaxis3 = {
+            domain: [0.3, 1],
+            title: 'Gas/Mineral',
+            gridcolor: '#222'
+          }
         }
+
         const options = {displayModeBar: false}
         plotly.newPlot(document.getElementById('chart-' + row.item.id), data, layout, options)
       }
@@ -314,25 +329,32 @@ export default {
     },
 
     priceFormat (p) {
-      const formatFunc = (Math.max(p.p25, p.p50, p.p75) > 999)
-        ? x => (x / 1000).toFixed(1)
-        : x => x.toFixed(0)
-      return [p.p25, p.p50, p.p75].map(x => formatFunc(x)).join(' - ')
-    },
+      const formatFunc = function (x) {
+        if (Math.max(p.p25, p.p50, p.p75) > 999999) {
+          return (x / 1000000).toFixed(1) + 'M'
+        } else if (Math.max(p.p25, p.p50, p.p75) > 999) {
+          return (x / 1000).toFixed(1) + 'K'
+        } else {
+          return x.toFixed(0)
+        }
+      }
 
-    prePriceFormat (p) {
-      return (Math.max(p.p25, p.p50, p.p75) > 999) ? 'K' : ' '
+      let formatedPrice = formatFunc(p.p25) +
+        ' - ' + '<b>' + formatFunc(p.p50) + '</b>' +
+        ' - ' + formatFunc(p.p75)
+
+      return formatedPrice
     },
 
     currencySprite (currency) {
       switch (currency) {
-        case 'starbux':
+        case 'Starbux':
           return this.buxSprite()
-        case 'gas':
+        case 'Gas':
           return this.gasSprite()
-        case 'mineral':
+        case 'Mineral':
           return this.mineralSprite()
-        case 'supply':
+        case 'Supply':
           return this.supplySprite()
         default:
           return ''
