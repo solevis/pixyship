@@ -3,6 +3,7 @@
     <v-app dark>
       <ps-header/>
       Ships
+      <p><span class="mr-1"><v-icon>info</v-icon></span>Click a row to see the full sized ship interior sprite.</p>
       <br/><br/>
       <div class="center">
         <v-text-field
@@ -23,45 +24,52 @@
           :filter="multipleFilter"
         >
           <template slot="items" slot-scope="i">
-            <td class="text-xs-left name bold">{{ i.item.name }}</td>
-            <td class="text-xs-right">{{ i.item.level }}</td>
-            <td class="text-xs-right">{{ i.item.space }}</td>
-            <td class="text-xs-right">{{ i.item.hp }}</td>
-            <td class="center char-sprite">
-              <div :style="spriteStyle(i.item.interior_sprite, 1, 2)"></div>
-            </td>
-            <td class="text-xs-right">{{ i.item.repair_time }}</td>
-            <td style="min-width: 100px">
-              <template v-if="i.item.mineral_cost > 0">
-                <div>{{ i.item.mineral_cost }}
-                  <div class="block middle" :style="mineralSprite()"></div>
-                </div>
-              </template>
-              <template v-if="i.item.starbux_cost > 0">
-                <div>{{ i.item.starbux_cost }}
-                  <div class="block middle" :style="buxSprite()"></div>
-                </div>
-              </template>
-            </td>
-            <td style="min-width: 100px">
-              <template v-if="i.item.mineral_capacity > 0">
-                <div>{{ i.item.mineral_capacity }}
-                  <div class="block middle" :style="mineralSprite()"></div>
-                </div>
-              </template>
-              <template v-if="i.item.gas_capacity > 0">
-                <div>{{ i.item.gas_capacity }}
-                  <div class="block middle" :style="gasSprite()"></div>
-                </div>
-              </template>
-              <template v-if="i.item.equipment_capacity > 0">
-                <div>{{ i.item.equipment_capacity }}
-                  <div class="block middle" :style="supplySprite()"></div>
-                </div>
-              </template>
-            </td>
-            <td class="text-xs-left">{{ i.item.ship_type }}</td>
-            <td class="text-xs-left">{{ i.item.description }}</td>
+            <tr @click="toggleExpand(i)">
+              <td class="text-xs-left name bold">{{ i.item.name }}</td>
+              <td class="text-xs-right">{{ i.item.level }}</td>
+              <td class="text-xs-right">{{ i.item.space }}</td>
+              <td class="text-xs-right">{{ i.item.hp }}</td>
+              <td class="center char-sprite">
+                <div :style="spriteStyle(i.item.interior_sprite, 1, 3)"></div>
+              </td>
+              <td class="text-xs-right">{{ i.item.repair_time }}</td>
+              <td style="min-width: 100px">
+                <template v-if="i.item.mineral_cost > 0">
+                  <div>{{ i.item.mineral_cost }}
+                    <div class="block middle" :style="mineralSprite()"></div>
+                  </div>
+                </template>
+                <template v-if="i.item.starbux_cost > 0">
+                  <div>{{ i.item.starbux_cost }}
+                    <div class="block middle" :style="buxSprite()"></div>
+                  </div>
+                </template>
+              </td>
+              <td style="min-width: 100px">
+                <template v-if="i.item.mineral_capacity > 0">
+                  <div>{{ i.item.mineral_capacity }}
+                    <div class="block middle" :style="mineralSprite()"></div>
+                  </div>
+                </template>
+                <template v-if="i.item.gas_capacity > 0">
+                  <div>{{ i.item.gas_capacity }}
+                    <div class="block middle" :style="gasSprite()"></div>
+                  </div>
+                </template>
+                <template v-if="i.item.equipment_capacity > 0">
+                  <div>{{ i.item.equipment_capacity }}
+                    <div class="block middle" :style="supplySprite()"></div>
+                  </div>
+                </template>
+              </td>
+              <td class="text-xs-left">{{ i.item.ship_type }}</td>
+              <td class="text-xs-left">{{ i.item.description }}</td>
+            </tr>
+          </template>
+          <template slot="expand" slot-scope="i">
+              <div id="ship">
+                <div :style="spriteStyle(i.item.interior_sprite)"></div>
+              </div>
           </template>
         </v-data-table>
       </div>
@@ -206,6 +214,10 @@ export default {
         filter(row['ship_type'], search) ||
         filter(row['description'], search)
       )
+    },
+
+    toggleExpand: async function (row) {
+      row.expanded = !row.expanded
     }
   }
 }
@@ -282,6 +294,15 @@ export default {
 
   .middle {
     vertical-align: middle;
+  }
+
+  .v-datatable tr.v-datatable__expand-row:hover {
+    background-color: #000 !important;
+  }
+
+  #ship {
+    overflow-x: auto;
+    width: 90%;
   }
 
 </style>
