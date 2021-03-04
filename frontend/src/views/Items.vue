@@ -331,9 +331,9 @@ export default {
     priceFormat (p) {
       const formatFunc = function (x) {
         if (Math.max(p.p25, p.p50, p.p75) > 999999) {
-          return (x / 1000000).toFixed(1) + 'M'
+          return parseFloat((x / 1000000).toFixed(1)) + 'M'
         } else if (Math.max(p.p25, p.p50, p.p75) > 999) {
-          return (x / 1000).toFixed(1) + 'K'
+          return parseFloat((x / 1000).toFixed(1)) + 'K'
         } else {
           return x.toFixed(0)
         }
