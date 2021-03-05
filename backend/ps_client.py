@@ -532,7 +532,7 @@ class PixelStarshipsApi(metaclass=Singleton):
             user_id = user_id or self.get_user_id(name)
             if user_id:
                 data = self.inspect_ship(user_id)
-                return *self._verification_data(data), user_id
+                return (*self._verification_data(data), user_id)
 
         return None, None, None, None
 
