@@ -110,7 +110,7 @@ def after_request(response):
 
 
 @app.errorhandler(503)
-def error_503(_):
+def error_503(error):
     """Maintenance."""
     return 'PixyShip is down for maintenance', 503
 
@@ -237,13 +237,13 @@ def api_ships():
 
 
 @app.route('/api/<path:path>')
-def bad_api(_):
+def bad_api(path):
     """Places you shouldn't go"""
     return flask.abort(404)
 
 
 @app.route('/crew/<int:id>')
-def page_crew_prestige(_):
+def page_crew_prestige(id):
     return render_template('index.html')
 
 
@@ -258,7 +258,7 @@ def page_crew_prestige(_):
 @app.route('/collections')
 @app.route('/research')
 @app.route('/', defaults={'path': ''})
-def page_base(_=''):
+def page_base(path=''):
     return render_template('index.html')
 
 
@@ -277,7 +277,7 @@ def csp_report():
 
 
 @app.route('/<path:path>')
-def catch_all(_):
+def catch_all(path):
     return flask.redirect("/")
 
 
