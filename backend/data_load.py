@@ -5,7 +5,8 @@ from xml.etree import ElementTree
 from contexttimer import Timer
 
 from api_helpers import process_users
-from models import Listing, db, Record
+from db import db
+from models import Listing, Record
 from ps_client import PixelStarshipsApi
 from run import push_context
 

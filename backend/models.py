@@ -4,11 +4,9 @@ from datetime import datetime, timedelta
 from xml.etree import ElementTree
 
 import requests
-from flask_sqlalchemy import SQLAlchemy
+from db import db
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID
-
-db = SQLAlchemy()
 
 
 class Player(db.Model):

@@ -4,7 +4,8 @@ from datetime import datetime
 from cryptography.fernet import Fernet
 from flask import jsonify
 
-from models import Alliance, db
+from db import db
+from models import Alliance
 from ps_client import PixelStarshipsApi
 from ship import Ship
 
@@ -58,7 +59,7 @@ def player_data(search: str = None):
 
 
 def process_users(users):
-    from models import db
+    from db import db
     from models import Player
 
     users = list(users.items())

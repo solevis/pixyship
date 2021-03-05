@@ -3,5 +3,9 @@ CONFIG = dict(
     DEV_MODE=True,
     MAINTENANCE=False,
     DOMAIN='localhost:8080',
-    CSP_REPORT_LOG=None
+    CSP_REPORT_LOG=None,
+
+    # generated with `python -c 'import os; print(os.urandom(16))'`
+    # it's just an example... change it!
+    SECRET_KEY=b'b.\xadP\xfc\xc3V\xb7\x19\x9f\xf5T\xb5Cd\xe6'
 )
