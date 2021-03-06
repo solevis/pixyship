@@ -45,21 +45,11 @@ class Device(db.Model):
 
     def cycle_token(self):
         from ps_client import PixelStarshipsApi
-        # print('cycling token')
-        url = (
-            PixelStarshipsApi().server + '/UserService/DeviceLogin8'
-            '?deviceKey={}'
-            '&isJailBroken=false'
-            '&checksum={}'
-            '&deviceType=DeviceTypeMac'
-            '&languagekey=en'
-            '&advertisingKey=%22%22'.format(self.key, self.checksum)
-        )
 
-        r = requests.post(url)
-        root = ElementTree.fromstring(r.text)
-        self.token = root.find('UserLogin').attrib['accessToken']
+        pixel_starships_api = PixelStarshipsApi()
+        self.token = pixel_starships_api.get_device_token(self.key, self.checksum)
         self.expires_at = datetime.now() + timedelta(hours=12)
+
         db.session.commit()
 
 

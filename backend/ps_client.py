@@ -108,6 +108,7 @@ class PixelStarshipsApi(metaclass=Singleton):
                 10000, 15000, 20000, 30000, 40000, 55000, 67000, 80000, 95000, 110000,
                 130000, 160000, 180000, 200000, 240000, 270000, 310000, 350000, 390000, 430000,
                 480000, 540000, 590000, 650000, 720000, 780000, 850000, 930000, 1000000, 1100000]
+
     leg_char_gas = [200000, 250000, 300000, 350000, 400000, 450000, 500000, 550000, 600000, 650000, 700000,
                     750000, 800000, 850000, 900000, 950000, 1000000, 1050000, 1100000, 1150000, 1200000, 1250000,
                     1300000, 1350000, 1400000, 1450000, 1500000, 1550000, 1600000, 1650000, 1700000, 1750000,
@@ -1367,6 +1368,23 @@ class PixelStarshipsApi(metaclass=Singleton):
                 return self.get_record_sprite(record_type, record_id, False)
             else:
                 raise
+
+    def get_device_token(self, device_key, device_checksum):
+        url = (
+            self.server + '/UserService/DeviceLogin8'
+            '?deviceKey={}'
+            '&isJailBroken=false'
+            '&checksum={}'
+            '&deviceType=DeviceTypeMac'
+            '&languagekey=en'
+            '&advertisingKey=%22%22'.format(device_key, device_checksum)
+        )
+
+        r = requests.post(url)
+        root = ElementTree.fromstring(r.text)
+
+        return root.find('UserLogin').attrib['accessToken']
+
 
 def etree_to_dict(t):
     d = {t.tag: {} if t.attrib else None}

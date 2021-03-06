@@ -73,6 +73,18 @@ Run :
 python run.py
 ```
 
+PEP-8 linter :
+
+```bash
+pycodestyle
+```
+
+Unit test :
+
+```bash
+python -m pytest
+```
+
 ## Deploying remotely
 
 **TODO: I will soon share an Ansible role for deploying Pixyship.**
