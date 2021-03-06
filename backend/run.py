@@ -4,7 +4,7 @@ import flask
 from flask import Flask, render_template, jsonify, session, request
 from flask_cors import CORS
 
-from api_helpers import _get_ship_data, player_data
+from api_helpers import get_ship_data, get_player_data
 from config import CONFIG
 from db import db
 from ps_client import PixelStarshipsApi
@@ -118,17 +118,7 @@ def error_503(error):
 @app.route('/api/players')
 def api_players():
     search = request.args.get('search') or ''
-    response = jsonify(player_data(search))
-    response.cache_control.max_age = 300
-    return response
-
-
-@app.route('/api/name_typeahead')
-def api_name_typeahead():
-    from api_helpers import search_player
-
-    search = request.args.get('search') or ''
-    response = jsonify(search_player(search))
+    response = jsonify(get_player_data(search))
     response.cache_control.max_age = 300
     return response
 
@@ -139,10 +129,9 @@ def api_ship(name):
     if not name:
         flask.abort(400)
 
-    key = request.args.get('key') or ''
-    d = _get_ship_data(name, key)
+    ship_data = get_ship_data(name)
 
-    return d
+    return ship_data
 
 
 @app.route('/api/daily')

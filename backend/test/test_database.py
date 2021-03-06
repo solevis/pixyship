@@ -1,4 +1,4 @@
-from api_helpers import search_player
+from api_helpers import get_player_data
 from ps_client import PixelStarshipsApi
 from run import push_context
 
@@ -112,7 +112,7 @@ def test_search_player():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    players = search_player('Solevis')
+    players = get_player_data('Solevis')
 
     assert len(players) == 2
     assert players[0]['name'] == 'Solevis'

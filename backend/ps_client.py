@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import random
+import re
 from collections import defaultdict, Counter
 from typing import Tuple
 from urllib.parse import quote
@@ -13,7 +14,7 @@ from sqlalchemy import func, desc
 from config import CONFIG
 from db import db
 from models import Device, Player, Record, Listing
-from user_login_resp import TOKEN_EXPIRED_RE
+from api_errors import TOKEN_EXPIRED_REGEX
 
 
 def dict_get(d, *args):
@@ -399,7 +400,7 @@ class PixelStarshipsApi(metaclass=Singleton):
         # self._rate_limit()
         r = requests.get(final_url)
 
-        if TOKEN_EXPIRED_RE.search(r.text):
+        if re.compile(TOKEN_EXPIRED_REGEX).search(r.text):
             # This only happens for a credentialed request
             d.cycle_token()
             final_url = url + d.access_token_param()
@@ -560,7 +561,6 @@ class PixelStarshipsApi(metaclass=Singleton):
             return self.room_map[upgrade_id]
         return None
 
-    # TODO: Is this even used?
     def _load_sprite_map(self):
         url = self.api_url(self.file_sprites)
         r = self.call(url)
@@ -957,8 +957,9 @@ class PixelStarshipsApi(metaclass=Singleton):
 
         return data
 
-    def get_alliances(self):
-        # Get the top 100 alliances
+    def get_top100_alliances(self):
+        """Get the top 100 alliances."""
+
         url = self.api_url(self.alliance_by_ranking)
         r = self.call(url)
         root = ElementTree.fromstring(r.text)
@@ -1066,8 +1067,9 @@ class PixelStarshipsApi(metaclass=Singleton):
 
         return self._users_from_xml(users)
 
-    def get_top_users(self):
-        # Get the top 100 players
+    def get_top100_users(self):
+        """Get the top 100 players."""
+
         url = self.api_url(self.ladder_users)
 
         r = self.call(url, True)

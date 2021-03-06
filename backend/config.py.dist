@@ -4,6 +4,7 @@ CONFIG = dict(
     MAINTENANCE=False,
     DOMAIN='localhost:8080',
     CSP_REPORT_LOG=None,
+    SPRITES_DIRECTORY='../sprites',
 
     # generated with `python -c 'import os; print(os.urandom(16))'`
     # it's just an example... change it!
