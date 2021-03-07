@@ -35,7 +35,7 @@ def get_player_data(search: str = None):
             'lower': player.name.lower(),
             'trophies': player.trophies,
             'alliance': player.alliance_name,
-            'alliance_sprite': pixel_starships_api.sprite_data(player.sprite_id),
+            'alliance_sprite': pixel_starships_api.get_sprite_data(player.sprite_id),
         }
         for player in results
     ]
@@ -140,9 +140,9 @@ def summarize_ship(player_name):
     user = dict(
         id=user_data['@Id'],
         name=user_data['@Name'],
-        sprite=pixel_starships_api.sprite_data(int(user_data['@IconSpriteId'])),
+        sprite=pixel_starships_api.get_sprite_data(int(user_data['@IconSpriteId'])),
         alliance_name=user_data.get('@AllianceName'),
-        alliance_sprite=pixel_starships_api.sprite_data(int(user_data.get('@AllianceSpriteId'))),
+        alliance_sprite=pixel_starships_api.get_sprite_data(int(user_data.get('@AllianceSpriteId'))),
         trophies=int(user_data['@Trophy']),
         last_date=user_data['@LastAlertDate'],
     )
@@ -165,15 +165,15 @@ def summarize_ship(player_name):
 
     for room in rooms:
         if room['upgradable']:
-            upgrade = pixel_starships_api.get_upgrade_room(room['design_id'])
-            if upgrade:
-                cost = upgrade['upgrade_cost']
+            upgrade_room = pixel_starships_api.get_upgrade_room(room['design_id'])
+            if upgrade_room:
+                cost = upgrade_room['upgrade_cost']
                 upgrades.append(
                     dict(
                         description=room['name'],
                         amount=cost,
-                        currency=upgrade['upgrade_currency'],
-                        seconds=upgrade['upgrade_seconds'])
+                        currency=upgrade_room['upgrade_currency'],
+                        seconds=upgrade_room['upgrade_seconds'])
                 )
 
     ship = dict(
@@ -184,7 +184,7 @@ def summarize_ship(player_name):
         immunity_date=immunity_date,
     )
 
-    layout = pixel_starships_api.get_layout(rooms, ship)
-    pixel_starships_api.calc_armor_effects(rooms, layout)
+    layout = pixel_starships_api.generate_layout(rooms, ship)
+    pixel_starships_api.compuate_total_armor_effects(rooms, layout)
 
     return ship, user, rooms, sorted(upgrades, key=itemgetter('amount'))

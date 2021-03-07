@@ -60,7 +60,7 @@ def update_data():
     pixel_starships_api.update_room_data()
     pixel_starships_api.update_ship_data()
     pixel_starships_api.update_collection_data()
-    pixel_starships_api.update_data(pixel_starships_api.uri_research, 'ResearchDesignId', 'research')
+    pixel_starships_api.update_research_data()
 
     logger.info('Done')
 
@@ -124,7 +124,7 @@ def update_sprites():
 
         if not os.path.isfile(filename):
             logger.info('getting {}'.format(filename))
-            url = pixel_starships_api.ps_asset_url.format(image_number)
+            url = pixel_starships_api.PSS_SPRITES_URL.format(image_number)
             try:
                 request.urlretrieve(url, filename)
             except Exception as e:

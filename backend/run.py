@@ -174,7 +174,7 @@ def api_research():
 @enforce_source
 def api_prestige(char_id):
     return jsonify({
-        'data': pixel_starships_api.prestige_data(char_id),
+        'data': pixel_starships_api.get_prestige_data(char_id),
         'status': 'success',
     })
 
