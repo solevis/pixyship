@@ -55,8 +55,8 @@ pip install -r requirements.txt
 cp alembic.ini.dist alembic.ini
 ${EDITOR} alembic.ini # update sqlalchemy.url, user must be SUPERUSER
 
-cp config/config.py.dist config/config.py
-${EDITOR} config/config.py # update DSN
+cp config.py.dist config.py
+${EDITOR} config.py # update DSN
 
 # Create database
 alembic upgrade head
