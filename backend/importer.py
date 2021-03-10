@@ -23,13 +23,15 @@ def import_players():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    logger.info('Updating players')
+    logger.info('Importing players')
 
     pixyship = Pixyship()
 
+    logger.info('## top 100 players')
     top_users = pixyship.get_top100_users_from_api()
     __save_users(top_users)
 
+    logger.info('## top 100 alliances')
     count = 0
     top_alliances = pixyship.get_top100_alliances_from_api()
     for alliance_id, alliance in list(top_alliances.items()):
@@ -50,7 +52,7 @@ def import_assets():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    logger.info('Updating data')
+    logger.info('Importing assets')
 
     pixyship = Pixyship()
 
@@ -70,32 +72,34 @@ def import_market(one_item_only=False):
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    logger.info('Updating market prices')
+    logger.info('Importing market prices')
 
     # get items from database
     records = Record.query.filter_by(type='item', current=True).all()
 
     pixyship = Pixyship()
 
-    for record in records:
-        item = ElementTree.fromstring(record.data).attrib
+    # no need to get sales of items not saleable
+    items = pixyship.items
+    saleable_items = {item_id: item for item_id, item in items.items() if item['saleable']}
 
-        # if item not saleable, no need to get sales
-        saleable = (int(item['Flags']) & 1) != 0
-        if not saleable:
-            continue
+    count = 0
+    total = len(saleable_items)
+    if one_item_only:
+        total = 1
 
-        logger.info('{}...'.format(item['ItemDesignName']))
+    for item_id, item in saleable_items.items():
+        count += 1
+        logger.info('[{}/{}] {}...'.format(count, total, item['name']))
 
-        item_id = int(item['ItemDesignId'])
         sales = pixyship.get_sales_from_api(item_id)
 
         for sale in sales:
             listing = Listing(
                 id=sale['SaleId'],
                 sale_at=sale['StatusDate'],
-                item_name=item['ItemDesignName'],
-                item_id=int(item['ItemDesignId']),
+                item_name=item['name'],
+                item_id=item_id,
                 amount=sale['Quantity'],
                 currency=sale['CurrencyType'],
                 price=sale['CurrencyValue'],
@@ -104,7 +108,7 @@ def import_market(one_item_only=False):
 
             db.session.merge(listing)
 
-        logger.info('{} listings updated'.format(len(sales)))
+        logger.info('\t{} sales updated'.format(len(sales)))
         db.session.commit()
 
         if one_item_only:

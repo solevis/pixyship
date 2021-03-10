@@ -50,7 +50,7 @@ class Device(db.Model):
         from pixelstarshipsapi import PixelStarshipsApi
 
         pixel_starships_api = PixelStarshipsApi()
-        self.token = pixel_starships.get_device_token(self.key, self.checksum)
+        self.token = pixel_starships_api.get_device_token(self.key, self.checksum)
         self.expires_at = datetime.now() + timedelta(hours=12)
 
         db.session.commit()

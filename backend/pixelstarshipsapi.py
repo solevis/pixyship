@@ -186,8 +186,8 @@ class PixelStarshipsApi:
         root = ElementTree.fromstring(response.text)
 
         inspect_ship = {
-            'User': root.find('.//User').attrib,
-            'Ship': root.find('.//Ship').attrib
+            'User': root.find('.//User').attrib.copy(),
+            'Ship': root.find('.//Ship').attrib.copy()
         }
 
         inspect_ship['User']['pixyship_xml_element'] = root.find('.//User')
@@ -197,7 +197,7 @@ class PixelStarshipsApi:
         rooms_node = root.find('.//Rooms')
         inspect_ship['Ship']['Rooms'] = []
         for room_node in rooms_node:
-            room = room_node.attrib
+            room = room_node.attrib.copy()
             room['pixyship_xml_element'] = room_node
             inspect_ship['Ship']['Rooms'].append(room)
 
@@ -218,7 +218,7 @@ class PixelStarshipsApi:
 
         dailies_node = root.find('.//Setting')
 
-        dailies = dailies_node.attrib
+        dailies = dailies_node.attrib.copy()
         dailies['pixyship_xml_element'] = dailies_node  # custom field, return raw XML data too
 
         return dailies
@@ -279,7 +279,7 @@ class PixelStarshipsApi:
     def parse_ship_node(ship_node):
         """Extract character data from XML node."""
 
-        return ship_node.attrib
+        return ship_node.attrib.copy()
 
     def get_researches(self):
         """Get research designs from API."""
@@ -308,7 +308,7 @@ class PixelStarshipsApi:
     def parse_research_node(research_node):
         """Extract research data from XML node."""
 
-        return research_node.attrib
+        return research_node.attrib.copy()
 
     def get_rooms(self):
         """Get room designs from API."""
@@ -337,7 +337,7 @@ class PixelStarshipsApi:
     def parse_room_node(room_node):
         """Extract room data from XML node."""
 
-        room = room_node.attrib
+        room = room_node.attrib.copy()
 
         missile_design_node = list(room_node.iter('MissileDesign'))
         if missile_design_node:
@@ -374,7 +374,7 @@ class PixelStarshipsApi:
     def parse_character_node(character_node):
         """Extract character data from XML node."""
 
-        character = character_node.attrib
+        character = character_node.attrib.copy()
 
         character['CharacterParts'] = {}
         character_part_nodes = character_node.find('.//CharacterParts')
@@ -411,7 +411,7 @@ class PixelStarshipsApi:
     def parse_collection_node(collection_node):
         """Extract collection data from XML node."""
 
-        return collection_node.attrib
+        return collection_node.attrib.copy()
 
     def get_items(self):
         """Get item designs from API."""
@@ -440,7 +440,7 @@ class PixelStarshipsApi:
     def parse_item_node(item_node):
         """Extract item data from XML node."""
 
-        return item_node.attrib
+        return item_node.attrib.copy()
 
     def get_alliances(self, take=100):
         """Get alliances from API, top 100 by default."""
@@ -469,7 +469,7 @@ class PixelStarshipsApi:
     def parse_alliance_node(alliance_node):
         """Extract alliance data from XML node."""
 
-        return alliance_node.attrib
+        return alliance_node.attrib.copy()
 
     def get_sales(self, item_id, max_sale_id=0, take=None):
         """Download sales for given item from PSS API."""
@@ -531,7 +531,7 @@ class PixelStarshipsApi:
     def parse_sale_node(sale_node):
         """Extract sale data from XML node."""
 
-        return sale_node.attrib
+        return sale_node.attrib.copy()
 
     def get_alliance_users(self, alliance_id, skip=0, take=100):
         """Get alliance users from API, top 100 by default."""
@@ -584,7 +584,7 @@ class PixelStarshipsApi:
     def parse_user_node(user_node):
         """Extract user data from XML node."""
 
-        return user_node.attrib
+        return user_node.attrib.copy()
 
     def get_prestiges_character_to(self, character_id):
         """Get prestiges recipe creating given character from API."""
@@ -638,4 +638,4 @@ class PixelStarshipsApi:
     def parse_prestige_node(prestige_node):
         """Extract prestige data from XML node."""
 
-        return prestige_node.attrib
+        return prestige_node.attrib.copy()

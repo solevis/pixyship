@@ -62,7 +62,7 @@ ${EDITOR} config.py # update DSN
 alembic upgrade head
 
 # Initial data load
-python importer.py --data
+python importer.py --assets
 python importer.py --players
 
 python importer.py --market  # very long, several hours

@@ -5,8 +5,8 @@ from run import push_context
 def test_login():
     pixel_starships_api = PixelStarshipsApi()
 
-    device_key, device_checksum = pixel_starships.generate_device()
-    token = pixel_starships.get_device_token(device_key, device_checksum)
+    device_key, device_checksum = pixel_starships_api.generate_device()
+    token = pixel_starships_api.get_device_token(device_key, device_checksum)
 
     assert isinstance(token, str)
     assert len(token) == 36
@@ -15,7 +15,7 @@ def test_login():
 def test_settings():
     pixel_starships_api = PixelStarshipsApi()
 
-    settings = pixel_starships.get_api_settings()
+    settings = pixel_starships_api.get_api_settings()
 
     assert 'ProductionServer' in settings
 
@@ -27,7 +27,7 @@ def test_inspect_ship():
     pixel_starships_api = PixelStarshipsApi()
 
     user_id = 6635604  # Solevis
-    inspect_ship = pixel_starships.inspect_ship(user_id)
+    inspect_ship = pixel_starships_api.inspect_ship(user_id)
 
     # Player
     user = inspect_ship['User']
@@ -54,7 +54,7 @@ def test_inspect_ship():
 
 def test_dailies():
     pixel_starships_api = PixelStarshipsApi()
-    dailies = pixel_starships.get_dailies()
+    dailies = pixel_starships_api.get_dailies()
 
     assert len(dailies) > 0
 
@@ -89,7 +89,7 @@ def test_dailies():
 
 def test_sprites():
     pixel_starships_api = PixelStarshipsApi()
-    sprites = pixel_starships.get_sprites()
+    sprites = pixel_starships_api.get_sprites()
 
     assert len(sprites) > 0
 
@@ -106,7 +106,7 @@ def test_sprites():
 
 def test_ships():
     pixel_starships_api = PixelStarshipsApi()
-    ships = pixel_starships.get_ships()
+    ships = pixel_starships_api.get_ships()
 
     assert len(ships) > 0
 
@@ -137,7 +137,7 @@ def test_ships():
 
 def test_researches():
     pixel_starships_api = PixelStarshipsApi()
-    researches = pixel_starships.get_researches()
+    researches = pixel_starships_api.get_researches()
 
     assert len(researches) > 0
 
@@ -156,7 +156,7 @@ def test_researches():
 
 def test_rooms():
     pixel_starships_api = PixelStarshipsApi()
-    rooms = pixel_starships.get_rooms()
+    rooms = pixel_starships_api.get_rooms()
 
     assert len(rooms) > 0
 
@@ -198,7 +198,7 @@ def test_rooms():
 
 def test_characters():
     pixel_starships_api = PixelStarshipsApi()
-    characters = pixel_starships.get_characters()
+    characters = pixel_starships_api.get_characters()
 
     assert len(characters) > 0
 
@@ -241,7 +241,7 @@ def test_characters():
 
 def test_collections():
     pixel_starships_api = PixelStarshipsApi()
-    collections = pixel_starships.get_collections()
+    collections = pixel_starships_api.get_collections()
 
     assert len(collections) > 0
 
@@ -257,7 +257,7 @@ def test_collections():
 
 def test_items():
     pixel_starships_api = PixelStarshipsApi()
-    items = pixel_starships.get_items()
+    items = pixel_starships_api.get_items()
 
     assert len(items) > 0
 
@@ -278,7 +278,7 @@ def test_items():
 
 def test_alliances():
     pixel_starships_api = PixelStarshipsApi()
-    alliances = pixel_starships.get_alliances(42)
+    alliances = pixel_starships_api.get_alliances(42)
 
     assert len(alliances) == 42
 
@@ -289,7 +289,7 @@ def test_alliances():
 
 def test_sales():
     pixel_starships_api = PixelStarshipsApi()
-    sales = pixel_starships.get_sales(131, 0, 1)  # Scratchy
+    sales = pixel_starships_api.get_sales(131, 0, 1)  # Scratchy
 
     assert len(sales) == 1
 
@@ -308,7 +308,7 @@ def test_users():
 
     pixel_starships_api = PixelStarshipsApi()
 
-    users = pixel_starships.get_users()  # top 10
+    users = pixel_starships_api.get_users()  # top 10
     assert len(users) == 100
 
     user = users[0]
@@ -328,7 +328,7 @@ def test_alliance_users():
     pixel_starships_api = PixelStarshipsApi()
 
     alliance_id = 9343  # Trek Federation
-    users = pixel_starships.get_alliance_users(alliance_id)
+    users = pixel_starships_api.get_alliance_users(alliance_id)
     assert len(users) > 0
 
     user = users[0]
@@ -345,7 +345,7 @@ def test_prestiges_character_to():
     pixel_starships_api = PixelStarshipsApi()
 
     character_id = 196  # PinkZilla
-    prestiges = pixel_starships.get_prestiges_character_to(character_id)
+    prestiges = pixel_starships_api.get_prestiges_character_to(character_id)
     assert len(prestiges) > 0
 
     prestige = prestiges[0]
@@ -357,7 +357,7 @@ def test_prestiges_character_from():
     pixel_starships_api = PixelStarshipsApi()
 
     character_id = 338  # Zongzi-Man
-    prestiges = pixel_starships.get_prestiges_character_from(character_id)
+    prestiges = pixel_starships_api.get_prestiges_character_from(character_id)
     assert len(prestiges) > 0
 
     prestige = prestiges[0]

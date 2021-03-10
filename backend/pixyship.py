@@ -803,6 +803,7 @@ class Pixyship(metaclass=Singleton):
                 'fair_price': int(item['FairPrice']),
                 'prices': self.prices.get(int(item['ItemDesignId'])),
                 'id': record.type_id,
+                'saleable': (int(item['Flags']) & 1) != 0
             }
 
         # Second pass required for self references
