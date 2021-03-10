@@ -7,18 +7,17 @@ from xml.etree import ElementTree
 
 from contexttimer import Timer
 
-from api_helpers import save_users
 from config import CONFIG
 from db import db
-from models import Listing, Record
-from ps_client import PixelStarshipsApi
+from models import Listing, Record, Alliance, Player
+from pixyship import Pixyship
 from run import push_context
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def update_players():
+def import_players():
     """Get all top 100 players and top 100 alliances' players and save them in database."""
 
     # avoid Flask RuntimeError: No application found
@@ -26,26 +25,26 @@ def update_players():
 
     logger.info('Updating players')
 
-    pixel_starships_api = PixelStarshipsApi()
+    pixyship = Pixyship()
 
-    top_users = pixel_starships_api.get_top100_users()
-    save_users(top_users)
+    top_users = pixyship.get_top100_users_from_api()
+    __save_users(top_users)
 
     count = 0
-    top_alliances = pixel_starships_api.get_top100_alliances()
+    top_alliances = pixyship.get_top100_alliances_from_api()
     for alliance_id, alliance in list(top_alliances.items()):
         try:
             count += 1
             logger.info('[{}/100] {}...'.format(count, alliance['name']))
-            top_users = pixel_starships_api.get_alliance_users(alliance_id)
-            save_users(top_users)
+            top_users = pixyship.get_alliance_users_from_api(alliance_id)
+            __save_users(top_users)
         except Exception as e:
             logger.error(e)
 
     logger.info('Done')
 
 
-def update_data():
+def import_assets():
     """Get all items, crews, rooms, ships and save them in database."""
 
     # avoid Flask RuntimeError: No application found
@@ -53,19 +52,19 @@ def update_data():
 
     logger.info('Updating data')
 
-    pixel_starships_api = PixelStarshipsApi()
+    pixyship = Pixyship()
 
-    pixel_starships_api.update_item_data()
-    pixel_starships_api.update_char_data()
-    pixel_starships_api.update_room_data()
-    pixel_starships_api.update_ship_data()
-    pixel_starships_api.update_collection_data()
-    pixel_starships_api.update_research_data()
+    pixyship.update_items()
+    pixyship.update_characters()
+    pixyship.update_rooms()
+    pixyship.update_ships()
+    pixyship.update_collections()
+    pixyship.update_researches()
 
     logger.info('Done')
 
 
-def update_market():
+def import_market(one_item_only=False):
     """Get last market sales for all items."""
 
     # avoid Flask RuntimeError: No application found
@@ -76,7 +75,7 @@ def update_market():
     # get items from database
     records = Record.query.filter_by(type='item', current=True).all()
 
-    pixel_starships_api = PixelStarshipsApi()
+    pixyship = Pixyship()
 
     for record in records:
         item = ElementTree.fromstring(record.data).attrib
@@ -88,35 +87,40 @@ def update_market():
 
         logger.info('{}...'.format(item['ItemDesignName']))
 
-        market_data = pixel_starships_api.get_market_data(item)
-        for k, v in market_data.items():
+        item_id = int(item['ItemDesignId'])
+        sales = pixyship.get_sales_from_api(item_id)
+
+        for sale in sales:
             listing = Listing(
-                id=k,
-                sale_at=v['sale_at'],
-                item_name=v['item_name'],
-                item_id=v['item_id'],
-                amount=v['amount'],
-                currency=v['currency'],
-                price=v['price'],
-                user_id=v['user_id']
+                id=sale['SaleId'],
+                sale_at=sale['StatusDate'],
+                item_name=item['ItemDesignName'],
+                item_id=int(item['ItemDesignId']),
+                amount=sale['Quantity'],
+                currency=sale['CurrencyType'],
+                price=sale['CurrencyValue'],
+                user_id=sale['BuyerShipId']
             )
 
             db.session.merge(listing)
 
-        logger.info('{} listings updated'.format(len(market_data)))
+        logger.info('{} listings updated'.format(len(sales)))
         db.session.commit()
+
+        if one_item_only:
+            break
 
     logger.info('Done')
 
 
-def update_sprites():
+def dowload_sprites():
     """Download sprites from PSS."""
 
     if not os.path.exists(CONFIG['SPRITES_DIRECTORY']):
         os.mkdir(CONFIG['SPRITES_DIRECTORY'])
 
-    pixel_starships_api = PixelStarshipsApi()
-    sprites = pixel_starships_api.sprite_map
+    pixyship = Pixyship()
+    sprites = pixyship.sprites
 
     for _, sprite in sprites.items():
         image_number = sprite['image_file']
@@ -124,41 +128,74 @@ def update_sprites():
 
         if not os.path.isfile(filename):
             logger.info('getting {}'.format(filename))
-            url = pixel_starships_api.PSS_SPRITES_URL.format(image_number)
+            url = pixyship.PSS_SPRITES_URL.format(image_number)
             try:
                 request.urlretrieve(url, filename)
             except Exception as e:
                 logger.error(e)
 
 
+def __save_users(users):
+    """Save users and attached alliance in database."""
+
+    users = list(users.items())
+
+    for user_id, user in users:
+        player = Player(
+            id=user_id,
+            name=user['name'],
+            trophies=int(user['trophies']),
+            alliance_id=user['alliance_id'],
+            last_login_at=user['last_login_at']
+        )
+        db.session.merge(player)
+
+        if user['alliance_name']:
+            alliance = Alliance(
+                id=user['alliance_id'],
+                name=user['alliance_name'],
+                sprite_id=user['alliance_sprite_id'],
+            )
+            db.session.merge(alliance)
+
+        db.session.commit()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data", action="store_true")
+    parser.add_argument("--assets", action="store_true")
     parser.add_argument("--players", action="store_true")
     parser.add_argument("--market", action="store_true")
+    parser.add_argument("--market-one-item", action="store_true")
     parser.add_argument("--sprites", action="store_true")
     args = parser.parse_args()
 
-    if args.data:
+    if args.assets:
         with Timer() as t:
             logger.info('START')
-            update_data()
+            import_assets()
             logger.info('END :: {}s'.format(t.elapsed))
 
     if args.players:
         with Timer() as t:
             logger.info('START')
-            update_players()
+            import_players()
             logger.info('END :: {}s'.format(t.elapsed))
 
     if args.market:
         with Timer() as t:
             logger.info('START')
-            update_market()
+            import_market()
+            logger.info('END :: {}s'.format(t.elapsed))
+
+    if args.market_one_item:
+        with Timer() as t:
+            logger.info('START')
+            import_market(True)
             logger.info('END :: {}s'.format(t.elapsed))
 
     if args.sprites:
         with Timer() as t:
             logger.info('START')
-            update_sprites()
+            dowload_sprites()
             logger.info('END :: {}s'.format(t.elapsed))

@@ -1,5 +1,4 @@
-from api_helpers import get_player_data
-from ps_client import PixelStarshipsApi
+from pixyship import Pixyship
 from run import push_context
 
 
@@ -7,8 +6,8 @@ def test_crews():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    crews = pixel_starships_api._load_char_map()
+    pixyship = Pixyship()
+    crews = pixyship._get_characters_from_db()
 
     assert len(crews) > 0
     assert crews[392]['id'] == 392
@@ -19,8 +18,8 @@ def test_items():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    items = pixel_starships_api._load_item_map()
+    pixyship = Pixyship()
+    items = pixyship._get_items_from_db()
 
     assert len(items) > 0
     assert items[600]['id'] == 600
@@ -31,8 +30,8 @@ def test_rooms():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    rooms, _ = pixel_starships_api._load_room_map()
+    pixyship = Pixyship()
+    rooms, _ = pixyship._get_rooms_from_db()
 
     assert len(rooms) > 0
     assert rooms[10]['id'] == 10
@@ -44,8 +43,8 @@ def test_upgrades():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    _, upgrades = pixel_starships_api._load_room_map()
+    pixyship = Pixyship()
+    _, upgrades = pixyship._get_rooms_from_db()
 
     assert len(upgrades) > 0
     assert upgrades[10] == 20
@@ -55,8 +54,8 @@ def test_ships():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    ships = pixel_starships_api._load_ship_map()
+    pixyship = Pixyship()
+    ships = pixyship._get_ships_from_db()
 
     assert len(ships) > 0
     assert ships[129]['id'] == 129
@@ -68,8 +67,8 @@ def test_collections():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    collections = pixel_starships_api._load_collection_map()
+    pixyship = Pixyship()
+    collections = pixyship._get_collections_from_db()
 
     assert len(collections) > 0
     assert collections[7]['CollectionDesignId'] == '7'
@@ -80,8 +79,8 @@ def test_researches():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    researches = pixel_starships_api._load_research_map()
+    pixyship = Pixyship()
+    researches = pixyship._get_researches_from_db()
 
     assert len(researches) > 0
     assert researches[42]['ResearchDesignId'] == '42'
@@ -92,8 +91,8 @@ def test_prices():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    prices = pixel_starships_api._load_prices()
+    pixyship = Pixyship()
+    prices = pixyship._get_prices_from_db()
 
     assert len(prices) > 0
 
@@ -102,8 +101,8 @@ def test_sprites():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    sprites = pixel_starships_api._load_sprite_map()
+    pixyship = Pixyship()
+    sprites = pixyship._get_sprites_from_api()
 
     assert len(sprites) > 0
 
@@ -112,7 +111,8 @@ def test_search_player():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    players = get_player_data('Solevis')
+    pixyship = Pixyship()
+    players = pixyship.get_player_data('Solevis')
 
     assert len(players) == 2
     assert players[0]['name'] == 'Solevis'
@@ -123,8 +123,8 @@ def test_changes():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    changes = pixel_starships_api.get_changes()
+    pixyship = Pixyship()
+    changes = pixyship.get_changes_from_db()
 
     assert len(changes) > 0
 
@@ -133,7 +133,7 @@ def test_user_id():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixel_starships_api = PixelStarshipsApi()
-    user_id = pixel_starships_api.get_user_id('Solevis')
+    pixyship = Pixyship()
+    user_id = pixyship.find_user_id('Solevis')
 
     assert user_id == 6635604

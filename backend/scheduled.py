@@ -4,7 +4,7 @@ import time
 
 from schedule import Scheduler
 
-from data_load import update_market, update_data, update_players
+from importer import import_market, import_assets, import_players
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,9 +42,9 @@ class SafeScheduler(Scheduler):
 
 # Scheduler setup
 scheduler = SafeScheduler()
-scheduler.every(5).minutes.do(update_data)
-scheduler.every(1).hours.do(update_market)
-scheduler.every(1).day.do(update_players)
+scheduler.every(5).minutes.do(import_assets)
+scheduler.every(1).hours.do(import_market)
+scheduler.every(1).day.do(import_players)
 
 while True:
     scheduler.run_pending()

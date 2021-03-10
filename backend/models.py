@@ -37,16 +37,20 @@ class Device(db.Model):
     def __repr__(self):
         return '<Device {} {} {}>'.format(self.key, self.token, self.expires_at)
 
-    def access_token_param(self):
+    def get_token(self):
         if not self.token or self.expires_at < datetime.now():
             self.cycle_token()
-        return '&accessToken={token}'.format(token=self.token)
+
+        return self.token
+
+    def access_token_param(self):
+        return '&accessToken={token}'.format(token=self.get_token())
 
     def cycle_token(self):
-        from ps_client import PixelStarshipsApi
+        from pixelstarshipsapi import PixelStarshipsApi
 
         pixel_starships_api = PixelStarshipsApi()
-        self.token = pixel_starships_api.get_device_token(self.key, self.checksum)
+        self.token = pixel_starships.get_device_token(self.key, self.checksum)
         self.expires_at = datetime.now() + timedelta(hours=12)
 
         db.session.commit()

@@ -62,8 +62,11 @@ ${EDITOR} config/config.py # update DSN
 alembic upgrade head
 
 # Initial data load
-python data_load.py --data
-python data_load.py --players
+python importer.py --data
+python importer.py --players
+
+python importer.py --market  # very long, several hours
+python importer.py --market-one-item  # retrieve market history for only one item, much faster for dev
 ```
 
 Run :
