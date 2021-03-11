@@ -4,10 +4,9 @@ import flask
 from flask import Flask, render_template, jsonify, session, request
 from flask_cors import CORS
 
-from api_helpers import _get_ship_data, player_data
 from config import CONFIG
 from db import db
-from ps_client import PixelStarshipsApi
+from pixyship import Pixyship
 
 
 APP_NAME = 'pixyship'
@@ -43,7 +42,8 @@ cors = CORS(
     }
 )
 
-pixel_starships_api = PixelStarshipsApi()
+# helpers, cached data, etc.
+pixyship = Pixyship()
 
 
 def push_context():
@@ -118,17 +118,7 @@ def error_503(error):
 @app.route('/api/players')
 def api_players():
     search = request.args.get('search') or ''
-    response = jsonify(player_data(search))
-    response.cache_control.max_age = 300
-    return response
-
-
-@app.route('/api/name_typeahead')
-def api_name_typeahead():
-    from api_helpers import search_player
-
-    search = request.args.get('search') or ''
-    response = jsonify(search_player(search))
+    response = jsonify(pixyship.get_player_data(search))
     response.cache_control.max_age = 300
     return response
 
@@ -139,17 +129,16 @@ def api_ship(name):
     if not name:
         flask.abort(400)
 
-    key = request.args.get('key') or ''
-    d = _get_ship_data(name, key)
+    ship_data = pixyship.get_ship_data(name)
 
-    return d
+    return jsonify(ship_data)
 
 
 @app.route('/api/daily')
 @enforce_source
 def api_daily():
     return jsonify({
-        'data': pixel_starships_api.daily_data,
+        'data': pixyship.dailies,
         'status': 'success',
     })
 
@@ -158,7 +147,7 @@ def api_daily():
 @enforce_source
 def api_changes():
     return jsonify({
-        'data': pixel_starships_api.change_data,
+        'data': pixyship.changes,
         'status': 'success',
     })
 
@@ -167,7 +156,7 @@ def api_changes():
 @enforce_source
 def api_collections():
     return jsonify({
-        'data': pixel_starships_api.collection_map,
+        'data': pixyship.collections,
         'status': 'success',
     })
 
@@ -176,7 +165,7 @@ def api_collections():
 @enforce_source
 def api_research():
     return jsonify({
-        'data': pixel_starships_api.research_map,
+        'data': pixyship.researches,
         'status': 'success',
     })
 
@@ -185,7 +174,7 @@ def api_research():
 @enforce_source
 def api_prestige(char_id):
     return jsonify({
-        'data': pixel_starships_api.prestige_data(char_id),
+        'data': pixyship.get_prestiges_from_api(char_id),
         'status': 'success',
     })
 
@@ -194,7 +183,7 @@ def api_prestige(char_id):
 @enforce_source
 def api_crew():
     return jsonify({
-        'data': pixel_starships_api.char_map,
+        'data': pixyship.characters,
         'status': 'success',
     })
 
@@ -203,7 +192,7 @@ def api_crew():
 @enforce_source
 def api_items():
     return jsonify({
-        'data': pixel_starships_api.item_map,
+        'data': pixyship.items,
         'status': 'success',
     })
 
@@ -211,7 +200,7 @@ def api_items():
 @app.route('/api/item/<int:item_id>/prices')
 @enforce_source
 def api_item_prices(item_id):
-    data = pixel_starships_api.get_item_prices(item_id)
+    data = pixyship.get_item_prices_from_db(item_id)
     return jsonify({
         'data': data,
         'status': 'success',
@@ -222,7 +211,7 @@ def api_item_prices(item_id):
 @enforce_source
 def api_rooms():
     return jsonify({
-        'data': pixel_starships_api.room_map,
+        'data': pixyship.rooms,
         'status': 'success',
     })
 
@@ -231,7 +220,7 @@ def api_rooms():
 @enforce_source
 def api_ships():
     return jsonify({
-        'data': pixel_starships_api.ship_map,
+        'data': pixyship.ships,
         'status': 'success',
     })
 
@@ -282,7 +271,7 @@ def catch_all(path):
 
 
 if __name__ == '__main__':
-    """Launch the built-in server. 
+    """Launch the built-in server.
     Do not use in production.
     """
 

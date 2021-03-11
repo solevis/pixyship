@@ -1,12 +1,11 @@
-# from run import db
 import hashlib
 from datetime import datetime, timedelta
 from xml.etree import ElementTree
 
-import requests
-from db import db
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID
+
+from db import db
 
 
 class Player(db.Model):
@@ -38,13 +37,17 @@ class Device(db.Model):
     def __repr__(self):
         return '<Device {} {} {}>'.format(self.key, self.token, self.expires_at)
 
-    def access_token_param(self):
+    def get_token(self):
         if not self.token or self.expires_at < datetime.now():
             self.cycle_token()
-        return '&accessToken={token}'.format(token=self.token)
+
+        return self.token
+
+    def access_token_param(self):
+        return '&accessToken={token}'.format(token=self.get_token())
 
     def cycle_token(self):
-        from ps_client import PixelStarshipsApi
+        from pixelstarshipsapi import PixelStarshipsApi
 
         pixel_starships_api = PixelStarshipsApi()
         self.token = pixel_starships_api.get_device_token(self.key, self.checksum)
@@ -75,37 +78,44 @@ class Record(db.Model):
 
     @classmethod
     def update_data(cls, type_str, type_id, element, ignore_list=None):
-        """Save a record to the DB with hash"""
+        """Save a record to the DB with hash."""
         ignore_list = ignore_list or []
 
-        data_str = ElementTree.tostring(element).decode()
+        data = ElementTree.tostring(element).decode()
 
-        # Ignore some fields for hashing
+        # ignore some fields for hashing
         for i in ignore_list:
             element.attrib.pop(i, None)
-        md5_str = ElementTree.tostring(element).decode()
-        md5 = hashlib.md5(md5_str.encode('utf-8')).hexdigest()
 
-        # Check if this is already in the db as the current
+        # hash
+        md5_str = ElementTree.tostring(element).decode()
+        md5_hash = hashlib.md5(md5_str.encode('utf-8')).hexdigest()
+
+        # check if this is already in the db as the current
         existing = Record.query.filter_by(type=type_str, type_id=type_id, current=True).first()
 
         if existing:
-            if existing.md5_hash.replace('-', '') == md5:
-                # If we ignored fields, update them, but don't make a new record.
+            # hash is stored as uuid with extra dashes, remove them when comparing hashes
+            if existing.md5_hash.replace('-', '') == md5_hash:
+                # if we ignored fields, update them, but don't make a new record.
                 if ignore_list:
-                    if existing.data != data_str:
-                        existing.data = data_str
+                    if existing.data != data:
+                        existing.data = data
                         db.session.commit()
+
                 return
             else:
+                # new hash and data, previous record is no more the current
                 existing.current = False
 
-        r = cls(
+        # create the new record and save it in database
+        new_record = cls(
             type=type_str,
             type_id=type_id,
             current=True,
-            md5_hash=md5,
-            data=data_str,
+            md5_hash=md5_hash,
+            data=data,
         )
-        db.session.add(r)
+
+        db.session.add(new_record)
         db.session.commit()
