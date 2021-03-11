@@ -176,8 +176,10 @@ class Pixyship(metaclass=Singleton):
     def characters(self):
         if not self._characters or self.expired('char'):
             self._characters = self._get_characters_from_db()
-            self.expire_at('char', self.DEFAULT_EXPIRATION_DURATION)
-            self.fill_char_collection_data()
+
+            if self._characters:
+                self.expire_at('char', self.DEFAULT_EXPIRATION_DURATION)
+                self.fill_char_collection_data()
 
         return self._characters
 
@@ -185,8 +187,10 @@ class Pixyship(metaclass=Singleton):
     def collections(self):
         if not self._collections or self.expired('collection'):
             self._collections = self._get_collections_from_db()
-            self.expire_at('collection', self.DEFAULT_EXPIRATION_DURATION)
-            self.fill_char_collection_data()
+
+            if self._collections:
+                self.expire_at('collection', self.DEFAULT_EXPIRATION_DURATION)
+                self.fill_char_collection_data()
 
         return self._collections
 
