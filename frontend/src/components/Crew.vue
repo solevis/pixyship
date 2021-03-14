@@ -1,43 +1,43 @@
 <template>
-  <v-tooltip left>
-      <template v-slot:activator="{ on, attrs }">
-        <a :href="`/crew/${char.id}`" v-bind="attrs" v-on="on">
+  <v-tooltip :disabled="!show" :right="right" :left="left">
+    <template v-slot:activator="{ on, attrs }">
+      <a :href="`/crew/${char.id}`" v-bind="attrs" v-on="on">
         <div v-if="name === 'top'" class="name" :class="[char.rarity]">
-            {{ char.name }}
+          {{ char.name }}
         </div>
+
         <div
-            :class="[
+          :class="[
             name === 'left' ? 'pull-right' : null,
             name === 'right' ? 'pull-left' : null,
-            'ctooltip',
-            ]"
+          ]"
         >
-            <div class="char-part" :style="spriteStyle(char.head_sprite)"></div>
-            <div class="char-part" :style="spriteStyle(char.body_sprite)"></div>
-            <div class="char-part" :style="spriteStyle(char.leg_sprite)"></div>
+          <div class="char-part" :style="spriteStyle(char.head_sprite)"></div>
+          <div class="char-part" :style="spriteStyle(char.body_sprite)"></div>
+          <div class="char-part" :style="spriteStyle(char.leg_sprite)"></div>
+        </div>
+
+        <div
+          v-if="name === 'left'"
+          class="name pull-right"
+          :class="[char.rarity]"
+        >
+          {{ char.name }}
         </div>
         <div
-            v-if="name === 'left'"
-            class="name pull-right"
-            :class="[char.rarity]"
+          v-if="name === 'right'"
+          class="name pull-left"
+          :class="[char.rarity]"
         >
-            {{ char.name }}
-        </div>
-        <div
-            v-if="name === 'right'"
-            class="name pull-left"
-            :class="[char.rarity]"
-        >
-            {{ char.name }}
+          {{ char.name }}
         </div>
         <div v-if="name === 'bottom'" class="name" :class="[char.rarity]">
-            {{ char.name }}
+          {{ char.name }}
         </div>
-        </a>
-      </template>
-    
+      </a>
+    </template>
 
-    <div v-if="tip" class="tooltiptext">
+    <div>
       <span :class="[char.rarity, 'font-weight-bold']">{{ char.name }}</span>
       <table>
         <tr>
@@ -97,12 +97,24 @@ export default {
   },
 
   data: function () {
-    return {};
+    return {
+      show: this.tip,
+    };
   },
 
+  computed: {
+    right: function () {
+      return this.name == "right";
+    },
+
+    left: function () {
+      return this.name == "left";
+    },
+  },
 };
 </script>
 
+<style scoped src="@/assets/css/common.css"></style>
 <style scoped>
 .char-part {
   margin: 0px auto;
@@ -120,5 +132,9 @@ export default {
   display: block;
   white-space: nowrap;
   margin: 5px 5px 0 5px;
+}
+
+a {
+  text-decoration: none;
 }
 </style>

@@ -142,6 +142,11 @@ export default {
         (secs > 0 ? `${secs}s` : '')
 
       return dateStr
+    },
+    
+    notEmptyObject(someObject){
+      return Object.keys(someObject).length
     }
+    
   }
 }

@@ -1,8 +1,10 @@
 <template>
-  <v-card>
-    <v-card-title>
-      <v-layout row>
-        <v-flex xs1 class="pl-3 pr-1">
+  <v-card :loading="isLoading">
+    <v-card-title v-if="!loaded"> Loading... </v-card-title>
+
+    <v-card-title v-if="loaded">
+      <v-row>
+        <v-col cols="1">
           <v-text-field
             v-model="level"
             type="number"
@@ -11,9 +13,9 @@
             max="40"
             :value="level"
           ></v-text-field>
-        </v-flex>
+        </v-col>
 
-        <v-flex xs11 class="pl-1 pr-3">
+        <v-col cols="11">
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
@@ -21,16 +23,17 @@
             placeholder="Name, Ability, Rarity or Collection"
             hide-details
           ></v-text-field>
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
     </v-card-title>
 
-    <v-card-text>
+    <v-card-text v-if="loaded">
       Tips: Find multiple occurrences by separating them with a comma, and exact
       term with double quotes (example: "Zombie", Eva)
     </v-card-text>
 
     <v-data-table
+      v-if="loaded"
       :headers="headers"
       :items="crews"
       :search="search"
@@ -43,21 +46,9 @@
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
       multi-sort
-      dense
       loading-text="Loading..."
       class="elevation-1"
     >
-      <template
-        v-if="this.isLoading"
-        v-slot:progress
-      >
-        <v-progress-linear
-          color="cyan"
-          :height="1"
-          indeterminate
-        ></v-progress-linear>
-      </template>
-
       <template v-slot:body="{ items }">
         <tbody>
           <tr v-for="item in items" :key="item.id">
@@ -70,7 +61,13 @@
 
             <!-- Name -->
             <td>
-                <div class="text-xs-left"><a :class="[item.rarity, 'lh-9', 'name']" :href="`/crew/${item.id}`">{{ item.name }}</a></div>
+              <div class="text-xs-left">
+                <a
+                  :class="[item.rarity, 'lh-9', 'name']"
+                  :href="`/crew/${item.id}`"
+                  >{{ item.name }}</a
+                >
+              </div>
             </td>
 
             <!-- Equip -->
@@ -103,11 +100,10 @@
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <div
-                      v-bind="attrs" 
+                      v-bind="attrs"
                       v-on="on"
                       :style="spriteStyle(item.ability_sprite)"
                     ></div>
-
                   </template>
                   {{ item.special_ability }}
                 </v-tooltip>
@@ -117,17 +113,16 @@
             <!-- Collection -->
             <td>
               <v-tooltip v-if="item.collection_sprite" bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <div
-                      v-bind="attrs" 
-                      v-on="on"
-                      :style="spriteStyle(item.collection_sprite)"
-                      class="center"
-                    ></div>
-
-                  </template>
-                  {{ item.collection_name }}
-                </v-tooltip>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                    v-bind="attrs"
+                    v-on="on"
+                    :style="spriteStyle(item.collection_sprite)"
+                    class="center"
+                  ></div>
+                </template>
+                {{ item.collection_name }}
+              </v-tooltip>
             </td>
 
             <!-- Stats -->
@@ -161,19 +156,18 @@
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
 import Crew from "@/components/Crew.vue";
-// require('../assets/css/common.css')
 
 export default {
   mixins: [mixins],
 
   components: {
-    Crew
+    Crew,
   },
 
   data() {
     return {
       search: "",
-      isLoading: false,
+      loaded: false,
       headers: [
         { text: "Order", align: "center", value: "id", filterable: false },
         { text: "Name", align: "center", value: "name" },
@@ -248,14 +242,20 @@ export default {
     };
   },
 
+  computed: {
+    isLoading: function () {
+      return !this.loaded;
+    },
+  },
+
   beforeMount: function () {
     this.getCrews();
   },
 
   watch: {
-    level () {
-      this.updateCurrentLevel()
-    }
+    level() {
+      this.updateCurrentLevel();
+    },
   },
 
   filters: {
@@ -268,7 +268,6 @@ export default {
 
   methods: {
     getCrews: async function () {
-      this.isLoading = true;
       const response = await axios.get(this.crewEndpoint);
 
       let crews = [];
@@ -281,7 +280,7 @@ export default {
 
       this.crews = crews;
 
-      this.isLoading = false;
+      this.loaded = true;
       this.updateCurrentLevel();
 
       return this.crew;
@@ -295,7 +294,6 @@ export default {
         this.interpolateStat(crew.progression_type, crew.ability);
         this.interpolateStat(crew.progression_type, crew.pilot);
         this.interpolateStat(crew.progression_type, crew.science);
-        this.interpolateStat(crew.progression_type, crew.research);
         this.interpolateStat(crew.progression_type, crew.engine);
         this.interpolateStat(crew.progression_type, crew.weapon);
       });
@@ -331,7 +329,6 @@ a.name {
 }
 
 .equip {
-  line-height: 1;
-  font-size: 80%;
+  font-size: 90%;
 }
 </style>
