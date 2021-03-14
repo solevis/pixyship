@@ -100,21 +100,34 @@
 
             <td>
               <div class="special-ability">
-                <div
-                  :style="spriteStyle(item.ability_sprite)"
-                  :title="item.special_ability"
-                ></div>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <div
+                      v-bind="attrs" 
+                      v-on="on"
+                      :style="spriteStyle(item.ability_sprite)"
+                    ></div>
+
+                  </template>
+                  {{ item.special_ability }}
+                </v-tooltip>
               </div>
             </td>
 
             <!-- Collection -->
             <td>
-              <div
-                v-if="item.collection_sprite"
-                :style="spriteStyle(item.collection_sprite)"
-                :title="item.collection_name"
-                class="center"
-              ></div>
+              <v-tooltip v-if="item.collection_sprite" bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <div
+                      v-bind="attrs" 
+                      v-on="on"
+                      :style="spriteStyle(item.collection_sprite)"
+                      class="center"
+                    ></div>
+
+                  </template>
+                  {{ item.collection_name }}
+                </v-tooltip>
             </td>
 
             <!-- Stats -->
@@ -311,6 +324,10 @@ export default {
 
 .name {
   font-weight: bold;
+}
+
+a.name {
+  text-decoration: none;
 }
 
 .equip {
