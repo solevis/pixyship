@@ -1,0 +1,27 @@
+.common, .common a {
+  color: white
+}
+
+.elite, .elite a {
+  color: #1be600
+}
+
+.unique, .unique a {
+  color: #0070dd
+}
+
+.epic, .epic a {
+  color: #a335ee
+}
+
+.hero, .hero a {
+  color: #ff8000
+}
+
+.special, .special a {
+  color: #fefc89;
+}
+
+.legendary, .legendary a {
+  color: #d5aa2a
+}

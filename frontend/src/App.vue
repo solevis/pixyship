@@ -1,60 +1,46 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
+    <v-app-bar app dense>
+      <v-toolbar-title>
+        <router-link to="/">
+          <v-img
+            :src="require('./assets/img/pixyship.svg')"
+            max-height="57"
+            max-width="150"
+            contain
+          ></v-img>
+        </router-link>
+      </v-toolbar-title>
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <v-btn text to="/builder">Builder</v-btn>
+      <v-btn text to="/changes">Changes</v-btn>
+      <v-btn text to="/crews">Crews</v-btn>
+      <v-btn text to="/items">Items</v-btn>
+      <v-btn text to="/rooms">Rooms</v-btn>
+      <v-btn text to="/ships">Ships</v-btn>
+      <v-btn text to="/collections">Collections</v-btn>
+      <v-btn text to="/researches">Researches</v-btn>
+      <v-btn text to="/player">Players</v-btn>
+      <v-btn text to="/about">About</v-btn>
     </v-app-bar>
 
     <v-main>
-      <HelloWorld/>
+      <v-container fluid>
+        <router-view></router-view>
+      </v-container>
     </v-main>
+
+    <v-footer app padless>
+      <!--  -->
+    </v-footer>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
-
 export default {
-  name: 'App',
-
-  components: {
-    HelloWorld,
-  },
-
-  data: () => ({
-    //
-  }),
+  name: "App",
 };
 </script>
