@@ -3,3 +3,4 @@ sprites/
 .DS_Store
 *.old
 *.bak
+*.diff
