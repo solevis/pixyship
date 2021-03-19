@@ -25,6 +25,28 @@ export default {
   },
 
   methods: {
+    filterCombobox(value, searchArray) {
+      if (searchArray === null) {
+        return true
+      }
+
+      if (searchArray.length === 0) {
+        return true
+      }
+
+      if (value == '') {
+          value = 'None'
+      }
+
+      let result = searchArray.some(search => {
+        search = search.toString().toLowerCase()
+        return value.toString().toLowerCase().indexOf(search) !== -1
+      })
+
+      return result
+
+    },
+
     multipleFilter(value, search) {
       if (value == null) {
         return false
@@ -41,29 +63,69 @@ export default {
       }
 
       let result = terms.some(term => {
-        let result = false
-
         let computedTerm = term
-        if (term[0] === '-') {
-          computedTerm = term.substring(1);
+
+        if (computedTerm === 'None') {
+          computedTerm = ''
         }
 
         if (computedTerm.length >= 2
           && (computedTerm[0] === "'" || computedTerm[0] === '"') 
           && computedTerm[0] === computedTerm[computedTerm.length - 1]
         ) {
-          result = value.toString().toLowerCase() !== computedTerm.substring(1, computedTerm.length - 1)
-        } else if (computedTerm.length >= 2 && (computedTerm[0] === "'" || computedTerm[0] === '"') && computedTerm[0] === computedTerm[computedTerm.length - 1]) {
-          result =  value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
+          return value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
         }
 
-        result = value.toString().toLowerCase().indexOf(computedTerm) !== -1
+        return value.toString().toLowerCase().indexOf(computedTerm) !== -1
+      })
 
-        if (term[0] === '-') {
-          result = !result;
+      return result
+    },
+
+    multipleFilterWithNegative(value, search) {
+      if (value == null) {
+        return false
+      }
+
+      if (search == null) {
+        return false
+      }
+
+      const terms = search.split(',').map(term => term.trim().toLowerCase()).filter(term => term)
+
+      if (terms.length === 0) {
+        return false
+      }
+
+      let result = terms.some(term => {
+        let computedTerm = term
+        let prohibitOperator = false
+
+        if (term.length >= 2 && term[0] === '-') {
+          computedTerm = term.substring(1, term.length);
+          prohibitOperator = true
         }
 
-        return result
+        if (prohibitOperator 
+          && computedTerm.length >= 2
+          && (computedTerm[0] === "'" || computedTerm[0] === '"') 
+          && computedTerm[0] === computedTerm[computedTerm.length - 1]
+        ) {
+          return value.toString().toLowerCase() !== computedTerm.substring(1, computedTerm.length - 1)
+        }
+
+        if (computedTerm.length >= 2
+          && (computedTerm[0] === "'" || computedTerm[0] === '"') 
+          && computedTerm[0] === computedTerm[computedTerm.length - 1]
+        ) {
+          return value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
+        }
+
+        if (prohibitOperator) {
+          return value.toString().toLowerCase().indexOf(computedTerm) === -1
+        }
+
+        return value.toString().toLowerCase().indexOf(computedTerm) !== -1
       })
 
       return result

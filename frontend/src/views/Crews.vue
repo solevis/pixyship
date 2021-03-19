@@ -15,31 +15,68 @@
           ></v-text-field>
         </v-col>
 
-        <v-col cols="11">
+        <v-col cols="3">
           <v-text-field
-            v-model="search"
+            v-model="searchName"
             append-icon="mdi-magnify"
-            label="Search"
+            label='Name (example: "Zombie", Eva)'
             placeholder="Name, Ability, Rarity or Collection"
             hide-details
           ></v-text-field>
         </v-col>
+        <v-col cols="2">
+          <v-combobox
+            v-model="searchEquipment"
+            :items="equipments"
+            label="Equip"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="2">
+          <v-combobox
+            v-model="searchRarity"
+            :items="rarities"
+            label="Rarity"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="2">
+          <v-combobox
+            v-model="searchSpecial"
+            :items="abilities"
+            label="Special"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="2">
+          <v-combobox
+            v-model="searchCollection"
+            :items="collections"
+            label="Collection"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
       </v-row>
     </v-card-title>
-
-    <v-card-text v-if="loaded">
-      Tips: Find multiple occurrences by separating them with a comma, and exact
-      term with double quotes (example: "Zombie", Eva)
-    </v-card-text>
 
     <v-data-table
       v-if="loaded"
       :headers="headers"
       :items="crews"
-      :search="search"
-      :sort-by="['rarity_order']"
-      :sort-desc="[true]"
-      :custom-filter="multipleFilter"
+      :search="searchName"
+      :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
       :footer-props="{
@@ -48,6 +85,7 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1"
+      dense
     >
       <template v-slot:body="{ items }">
         <tbody>
@@ -166,21 +204,57 @@ export default {
 
   data() {
     return {
-      search: "",
+      searchName: "",
+      searchSpecial: [],
+      searchRarity: [],
+      searchCollection: [],
+      searchEquipment: [],
       loaded: false,
       headers: [
         { text: "Order", align: "center", value: "id", filterable: false },
-        { text: "Name", align: "center", value: "name" },
+        { 
+          text: "Name", 
+          align: "center", 
+          value: "name",
+        },
         {
           text: "Equip",
           align: "center",
           value: "equipment",
-          filterable: false,
+          filter: value => { 
+            return this.filterCombobox(Object.keys(value).toString(), this.searchEquipment)
+          }
         },
-        { text: "Rarity", align: "center", value: "rarity" },
-        { text: "Special", align: "center", value: "special_ability" },
-        { text: "Set", align: "center", value: "collection_name" },
-        { text: "HP", align: "center", value: "hp[2]", filterable: false },
+        { 
+          text: "Rarity", 
+          align: "center", 
+          value: "rarity", 
+          filter: value => { 
+            return this.filterCombobox(value, this.searchRarity)
+          } 
+        },
+        { 
+          text: "Special", 
+          align: "center", 
+          value: "special_ability", 
+          filter: value => { 
+            return this.filterCombobox(value, this.searchSpecial)
+          } 
+        },
+        { 
+          text: "Set", 
+          align: "center", 
+          value: "collection_name", 
+          filter: value => { 
+            return this.filterCombobox(value, this.searchCollection)
+          }
+        },
+        { 
+          text: "HP", 
+          align: "center", 
+          value: "hp[2]", 
+          filterable: false 
+        },
         {
           text: "Attack",
           align: "center",
@@ -280,9 +354,10 @@ export default {
 
       this.crews = crews;
 
-      this.loaded = true;
       this.updateCurrentLevel();
+      this.updateFilters();
 
+      this.loaded = true;
       return this.crew;
     },
 
@@ -309,6 +384,15 @@ export default {
       }
 
       stat[2] = stat[0] + (stat[1] - stat[0]) * ((this.level - 1) / 39) ** p;
+    },
+
+    updateFilters() {
+      this.rarities = Array.from(new Set(this.crews.map((crew) => crew.rarity[0].toUpperCase() + crew.rarity.slice(1) )))
+      this.abilities = Array.from(new Set(this.crews.map((crew) => crew.special_ability.length === 0 ? 'None' : crew.special_ability))).sort()
+      this.collections = Array.from(new Set(this.crews.map((crew) => crew.collection_name.length === 0 ? 'None' : crew.collection_name))).sort()
+
+      let values = this.crews.map((crew) => Object.keys(crew.equipment).length === 0 ? ['None'] : Object.keys(crew.equipment))
+      this.equipments =  Array.from(new Set(values.flat())).sort()
     },
   },
 };
