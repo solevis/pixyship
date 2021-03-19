@@ -1,41 +1,37 @@
+import 'material-design-icons-iconfont/dist/material-design-icons.css' // Ensure you are using css-loader
 import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Crews from '../views/Crews.vue'
-import CrewDetail from '../views/CrewDetail.vue'
+import Router from 'vue-router'
+import Vuetify from 'vuetify'
 
-Vue.use(VueRouter)
-
-const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/crews',
-    name: 'Crews',
-    component: Crews
-  },
-  {
-    path: '/crew/:id',
-    name: 'CrewDetail',
-    component: CrewDetail
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
+// *** DONT FORGET TO ADD NEW ROUTES TO FLASK TOO !
+const routerOptions = [
+  {path: '/crew', component: 'Chars'},
+  {path: '/items', component: 'Items'},
+  {path: '/rooms', component: 'Rooms'},
+  {path: '/crew/:id', component: 'CrewDetail'},
+  {path: '/ships', component: 'Ships'},
+  {path: '/builder', component: 'Builder'},
+  {path: '/changes', component: 'Changes'},
+  {path: '/collections', component: 'Collections'},
+  {path: '/research', component: 'Research'},
+  {path: '/players', component: 'Players'},
+  {path: '/', component: 'Home'},
+  {path: '*', component: 'NotFound'}
 ]
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes
+const routes = routerOptions.map(route => {
+  return {
+    ...route,
+    component: () => import(`@/views/${route.component}.vue`)
+  }
+})
+
+Vue.use(Router);
+Vue.use(Vuetify);
+
+const router = new Router({
+  routes,
+  mode: 'history'
 })
 
 export default router

@@ -1,0 +1,31 @@
+.common {
+  color: white
+}
+
+.elite {
+  color: #1be600
+}
+
+.unique {
+  color: #0070dd
+}
+
+.epic {
+  color: #a335ee
+}
+
+.hero {
+  color: #ff8000
+}
+
+.special {
+  color: #fefc89;
+}
+
+.legendary {
+  color: #d5aa2a
+}
+
+.middle {
+  vertical-align: middle;
+}

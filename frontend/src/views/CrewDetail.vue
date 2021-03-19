@@ -1,342 +1,391 @@
 <template>
-  <v-card :loading="isLoading">
-    <v-card-title v-if="!loaded"> Loading... </v-card-title>
-
-    <v-card-title v-if="loaded">
-      <div class="mx-auto">
-        <crew :char="character" :tip="false" name="bottom" />
-      </div>
-    </v-card-title>
-
-    <v-simple-table v-if="loaded" class="">
-      <template v-slot:default>
-        <thead>
-          <tr>
-            <th class="text-left">Level</th>
-            <th class="text-left">Equip</th>
-            <th class="text-left">Rarity</th>
-            <th class="text-left">Special</th>
-            <th class="text-left">Set</th>
-            <th class="text-left">HP</th>
-            <th class="text-left">Attack</th>
-            <th class="text-left">Repair</th>
-            <th class="text-left">Ability</th>
-            <th class="text-left">Pilot</th>
-            <th class="text-left">Science</th>
-            <th class="text-left">Engine</th>
-            <th class="text-left">Weapon</th>
-            <th class="text-left">Fire</th>
-            <th class="text-left">Training</th>
-            <th class="text-left">Speed</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <v-text-field
-                v-model="level"
-                type="number"
-                min="1"
-                max="40"
-                single-line
-                :value="level"
-              ></v-text-field>
-            </td>
-            <!-- Equip -->
-            <td>
-              <div class="ps-left equip">
-                <div v-for="(s, k) in character.equipment" :key="k">
-                  <div
-                    v-if="s.name"
-                    :title="`${k}: +${s.bonus} ${s.enhancement} ${
-                      s.extra_bonus ? '+' + s.extra_bonus : ''
-                    } ${s.extra_enhancement}`"
-                  >
-                    <div class="char-item" :style="spriteStyle(s.sprite)"></div>
-                    {{ s.name }}
+  <div>
+    <v-app dark>
+      <ps-header/>
+      Prestige recipies
+      <v-container v-if="!showData">
+        <div class="center">
+          <crew v-if="loaded" :char="chars[crewId]" name="bottom"/>
+          <v-layout justify-center>
+            <v-data-table
+              id="target-stats"
+              v-if="loaded"
+              :headers="headers"
+              :items="targetChar"
+              hide-actions
+            >
+              <template slot="items" slot-scope="i">
+                <td>
+                  <div class="ps-left equip">
+                    <div v-for="(s, k) in i.item.equipment">
+                      <div v-if="s.name"
+                        :title="`${k}: +${s.bonus} ${s.enhancement} ${s.extra_bonus ? '+' + s.extra_bonus : ''} ${s.extra_enhancement}`">
+                        <div class="char-item" :style="spriteStyle(s.sprite)"></div>
+                        {{ s.name }}
+                      </div>
+                      <template v-else>
+                        <div class="unused">{{ k }}</div>
+                      </template>
+                    </div>
                   </div>
-                  <template v-else>
-                    <div class="unused">{{ k }}</div>
-                  </template>
-                </div>
-              </div>
-            </td>
-
-            <!-- Rarity -->
-            <td>
-              <div :class="['rarity', character.rarity]">
-                {{ character.rarity }}
-              </div>
-            </td>
-
-            <td>
-              <div class="special-ability">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <div
-                      v-bind="attrs"
-                      v-on="on"
-                      :style="spriteStyle(character.ability_sprite)"
-                    ></div>
-                  </template>
-                  {{ character.special_ability }}
-                </v-tooltip>
-              </div>
-            </td>
-
-            <!-- Collection -->
-            <td>
-              <v-tooltip v-if="character.collection_sprite" bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <div
-                    v-bind="attrs"
-                    v-on="on"
-                    :style="spriteStyle(character.collection_sprite)"
-                    class="center"
-                  ></div>
-                </template>
-                {{ character.collection_name }}
-              </v-tooltip>
-            </td>
-
-            <!-- Stats -->
-            <td>{{ character.hp[2] | statFormat(0) }}</td>
-            <td>{{ character.attack[2] | statFormat() }}</td>
-            <td>{{ character.repair[2] | statFormat() }}</td>
-            <td>{{ character.ability[2] | statFormat() }}</td>
-            <td>{{ character.pilot[2] | statFormat() }}</td>
-            <td>{{ character.science[2] | statFormat() }}</td>
-            <td>{{ character.engine[2] | statFormat() }}</td>
-            <td>{{ character.weapon[2] | statFormat() }}</td>
-
-            <!-- Fire -->
-            <td>{{ character.fire_resist }}</td>
-
-            <!-- Training -->
-            <td>{{ character.training_limit }}</td>
-
-            <!-- Speed -->
-            <td>
-              <div>{{ `${character.walk}:${character.run}` }}</div>
-            </td>
-          </tr>
-        </tbody>
-      </template>
-    </v-simple-table>
-
-    <v-row class="mt-2 pb-2" justify="center">
-      <v-col cols="4">
-        <div class="text-center">
-          <span>Combine both for {{ characters[crewId].name }}:</span>
+                </td>
+                <td>
+                  <div :class="['rarity', i.item.rarity]">{{ i.item.rarity }}</div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.hp[1] }}<br/>
+                    <span>{{ i.item.hp[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.attack[1] }}<br/>
+                    <span>{{ i.item.attack[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.repair[1] }}<br/>
+                    <span>{{ i.item.repair[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="special-ability">
+                    <div :style="spriteStyle(i.item.ability_sprite)" :title="i.item.special_ability"></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.ability[1] }}<br/>
+                    <span>{{ i.item.ability[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.pilot[1] }}<br/>
+                    <span>{{ i.item.pilot[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.science[1] }}<br/>
+                    <span>{{ i.item.science[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.research[1] }}<br/>
+                    <span>{{ i.item.research[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.engine[1] }}<br/>
+                    <span>{{ i.item.engine[0] }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="stat">{{ i.item.weapon[1] }}<br/>
+                    <span>{{ i.item.weapon[0] }}</span>
+                  </div>
+                </td>
+                <td>{{ i.item.fire_resist }}</td>
+                <td>{{ i.item.training_limit }}</td>
+                <td>
+                  <div>{{ `${i.item.walk}:${i.item.run}` }}</div>
+                </td>
+              </template>
+            </v-data-table>
+          </v-layout>
+          <br/>
+          <table class="center">
+            <tr class="top">
+              <td>
+                <table class="curvable">
+                  <tr>
+                    <td v-if="loaded" colspan="2">Combine both for {{ chars[crewId].name }}</td>
+                  </tr>
+                  <tr v-for="(olist, t) in to">
+                    <td class="right-curve-border">
+                      <table class="fill">
+                        <tr v-for="o in olist">
+                          <td>
+                            <crew :char="chars[o]" name="left"/>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td>
+                      <crew :char="chars[t]" name="right"/>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <td>
+                <table class="curvable">
+                  <tr>
+                    <td v-if="loaded" colspan="2">Combine {{ chars[crewId].name }} with &laquo; to get &raquo;</td>
+                  </tr>
+                  <tr v-for="(olist, t) in from">
+                    <td class="right-curve-border">
+                      <table class="fill">
+                        <tr v-for="o in olist">
+                          <td>
+                            <crew :char="chars[o]" name="left"/>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td>
+                      <crew :char="chars[t]" name="right"/>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
         </div>
-      </v-col>
-
-      <v-col cols="4">
-        <div class="text-center">
-          <span
-            >Combine {{ characters[crewId].name }} with &laquo; to get
-            &raquo;:</span
-          >
-        </div>
-      </v-col>
-    </v-row>
-
-    <v-row class="mt-1" justify="center">
-      <v-col cols="4" v-if="notEmptyObject(to)" class="mt-3">
-        <v-row
-          v-for="(olist, t) in to"
-          :key="'grouped-to-' + t"
-          class="mb-2"
-          align="center"
-        >
-          <v-col class="right-curve-border">
-            <v-row v-for="o in olist" :key="'to-' + o">
-              <v-col>
-                <crew :char="characters[o]" name="left" />
-              </v-col>
-            </v-row>
-          </v-col>
-
-          <v-col>
-            <crew :char="characters[t]" name="right" />
-          </v-col>
-        </v-row>
-      </v-col>
-
-      <v-col cols="4" v-else>
-        <div class="text-center">
-          <v-icon>mdi-flask-empty-off-outline</v-icon>
-        </div>
-      </v-col>
-
-      <v-col cols="4" v-if="notEmptyObject(from)" class="mt-3">
-        <v-row
-          v-for="(olist, t) in from"
-          :key="'grouped-from-' + t"
-          class="mb-2"
-          align="center"
-        >
-          <v-col class="right-curve-border">
-            <v-row v-for="o in olist" :key="'from-' + o">
-              <v-col>
-                <crew :char="characters[o]" name="left" />
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-col>
-            <crew :char="characters[t]" name="right" />
-          </v-col>
-        </v-row>
-      </v-col>
-
-      <v-col cols="4" v-else>
-        <div class="text-center">
-          <v-icon>mdi-flask-empty-off-outline</v-icon>
-        </div>
-      </v-col>
-    </v-row>
-  </v-card>
+      </v-container>
+      <div>
+        <a href="http://www.pixelstarships.com">Pixel Starships</a>
+      </div>
+    </v-app>
+  </div>
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import Crew from "@/components/Crew.vue";
+
+import axios from 'axios'
+import Vue from 'vue'
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import Crew from '@/components/Crew'
+import Header from '@/components/Header'
+import 'vuetify/dist/vuetify.min.css'
+import mixins from '@/mixins/Common.vue.js'
+require('../assets/common.css')
+
+Vue.component('crew', Crew)
+Vue.component('ps-header', Header)
+
+Vue.use(BootstrapVue)
+
+function styleFromSprite (s, color = '', border = 0, ninepatch = 0) {
+  if (Object.keys(s).length === 0) {
+    return {}
+  }
+  let obj = {
+    background: `${color} url('//pixelstarships.s3.amazonaws.com/${s.source}.png') -${s.x}px -${s.y}px`,
+    width: `${s.width}px`,
+    height: `${s.height}px`,
+    border: `${border}px solid lightgrey`,
+    imageRendering: 'pixelated'
+  }
+  return obj
+}
 
 export default {
   mixins: [mixins],
 
-  components: {
-    Crew,
-  },
-
-  data() {
+  data () {
     return {
-      loaded: false,
+      devMode: process.env.NODE_ENV === 'development',
       crewId: this.$route.params.id,
-      characters: [],
-      character: {},
-      data: {},
+      chars: [],
+      targetChar: [],
       from: [],
       to: [],
-      level: 40,
-    };
+      data: null,
+      loaded: false,
+      showData: false,
+      headers: [
+        // {text: 'Order', align: 'center', value: 'id'},
+        // {text: 'Name', align: 'center', value: 'name'},
+        {text: 'Equip', align: 'center', value: 'equipment', sortable: false},
+        {text: 'Rarity', align: 'center', value: 'rarity_order', sortable: false},
+        {text: 'HP', align: 'center', value: 'hp[1]', sortable: false},
+        {text: 'Attack', align: 'center', value: 'attack[1]', sortable: false},
+        {text: 'Repair', align: 'center', value: 'repair[1]', sortable: false},
+        {text: 'Special', align: 'center', value: 'special_ability', sortable: false},
+        {text: 'Ability', align: 'center', value: 'ability[1]', sortable: false},
+        {text: 'Pilot', align: 'center', value: 'pilot[1]', sortable: false},
+        {text: 'Science', align: 'center', value: 'science[1]', sortable: false},
+        {text: 'Research', align: 'center', value: 'research[1]', sortable: false},
+        {text: 'Engine', align: 'center', value: 'engine[1]', sortable: false},
+        {text: 'Weapon', align: 'center', value: 'weapon[1]', sortable: false},
+        {text: 'Fire', align: 'center', value: 'fire_resist', sortable: false},
+        {text: 'Training', align: 'center', value: 'training_limit', sortable: false},
+        {text: 'Speed', align: 'center', value: 'run', sortable: false}
+      ]
+    }
   },
 
-  computed: {
-    isLoading: function () {
-      return !this.loaded;
-    },
+  components: {
   },
 
-  beforeMount: function () {
-    this.getCrew();
-  },
-
-  watch: {
-    level() {
-      this.updateCurrentLevel();
-    },
-  },
-
-  filters: {
-    statFormat(value, maxDigits = 1) {
-      return value.toLocaleString("en-US", {
-        maximumFractionDigits: maxDigits,
-      });
-    },
+  created: function () {
+    this.getCrew()
+    // console.log(this.$route)
   },
 
   methods: {
     getCrew: async function () {
-      const response = await axios.get(this.prestigeEndpoint + this.crewId);
-
+      const r = await axios.get(this.prestigeEndpoint + this.crewId)
       // TODO: This is ugly, fix it
-      let characters = {};
-      for (let c of response.data.data.chars) {
-        characters[c.id] = c;
+      let charMap = {}
+      for (let c of r.data.data.chars) {
+        charMap[c.id] = c
       }
-
-      this.characters = characters;
-      this.data = response.data.data;
-
-      this.from = this.data.from;
-      this.to = this.data.to;
-
-      this.character = this.characters[this.crewId];
-
-      this.loaded = true;
-      this.updateCurrentLevel();
+      this.chars = charMap
+      this.from = r.data.data.from
+      this.to = r.data.data.to
+      this.data = r.data.data
+      this.targetChar = [this.chars[this.crewId]]
+      this.loaded = true
     },
 
-    updateCurrentLevel() {
-      this.interpolateStat(this.character.progression_type, this.character.hp);
-      this.interpolateStat(
-        this.character.progression_type,
-        this.character.attack
-      );
-      this.interpolateStat(
-        this.character.progression_type,
-        this.character.repair
-      );
-      this.interpolateStat(
-        this.character.progression_type,
-        this.character.ability
-      );
-      this.interpolateStat(
-        this.character.progression_type,
-        this.character.pilot
-      );
-      this.interpolateStat(
-        this.character.progression_type,
-        this.character.science
-      );
-      this.interpolateStat(
-        this.character.progression_type,
-        this.character.engine
-      );
-      this.interpolateStat(
-        this.character.progression_type,
-        this.character.weapon
-      );
-    },
-
-    interpolateStat(type, stat) {
-      let p = 1; // Linear
-
-      if (type === "EaseIn") {
-        p = 2;
-      } else if (type === "EaseOut") {
-        p = 0.5;
-      }
-
-      stat[2] = stat[0] + (stat[1] - stat[0]) * ((this.level - 1) / 39) ** p;
-    },
-  },
-};
+    spriteStyle (s) {
+      return styleFromSprite(s)
+    }
+  }
+}
 </script>
 
-<style scoped src="@/assets/css/common.css"></style>
-<style scoped>
-.rarity {
-  text-transform: capitalize;
-}
+<style>
+  .v-datatable, .v-datatable__actions {
+    background-color: inherit !important;
+  }
 
-.name {
-  font-weight: bold;
-}
+  .v-datatable td {
+    height: unset !important;
+  }
 
-a.name {
-  text-decoration: none;
-}
+  .v-datatable td,
+  .v-datatable th {
+    padding: 0 5px !important;
+    color: white !important;
+  }
 
-.equip {
-  line-height: 1;
-  font-size: 80%;
-}
-div.right-curve-border {
-  border-right: solid 5px #666;
-  border-radius: 12px;
-  padding: 5px;
-}
+  .v-datatable tr {
+    height: unset !important;
+  }
+
+  .application.theme--dark {
+    background-color: black;
+  }
+
+  .v-datatable tbody tr:hover {
+    background-color: #222 !important;
+  }
+
+  html, body {
+    background-color: black;
+    color: white;
+  }
+
+  .form-group {
+    margin-right: 10px;
+  }
+
+  .table-bordered th, .table-bordered td {
+    border: 0;
+  }
+
+  .table th, .table td {
+    padding: 3px;
+    vertical-align: inherit;
+  }
+
+  .page-link, .page-item.disabled .page-link  {
+    background-color: inherit;
+    border: 1px solid #222;
+  }
+
+  .form-control, .form-control:focus {
+    background-color: black;
+    color: white;
+  }
+
+  .main {
+    margin-top: 10px;
+  }
+
+  .center {
+    margin: 0 auto;
+  }
+
+  .stat span {
+    color: gray;
+    font-size: 60%;
+  }
+
+  .stat {
+    line-height: .7;
+  }
+
+  .equip {
+    line-height: 1;
+    font-size: 80%;
+  }
+
+  .rarity {
+    text-transform: capitalize;
+  }
+
+  :visited {
+    color: #24E3FF;
+  }
+
+  :link {
+    color: #FF5656;
+    text-decoration: none;
+  }
+
+  .left {
+    text-align: left;
+  }
+
+  .right {
+    text-align: right;
+  }
+
+  .top {
+    vertical-align: top;
+  }
+
+  .bottom {
+    vertical-align: bottom;
+  }
+
+  .fill {
+    width: 100%;
+  }
+
+  .side-by-side {
+    float: left
+  }
+
+  .bold {
+    text-weight: bold;
+  }
+
+  .char {
+    max-width: 25px;
+    margin: 0px;
+    display: inline-block;
+  }
+
+  td.center > div {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  td.show-height {
+    border-left: solid 5px #666;
+    border-radius: 12px;
+  }
+
+  td.right-curve-border {
+    border-right: solid 5px #666;
+    border-radius: 12px;
+    padding: 5px;
+  }
+
+  table.curvable {
+    border-collapse: separate;
+  }
 </style>
