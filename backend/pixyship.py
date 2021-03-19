@@ -750,7 +750,11 @@ class Pixyship(metaclass=Singleton):
         if item_list_string:
             ingredients = [i.split('x') for i in item_list_string.split('|')]
             for ingredient in ingredients:
-                item = items.get(int(ingredient[0]))
+                # replace hack, 2021 easter event come with additional 'item:' prefix
+                ingredient_item_id = ingredient[0].replace('item:', '')
+
+                item = items.get(int(ingredient_item_id))
+
                 if item:
                     line = {
                         'count': int(ingredient[1]),
