@@ -38,6 +38,7 @@
                 <table>
                 <tr v-for="(price, k, ind) in i.item.prices" class="nobreak">
                   <td><div class="block" :style="currencySprite(k)"/></td>
+                  <td>{{ price.count }}</td>
                   <td class="text-xs-left" v-html="priceFormat(price)"></td>
                 </tr>
                 </table>
@@ -125,7 +126,7 @@ export default {
         {text: 'Image', align: 'center', sortable: false},
         {text: 'Name', align: 'center', value: 'name'},
         {text: 'Savy Price', align: 'center', value: 'market_price'},
-        {text: 'Market $ | 25 - 50 - 75%', align: 'center', value: 'offers'},
+        {text: 'Market $ (48h) | # | 25 - 50 - 75%', align: 'center', value: 'offers'},
         {text: 'Type', align: 'center', value: 'slot'},
         {text: 'Bonus', align: 'center', value: 'bonus'},
         {text: 'Enhancement', align: 'center', value: 'enhancement'},

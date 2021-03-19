@@ -4,3 +4,5 @@ sprites/
 *.old
 *.bak
 *.diff
+.vscode
+.idea

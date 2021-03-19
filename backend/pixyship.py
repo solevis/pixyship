@@ -105,7 +105,6 @@ class Pixyship(metaclass=Singleton):
         self._collections = None
         self._dailies = None
         self._items = None
-        self._items_names = None
         self._prestiges = {}
         self._researches = None
         self._prices = {}
@@ -198,19 +197,9 @@ class Pixyship(metaclass=Singleton):
     def items(self):
         if not self._items or self.expired('item'):
             self._items = self._get_items_from_db()
-            self._items_names = {item['name']: item_id for item_id, item in self._items.items()}
             self.expire_at('item', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._items
-
-    @property
-    def items_names(self):
-        if not self._items or self.expired('item'):
-            self._items = self._get_items_from_db()
-            self._items_names = {item['name']: item_id for item_id, item in self._items.items()}
-            self.expire_at('item', self.DEFAULT_EXPIRATION_DURATION)
-
-        return self._items_names
 
     @property
     def dailies(self):
