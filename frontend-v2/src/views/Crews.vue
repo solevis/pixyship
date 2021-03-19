@@ -20,7 +20,6 @@
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name (example: "Zombie", Eva)'
-            placeholder="Name, Ability, Rarity or Collection"
             hide-details
           ></v-text-field>
         </v-col>
@@ -88,105 +87,103 @@
       class="elevation-1"
       dense
     >
-      <template v-slot:body="{ items }">
-        <tbody>
-          <tr v-for="item in items" :key="item.id">
-            <!-- Order -->
-            <td>
-              <div class="center char-sprite">
-                <crew :char="item" :tip="false" />
-              </div>
-            </td>
+      <template v-slot:item="{ item }">
+        <tr>
+          <!-- Order -->
+          <td>
+            <div class="center char-sprite">
+              <crew :char="item" :tip="false" />
+            </div>
+          </td>
 
-            <!-- Name -->
-            <td>
-              <div class="text-xs-left">
-                <a
-                  :class="[item.rarity, 'lh-9', 'name']"
-                  :href="`/crew/${item.id}`"
-                  >{{ item.name }}</a
+          <!-- Name -->
+          <td>
+            <div class="text-xs-left">
+              <a
+                :class="[item.rarity, 'lh-9', 'name']"
+                :href="`/crew/${item.id}`"
+                >{{ item.name }}</a
+              >
+            </div>
+          </td>
+
+          <!-- Equip -->
+          <td>
+            <div class="ps-left equip">
+              <div v-for="(s, k) in item.equipment" :key="k">
+                <div
+                  v-if="s.name"
+                  :title="`${k}: +${s.bonus} ${s.enhancement} ${
+                    s.extra_bonus ? '+' + s.extra_bonus : ''
+                  } ${s.extra_enhancement}`"
                 >
-              </div>
-            </td>
-
-            <!-- Equip -->
-            <td>
-              <div class="ps-left equip">
-                <div v-for="(s, k) in item.equipment" :key="k">
-                  <div
-                    v-if="s.name"
-                    :title="`${k}: +${s.bonus} ${s.enhancement} ${
-                      s.extra_bonus ? '+' + s.extra_bonus : ''
-                    } ${s.extra_enhancement}`"
-                  >
-                    <div class="char-item" :style="spriteStyle(s.sprite)"></div>
-                    {{ s.name }}
-                  </div>
-                  <template v-else>
-                    <div class="unused">{{ k }}</div>
-                  </template>
+                  <div class="char-item" :style="spriteStyle(s.sprite)"></div>
+                  {{ s.name }}
                 </div>
+                <template v-else>
+                  <div class="unused">{{ k }}</div>
+                </template>
               </div>
-            </td>
+            </div>
+          </td>
 
-            <!-- Rarity -->
-            <td>
-              <div :class="['rarity', item.rarity]">{{ item.rarity }}</div>
-            </td>
+          <!-- Rarity -->
+          <td>
+            <div :class="['rarity', item.rarity]">{{ item.rarity }}</div>
+          </td>
 
-            <!-- Special -->
-            <td>
-              <div class="special-ability">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <div
-                      v-bind="attrs"
-                      v-on="on"
-                      :style="spriteStyle(item.ability_sprite)"
-                    ></div>
-                  </template>
-                  {{ item.special_ability }}
-                </v-tooltip>
-              </div>
-            </td>
-
-            <!-- Collection -->
-            <td>
-              <v-tooltip v-if="item.collection_sprite" bottom>
+          <!-- Special -->
+          <td>
+            <div class="special-ability">
+              <v-tooltip bottom>
                 <template v-slot:activator="{ on, attrs }">
                   <div
                     v-bind="attrs"
                     v-on="on"
-                    :style="spriteStyle(item.collection_sprite)"
-                    class="center"
+                    :style="spriteStyle(item.ability_sprite)"
                   ></div>
                 </template>
-                {{ item.collection_name }}
+                {{ item.special_ability }}
               </v-tooltip>
-            </td>
+            </div>
+          </td>
 
-            <!-- Stats -->
-            <td>{{ item.hp[2] | statFormat(0) }}</td>
-            <td>{{ item.attack[2] | statFormat() }}</td>
-            <td>{{ item.repair[2] | statFormat() }}</td>
-            <td>{{ item.ability[2] | statFormat() }}</td>
-            <td>{{ item.pilot[2] | statFormat() }}</td>
-            <td>{{ item.science[2] | statFormat() }}</td>
-            <td>{{ item.engine[2] | statFormat() }}</td>
-            <td>{{ item.weapon[2] | statFormat() }}</td>
+          <!-- Collection -->
+          <td>
+            <v-tooltip v-if="item.collection_sprite" bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  v-on="on"
+                  :style="spriteStyle(item.collection_sprite)"
+                  class="center"
+                ></div>
+              </template>
+              {{ item.collection_name }}
+            </v-tooltip>
+          </td>
 
-            <!-- Fire -->
-            <td>{{ item.fire_resist }}</td>
+          <!-- Stats -->
+          <td>{{ item.hp[2] | statFormat(0) }}</td>
+          <td>{{ item.attack[2] | statFormat() }}</td>
+          <td>{{ item.repair[2] | statFormat() }}</td>
+          <td>{{ item.ability[2] | statFormat() }}</td>
+          <td>{{ item.pilot[2] | statFormat() }}</td>
+          <td>{{ item.science[2] | statFormat() }}</td>
+          <td>{{ item.engine[2] | statFormat() }}</td>
+          <td>{{ item.weapon[2] | statFormat() }}</td>
 
-            <!-- Training -->
-            <td>{{ item.training_limit }}</td>
+          <!-- Fire -->
+          <td>{{ item.fire_resist }}</td>
 
-            <!-- Speed -->
-            <td>
-              <div>{{ `${item.walk}:${item.run}` }}</div>
-            </td>
-          </tr>
-        </tbody>
+          <!-- Training -->
+          <td>{{ item.training_limit }}</td>
+
+          <!-- Speed -->
+          <td>
+            <div>{{ `${item.walk}:${item.run}` }}</div>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </v-card>
@@ -211,6 +208,10 @@ export default {
       searchRarity: [],
       searchCollection: [],
       searchEquipment: [],
+      rarities: [],
+      abilities: [],
+      collections: [],
+      equipments: [],
       loaded: false,
       headers: [
         { 

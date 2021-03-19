@@ -34,7 +34,7 @@ export default {
         return true
       }
 
-      if (value == '') {
+      if (value == null || value == '') {
           value = 'None'
       }
 
