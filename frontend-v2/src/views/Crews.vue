@@ -2,6 +2,7 @@
   <v-card :loading="isLoading">
     <v-card-title v-if="!loaded"> Loading... </v-card-title>
 
+    <!-- Filters -->
     <v-card-title v-if="loaded">
       <v-row>
         <v-col cols="1">
@@ -14,7 +15,6 @@
             :value="level"
           ></v-text-field>
         </v-col>
-
         <v-col cols="3">
           <v-text-field
             v-model="searchName"
@@ -71,6 +71,7 @@
       </v-row>
     </v-card-title>
 
+    <!-- Table -->
     <v-data-table
       v-if="loaded"
       :headers="headers"
@@ -133,6 +134,7 @@
               <div :class="['rarity', item.rarity]">{{ item.rarity }}</div>
             </td>
 
+            <!-- Special -->
             <td>
               <div class="special-ability">
                 <v-tooltip bottom>
@@ -211,7 +213,12 @@ export default {
       searchEquipment: [],
       loaded: false,
       headers: [
-        { text: "Order", align: "center", value: "id", filterable: false },
+        { 
+          text: "Order", 
+          align: "center", 
+          value: "id", 
+          filterable: false 
+        },
         { 
           text: "Name", 
           align: "center", 
@@ -309,7 +316,12 @@ export default {
           value: "training_limit",
           filterable: false,
         },
-        { text: "Speed", align: "center", value: "run", filterable: false },
+        { 
+          text: "Speed", 
+          align: "center", 
+          value: "run", 
+          filterable: false 
+        },
       ],
       crews: [],
       level: 40,
