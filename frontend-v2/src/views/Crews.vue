@@ -135,7 +135,7 @@
           <!-- Special -->
           <td>
             <div class="special-ability">
-              <v-tooltip bottom>
+              <v-tooltip bottom color="blue-grey">
                 <template v-slot:activator="{ on, attrs }">
                   <div
                     v-bind="attrs"
@@ -150,7 +150,7 @@
 
           <!-- Collection -->
           <td>
-            <v-tooltip v-if="item.collection_sprite" bottom>
+            <v-tooltip v-if="item.collection_sprite" bottom color="blue-grey">
               <template v-slot:activator="{ on, attrs }">
                 <div
                   v-bind="attrs"

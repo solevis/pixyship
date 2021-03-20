@@ -5,13 +5,24 @@
     <!-- Filters -->
     <v-card-title v-if="loaded">
       <v-row>
-        <v-col cols="6">
+        <v-col cols="4">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name (example: "Sandbag", Barrier)'
             hide-details
           ></v-text-field>
+        </v-col>
+        <v-col cols="2">
+          <v-combobox
+            v-model="searchRarity"
+            :items="rarities"
+            label="Rarity"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
         </v-col>
         <v-col cols="2">
           <v-combobox
@@ -28,7 +39,7 @@
           <v-combobox
             v-model="searchSlot"
             :items="slots"
-            label="Slot"
+            label="Subtype"
             clearable
             multiple
             small-chips
@@ -39,7 +50,7 @@
           <v-combobox
             v-model="searchStat"
             :items="stats"
-            label="Stat"
+            label="Bonus"
             clearable
             multiple
             small-chips
@@ -83,11 +94,22 @@
             </div>
           </td>
 
+          <td>
+            <div :class="['rarity', item.rarity]">{{ item.rarity }}</div>
+          </td>
+
           <!-- Savy price -->
-          <td>{{ item.market_price }}</td>
+          <td>
+            <table v-show="item.market_price">
+              <tr>
+                <td><div class="block" :style="currencySprite('Starbux')"/></td>
+                <td class="text-xs-left">{{ item.market_price }}</td>
+              </tr>
+            </table>
+          </td>
 
           <!-- Market price 48h -->
-          <td>
+          <td class="market">
             <table>
               <tr v-for="(price, currency, ind) in item.prices" :key="'item' + item.id + '-price-' + ind" class="nobreak">
                 <td><div class="block" :style="currencySprite(currency)"/></td>
@@ -102,20 +124,35 @@
             {{ item.type }}
           </td>
 
-          <!-- SubType -->
+         <!-- SubType -->
           <td class="stat">
             {{ item.slot }}
           </td>
 
           <!-- Bonus -->
-          <td class="text-xs-right">{{ formatBonus(item) }}</td>
-          <td class="text-xs-left text-capitalize">{{ item.enhancement === 'none' ? '' : item.enhancement}}</td>
+          <!-- <td class="text-xs-right">{{ formatBonus(item) }}</td> -->
+          <td class="text-xs-left text-capitalize bonus">
+            {{ formatBonus(item) }}&nbsp;
+            {{ item.enhancement === 'none' ? '' : item.enhancement}}
+            </td>
           
           <!-- Recipe -->
-          <td style="min-width: 55px">
+          <td class="recipe">
             <table>
               <tr v-for="ingredient in item.recipe" :key="'item' + item.id + '-recipe-' + ingredient.name" class="nobreak">
-                <td><div class="block" :style="spriteStyle(ingredient.sprite)" :title="ingredient.name"/></td>
+                <td>
+                  <v-tooltip bottom color="blue-grey">
+                    <template v-slot:activator="{ on, attrs }">
+                      <div
+                        class="block"
+                        v-bind="attrs"
+                        v-on="on"
+                        :style="spriteStyle(ingredient.sprite)"
+                      ></div>
+                    </template>
+                    {{ ingredient.name }}
+                  </v-tooltip>
+                </td>
                 <td>{{ ingredient.count }}</td>
               </tr>
             </table>
@@ -160,8 +197,9 @@ export default {
   data() {
     return {
       searchName: "",
-      searchType: [],
+      searchRarity: [],
       searchSlot: [],
+      searchType: [],
       searchStat: [],
       stats: [],
       slots: [],
@@ -170,20 +208,30 @@ export default {
       headers: [
         {text: 'Image', align: 'center', sortable: false, filterable: false},
         {text: 'Name', align: 'center', value: 'name', filterable: true},
-        {text: 'Savy Price', align: 'center', value: 'market_price', filterable: false},
-        {text: 'Market $ (48h) | # | 25 - 50 - 75%', align: 'center', value: 'offers', filterable: false},
+        {
+          text: 'Rarity', 
+          align: 'center', 
+          value: 'rarity', 
+          filter: value => { 
+            return this.filterCombobox(value, this.searchRarity)
+          }
+        },
+        {text: 'Savy $', align: 'center', value: 'market_price', filterable: false},
+        {text: 'Market $ (48h) | # | 25 - 50 - 75%', align: 'center', value: 'offers', filterable: false, width: 210},
         {
           text: 'Type', 
           align: 'center', 
           value: 'type', 
+          sortable: false,
           filter: value => { 
             return this.filterCombobox(value, this.searchType)
           }
         },
         {
-          text: 'Slot', 
+          text: 'Subtype', 
           align: 'center', 
           value: 'slot', 
+          sortable: false,
           filter: value => { 
             return this.filterCombobox(value, this.searchSlot)
           }
@@ -191,19 +239,20 @@ export default {
         {
           text: 'Bonus', 
           align: 'center', 
-          value: 'bonus', 
-          filterable: false,
-        },
-        {
-          text: 'Stat', 
-          align: 'center', 
           value: 'enhancement', 
           filter: value => { 
             return this.filterCombobox(value, this.searchStat)
           }
         },
         {text: 'Recipie', align: 'center', sortable: false, filterable: false},
-        {text: 'Description', align: 'center', value: 'description', filterable: false, width: '300px'}
+        {
+          text: 'Description', 
+          align: 'center', 
+          value: 'description', 
+          filterable: false, 
+          sortable: false,
+          width: '300px'
+        }
       ],
       items: [],
       showStarbux: true,
@@ -269,6 +318,7 @@ export default {
       this.stats = Array.from(new Set(this.items.map((item) => item.enhancement === 'none' ? 'None' : item.enhancement[0].toUpperCase() + item.enhancement.slice(1)))).sort()
       this.slots = Array.from(new Set(this.items.map((item) => !item.slot ? 'None' : item.slot))).sort()
       this.types = Array.from(new Set(this.items.map((item) => !item.type ? 'None' : item.type))).sort()
+      this.rarities = Array.from(new Set(this.items.map((item) => item.rarity[0].toUpperCase() + item.rarity.slice(1) )))
     },
 
     currencySprite (currency) {
@@ -465,5 +515,17 @@ a.name {
 
 .equip {
   font-size: 90%;
+}
+
+.market {
+  min-width: 200px;
+}
+
+.bonus {
+  min-width: 100px;
+}
+
+.recipe {
+  min-width: 55px;
 }
 </style>
