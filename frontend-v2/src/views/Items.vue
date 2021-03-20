@@ -239,9 +239,9 @@ export default {
         {
           text: 'Bonus', 
           align: 'center', 
-          value: 'enhancement', 
-          filter: value => { 
-            return this.filterCombobox(value, this.searchStat)
+          value: 'bonus', 
+          filter: (value, search, item) => { 
+            return this.filterCombobox(item.enhancement, this.searchStat)
           }
         },
         {text: 'Recipie', align: 'center', sortable: false, filterable: false},
