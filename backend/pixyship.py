@@ -1028,13 +1028,22 @@ class Pixyship(metaclass=Singleton):
         ]
 
         splitted_prices = [i.split(':') for i in cost_list_string.split('|')]
-        prices = [
-            {
-                'currency': price[0],
-                'price': int(price[1])
+        prices = []
+        for splitted_price in splitted_prices:
+            price = {
+                'currency': splitted_price[0]
             }
-            for price in splitted_prices
-        ]
+
+            amount = splitted_price[1].split('x')
+            if len(amount) > 1:
+                item_id = int(amount[0])
+                price['price'] = item_id
+                price['count'] = amount[1]
+                price['object'] = self.items[item_id]
+            else:
+                price['price'] = int(splitted_price[1])
+
+            prices.append(price)
 
         cargo = [self._format_daily_offer('Cargo', [item], price) for item, price in zip(items, prices)]
         return cargo

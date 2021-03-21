@@ -14,9 +14,14 @@
             <template slot="items" slot-scope="i">
               <td :class="[isExpired(i.item.expires) ? 'expired' : '', 'text-xs-right']">{{ i.item.description }}</td>
               <td :class="[isExpired(i.item.expires) ? 'expired' : '', 'text-xs-right']">
-                <template v-if="i.item.cost">
+                <template v-if="i.item.cost && i.item.cost.currency != 'item'">
                   {{ i.item.cost.price }}
                   <div class="block middle" :style="currencySprite(i.item.cost.currency)"></div>
+                </template>
+                <template v-else-if="i.item.cost && i.item.cost.currency == 'item'">
+                  {{ i.item.cost.count }}
+                  <div class="block middle" :style="spriteStyle(i.item.cost.object.sprite)" :title="i.item.cost.object.name"
+                  ></div>
                 </template>
               </td>
               <td>
