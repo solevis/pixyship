@@ -69,6 +69,8 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
+      sortBy="offers"
+      :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
@@ -76,10 +78,11 @@
       loading-text="Loading..."
       class="elevation-1"
       dense
+      @item-expanded="rowExpanded">
     >
 
       <template v-slot:item="{ item, expand, isExpanded }">
-        <tr v-on:item-expanded="rowExpanded" @click="expand(!isExpanded)">
+        <tr @click="expand(!isExpanded)">
           
 
           <!-- Image -->
@@ -169,10 +172,10 @@
         <td :colspan="headers.length">
           <v-container class="my-0 py-0">
             <v-layout justify-center>
-              <v-switch v-model="showGas" label="Gas" color="purple" @click.native="updatePlot"></v-switch>
-              <v-switch v-model="showMineral" label="Mineral" color="blue" hide-details
+              <v-switch class="px-3" v-model="showGas" label="Gas" color="purple" @click.native="updatePlot"></v-switch>
+              <v-switch class="px-3" v-model="showMineral" label="Mineral" color="blue" hide-details
                 @click.native="updatePlot"></v-switch>
-              <v-switch v-model="showStarbux" label="Starbux" color="green" hide-details
+              <v-switch class="px-3" v-model="showStarbux" label="Starbux" color="green" hide-details
                 @click.native="updatePlot"></v-switch>
             </v-layout>
           </v-container>
@@ -354,18 +357,19 @@ export default {
       return formatedPrice
     },
 
-    rowExpanded: async function (item) {
-        // Fetch data if needed
-        if (!this.items[item.id].priceHistory) {
-          // TODO: Make the transform once then
-          const response = await axios.get(this.itemPricesEndpoint(item.id))
-          this.items[item.id].priceHistory = response.data.data.prices
-        } else {
-          await new Promise(resolve => setTimeout(resolve, 1))
-        }
+    rowExpanded: async function (row) {
+      let item = row.item
+      // Fetch data if needed
+      if ('priceHistory' in item) {
+        await new Promise(resolve => setTimeout(resolve, 1))
+      } else {
+        // TODO: Make the transform once then
+        const response = await axios.get(this.itemPricesEndpoint(item.id))
+        item.priceHistory = response.data.data.prices
+      }
 
-        this.openRow = item
-        this.plotData(item)
+      this.openRow = item
+      this.plotData(item)
     },
 
     updatePlot () {
@@ -375,76 +379,81 @@ export default {
     },
 
     plotData (item) {
-      const h = this.items[item.id].priceHistory
-      if (Object.keys(h).length > 0) {
+      const history = this.items[item.id].priceHistory
+      
+      if (Object.keys(history).length > 0) {
         const series = {}
-        const currency = []
-        if (this.showStarbux) currency.push('Starbux')
-        if (this.showGas) currency.push('Gas')
-        if (this.showMineral) currency.push('Mineral')
+        const currencies = []
 
-        const cDetails = {
+        if (this.showStarbux) currencies.push('Starbux')
+        if (this.showGas) currencies.push('Gas')
+        if (this.showMineral) currencies.push('Mineral')
+
+        const currencyDetails = {
           Starbux: {color: '122,255,185', short: '$', side: 'left'},
           Gas: {color: '168,89,190', short: 'G', side: 'right'},
           Mineral: {color: '6,152,193', short: 'M', side: 'right'}
         }
 
         // Get the data series indicated
-        currency.map(f => {
-          if (f in h) {
-            series[f] = {}
-            series[f].dates = Object.keys(h[f])
-            series[f].p25 = Object.entries(h[f]).map(e => e[1].p25)
-            series[f].p50 = Object.entries(h[f]).map(e => e[1].p50)
-            series[f].p75 = Object.entries(h[f]).map(e => e[1].p75)
-            series[f].count = Object.entries(h[f]).map(e => e[1].count)
+        currencies.map(currency => {
+          if (currency in history) {
+            series[currency] = {}
+            series[currency].dates = Object.keys(history[currency])
+            series[currency].p25 = Object.entries(history[currency]).map(e => e[1].p25)
+            series[currency].p50 = Object.entries(history[currency]).map(e => e[1].p50)
+            series[currency].p75 = Object.entries(history[currency]).map(e => e[1].p75)
+            series[currency].count = Object.entries(history[currency]).map(e => e[1].count)
           }
         })
 
         let data = []
-        currency.map(c => {
-          const line = {shape: 'spline', color: 'rgba(' + cDetails[c].color + ',1)'}
-          const bound = {shape: 'spline', color: 'rgba(' + cDetails[c].color + ',0.3)'}
-          const fill = 'rgba(' + cDetails[c].color + ',0.2)'
+        currencies.map(currency => {
+          const line = {shape: 'spline', color: 'rgba(' + currencyDetails[currency].color + ',1)'}
+          const bound = {shape: 'spline', color: 'rgba(' + currencyDetails[currency].color + ',0.3)'}
+          const fill = 'rgba(' + currencyDetails[currency].color + ',0.2)'
 
-          if (c in series) {
+          if (currency in series) {
+            let serie = series[currency]
+            let currencyDetail = currencyDetails[currency]
+
             data.push({
-              x: series[c].dates,
-              y: series[c].count,
+              x: serie.dates,
+              y: serie.count,
               type: 'scatter',
-              name: cDetails[c].short + ' Vol',
+              name: currencyDetail.short + ' Vol',
               line: line,
               xaxis: 'x',
               yaxis: 'y2'
             })
 
             const p25 = {
-              x: series[c].dates,
-              y: series[c].p25,
+              x: serie.dates,
+              y: serie.p25,
               type: 'scatter',
-              name: cDetails[c].short + ' 25%',
+              name: currencyDetail.short + ' 25%',
               line: bound
             }
 
             const p75 = {
-              x: series[c].dates,
-              y: series[c].p75,
+              x: serie.dates,
+              y: serie.p75,
               type: 'scatter',
-              name: cDetails[c].short + ' 75%',
+              name: currencyDetail.short + ' 75%',
               line: bound,
               fill: 'tonextx',
               fillcolor: fill
             }
 
             const p50 = {
-              x: series[c].dates,
-              y: series[c].p50,
+              x: serie.dates,
+              y: serie.p50,
               type: 'scatter',
-              name: cDetails[c].short + ' 50%',
+              name: currencyDetail.short + ' 50%',
               line: line
             }
 
-            if (cDetails[c].side === 'right') {
+            if (currencyDetail.side === 'right') {
               p25.yaxis = 'y3'
               p50.yaxis = 'y3'
               p75.yaxis = 'y3'
@@ -461,15 +470,15 @@ export default {
           yaxis2: {
             domain: [0, 0.3],
             title: 'Volume',
-            gridcolor: '#222'
+            gridcolor: '#9e9e9e47'
           },
 
           xaxis: {
             showgrid: false
           },
 
-          paper_bgcolor: 'black',
-          plot_bgcolor: 'black',
+          paper_bgcolor: '#1f1f1f',
+          plot_bgcolor: '#1f1f1f',
           margin: {t: 35, b: 30},
           font: {color: 'white'},
           title: `${item.name} prices`
@@ -479,7 +488,7 @@ export default {
           layout.yaxis = {
             domain: [0.3, 1],
             title: 'Starbux',
-            gridcolor: '#222'
+            gridcolor: '#9e9e9e47'
           }
 
           layout.yaxis3 = {title: 'Gas/Mineral', overlaying: 'y', side: 'right'}
@@ -487,7 +496,7 @@ export default {
           layout.yaxis3 = {
             domain: [0.3, 1],
             title: 'Gas/Mineral',
-            gridcolor: '#222'
+            gridcolor: '#9e9e9e47'
           }
         }
 
