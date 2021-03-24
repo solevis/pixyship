@@ -66,7 +66,7 @@ python importer.py --assets
 python importer.py --players
 
 python importer.py --market  # very long, several hours
-python importer.py --market-one-item  # retrieve market history for only one item, much faster for dev
+python importer.py --market-first-item  # retrieve market history for only one item, much faster for dev
 ```
 
 Run :

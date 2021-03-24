@@ -31,7 +31,7 @@ numpy==1.20.1
 olefile==0.44
 paramiko~=2.4.2
 passlib==1.7.1
-Pillow==8.1.0
+Pillow==8.1.1
 psycopg2-binary==2.8.6
 pyasn1==0.4.2
 pycparser==2.18

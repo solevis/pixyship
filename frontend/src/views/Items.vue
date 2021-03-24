@@ -154,7 +154,7 @@ export default {
     },
 
     plotData (row) {
-      const h = this.items[row.item.id].priceHistory
+      const h = row.item.priceHistory
       if (Object.keys(h).length > 0) {
         const series = {}
         const currency = []
@@ -279,10 +279,10 @@ export default {
       row.expanded = !row.expanded
       if (row.expanded) {
         // Fetch data if needed
-        if (!this.items[row.item.id].priceHistory) {
+        if (!row.item.priceHistory) {
           // TODO: Make the transform once then
           const r = await axios.get(this.itemPricesEndpoint(row.item.id))
-          this.items[row.item.id].priceHistory = r.data.data.prices
+          row.item.priceHistory = r.data.data.prices
         } else {
           await new Promise(resolve => setTimeout(resolve, 1))
         }
