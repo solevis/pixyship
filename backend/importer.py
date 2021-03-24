@@ -66,7 +66,7 @@ def import_assets():
     logger.info('Done')
 
 
-def import_market(one_item_only=False):
+def import_market(first_item_only=False, item=None):
     """Get last market sales for all items."""
 
     # avoid Flask RuntimeError: No application found
@@ -74,18 +74,24 @@ def import_market(one_item_only=False):
 
     logger.info('Importing market prices')
 
-    # get items from database
-    records = Record.query.filter_by(type='item', current=True).all()
-
     pixyship = Pixyship()
 
     # no need to get sales of items not saleable
     items = pixyship.items
     saleable_items = {item_id: item for item_id, item in items.items() if item['saleable']}
 
+    if item:
+        try:
+            saleable_items = {
+                item: saleable_items[item]
+            }
+        except KeyError:
+            logger.error(f"Unknown item {item}")
+            return
+
     count = 0
     total = len(saleable_items)
-    if one_item_only:
+    if first_item_only:
         total = 1
 
     for item_id, item in saleable_items.items():
@@ -111,7 +117,7 @@ def import_market(one_item_only=False):
         logger.info('\t{} sales updated'.format(len(sales)))
         db.session.commit()
 
-        if one_item_only:
+        if first_item_only:
             break
 
     logger.info('Done')
@@ -170,7 +176,8 @@ if __name__ == '__main__':
     parser.add_argument("--assets", action="store_true")
     parser.add_argument("--players", action="store_true")
     parser.add_argument("--market", action="store_true")
-    parser.add_argument("--market-one-item", action="store_true")
+    parser.add_argument("--market-first-item", action="store_true")
+    parser.add_argument("--market-one-item", type=int)
     parser.add_argument("--sprites", action="store_true")
     args = parser.parse_args()
 
@@ -192,10 +199,16 @@ if __name__ == '__main__':
             import_market()
             logger.info('END :: {}s'.format(t.elapsed))
 
+    if args.market_first_item:
+        with Timer() as t:
+            logger.info('START')
+            import_market(first_item_only=True)
+            logger.info('END :: {}s'.format(t.elapsed))
+
     if args.market_one_item:
         with Timer() as t:
             logger.info('START')
-            import_market(True)
+            import_market(item=args.market_one_item)
             logger.info('END :: {}s'.format(t.elapsed))
 
     if args.sprites:
