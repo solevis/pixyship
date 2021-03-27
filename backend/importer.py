@@ -86,7 +86,7 @@ def import_market(first_item_only=False, item=None):
                 item: saleable_items[item]
             }
         except KeyError:
-            logger.error(f"Unknown item {item}")
+            logger.error("Unknown item {}".format(item))
             return
 
     count = 0
