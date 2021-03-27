@@ -79,7 +79,6 @@
       class="elevation-1"
       dense
       @item-expanded="rowExpanded">
-    >
 
       <template v-slot:item="{ item, expand, isExpanded }">
         <tr @click="expand(!isExpanded)">
@@ -162,7 +161,7 @@
           </td>
 
           <!-- Description -->
-          <td :colspan="headers.length">
+          <td>
             {{ item.description }}
           </td>
         </tr>
@@ -324,21 +323,6 @@ export default {
       this.rarities = Array.from(new Set(this.items.map((item) => item.rarity[0].toUpperCase() + item.rarity.slice(1) )))
     },
 
-    currencySprite (currency) {
-      switch (currency) {
-        case 'Starbux':
-          return this.buxSprite()
-        case 'Gas':
-          return this.gasSprite()
-        case 'Mineral':
-          return this.mineralSprite()
-        case 'Supply':
-          return this.supplySprite()
-        default:
-          return ''
-      }
-    },
-
     priceFormat (price) {
       const formatFunc = function (x) {
         if (Math.max(price.p25, price.p50, price.p75) > 999999) {
@@ -379,7 +363,7 @@ export default {
     },
 
     plotData (item) {
-      const history = this.items[item.id].priceHistory
+      const history = item.priceHistory
       
       if (Object.keys(history).length > 0) {
         const series = {}
@@ -527,7 +511,7 @@ a.name {
 }
 
 .market {
-  min-width: 200px;
+  min-width: 250px;
 }
 
 .bonus {

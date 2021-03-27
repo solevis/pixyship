@@ -25,6 +25,23 @@ export default {
   },
 
   methods: {
+    currencySprite (currency) {
+      let lowerCurrency = currency.toLowerCase()
+
+      switch (lowerCurrency) {
+        case 'starbux':
+          return this.buxSprite()
+        case 'gas':
+          return this.gasSprite()
+        case 'mineral':
+          return this.mineralSprite()
+        case 'supply':
+          return this.supplySprite()
+        default:
+          return ''
+      }
+    }, 
+
     filterCombobox(value, searchArray) {
       if (searchArray === null) {
         return true
