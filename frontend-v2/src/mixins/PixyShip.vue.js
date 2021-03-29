@@ -56,8 +56,7 @@ export default {
       }
 
       let result = searchArray.some(search => {
-        search = search.toString().toLowerCase()
-        return value.toString().toLowerCase().indexOf(search) !== -1
+        return value.toString().toLowerCase() === search.toString().toLowerCase()
       })
 
       return result

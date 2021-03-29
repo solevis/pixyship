@@ -3,7 +3,7 @@
     <v-card-title v-if="!loaded"> Loading... </v-card-title>
 
     <!-- Filters -->
-    <v-card-title v-if="loaded">
+    <v-card-title v-if="loaded">  
       <v-row>
         <v-col cols="4">
           <v-text-field
@@ -57,6 +57,15 @@
             hide-details
           ></v-combobox>
         </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <div align="center" class="subtitle-2 mb-2 ml-2">
+            <v-icon>mdi-information</v-icon>
+            Display item market history by clicking the row.
+          </div>
+        </v-col>
+        
       </v-row>
     </v-card-title>
 
