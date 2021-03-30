@@ -3,7 +3,7 @@
     <v-card-title v-if="!loaded"> Loading... </v-card-title>
 
     <!-- Filters -->
-    <v-card-title v-if="loaded">  
+    <v-card-title v-if="loaded">
       <v-row>
         <v-col cols="4">
           <v-text-field
@@ -65,7 +65,6 @@
             Display item market history by clicking the row.
           </div>
         </v-col>
-        
       </v-row>
     </v-card-title>
 
@@ -78,6 +77,7 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
+      :single-expand="true"
       sortBy="offers"
       :sortDesc="true"
       :footer-props="{
@@ -87,12 +87,12 @@
       loading-text="Loading..."
       class="elevation-1"
       dense
-      @item-expanded="rowExpanded">
-
+      @item-expanded="rowExpanded"
+    >
       <template v-slot:item="{ item, expand, isExpanded }">
-        <tr @click="expand(!isExpanded)">
-          
-
+        <v-tooltip bottom color="blue-grey" :disabled="isExpanded || !item.market_price">
+          <template v-slot:activator="{ on, attrs }">
+        <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
           <!-- Image -->
           <td>
             <div :style="spriteStyle(item.sprite)"></div>
@@ -101,7 +101,7 @@
           <!-- Name -->
           <td>
             <div :class="[item.rarity, 'lh-9', 'name']">
-              {{ item.name }}<br/>
+              {{ item.name }}<br />
             </div>
           </td>
 
@@ -113,7 +113,9 @@
           <td>
             <table v-show="item.market_price">
               <tr>
-                <td><div class="block" :style="currencySprite('Starbux')"/></td>
+                <td>
+                  <div class="block" :style="currencySprite('Starbux')" />
+                </td>
                 <td class="text-xs-left">{{ item.market_price }}</td>
               </tr>
             </table>
@@ -122,8 +124,12 @@
           <!-- Market price 48h -->
           <td class="market">
             <table>
-              <tr v-for="(price, currency, ind) in item.prices" :key="'item' + item.id + '-price-' + ind" class="nobreak">
-                <td><div class="block" :style="currencySprite(currency)"/></td>
+              <tr
+                v-for="(price, currency, ind) in item.prices"
+                :key="'item' + item.id + '-price-' + ind"
+                class="nobreak"
+              >
+                <td><div class="block" :style="currencySprite(currency)" /></td>
                 <td>{{ price.count }}</td>
                 <td class="text-xs-left" v-html="priceFormat(price)"></td>
               </tr>
@@ -135,7 +141,7 @@
             {{ item.type }}
           </td>
 
-         <!-- SubType -->
+          <!-- SubType -->
           <td class="stat">
             {{ item.slot }}
           </td>
@@ -144,13 +150,17 @@
           <!-- <td class="text-xs-right">{{ formatBonus(item) }}</td> -->
           <td class="text-xs-left text-capitalize bonus">
             {{ formatBonus(item) }}&nbsp;
-            {{ item.enhancement === 'none' ? '' : item.enhancement}}
-            </td>
-          
+            {{ item.enhancement === "none" ? "" : item.enhancement }}
+          </td>
+
           <!-- Recipe -->
           <td class="recipe">
             <table>
-              <tr v-for="ingredient in item.recipe" :key="'item' + item.id + '-recipe-' + ingredient.name" class="nobreak">
+              <tr
+                v-for="ingredient in item.recipe"
+                :key="'item' + item.id + '-recipe-' + ingredient.name"
+                class="nobreak"
+              >
                 <td>
                   <v-tooltip bottom color="blue-grey">
                     <template v-slot:activator="{ on, attrs }">
@@ -174,17 +184,38 @@
             {{ item.description }}
           </td>
         </tr>
+        </template>
+          <span>Click to display item market history</span>
+        </v-tooltip>
       </template>
 
       <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length">
+        <td :colspan="headers.length" v-show="item.market_price">
           <v-container class="my-0 py-0">
             <v-layout justify-center>
-              <v-switch class="px-3" v-model="showGas" label="Gas" color="purple" @click.native="updatePlot"></v-switch>
-              <v-switch class="px-3" v-model="showMineral" label="Mineral" color="blue" hide-details
-                @click.native="updatePlot"></v-switch>
-              <v-switch class="px-3" v-model="showStarbux" label="Starbux" color="green" hide-details
-                @click.native="updatePlot"></v-switch>
+              <v-switch
+                class="px-3"
+                v-model="showGas"
+                label="Gas"
+                color="purple"
+                @click.native="updatePlot"
+              ></v-switch>
+              <v-switch
+                class="px-3"
+                v-model="showMineral"
+                label="Mineral"
+                color="blue"
+                hide-details
+                @click.native="updatePlot"
+              ></v-switch>
+              <v-switch
+                class="px-3"
+                v-model="showStarbux"
+                label="Starbux"
+                color="green"
+                hide-details
+                @click.native="updatePlot"
+              ></v-switch>
             </v-layout>
           </v-container>
           <div :id="'chart-' + item.id" class="center"></div>
@@ -197,13 +228,12 @@
 <script>
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
-import plotly from 'plotly.js-dist'
+import plotly from "plotly.js-dist";
 
 export default {
   mixins: [mixins],
 
-  components: {
-  },
+  components: {},
 
   data() {
     return {
@@ -217,59 +247,75 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        {text: 'Image', align: 'center', sortable: false, filterable: false},
-        {text: 'Name', align: 'center', value: 'name', filterable: true},
+        { text: "Image", align: "center", sortable: false, filterable: false },
+        { text: "Name", align: "center", value: "name", filterable: true },
         {
-          text: 'Rarity', 
-          align: 'center', 
-          value: 'rarity', 
-          filter: value => { 
-            return this.filterCombobox(value, this.searchRarity)
-          }
+          text: "Rarity",
+          align: "center",
+          value: "rarity",
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchRarity);
+          },
         },
-        {text: 'Savy $', align: 'center', value: 'market_price', filterable: false},
-        {text: 'Market $ (48h) | # | 25 - 50 - 75%', align: 'center', value: 'offers', filterable: false, width: 210},
         {
-          text: 'Type', 
-          align: 'center', 
-          value: 'type', 
+          text: "Savy $",
+          align: "center",
+          value: "market_price",
+          filterable: false,
+        },
+        {
+          text: "Market $ (48h) | # | 25 - 50 - 75%",
+          align: "center",
+          value: "offers",
+          filterable: false,
+          width: 210,
+        },
+        {
+          text: "Type",
+          align: "center",
+          value: "type",
           sortable: false,
-          filter: value => { 
-            return this.filterCombobox(value, this.searchType)
-          }
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchType);
+          },
         },
         {
-          text: 'Subtype', 
-          align: 'center', 
-          value: 'slot', 
+          text: "Subtype",
+          align: "center",
+          value: "slot",
           sortable: false,
-          filter: value => { 
-            return this.filterCombobox(value, this.searchSlot)
-          }
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchSlot);
+          },
         },
         {
-          text: 'Bonus', 
-          align: 'center', 
-          value: 'bonus', 
-          filter: (value, search, item) => { 
-            return this.filterCombobox(item.enhancement, this.searchStat)
-          }
+          text: "Bonus",
+          align: "center",
+          value: "bonus",
+          filter: (value, search, item) => {
+            return this.filterCombobox(item.enhancement, this.searchStat);
+          },
         },
-        {text: 'Recipie', align: 'center', sortable: false, filterable: false},
         {
-          text: 'Description', 
-          align: 'center', 
-          value: 'description', 
-          filterable: false, 
+          text: "Recipie",
+          align: "center",
           sortable: false,
-          width: '300px'
-        }
+          filterable: false,
+        },
+        {
+          text: "Description",
+          align: "center",
+          value: "description",
+          filterable: false,
+          sortable: false,
+          width: "300px",
+        },
       ],
       items: [],
       showStarbux: true,
       showGas: false,
       showMineral: false,
-      openRow: null
+      openRow: null,
     };
   },
 
@@ -287,214 +333,265 @@ export default {
     getItems: async function () {
       const response = await axios.get(this.itemsEndpoint);
 
-      let items = []
+      let items = [];
       for (const itemId in response.data.data) {
-        const item = response.data.data[itemId]
-        item.id = Number(itemId)
-        items.push(item)
+        const item = response.data.data[itemId];
+        item.id = Number(itemId);
+        items.push(item);
       }
 
-      items.forEach(item => {
+      items.forEach((item) => {
         item.offers = item.prices
-          ? Object.keys(item.prices).map(k => item.prices[k].count).reduce((c, s) => c + s)
-          : 0
+          ? Object.keys(item.prices)
+              .map((k) => item.prices[k].count)
+              .reduce((c, s) => c + s)
+          : 0;
 
-        if (item.enhancement === 'none') {
-          item.hiddenBonus = item.bonus
-          item.bonus = 0
+        if (item.enhancement === "none") {
+          item.hiddenBonus = item.bonus;
+          item.bonus = 0;
         }
-      })
+      });
 
-      this.items = items
-      this.updateFilters()
+      this.items = items;
+      this.updateFilters();
 
       this.loaded = true;
 
-      return this.items
+      return this.items;
     },
 
     formatBonus(item) {
-      if (item.enhancement !== 'none' && item.bonus) {
-        return '+' + item.bonus
+      if (item.enhancement !== "none" && item.bonus) {
+        return "+" + item.bonus;
       }
 
       if (item.hiddenBonus) {
-        return item.hiddenBonus
+        return item.hiddenBonus;
       }
 
-      return ''
+      return "";
     },
 
     updateFilters() {
-      this.stats = Array.from(new Set(this.items.map((item) => item.enhancement === 'none' ? 'None' : item.enhancement[0].toUpperCase() + item.enhancement.slice(1)))).sort()
-      this.slots = Array.from(new Set(this.items.map((item) => !item.slot ? 'None' : item.slot))).sort()
-      this.types = Array.from(new Set(this.items.map((item) => !item.type ? 'None' : item.type))).sort()
-      this.rarities = Array.from(new Set(this.items.map((item) => item.rarity[0].toUpperCase() + item.rarity.slice(1) )))
+      this.stats = Array.from(
+        new Set(
+          this.items.map((item) =>
+            item.enhancement === "none"
+              ? "None"
+              : item.enhancement[0].toUpperCase() + item.enhancement.slice(1)
+          )
+        )
+      ).sort((a) => a === 'None' ? -1 : 1);
+
+      this.slots = Array.from(
+        new Set(this.items.map((item) => (!item.slot ? "None" : item.slot)))
+      ).sort((a) => a === 'None' ? -1 : 1);
+
+      this.types = Array.from(
+        new Set(this.items.map((item) => (!item.type ? "None" : item.type)))
+      ).sort((a) => a === 'None' ? -1 : 1);
+      
+      this.rarities = Array.from(
+        new Set(
+          this.items.map(
+            (item) => item.rarity[0].toUpperCase() + item.rarity.slice(1)
+          )
+        )
+      );
     },
 
-    priceFormat (price) {
+    priceFormat(price) {
       const formatFunc = function (x) {
         if (Math.max(price.p25, price.p50, price.p75) > 999999) {
-          return parseFloat((x / 1000000).toFixed(1)) + 'M'
+          return parseFloat((x / 1000000).toFixed(1)) + "M";
         } else if (Math.max(price.p25, price.p50, price.p75) > 999) {
-          return parseFloat((x / 1000).toFixed(1)) + 'K'
+          return parseFloat((x / 1000).toFixed(1)) + "K";
         } else {
-          return x.toFixed(0)
+          return x.toFixed(0);
         }
-      }
+      };
 
-      let formatedPrice = formatFunc(price.p25) +
-        ' - ' + '<b>' + formatFunc(price.p50) + '</b>' +
-        ' - ' + formatFunc(price.p75)
+      let formatedPrice =
+        formatFunc(price.p25) +
+        " - " +
+        "<b>" +
+        formatFunc(price.p50) +
+        "</b>" +
+        " - " +
+        formatFunc(price.p75);
 
-      return formatedPrice
+      return formatedPrice;
     },
 
     rowExpanded: async function (row) {
-      let item = row.item
+      let item = row.item;
       // Fetch data if needed
-      if ('priceHistory' in item) {
-        await new Promise(resolve => setTimeout(resolve, 1))
+      if ("priceHistory" in item) {
+        await new Promise((resolve) => setTimeout(resolve, 1));
       } else {
         // TODO: Make the transform once then
-        const response = await axios.get(this.itemPricesEndpoint(item.id))
-        item.priceHistory = response.data.data.prices
+        const response = await axios.get(this.itemPricesEndpoint(item.id));
+        item.priceHistory = response.data.data.prices;
       }
 
-      this.openRow = item
-      this.plotData(item)
+      this.openRow = item;
+      this.plotData(item);
     },
 
-    updatePlot () {
+    updatePlot() {
       if (this.openRow) {
-        this.plotData(this.openRow)
+        this.plotData(this.openRow);
       }
     },
 
-    plotData (item) {
-      const history = item.priceHistory
-      
-      if (Object.keys(history).length > 0) {
-        const series = {}
-        const currencies = []
+    plotData(item) {
+      const history = item.priceHistory;
 
-        if (this.showStarbux) currencies.push('Starbux')
-        if (this.showGas) currencies.push('Gas')
-        if (this.showMineral) currencies.push('Mineral')
+      if (Object.keys(history).length > 0) {
+        const series = {};
+        const currencies = [];
+
+        if (this.showStarbux) currencies.push("Starbux");
+        if (this.showGas) currencies.push("Gas");
+        if (this.showMineral) currencies.push("Mineral");
 
         const currencyDetails = {
-          Starbux: {color: '122,255,185', short: '$', side: 'left'},
-          Gas: {color: '168,89,190', short: 'G', side: 'right'},
-          Mineral: {color: '6,152,193', short: 'M', side: 'right'}
-        }
+          Starbux: { color: "122,255,185", short: "$", side: "left" },
+          Gas: { color: "168,89,190", short: "G", side: "right" },
+          Mineral: { color: "6,152,193", short: "M", side: "right" },
+        };
 
         // Get the data series indicated
-        currencies.map(currency => {
+        currencies.map((currency) => {
           if (currency in history) {
-            series[currency] = {}
-            series[currency].dates = Object.keys(history[currency])
-            series[currency].p25 = Object.entries(history[currency]).map(e => e[1].p25)
-            series[currency].p50 = Object.entries(history[currency]).map(e => e[1].p50)
-            series[currency].p75 = Object.entries(history[currency]).map(e => e[1].p75)
-            series[currency].count = Object.entries(history[currency]).map(e => e[1].count)
+            series[currency] = {};
+            series[currency].dates = Object.keys(history[currency]);
+            series[currency].p25 = Object.entries(history[currency]).map(
+              (e) => e[1].p25
+            );
+            series[currency].p50 = Object.entries(history[currency]).map(
+              (e) => e[1].p50
+            );
+            series[currency].p75 = Object.entries(history[currency]).map(
+              (e) => e[1].p75
+            );
+            series[currency].count = Object.entries(history[currency]).map(
+              (e) => e[1].count
+            );
           }
-        })
+        });
 
-        let data = []
-        currencies.map(currency => {
-          const line = {shape: 'spline', color: 'rgba(' + currencyDetails[currency].color + ',1)'}
-          const bound = {shape: 'spline', color: 'rgba(' + currencyDetails[currency].color + ',0.3)'}
-          const fill = 'rgba(' + currencyDetails[currency].color + ',0.2)'
+        let data = [];
+        currencies.map((currency) => {
+          const line = {
+            shape: "spline",
+            color: "rgba(" + currencyDetails[currency].color + ",1)",
+          };
+          const bound = {
+            shape: "spline",
+            color: "rgba(" + currencyDetails[currency].color + ",0.3)",
+          };
+          const fill = "rgba(" + currencyDetails[currency].color + ",0.2)";
 
           if (currency in series) {
-            let serie = series[currency]
-            let currencyDetail = currencyDetails[currency]
+            let serie = series[currency];
+            let currencyDetail = currencyDetails[currency];
 
             data.push({
               x: serie.dates,
               y: serie.count,
-              type: 'scatter',
-              name: currencyDetail.short + ' Vol',
+              type: "scatter",
+              name: currencyDetail.short + " Vol",
               line: line,
-              xaxis: 'x',
-              yaxis: 'y2'
-            })
+              xaxis: "x",
+              yaxis: "y2",
+            });
 
             const p25 = {
               x: serie.dates,
               y: serie.p25,
-              type: 'scatter',
-              name: currencyDetail.short + ' 25%',
-              line: bound
-            }
+              type: "scatter",
+              name: currencyDetail.short + " 25%",
+              line: bound,
+            };
 
             const p75 = {
               x: serie.dates,
               y: serie.p75,
-              type: 'scatter',
-              name: currencyDetail.short + ' 75%',
+              type: "scatter",
+              name: currencyDetail.short + " 75%",
               line: bound,
-              fill: 'tonextx',
-              fillcolor: fill
-            }
+              fill: "tonextx",
+              fillcolor: fill,
+            };
 
             const p50 = {
               x: serie.dates,
               y: serie.p50,
-              type: 'scatter',
-              name: currencyDetail.short + ' 50%',
-              line: line
+              type: "scatter",
+              name: currencyDetail.short + " 50%",
+              line: line,
+            };
+
+            if (currencyDetail.side === "right") {
+              p25.yaxis = "y3";
+              p50.yaxis = "y3";
+              p75.yaxis = "y3";
             }
 
-            if (currencyDetail.side === 'right') {
-              p25.yaxis = 'y3'
-              p50.yaxis = 'y3'
-              p75.yaxis = 'y3'
-            }
-
-            data.push(p25)
-            data.push(p75)
-            data.push(p50)
+            data.push(p25);
+            data.push(p75);
+            data.push(p50);
           }
-        })
+        });
 
         let layout = {
-          legend: {traceorder: 'reversed'},
+          legend: { traceorder: "reversed" },
           yaxis2: {
             domain: [0, 0.3],
-            title: 'Volume',
-            gridcolor: '#9e9e9e47'
+            title: "Volume",
+            gridcolor: "#9e9e9e47",
           },
 
           xaxis: {
-            showgrid: false
+            showgrid: false,
           },
 
-          paper_bgcolor: '#1f1f1f',
-          plot_bgcolor: '#1f1f1f',
-          margin: {t: 35, b: 30},
-          font: {color: 'white'},
-          title: `${item.name} prices`
-        }
+          paper_bgcolor: "#1f1f1f",
+          plot_bgcolor: "#1f1f1f",
+          margin: { t: 35, b: 30 },
+          font: { color: "white" },
+          title: `${item.name} prices`,
+        };
 
         if (this.showStarbux) {
           layout.yaxis = {
             domain: [0.3, 1],
-            title: 'Starbux',
-            gridcolor: '#9e9e9e47'
-          }
+            title: "Starbux",
+            gridcolor: "#9e9e9e47",
+          };
 
-          layout.yaxis3 = {title: 'Gas/Mineral', overlaying: 'y', side: 'right'}
+          layout.yaxis3 = {
+            title: "Gas/Mineral",
+            overlaying: "y",
+            side: "right",
+          };
         } else {
           layout.yaxis3 = {
             domain: [0.3, 1],
-            title: 'Gas/Mineral',
-            gridcolor: '#9e9e9e47'
-          }
+            title: "Gas/Mineral",
+            gridcolor: "#9e9e9e47",
+          };
         }
 
-        const options = {displayModeBar: false}
-        plotly.newPlot(document.getElementById('chart-' + item.id), data, layout, options)
+        const options = { displayModeBar: false };
+        plotly.newPlot(
+          document.getElementById("chart-" + item.id),
+          data,
+          layout,
+          options
+        );
       }
     },
   },

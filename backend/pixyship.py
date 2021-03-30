@@ -629,6 +629,14 @@ class Pixyship(metaclass=Singleton):
                 'system_damage': float(missile_design['SystemDamage']) if missile_design else 0,
                 'hull_damage': float(missile_design['HullDamage']) if missile_design else 0,
                 'character_damage': float(missile_design['CharacterDamage']) if missile_design else 0,
+                'shield_damage': float(missile_design['ShieldDamage']) if missile_design else 0,
+                'direct_system_damage': float(missile_design['DirectSystemDamage']) if missile_design else 0,
+                'volley': float(missile_design['Volley']) if missile_design else 0,
+                'volley_delay': float(missile_design['VolleyDelay']) if missile_design else 0,
+                'speed': float(missile_design['Speed']) if missile_design else 0,
+                'fire_length': float(missile_design['FireLength']) if missile_design else 0,
+                'emp_length': float(missile_design['EMPLength']) if missile_design else 0,
+                'stun_length': float(missile_design['StunLength']) if missile_design else 0,
                 'manufacture_type': room['ManufactureType'],
             }
 
