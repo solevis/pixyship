@@ -65,6 +65,9 @@ class Listing(db.Model):
     currency = db.Column('currency', db.TEXT, nullable=False)
     price = db.Column('price', db.INT, nullable=False)
     user_id = db.Column('user_id', db.INT, nullable=False)
+    user_name = db.Column('user_name', db.TEXT, nullable=False)
+    seller_id = db.Column('seller_id', db.INT, nullable=False)
+    seller_name = db.Column('seller_name', db.TEXT, nullable=False)
 
 
 class Record(db.Model):
