@@ -86,7 +86,7 @@ def import_market(first_item_only=False, item=None):
                 item: saleable_items[item]
             }
         except KeyError:
-            logger.error(f"Unknown item {item}")
+            logger.error("Unknown item {}".format(item))
             return
 
     count = 0
@@ -109,7 +109,10 @@ def import_market(first_item_only=False, item=None):
                 amount=sale['Quantity'],
                 currency=sale['CurrencyType'],
                 price=sale['CurrencyValue'],
-                user_id=sale['BuyerShipId']
+                user_id=sale['BuyerShipId'],
+                user_name=sale['BuyerShipName'],
+                seller_id=sale['SellerShipId'],
+                seller_name=sale['SellerShipName']
             )
 
             db.session.merge(listing)
