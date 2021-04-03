@@ -19,8 +19,9 @@
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
-            label='Name (example: "Zombie", Eva)'
-            hide-details
+            label='Name'
+            hint='For example: "Zombie", Eva'
+            clearable
           ></v-text-field>
         </v-col>
         <v-col cols="2">
@@ -422,10 +423,15 @@ export default {
 }
 
 a.name {
-  text-decoration: none;
+  text-decoration: underline;
+}
+
+a.name:hover {
+  text-decoration: underline;
 }
 
 .equip {
   font-size: 90%;
 }
+
 </style>

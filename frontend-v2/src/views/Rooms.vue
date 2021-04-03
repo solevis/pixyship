@@ -9,8 +9,9 @@
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
-            label='Name (example: "Lift Lv2", Vent)'
-            hide-details
+            label='Name'
+            hint='For example: "Lift Lv2", Vent'
+            clearable
           ></v-text-field>
         </v-col>
         <v-col cols="2">
@@ -65,11 +66,10 @@
       v-if="loaded"
       :headers="headers"
       :items="rooms"
+      :items-per-page="20"
       :search="searchName"
       :custom-filter="multipleFilterWithNegative"
-      :items-per-page="20"
       :loading="isLoading"
-      sortBy="offers"
       :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
@@ -77,21 +77,25 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1"
-      dense
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
           <template v-slot:activator="{ on, attrs }">
             <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
               <!-- Image -->
-              <td>
+              <td class="pa-1">
                 <div :style="spriteStyle(item.sprite)"></div>
               </td>
 
               <!-- Name -->
               <td>
                 <div :class="[item.rarity, 'lh-9', 'name']">
-                  {{ item.name }}<br />
+                  {{ item.name }}
+                </div>
+              </td>
+
+              <td>
+                <div :class="[item.rarity, 'lh-9', 'name']">
                   <span>{{ item.short_name }}</span>
                 </div>
               </td>
@@ -110,11 +114,11 @@
                       : 'negative',
                   ]"
                 >
-                  {{ item.power_gen - item.power_use || "" }}
+                  {{ formatPower(item) }}
                 </div>
               </td>
-              <td>
-                <table>
+              <td align="center">
+                <table v-if="item.purchasable">
                   <tr class="nobreak">
                     <td>
                       <div :style="currencySprite(item.upgrade_currency)" />
@@ -132,105 +136,202 @@
       </template>
 
       <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" align="center" class="pb-2">
-          <v-card
-            elevation="3"
-            class="px-6 pb-6 pt-2"
-          >
-            <v-simple-table dense style="width: 500px">
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th class="text-left" style="width: 300px">
-                      Stat
-                    </th>
-                    <th class="text-left">
-                      Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-show="item.reload">
-                    <td>Reload</td>
-                    <td>{{ item.reload }} ({{ `${item.reload / 40}s` }})</td>
-                  </tr>
+        <td :colspan="headers.length" align="center" style="border-bottom: 10px solid #393939;">
+          <v-row class="ma-3">
+            <v-col>
+              <v-card
+                elevation="3"
+                class="px-6 pb-6 pt-2"
+                outlined
+                shaped
+              >
+                <v-card-subtitle>
+                  <div class="overline">
+                    PRIMARY STATS
+                  </div>
+                </v-card-subtitle>
 
-                  <tr v-show="item.defense">
-                    <td>Defense</td>
-                    <td>{{ item.defense }} ({{ (1 - 100 / (100 + item.defense)).toLocaleString("en-US", { style: "percent", }) }})</td>
-                  </tr>
+                <v-simple-table dense style="width: 500px">
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left" style="width: 300px">
+                          Stat
+                        </th>
+                        <th class="text-left">
+                          Value
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                      <tr v-show="item.enhancement_type != 'None'">
+                        <td>Support Stat</td>
+                        <td>{{ item.enhancement_type }}</td>
+                      </tr>
 
-                  <tr v-show="item.character_damage">
-                    <td>Crew Dmg</td>
-                    <td>{{ item.character_damage }}</td>
-                  </tr>
+                      <tr v-show="item.reload">
+                        <td>Reload</td>
+                        <td>{{ item.reload }} ({{ `${Math.ceil(item.reload / 40 * 100) / 100}s` }})</td>
+                      </tr>
 
-                  <tr v-show="item.hull_damage">
-                    <td>Hull Dmg</td>
-                    <td>{{ item.hull_damage }}</td>
-                  </tr>
+                      <tr v-show="item.capacity">
+                        <td>Capacity</td>
+                        <td>{{ item.capacity }}</td>
+                      </tr>
 
-                  <tr v-show="item.shield_damage">
-                    <td>Shield Dmg</td>
-                    <td>{{ item.shield_damage }}</td>
-                  </tr>
+                      <tr v-show="item.refill_cost">
+                        <td>Refill cost</td>
+                        <td>{{ item.refill_cost }}</td>
+                      </tr>
 
-                  <tr v-show="item.system_damage">
-                    <td>System Dmg</td>
-                    <td>{{ item.system_damage }}</td>
-                  </tr>
+                      <tr v-show="item.manufacture_type !== 'None'">
+                        <td>Manufacture Type</td>
+                        <td>{{ item.manufacture_type }}</td>
+                      </tr>
 
-                  <tr v-show="item.direct_system_damage">
-                    <td>AP Dmg</td>
-                    <td>{{ item.direct_system_damage }}</td>
-                  </tr>
+                      <tr v-show="item.manufacture_rate">
+                        <td>Manufacture Rate</td>
+                        <td>{{ `${Math.ceil(item.manufacture_rate * 3600)}/hour` }}</td>
+                      </tr>
 
-                  <tr v-show="item.volley">
-                    <td>Volley</td>
-                    <td>{{ item.volley }}</td>
-                  </tr>
+                      <tr v-show="item.manufacture_capacity">
+                        <td>Manufacture Capacity</td>
+                        <td>{{ item.manufacture_capacity }}</td>
+                      </tr>
 
-                  <tr v-show="item.volley_delay">
-                    <td>V. Delay</td>
-                    <td>{{ item.volley_delay }} ({{ `${item.volley_delay / 40}s` }})</td>
-                  </tr>
+                      <tr v-show="item.defense">
+                        <td>Defense</td>
+                        <td>{{ item.defense }} ({{ (1 - 100 / (100 + item.defense)).toLocaleString("en-US", { style: "percent", }) }})</td>
+                      </tr>
 
-                  <tr v-show="item.speed">
-                    <td>Speed</td>
-                    <td>{{ item.speed }} ({{ `${item.speed / 40}s` }})</td>
-                  </tr>
+                      <tr v-show="item.cooldown_time">
+                        <td>Cooldown</td>
+                        <td>{{ item.cooldown_time }} ({{ `${item.cooldown_time / 40}s` }})</td>
+                      </tr>
 
-                  <tr v-show="item.fire_length">
-                    <td>Fire</td>
-                    <td>{{ item.fire_length }} ({{ `${item.fire_length / 40}s` }})</td>
-                  </tr>
+                      <tr v-if="item.requirement !== null">
+                        <td>{{ item.requirement.type }} requirement</td>
+                        <td>
+                           
+                        <table>
+                          <tr>
+                            <td>x{{ item.requirement.count }} {{ item.requirement.object.name }}</td>
+                            <td><div :style="spriteStyle(item.requirement.object.sprite)" class="ml-1"></div></td>
+                          </tr>
+                        </table>
+                        </td>
+                      </tr>
 
-                  <tr v-show="item.emp_length">
-                    <td>EMP</td>
-                    <td>{{ item.emp_length }} ({{ `${item.emp_length / 40}s` }})</td>
-                  </tr>
+                      <tr v-if="!item.purchasable">
+                        <td>Daily offer, event reward or dove ship</td>
+                        <td>Yes</td>
+                      </tr>
 
-                  <tr v-show="item.stun_length">
-                    <td>Stun</td>
-                    <td>{{ item.stun_length }} ({{ `${item.stun_length / 40}s` }})</td>
-                  </tr>
+                      <tr>
+                        <td>Placeable in the ship extended area</td>
+                        <td v-if="item.extension_grids">Yes</td>
+                        <td v-else>No</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col>
 
-                  <tr v-show="item.capacity">
-                    <td>Capacity</td>
-                    <td>{{ item.capacity }}</td>
-                  </tr>
+            <v-col>
+              <v-card
+                elevation="3"
+                class="px-6 pb-6 pt-2"
+                outlined
+                shaped
+                v-show="item.has_weapon_stats"
+              >
 
-                  <tr v-show="item.refill_cost">
-                    <td>Refill cost</td>
-                    <td>{{ item.refill_cost }}</td>
-                  </tr>
+              <v-card-subtitle>
+                <div class="overline">
+                  WEAPON STATS
+                </div>
+              </v-card-subtitle>
 
+                <v-simple-table dense style="width: 500px">
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left" style="width: 300px">
+                          Stat
+                        </th>
+                        <th class="text-left">
+                          Value
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-show="item.character_damage">
+                        <td>Crew Dmg (dps)</td>
+                        <td>{{ item.character_damage }} ({{ `${computeDps(item.character_damage, item)}/s` }})</td>
+                      </tr>
 
+                      <tr v-show="item.hull_damage">
+                        <td>Hull Dmg (dps)</td>
+                        <td>{{ item.hull_damage }} ({{ `${computeDps(item.hull_damage, item)}/s` }})</td>
+                      </tr>
 
-                </tbody>
-              </template>
-            </v-simple-table>
-          </v-card>
+                      <tr v-show="item.hull_percentage_damage">
+                        <td>Hull % Dmg</td>
+                        <td>{{ item.hull_percentage_damage }}%</td>
+                      </tr>
+
+                      <tr v-show="item.shield_damage">
+                        <td>Shield Dmg (dps)</td>
+                        <td>{{ item.shield_damage }} ({{ `${computeDps(item.shield_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.system_damage">
+                        <td>System Dmg (dps)</td>
+                        <td>{{ item.system_damage }} ({{ `${computeDps(item.system_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.direct_system_damage">
+                        <td>AP Dmg (dps)</td>
+                        <td>{{ item.direct_system_damage }} ({{ `${computeDps(item.direct_system_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.volley">
+                        <td>Volley</td>
+                        <td>{{ item.volley }}</td>
+                      </tr>
+
+                      <tr v-show="item.volley_delay">
+                        <td>V. Delay</td>
+                        <td>{{ item.volley_delay }} ({{ `${item.volley_delay / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.speed">
+                        <td>Speed</td>
+                        <td>{{ item.speed }} ({{ `${item.speed / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.fire_length">
+                        <td>Incendiary</td>
+                        <td>{{ item.fire_length }} ({{ `${item.fire_length / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.emp_length">
+                        <td>EMP</td>
+                        <td>{{ item.emp_length }} ({{ `${item.emp_length / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.stun_length">
+                        <td>Stun</td>
+                        <td>{{ item.stun_length }} ({{ `${item.stun_length / 40}s` }})</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col>
+          </v-row>
         </td>
       </template>
     </v-data-table>
@@ -261,7 +362,8 @@ export default {
       loaded: false,
       headers: [
         { text: "Image", align: "center", sortable: false, filterable: false },
-        { text: "Name", align: "left", value: "name" },
+        { text: "Name", align: "left", value: "name", width: 200 },
+        { text: "Short", align: "left", value: "short_name" },
         {
           text: "Type",
           align: "left",
@@ -314,7 +416,7 @@ export default {
           align: "center",
           value: "description",
           filterable: false,
-          sortable: false
+          sortable: false,
         },
       ],
       rooms: [],
@@ -332,16 +434,39 @@ export default {
   },
 
   methods: {
+    computeDps(damage, room) {
+      let volley = room.volley
+      if (volley == 0) {
+        volley = 1
+      }
+
+      let volley_delay = room.volley_delay
+      if (volley_delay == 0) {
+        volley_delay = 1
+      }
+
+      let reload = room.reload / 40
+      let cooldown = room.cooldown_time ? room.cooldown_time / 40 : 0
+
+      let dps = (damage * volley) / (reload + (volley - 1) * volley_delay + cooldown)
+      return Math.ceil(dps * 100) / 100
+    },
+
     getRooms: async function () {
       const response = await axios.get(this.roomsEndpoint);
 
       let rooms = [];
       for (const itemId in response.data.data) {
         const room = response.data.data[itemId];
+        
+        if (!room.purchasable) {
+          room.upgrade_cost = 0
+        }
+
         rooms.push(room);
       }
 
-      rooms.sort((a, b) => b.rarity_order - a.rarity_order);
+      rooms.sort((a, b) => b.name - a.name);
 
       this.rooms = rooms;
       this.updateFilters();
@@ -372,6 +497,15 @@ export default {
         new Set(this.rooms.map((room) => (!room.type ? "None" : room.type)))
       ).sort((a) => a === 'None' ? -1 : 1);
     },
+
+    formatPower(item) {
+      let comsumption = item.power_gen - item.power_use
+
+      if (!comsumption) { return '' }
+
+      let sign = comsumption >= 0 ? '+' : '-'
+      return sign + Math.abs(comsumption)
+    }
   },
 };
 </script>

@@ -9,8 +9,9 @@
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
-            label='Name (example: "Sandbag", Barrier)'
-            hide-details
+            label='Name'
+            hint='For example: "Sandbag", Barrier'
+            clearable
           ></v-text-field>
         </v-col>
         <v-col cols="2">
@@ -78,7 +79,6 @@
       :items-per-page="20"
       :loading="isLoading"
       :single-expand="true"
-      sortBy="offers"
       :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
@@ -190,7 +190,7 @@
       </template>
 
       <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" v-show="item.market_price">
+        <td :colspan="headers.length" v-show="item.market_price" style="border-bottom: 10px solid #393939;">
           <v-container class="my-0 py-0">
             <v-layout justify-center>
               <v-switch
@@ -352,6 +352,8 @@ export default {
           item.bonus = 0;
         }
       });
+
+      items.sort((a, b) => b.offers - a.offers);
 
       this.items = items;
       this.updateFilters();

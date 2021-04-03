@@ -313,6 +313,9 @@ class PixelStarshipsApi:
     def get_rooms(self):
         """Get room designs from API."""
 
+        # get room purchase
+        rooms_purchase = self.get_rooms_purchase()
+
         params = {
             'version': self.__api_settings['RoomDesignSpriteVersion'],
             'languageKey': 'en'
@@ -327,7 +330,13 @@ class PixelStarshipsApi:
         room_nodes = root.find('.//RoomDesigns')
 
         for room_node in room_nodes:
+            # if room purchase, add node to room node
+            room_purchase = next((room_purchase for room_purchase in rooms_purchase if room_purchase['RoomDesignId'] == room_node.attrib['RootRoomDesignId']), None)
+            if room_purchase:
+                room_node.set('AvailabilityMask', room_purchase['AvailabilityMask'])
+
             room = self.parse_room_node(room_node)
+
             room['pixyship_xml_element'] = room_node  # custom field, return raw XML data too
             rooms.append(room)
 
@@ -346,6 +355,35 @@ class PixelStarshipsApi:
             room['MissileDesign'] = None
 
         return room
+
+    def get_rooms_purchase(self):
+        """Get room designs from API."""
+
+        params = {
+            'version': self.__api_settings['RoomDesignPurchaseVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/RoomService/ListRoomDesignPurchase'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        rooms_purchase = []
+        room_purchase_nodes = root.find('.//RoomDesignPurchases')
+
+        for room_purchase_node in room_purchase_nodes:
+            room_purchase = self.parse_room_node(room_purchase_node)
+            room_purchase['pixyship_xml_element'] = room_purchase_node  # custom field, return raw XML data too
+            rooms_purchase.append(room_purchase)
+
+        return rooms_purchase
+
+    @staticmethod
+    def parse_room_purchase_node(room_purchase_node):
+        """Extract room purchase data from XML node."""
+
+        return room_purchase_node.attrib.copy()
 
     def get_characters(self):
         """Get character designs from API."""

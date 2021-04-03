@@ -235,7 +235,7 @@ class Pixyship(metaclass=Singleton):
         self.__data_expiration[key] = datetime.datetime.utcnow().timestamp() + secs
 
     def get_object(self, object_type, oid, reload_on_err=True):
-        """Get Pixyship object from given PSS API type (LimitedCatalogType for example)."""
+        """Get PixyShip object from given PSS API type (LimitedCatalogType for example)."""
 
         try:
             if object_type == 'Item':
@@ -246,6 +246,8 @@ class Pixyship(metaclass=Singleton):
                 return self.rooms[oid]
             if object_type == 'Ship':
                 return self.ships[oid]
+            if object_type == 'Research':
+                return self.researches[oid]
         except KeyError:
             print('KeyErrors')
             # Happens when there's new things, reload
@@ -254,6 +256,7 @@ class Pixyship(metaclass=Singleton):
                 self._characters = None
                 self._items = None
                 self._ships = None
+                self._researches = None
                 return self.get_object(object_type, oid, False)
             else:
                 raise
@@ -591,7 +594,7 @@ class Pixyship(metaclass=Singleton):
 
         for room in rooms:
             record_id = room['RoomDesignId']
-            Record.update_data('room', record_id, room['pixyship_xml_element'])
+            Record.update_data('room', record_id, room['pixyship_xml_element'], ['AvailabilityMask'])
 
     def _get_rooms_from_db(self):
         """Load rooms from database."""
@@ -602,6 +605,8 @@ class Pixyship(metaclass=Singleton):
         for record in records:
             room = self.pixel_starships_api.parse_room_node(ElementTree.fromstring(record.data))
             missile_design = room['MissileDesign']
+
+            room_price, room_price_currency = self._parse_price_from_pricestring(room['PriceString'])
 
             rooms[record.type_id] = {
                 'id': record.type_id,
@@ -622,10 +627,19 @@ class Pixyship(metaclass=Singleton):
                 'reload': int(room['ReloadTime']),
                 'refill_cost': int(room['RefillUnitCost']),
                 'show_frame': room['RoomType'] not in ('Lift', 'Wall', 'Corridor'),
-                'upgrade_cost': self._parse_price_from_pricestring(room['PriceString'])[0],
-                'upgrade_currency': self._parse_price_from_pricestring(room['PriceString'])[1],
+                'upgrade_cost': room_price,
+                'upgrade_currency': room_price_currency,
                 'upgrade_seconds': int(room['ConstructionTime']),
                 'description': room['RoomDescription'],
+                'enhancement_type': room['EnhancementType'],
+                'manufacture_type': room['ManufactureType'],
+                'manufacture_rate': float(room['ManufactureRate']),
+                'manufacture_capacity': int(room['ManufactureCapacity']),
+                'cooldown_time': int(room['CooldownTime']),
+                'requirement': self._parse_requirement(room['RequirementString']),
+                'extension_grids': int(room.get('SupportedGridTypes', '0')) & 2 != 0,
+                'has_weapon_stats': True if missile_design else False,
+                'purchasable': True if 'AvailabilityMask' in room else False,
                 'system_damage': float(missile_design['SystemDamage']) if missile_design else 0,
                 'hull_damage': float(missile_design['HullDamage']) if missile_design else 0,
                 'character_damage': float(missile_design['CharacterDamage']) if missile_design else 0,
@@ -637,7 +651,7 @@ class Pixyship(metaclass=Singleton):
                 'fire_length': float(missile_design['FireLength']) if missile_design else 0,
                 'emp_length': float(missile_design['EMPLength']) if missile_design else 0,
                 'stun_length': float(missile_design['StunLength']) if missile_design else 0,
-                'manufacture_type': room['ManufactureType'],
+                'hull_percentage_damage': float(missile_design['HullPercentageDamage']) if missile_design else 0,
             }
 
         upgrades = {
@@ -1021,6 +1035,35 @@ class Pixyship(metaclass=Singleton):
             'price': amount,
             'currency': currency,
         }
+
+    def _parse_requirement(self, requirement_string):
+        """Split requirements into items."""
+
+        if not requirement_string:
+            return None
+
+        requirement_type, id_and_amount = requirement_string.split(':')
+
+        if '>=' in id_and_amount:
+            requirement_id, requirement_count = id_and_amount.split('>=')
+        else:
+            requirement_id, requirement_count = id_and_amount.split('>')
+
+        requirement_type = requirement_type.strip().capitalize()
+        requirement_id = int(requirement_id.strip())
+        requirement_count = int(requirement_count.strip())
+
+        # in some case (example: Coal Factory), the amount needed is '> 0' not '>= 1'
+        if requirement_count == 0:
+            requirement_count = 1
+
+        requirement_object = {
+            'count': requirement_count,
+            'type': requirement_type,
+            'object': self.get_object(requirement_type, requirement_id),
+        }
+
+        return requirement_object
 
     def _parse_daily_cargo(self, item_list_string, cost_list_string):
         """Split daily cargo data into prices and items."""

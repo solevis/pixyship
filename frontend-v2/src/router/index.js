@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Crews from '../views/Crews.vue'
 import Items from '../views/Items.vue'
 import Rooms from '../views/Rooms.vue'
+import Ships from '../views/Ships.vue'
 import CrewDetail from '../views/CrewDetail.vue'
 
 Vue.use(VueRouter)
@@ -33,6 +34,11 @@ const routes = [
     path: '/rooms',
     name: 'Rooms',
     component: Rooms
+  },
+  {
+    path: '/ships',
+    name: 'Ships',
+    component: Ships
   },
   {
     path: '/about',

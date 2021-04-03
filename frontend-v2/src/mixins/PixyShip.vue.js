@@ -14,6 +14,7 @@ export default {
       itemsEndpoint: apiServer + 'api/items',
       prestigeEndpoint: apiServer + 'api/prestige/',
       roomsEndpoint: apiServer + 'api/rooms',
+      roomEndpoint: apiServer + 'api/room/',
       shipsEndpoint: apiServer + 'api/ships',
       shipEndpoint: apiServer + 'api/user/',
       verifyEndpoint: apiServer + 'api/verify/',
@@ -26,6 +27,10 @@ export default {
 
   methods: {
     currencySprite (currency) {
+      if (currency == null) {
+        return ''
+      }
+
       let lowerCurrency = currency.toLowerCase()
 
       switch (lowerCurrency) {
@@ -40,7 +45,7 @@ export default {
         default:
           return ''
       }
-    }, 
+    },
 
     filterCombobox(value, searchArray) {
       if (searchArray === null) {
@@ -146,7 +151,7 @@ export default {
 
       return result
     },
-
+    
     spriteStyle(s, color = '', border = 0) {
       if (Object.keys(s).length === 0) {
         return {}
@@ -182,6 +187,10 @@ export default {
       }
 
       return obj
+    },
+
+    getSpriteUrl(sprite) {
+      return `${spriteServer}${sprite.source}.png`
     },
 
     buxSprite() {

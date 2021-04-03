@@ -195,6 +195,15 @@ def test_rooms():
     assert 'HullDamage' in room_with_missile_design['MissileDesign']
     assert 'CharacterDamage' in room_with_missile_design['MissileDesign']
 
+    room_with_purchase = None
+    for room in rooms:
+        if room['AvailabilityMask']:
+            room_with_purchase = room
+            break
+
+    assert room_with_purchase
+    assert 'AvailabilityMask' in room_with_purchase
+
 
 def test_characters():
     pixel_starships_api = PixelStarshipsApi()
@@ -363,3 +372,14 @@ def test_prestiges_character_from():
     prestige = prestiges[0]
     assert 'CharacterDesignId1' in prestige
     assert 'CharacterDesignId2' in prestige
+
+
+def test_rooms_purchase():
+    pixel_starships_api = PixelStarshipsApi()
+    rooms_purchase = pixel_starships_api.get_rooms_purchase()
+
+    assert len(rooms_purchase) > 0
+
+    room_purchase = rooms_purchase[0]
+    assert 'RoomDesignId' in room_purchase
+    assert 'AvailabilityMask' in room_purchase

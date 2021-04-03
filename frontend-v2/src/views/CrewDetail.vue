@@ -253,8 +253,8 @@ export default {
 
       // TODO: This is ugly, fix it
       let characters = {};
-      for (let c of response.data.data.chars) {
-        characters[c.id] = c;
+      for (let character of response.data.data.chars) {
+        characters[character.id] = character;
       }
 
       this.characters = characters;
@@ -334,6 +334,7 @@ a.name {
   line-height: 1;
   font-size: 80%;
 }
+
 div.right-curve-border {
   border-right: solid 5px #666;
   border-radius: 12px;
