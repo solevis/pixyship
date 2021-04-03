@@ -614,10 +614,6 @@ a.name {
   text-decoration: none;
 }
 
-.equip {
-  font-size: 90%;
-}
-
 .market {
   min-width: 250px;
 }

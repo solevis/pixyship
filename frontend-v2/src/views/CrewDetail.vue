@@ -322,14 +322,6 @@ export default {
   text-transform: capitalize;
 }
 
-.name {
-  font-weight: bold;
-}
-
-a.name {
-  text-decoration: none;
-}
-
 .equip {
   line-height: 1;
   font-size: 80%;

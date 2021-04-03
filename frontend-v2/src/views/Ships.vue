@@ -288,34 +288,6 @@ a.name {
   text-decoration: none;
 }
 
-.equip {
-  font-size: 90%;
-}
-
-.market {
-  min-width: 200px;
-}
-
-.bonus {
-  min-width: 100px;
-}
-
-.recipe {
-  min-width: 55px;
-}
-
-.positive {
-  color: #1be600;
-}
-
-.negative {
-  color: #f44336;
-}
-
-.stat span {
-  color: #9e9e9e;
-}
-
 .name span {
   color: #9e9e9e;
 }
