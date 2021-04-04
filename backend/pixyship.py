@@ -42,6 +42,17 @@ class Pixyship(metaclass=Singleton):
         'None': {'name': '', 'sprite': 110}  # Empty sprite
     }
 
+    COLLECTION_ABILITY_MAP = {
+        'EmpSkill': 'EMP Discharge',
+        'SharpShooterSkill': 'Sharpshooter',
+        'ResurrectSkill': 'Resurrection',
+        'BloodThirstSkill': 'Vampirism',
+        'MedicalSkill': 'Combat Medic',
+        'FreezeAttackSkill': 'Cryo Field',
+        'InstantKillSkill': 'Headshot',
+        'None': 'None'
+    }
+
     RARITY_MAP = {
         'Legendary': 7,
         'Special': 6,
@@ -759,6 +770,7 @@ class Pixyship(metaclass=Singleton):
                 'step_enhancement': int(collection['StepEnhancementValue']),
                 'icon_sprite': self.get_sprite_infos(int(collection['IconSpriteId'])),
                 'chars': [],
+                'ability_name': self.COLLECTION_ABILITY_MAP[collection['EnhancementType']],
             })
             collections[record.type_id] = collection
 

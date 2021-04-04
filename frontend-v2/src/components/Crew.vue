@@ -93,6 +93,7 @@ export default {
   props: {
     char: null,
     name: null,
+    tipPosition: null,
     tip: { default: true },
   },
 
@@ -104,11 +105,11 @@ export default {
 
   computed: {
     right: function () {
-      return this.name == "right";
+      return this.tipPosition === 'right' || (this.tipPosition == null && this.name == "right");
     },
 
     left: function () {
-      return this.name == "left";
+      return this.tipPosition === 'left' || (this.tipPosition == null && this.name == "left");
     },
   },
 };
