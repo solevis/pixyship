@@ -1,9 +1,10 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-title v-if="!loaded"> Loading... </v-card-title>
+    <v-card-title class="text-center overline">> Crews</v-card-title>
+    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
-    <v-card-title v-if="loaded">
+    <v-card-subtitle v-if="loaded">
       <v-row>
         <v-col cols="1">
           <v-text-field
@@ -69,7 +70,7 @@
           ></v-combobox>
         </v-col>
       </v-row>
-    </v-card-title>
+    </v-card-subtitle>
 
     <!-- Table -->
     <v-data-table
