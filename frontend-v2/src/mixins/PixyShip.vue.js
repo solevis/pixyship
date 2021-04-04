@@ -20,7 +20,7 @@ export default {
       verifyEndpoint: apiServer + 'api/verify/',
       typeaheadEndpoint: apiServer + 'api/name_typeahead',
       dailyEndpoint: apiServer + 'api/daily',
-      researchEndpoint: apiServer + 'api/research',
+      researchesEndpoint: apiServer + 'api/research',
       playersEndpoint: apiServer + 'api/players'
     }
   },

@@ -50,9 +50,9 @@
           <td>
             <div :style="spriteStyle(item.icon_sprite)"></div>
           </td>
-          <td class="text-xs-left">{{ item.name }}</td>
-          <td class="text-xs-left">{{ item.ability_name }}</td>
-          <td class="text-xs-left">
+          <td class="name">{{ item.name }}</td>
+          <td>{{ item.ability_name }}</td>
+          <td>
             <div v-if="item.chars.length > 0">
               <div
                 v-for="crew in item.chars"
@@ -64,9 +64,9 @@
             </div>
           </td>
           <td>{{ `${item.min} - ${item.max}` }}</td>
-          <td class="text-xs-right">{{ item.base_enhancement }}</td>
-          <td class="text-xs-right">{{ item.step_enhancement }}</td>
-          <td class="text-xs-left">{{ item.CollectionDescription }}</td>
+          <td>{{ item.base_enhancement }}</td>
+          <td>{{ item.step_enhancement }}</td>
+          <td>{{ item.CollectionDescription }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -175,5 +175,13 @@ export default {
 
 .block {
   display: inline-block;
+}
+
+.name {
+  font-weight: bold;
+}
+
+a.name {
+  text-decoration: none;
 }
 </style>
