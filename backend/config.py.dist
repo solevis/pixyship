@@ -5,6 +5,7 @@ CONFIG = dict(
     DOMAIN='localhost:8080',
     CSP_REPORT_LOG=None,
     SPRITES_DIRECTORY='../sprites',
+    EMAIL='contact@example.com',
 
     # generated with `python -c 'import os; print(os.urandom(16))'`
     # it's just an example... change it!

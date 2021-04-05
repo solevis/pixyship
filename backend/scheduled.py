@@ -1,16 +1,30 @@
 import datetime
+import getpass
 import logging
+import socket
 import time
 
+from logging.handlers import SMTPHandler
 from schedule import Scheduler
 
 from importer import import_market, import_assets, import_players
+from config import CONFIG
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+mail_handler = SMTPHandler(
+    mailhost=("localhost", 25),
+    fromaddr='{}@{}'.format(getpass.getuser(), socket.gethostname()),
+    toaddrs=[CONFIG['EMAIL']],
+    subject="Error on PixyShip sheduled worker!"
+)
+
+mail_handler.setLevel(logging.ERROR)
+logger.addHandler(mail_handler)
 
 
 class SafeScheduler(Scheduler):
