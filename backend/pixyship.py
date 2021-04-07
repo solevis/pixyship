@@ -1023,10 +1023,10 @@ class Pixyship(metaclass=Singleton):
 
         return changes
 
-    @staticmethod
-    def _format_daily_offer(description, items, cost=None, details=None, expires=None):
+    def _format_daily_offer(self, description, sprite_id, items, cost=None, details=None, expires=None):
         return {
             'description': description,
+            'sprite': self.get_sprite_infos(sprite_id),
             'objects': items,
             'cost': cost,
             'details': details,
@@ -1108,7 +1108,7 @@ class Pixyship(metaclass=Singleton):
 
             prices.append(price)
 
-        cargo = [self._format_daily_offer('Cargo', [item], price) for item, price in zip(items, prices)]
+        cargo = [self._format_daily_offer('Cargo', None, [item], price) for item, price in zip(items, prices)]
         return cargo
 
     def _parse_daily_items(self, item_list_string):
@@ -1129,39 +1129,70 @@ class Pixyship(metaclass=Singleton):
         """Get settings service data, sales, motd from API."""
 
         data = self.pixel_starships_api.get_dailies()
-
-        offers = [
-            self._format_daily_offer(
+        offers = {
+            'shop': self._format_daily_offer(
                 'Shop',
-                [self._format_daily_object(
-                    1,
-                    data['LimitedCatalogType'],
-                    self.get_object(data['LimitedCatalogType'], int(data['LimitedCatalogArgument']))
-                )],
-                self._format_daily_price(data['LimitedCatalogCurrencyAmount'], data['LimitedCatalogCurrencyType']),
+                592,
                 [
-                    '{} left'.format(data['LimitedCatalogQuantity']),
-                    '{} max'.format(data['LimitedCatalogMaxTotal']),
+                    self._format_daily_object(
+                        1,
+                        data['LimitedCatalogType'],
+                        self.get_object(data['LimitedCatalogType'], int(data['LimitedCatalogArgument']))
+                    )
                 ],
+                self._format_daily_price(data['LimitedCatalogCurrencyAmount'], data['LimitedCatalogCurrencyType']),
+                {
+                    'left': data['LimitedCatalogQuantity'],
+                    'max': data['LimitedCatalogMaxTotal'],
+                },
                 data['LimitedCatalogExpiryDate']
             ),
-            self._format_daily_offer(
-                'Mineral Crew',
-                [self._format_daily_object(1, 'Character', self.get_object('Character', int(data['CommonCrewId'])))],
-            ),
-            self._format_daily_offer(
-                'Starbux Crew',
-                [self._format_daily_object(1, 'Character', self.get_object('Character', int(data['HeroCrewId'])))],
-            ),
-            self._format_daily_offer(
+
+            'blueCargo': {
+                'sprite': self.get_sprite_infos(11880),
+                'items': [
+                    self._format_daily_offer(
+                        'Mineral Crew',
+                        None,
+                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(data['CommonCrewId'])))],
+                    ),
+                    self._format_daily_offer(
+                        'Starbux Crew',
+                        None,
+                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(data['HeroCrewId'])))],
+                    )
+                ],
+            },
+
+            'greenCargo': {
+                'sprite': self.get_sprite_infos(11881),
+                'items': self._parse_daily_cargo(data['CargoItems'], data['CargoPrices']),
+            },
+
+            'dailyRewards': self._format_daily_offer(
                 'Reward',
-                [self._format_daily_object(
-                    int(data['DailyRewardArgument']),
-                    'Currency',
-                    self._format_daily_price(int(data['DailyRewardArgument']), data['DailyRewardType'])
-                )] + self._parse_daily_items(data['DailyItemRewards']),
+                2326,
+                [
+                    self._format_daily_object(
+                        int(data['DailyRewardArgument']),
+                        'Currency',
+                        self._format_daily_price(int(data['DailyRewardArgument']), data['DailyRewardType'])
+                    )
+                ] + self._parse_daily_items(data['DailyItemRewards']),
             ),
-        ] + self._parse_daily_cargo(data['CargoItems'], data['CargoPrices'])
+
+            'sale': self._format_daily_offer(
+                'Sale',
+                11006,
+                [
+                    self._format_daily_object(
+                        1,
+                        data['SaleType'],
+                        self.get_object(data['SaleType'], int(data['SaleArgument']))
+                    )
+                ]
+            )
+        }
 
         dailies = {
             'news': {
@@ -1345,3 +1376,26 @@ class Pixyship(metaclass=Singleton):
         self.compute_total_armor_effects(rooms, layout)
 
         return ship, user, rooms, sorted(upgrades, key=itemgetter('amount'))
+
+    @staticmethod
+    def get_tournament_infos():
+        utc_now = datetime.datetime.utcnow()
+        first_day_next_month = (utc_now.date().replace(day=1) + datetime.timedelta(days=32)).replace(day=1)
+        tournament_start = first_day_next_month - datetime.timedelta(days=7)
+        tournament_start_time = datetime.datetime(tournament_start.year, tournament_start.month, tournament_start.day)
+
+        tournament_left_delta = tournament_start_time - utc_now
+        tournament_left_seconds = tournament_left_delta.days * 24 * 3600 + tournament_left_delta.seconds
+        tournament_left_minutes, tournament_left_seconds = divmod(tournament_left_seconds, 60)
+        tournament_left_hours, tournament_left_minutes = divmod(tournament_left_minutes, 60)
+        tournament_left_days, tournament_left_hours = divmod(tournament_left_hours, 24)
+        tournament_left_weeks, tournament_left_days = divmod(tournament_left_days, 7)
+
+        tournament_left_formatted = '{}w {}d {}h {}m {}s '.format(tournament_left_weeks, tournament_left_days, tournament_left_hours, tournament_left_minutes, tournament_left_seconds)
+
+        infos = {
+            'start': tournament_start,
+            'left': tournament_left_formatted
+        }
+
+        return infos

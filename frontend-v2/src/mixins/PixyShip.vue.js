@@ -21,7 +21,8 @@ export default {
       typeaheadEndpoint: apiServer + 'api/name_typeahead',
       dailyEndpoint: apiServer + 'api/daily',
       researchesEndpoint: apiServer + 'api/research',
-      playersEndpoint: apiServer + 'api/players'
+      playersEndpoint: apiServer + 'api/players',
+      tournamentEndpoint: apiServer + 'api/tournament',
     }
   },
 
@@ -233,7 +234,49 @@ export default {
     
     notEmptyObject(someObject){
       return Object.keys(someObject).length
-    }
+    },
+
+    getAllAttributes (element) {
+      let attributes = element.attributes
+
+      if (element.elements) {
+        element.elements.map(innerElement => {
+          if (!('elements' in innerElement)) {
+            Object.entries(innerElement.attributes).map(innerAttribute => {
+              attributes[innerElement.name + '_' + innerAttribute[0]] = innerAttribute[1]
+            })
+          }
+        })
+      }
+
+      return attributes
+    },
+
+    diffAttributes (newAttributes, oldAttributes) {
+      let changes = {
+        new: [],
+        changed: [],
+        removed: []
+      }
+
+      if (!oldAttributes) {
+        changes.new = Object.entries(newAttributes)
+      } else {
+        Object.entries(newAttributes).map(newAttribute => {
+          if (!(newAttribute[0] in oldAttributes)) {
+            changes.new.push(newAttribute)
+          } else if (newAttribute[1] !== oldAttributes[newAttribute[0]]) {
+            changes.changed.push([newAttribute[0], oldAttributes[newAttribute[0]], newAttribute[1]])
+            delete oldAttributes[newAttribute[0]]
+          } else {
+            delete oldAttributes[newAttribute[0]]
+          }
+        })
+      }
+
+      changes.removed = oldAttributes ? Object.entries(oldAttributes) : []
+      return changes
+    },
     
   }
 }

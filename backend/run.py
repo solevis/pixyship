@@ -207,6 +207,15 @@ def api_item_prices(item_id):
     })
 
 
+@app.route('/api/tournament')
+@enforce_source
+def api_tournament():
+    return jsonify({
+        'data': pixyship.get_tournament_infos(),
+        'status': 'success',
+    })
+
+
 @app.route('/api/rooms')
 @enforce_source
 def api_rooms():
