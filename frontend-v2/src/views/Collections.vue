@@ -7,7 +7,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="9">
+        <v-col cols="12" sm="6" md="9">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -16,7 +16,7 @@
             clearable
           ></v-text-field>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="12" sm="6" md="3">
           <v-combobox
             v-model="searchSkill"
             :items="skills"
@@ -33,6 +33,7 @@
     <!-- Table -->
     <v-data-table
       v-if="loaded"
+      mobile-breakpoint="0"
       :headers="headers"
       :items="collections"
       :search="searchName"

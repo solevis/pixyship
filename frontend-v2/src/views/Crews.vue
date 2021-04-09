@@ -6,7 +6,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="1">
+        <v-col cols="12" sm="4" md="1">
           <v-text-field
             v-model="level"
             type="number"
@@ -16,7 +16,7 @@
             :value="level"
           ></v-text-field>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="12" sm="8" md="3">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -25,7 +25,7 @@
             clearable
           ></v-text-field>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="6" md="2">
           <v-combobox
             v-model="searchEquipment"
             :items="equipments"
@@ -36,7 +36,7 @@
             hide-details
           ></v-combobox>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="6" md="2">
           <v-combobox
             v-model="searchRarity"
             :items="rarities"
@@ -47,7 +47,7 @@
             hide-details
           ></v-combobox>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="6" md="2">
           <v-combobox
             v-model="searchSpecial"
             :items="abilities"
@@ -58,7 +58,7 @@
             hide-details
           ></v-combobox>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="6" md="2">
           <v-combobox
             v-model="searchCollection"
             :items="collections"
@@ -75,6 +75,7 @@
     <!-- Table -->
     <v-data-table
       v-if="loaded"
+      mobile-breakpoint="0"
       :headers="headers"
       :items="crews"
       :search="searchName"

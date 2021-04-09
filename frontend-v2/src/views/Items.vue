@@ -7,7 +7,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="4">
+        <v-col cols="12" sm="12" md="4">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -16,7 +16,7 @@
             clearable
           ></v-text-field>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="3" md="2">
           <v-combobox
             v-model="searchRarity"
             :items="rarities"
@@ -27,7 +27,7 @@
             hide-details
           ></v-combobox>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="3" md="2">
           <v-combobox
             v-model="searchType"
             :items="types"
@@ -38,7 +38,7 @@
             hide-details
           ></v-combobox>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="3" md="2">
           <v-combobox
             v-model="searchSlot"
             :items="slots"
@@ -49,7 +49,7 @@
             hide-details
           ></v-combobox>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="3" md="2">
           <v-combobox
             v-model="searchStat"
             :items="stats"
@@ -74,6 +74,7 @@
     <!-- Table -->
     <v-data-table
       v-if="loaded"
+      mobile-breakpoint="0"
       :headers="headers"
       :items="items"
       :search="searchName"

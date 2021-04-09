@@ -7,7 +7,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="6">
+        <v-col cols="12" sm="12" md="6">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -16,7 +16,7 @@
             clearable
           ></v-text-field>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="12" sm="6" md="3">
           <v-combobox
             v-model="searchType"
             :items="types"
@@ -27,7 +27,7 @@
             hide-details
           ></v-combobox>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="12" sm="6" md="3">
           <v-combobox
             v-model="searchLabLevel"
             :items="labLevels"
@@ -44,6 +44,7 @@
     <!-- Table -->
     <v-data-table
       v-if="loaded"
+      mobile-breakpoint="0"
       :headers="headers"
       :items="researches"
       :search="searchName"
