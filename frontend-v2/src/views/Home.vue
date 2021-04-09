@@ -44,7 +44,7 @@
           
           <v-card-text>
             <div v-for="(offer, index) in this.offers.blueCargo.items" :key="'blue-cargo-' + index">
-              <v-divider v-if="index != 0" class="mt-2 mb-2"></v-divider>
+              <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
 
               <crew :char="offer.objects[0].object" name="right"/>
 
@@ -71,7 +71,7 @@
 
           <v-card-text>
             <div v-for="(object, index) in this.offers.dailyRewards.objects" :key="'daily-reward-' + index">
-              <v-divider v-if="index != 0" class="mt-2 mb-2"></v-divider>
+              <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
 
               <div>
                 <template v-if="object.type === 'Item' ||object.type === 'Room'">
@@ -102,7 +102,7 @@
           
           <v-card-text>
             <div v-for="(offer, index) in this.offers.greenCargo.items" :key="'green-cargo-' + index">
-              <v-divider v-if="index != 0" class="mt-2 mb-2"></v-divider>
+              <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
 
               <div>
                 <template v-if="offer.objects[0].type === 'Item' ||offer.objects[0].type === 'Room'">
@@ -218,13 +218,20 @@
           >
           <v-card-text>
             <p>
-              Most Recent:
-              <a href="/changes">{{ nowTime(this.changeLatest) }}</a
-              ><br />
+              Most Recent: {{ nowTime(this.changeLatest) }}<br />
               Today: {{ this.changesToday }}<br />
               This Week: {{ this.changesThisWeek }}
             </p>
           </v-card-text>
+
+          <v-card-actions>
+            <v-btn
+              text
+              to="/changes"
+            >
+              See changes
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
