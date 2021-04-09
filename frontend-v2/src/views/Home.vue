@@ -3,7 +3,7 @@
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <v-row v-if="loaded" justify="center">
-      <v-col cols="6">
+      <v-col cols="12" md="6">
         <v-card outlined class="not-offers">
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-newspaper-variant</v-icon>Pixel Starships
@@ -20,14 +20,14 @@
         </v-card>
       </v-col>
 
-      <v-col cols="3">
+      <v-col cols="12" md="3">
         <v-card outlined class="not-offers">
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
           >
           <v-card-text>
             <p>
-              Start: {{ nowTime(this.tournament.start) }}<br>
+              Start the {{ nowTime(this.tournament.start) }}<br>
               Left: {{ this.tournament.left }}
             </p>
           </v-card-text>
@@ -36,7 +36,7 @@
     </v-row>
 
     <v-row v-if="loaded" justify="center">
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
             <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.blueCargo.sprite, '', 0, 3)"></div>Dropship
@@ -63,7 +63,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.dailyRewards.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
             <div class="block mr-1" :style="styleFromSprite(this.offers.dailyRewards.sprite, '', 0, 0.8)"></div>Daily Reward
@@ -93,7 +93,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.greenCargo.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
             <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.greenCargo.sprite, '', 0, 3)"></div>Merchant Ship
@@ -139,9 +139,7 @@
     </v-row>
 
     <v-row v-if="loaded" justify="center">
-      
-
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
           <v-card-title  class="overline mb-2" >
             <div class="block mr-2" :style="styleFromSprite(this.offers.shop.sprite, '', 0, 1)"></div>Shop
@@ -184,7 +182,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.sale.expires) ? 'expired' : '', 'offers']">
           <v-card-title  class="overline mb-2" >
             <div class="block mr-2" :style="styleFromSprite(this.offers.sale.sprite, '', 0, 1)"></div>Bank
@@ -213,11 +211,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="3"></v-col>
-    </v-row>
-
-    <v-row v-if="loaded" justify="center">
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card outlined class="not-offers">
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
@@ -233,21 +227,6 @@
           </v-card-text>
         </v-card>
       </v-col>
-
-      <v-col cols="6">
-        <v-card outlined class="not-offers">
-          <v-card-title class="overline mb-2"
-            ><v-icon left>mdi-rocket-launch-outline</v-icon>PixyShip Changelog</v-card-title
-          >
-          <v-card-text>
-            <p>
-              v2.0 : 
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      
     </v-row>
   </v-card>
 </template>
