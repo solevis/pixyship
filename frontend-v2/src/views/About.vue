@@ -7,7 +7,7 @@
       <v-card-text>
         <p>Main Developper: Solevis <a href="mailto:contact@pixyship.net">&lt;contact@pixyship.net&gt;</a></p>
         <p>Contributor: Bril</p>
-        <p>First version by Sokitume &lt;3</p>
+        <p>First version by Sokitume </p>
         <p><v-icon class="mr-1">mdi-github</v-icon><a href="https://github.com/solevis/pixyship/">https://github.com/solevis/pixyship/</a></p>
       </v-card-text>
     </v-card>
