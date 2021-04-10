@@ -1302,7 +1302,6 @@ class Pixyship(metaclass=Singleton):
         for r in data['rooms']:
             r.pop('armor')
             r.pop('upgradable')
-            r.pop('construction')
             r.pop('defense')
 
         return data
@@ -1370,6 +1369,9 @@ class Pixyship(metaclass=Singleton):
             power_gen=sum([room['power_gen'] for room in rooms]),
             shield=sum([room['capacity'] for room in rooms if room['type'] == 'Shield']),
             immunity_date=immunity_date,
+            hue=ship_data['HueValue'],
+            saturation=ship_data['SaturationValue'],
+            brightness=ship_data['BrightnessValue'],
         )
 
         layout = self.generate_layout(rooms, ship)

@@ -15,7 +15,7 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn text to="/player">Players</v-btn>
+      <v-btn text to="/players">Players</v-btn>
       <v-btn text to="/builder">Builder</v-btn>
       <v-btn text to="/changes">Changes</v-btn>
       <v-btn text to="/crews">Crews</v-btn>
