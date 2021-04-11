@@ -37,7 +37,7 @@
 
     <v-row v-if="loaded" justify="center">
       <v-col cols="12" sm="6" md="3">
-        <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
+        <v-card outlined :class="[isExpired(this.offers.blueCargo.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
             <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.blueCargo.sprite, '', 0, 3)"></div>Dropship
           </v-card-title>
@@ -48,13 +48,13 @@
 
               <crew :char="offer.objects[0].object" name="right"/>
 
-              <div style="clear: both" class="mr-2">
+              <div style="clear: both" class="pt-2">
                 <template v-if="offer.description == 'Mineral Crew'">
-                  <div class="block middle mr-2">Cost: </div>
+                  <div class="block middle mr-1">Cost: </div>
                   <div class="block middle" :style="mineralSprite()"></div>
                 </template>
                 <template v-else-if="offer.description == 'Starbux Crew'">
-                  <div class="block middle mr-2">Cost: </div>
+                  <div class="block middle mr-1">Cost: </div>
                   <div class="block middle" :style="buxSprite()"></div>
                 </template>
               </div>
@@ -75,8 +75,8 @@
 
               <div>
                 <template v-if="object.type === 'Item' ||object.type === 'Room'">
-                  {{ 'x' + object.count }} <div class="block mr-2" :style="spriteStyle(object.object.sprite)"></div>
-                  <div :class="[object.object.rarity, 'block', 'nowrap', 'bold']">{{object.object.name }}</div>
+                  {{ 'x' + object.count }} <div class="block mr-2 middle" :style="spriteStyle(object.object.sprite)"></div>
+                  <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{object.object.name }}</div>
                 </template>
                 <template v-else-if="object.type === 'Character'">
                   <crew :char="object.object" name="right"/>
@@ -106,8 +106,8 @@
 
               <div>
                 <template v-if="offer.objects[0].type === 'Item' ||offer.objects[0].type === 'Room'">
-                  {{ 'x' + offer.objects[0].count }} <div class="block mr-2" :style="spriteStyle(offer.objects[0].object.sprite)"></div>
-                  <div :class="[offer.objects[0].object.rarity, 'block', 'nowrap', 'bold']">{{offer.objects[0].object.name }}</div>
+                  {{ 'x' + offer.objects[0].count }} <div class="block mr-2 middle" :style="spriteStyle(offer.objects[0].object.sprite)"></div>
+                  <div :class="[offer.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{offer.objects[0].object.name }}</div>
                 </template>
                 <template v-else-if="offer.objects[0].type === 'Character'">
                   <crew :char="offer.objects[0].object" name="right"/>
@@ -120,13 +120,13 @@
                 </template>
               </div>
 
-              <div class="mr-2">
+              <div style="clear: both" class="pt-2">
                 <template v-if="offer.cost && offer.cost.currency != 'item'">
-                  <div class="block middle mr-2">Cost: {{ offer.cost.price }}</div>
+                  <div class="block middle mr-1">Cost: {{ offer.cost.price }}</div>
                   <div class="block middle" :style="currencySprite(offer.cost.currency)"></div>
                 </template>
                 <template v-else-if="offer.cost && offer.cost.currency == 'item'">
-                  <div class="block middle mr-2">{{ offer.cost.count }}</div>
+                  <div class="block middle mr-1">{{ offer.cost.count }}</div>
                   <div class="block middle" :style="spriteStyle(offer.cost.object.sprite)" :title="offer.cost.object.name"
                   ></div>
                 </template>
@@ -148,8 +148,8 @@
           <v-card-text>
             <div>
               <template v-if="this.offers.shop.objects[0].type === 'Item' ||this.offers.shop.objects[0].type === 'Room'">
-                {{this.offers.shop.objects[0].count > 1 ? 'x' + this.offers.shop.objects[0].count : '' }} <div class="block mr-2" :style="spriteStyle(this.offers.shop.objects[0].object.sprite)"></div>
-                <div :class="[this.offers.shop.objects[0].object.rarity, 'block', 'nowrap', 'bold']">{{this.offers.shop.objects[0].object.name }}</div>
+                {{this.offers.shop.objects[0].count > 1 ? 'x' + this.offers.shop.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.objects[0].object.sprite)"></div>
+                <div :class="[this.offers.shop.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.objects[0].object.name }}</div>
               </template>
               <template v-else-if="this.offers.shop.objects[0].type === 'Character'">
                 <crew :char="this.offers.shop.objects[0].object" name="right"/>
@@ -162,13 +162,13 @@
               </template>
             </div>
 
-            <div style="clear: both" class="mr-2">
+            <div style="clear: both" class="pt-2">
               <template v-if="this.offers.shop.cost && this.offers.shop.cost.currency != 'item'">
-                <div class="block middle mr-2">Cost: {{ this.offers.shop.cost.price }}</div>
+                <div class="block middle mr-1">Cost: {{ this.offers.shop.cost.price }}</div>
                 <div class="block middle" :style="currencySprite(this.offers.shop.cost.currency)"></div>
               </template>
               <template v-else-if="this.offers.shop.cost && this.offers.shop.cost.currency == 'item'">
-                <div class="block middle mr-2">{{ this.offers.shop.cost.count }}</div>
+                <div class="block middle mr-1">{{ this.offers.shop.cost.count }}</div>
                 <div class="block middle" :style="spriteStyle(this.offers.shop.cost.object.sprite)" :title="this.offers.shop.cost.object.name"
                 ></div>
               </template>
@@ -191,8 +191,8 @@
           <v-card-text>
             <div>
               <template v-if="this.offers.sale.objects[0].type === 'Item' ||this.offers.sale.objects[0].type === 'Room'">
-                {{this.offers.sale.objects[0].count > 1 ? 'x' + this.offers.sale.objects[0].count : '' }} <div class="block mr-2" :style="spriteStyle(this.offers.sale.objects[0].object.sprite)"></div>
-                <div :class="[this.offers.sale.objects[0].object.rarity, 'block', 'nowrap', 'bold']">{{this.offers.sale.objects[0].object.name }}</div>
+                {{this.offers.sale.objects[0].count > 1 ? 'x' + this.offers.sale.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.objects[0].object.sprite)"></div>
+                <div :class="[this.offers.sale.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.objects[0].object.name }}</div>
               </template>
               <template v-else-if="this.offers.sale.objects[0].type === 'Character'">
                 <crew :char="this.offers.sale.objects[0].object" name="right"/>
@@ -203,9 +203,6 @@
               <template v-else>
                 <div>{{this.offers.sale.objects[0].type }}</div>
               </template>
-            </div>
-
-            <div style="clear: both" class="mr-2">
             </div>
           </v-card-text>
         </v-card>
