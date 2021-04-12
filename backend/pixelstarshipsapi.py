@@ -252,6 +252,34 @@ class PixelStarshipsApi:
 
         return sprite_node.attrib
 
+    def get_rooms_sprites(self):
+        """Get rooms sprites from API."""
+
+        params = {
+            'version': self.__api_settings['RoomDesignSpriteVersion']
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/RoomDesignSpriteService/ListRoomDesignSprites'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        rooms_sprites = []
+        room_sprites_nodes = root.find('.//RoomDesignSprites')
+
+        for room_sprites_node in room_sprites_nodes:
+            room_sprites = self.parse_room_sprite_node(room_sprites_node)
+            room_sprites['pixyship_xml_element'] = room_sprites_node  # custom field, return raw XML data too
+            rooms_sprites.append(room_sprites)
+
+        return rooms_sprites
+
+    @staticmethod
+    def parse_room_sprite_node(room_sprite_node):
+        """Extract room sprite data from XML node."""
+
+        return room_sprite_node.attrib
+
     def get_ships(self):
         """Get ships designs from API."""
 

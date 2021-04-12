@@ -122,6 +122,7 @@ class Pixyship(metaclass=Singleton):
         self._rooms = None
         self._ships = None
         self._sprites = None
+        self._rooms_sprites = None
         self._upgrades = None
         self._pixel_starships_api = None
         self.__data_expiration = {}
@@ -141,6 +142,14 @@ class Pixyship(metaclass=Singleton):
             self.expire_at('sprite', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._sprites
+
+    @property
+    def rooms_sprites(self):
+        if not self._rooms_sprites or self.expired('room_sprite'):
+            self._rooms_sprites = self._get_room_sprites_from_api()
+            self.expire_at('room_sprite', self.DEFAULT_EXPIRATION_DURATION)
+
+        return self._rooms_sprites
 
     @property
     def prices(self):
@@ -394,6 +403,20 @@ class Pixyship(metaclass=Singleton):
 
         return room
 
+    def get_exterior_sprite(self, room_id, ship_id):
+        """Retrieve exterior sprite if existing"""
+
+        ship = self.get_object('Ship', ship_id)
+        exterior_sprite = None
+
+        for _, room_sprite in self.rooms_sprites.items():
+            if room_sprite['room_id'] == room_id \
+                    and room_sprite['race'] == ship['race'] \
+                    and room_sprite['type'] == 'Exterior':
+                exterior_sprite = self.get_sprite_infos(room_sprite['sprite_id'])
+
+        return exterior_sprite
+
     @staticmethod
     def find_user_id(search_name):
         """Given a name return the user_id from database. This should only be an exact match."""
@@ -428,6 +451,21 @@ class Pixyship(metaclass=Singleton):
                 'sprite_key': sprite['SpriteKey'],
             }
             for sprite in sprites
+        }
+
+    def _get_room_sprites_from_api(self):
+        """Get room sprites from API."""
+
+        rooms_sprites = self.pixel_starships_api.get_rooms_sprites()
+
+        return {
+            int(room_sprite['RoomDesignSpriteId']): {
+                'room_id': int(room_sprite['RoomDesignId']),
+                'race': int(room_sprite['RaceId']),
+                'sprite_id': int(room_sprite['SpriteId']),
+                'type': room_sprite['RoomSpriteType'],
+            }
+            for room_sprite in rooms_sprites
         }
 
     @staticmethod
@@ -1337,20 +1375,20 @@ class Pixyship(metaclass=Singleton):
         ship_id = int(ship_data['ShipDesignId'])
         immunity_date = ship_data['ImmunityDate']
 
-        rooms = [
-            dict(
-                self.interiorize(int(room['RoomDesignId']), ship_id),
-                design_id=int(room['RoomDesignId']),
-                id=int(room['RoomId']),
-                row=int(room['Row']),
-                column=int(room['Column']),
-                construction=bool(room['ConstructionStartDate']),
-                upgradable=self.is_room_upgradeable(int(room['RoomDesignId']), ship_id),
+        rooms = []
+        for room_data in ship_data['Rooms']:
+            room = dict(
+                self.interiorize(int(room_data['RoomDesignId']), ship_id),
+                design_id=int(room_data['RoomDesignId']),
+                id=int(room_data['RoomId']),
+                row=int(room_data['Row']),
+                column=int(room_data['Column']),
+                construction=bool(room_data['ConstructionStartDate']),
+                upgradable=self.is_room_upgradeable(int(room_data['RoomDesignId']), ship_id),
             )
-            for room in ship_data['Rooms']
-        ]
 
-        for room in rooms:
+            room['exterior_sprite'] = self.get_exterior_sprite(int(room_data['RoomDesignId']), ship_id)
+
             if room['upgradable']:
                 upgrade_room = self.get_upgrade_room(room['design_id'])
                 if upgrade_room:
@@ -1362,6 +1400,8 @@ class Pixyship(metaclass=Singleton):
                             currency=upgrade_room['upgrade_currency'],
                             seconds=upgrade_room['upgrade_seconds'])
                     )
+
+            rooms.append(room)
 
         ship = dict(
             self.ships[ship_id],

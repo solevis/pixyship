@@ -6,7 +6,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="8">
+        <v-col cols="6">
           <v-autocomplete
               v-model="searchPlayer"
               :search-input.sync="searchText"
@@ -27,19 +27,25 @@
             </v-autocomplete>
         </v-col>
 
-      <v-col cols="2">
-        <v-switch
-          dense
-          v-model="showUpgrades"
-          label="Show upgrades"
-        ></v-switch>
-      </v-col>
-      <v-col cols="2">
-        <v-switch
-          v-model="showTrueColor"
-          label="Show true color"
-        ></v-switch>
-      </v-col>
+        <v-col cols="2">
+          <v-switch
+            dense
+            v-model="showUpgrades"
+            label="Show upgrades"
+          ></v-switch>
+        </v-col>
+        <v-col cols="2">
+          <v-switch
+            v-model="showTrueColor"
+            label="Show true color"
+          ></v-switch>
+        </v-col>
+        <v-col cols="2">
+          <v-switch
+            v-model="showExterior"
+            label="Show exterior"
+          ></v-switch>
+        </v-col>
       </v-row>
     </v-card-subtitle>
 
@@ -65,7 +71,7 @@
         <table class="main-table" v-if="showShip">
           <tr>
             <td>
-              <svg :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+              <svg v-if="!showExterior" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
                 <!-- Ship color -->
                 <filter id="colorMe">
                   <feColorMatrix in="SourceGraphic" type="hueRotate" :values="ship.interior_sprite.trueColorStyle.filter.hue" />
@@ -123,6 +129,45 @@
                   </svg>
                 </g>
               </svg>
+
+              <svg v-else :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+                <!-- Ship color -->
+                <filter id="colorMe">
+                  <feColorMatrix in="SourceGraphic" type="hueRotate" :values="ship.exterior_sprite.trueColorStyle.filter.hue" />
+                  <feColorMatrix in="SourceGraphic" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
+                  <feComponentTransfer in="brightness-filter" result="contrast-filter">
+                    <feFuncR type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncR>
+                    <feFuncG type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncG>
+                    <feFuncB type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncB>
+                  </feComponentTransfer>
+                </filter>
+
+                <!-- Ship sprite -->
+                <image 
+                  :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
+                  x="0" y="0" 
+                  :height="ship.exterior_sprite.height" 
+                  :width="ship.exterior_sprite.width" 
+                  :filter="showTrueColor ? 'url(#colorMe)' : ''"
+                />
+
+                <!-- Rooms -->
+                <g v-for="room in rooms" :key="room.id">
+                  <svg 
+                    :x="`${room.column * 25}px`" 
+                    :y="`${room.row * 25}px`"
+                    :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
+                    :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+
+                    <!-- Room sprite -->
+                    <foreignObject v-if="room.exterior_sprite" class="room" width="125" height="75" :filter="showTrueColor ? 'url(#colorMe)' : ''">
+                      <body xmlns="http://www.w3.org/1999/xhtml">
+                      <div :style="spriteStyle(room.exterior_sprite)"></div>
+                      </body>
+                    </foreignObject>
+                  </svg>
+                </g>
+              </svg>
             </td>
           </tr>
         </table>
@@ -147,6 +192,7 @@ export default {
       searchText: "",
       showUpgrades: true,
       showTrueColor: true,
+      showExterior: false,
       loaded: false,
       players: [],
       showShip: false,
@@ -208,6 +254,7 @@ export default {
         this.embedSpriteStyle(this.user.sprite, 'grey');
         this.embedSpriteStyle(this.user.alliance_sprite, 'grey');
         this.embedSpriteStyle(this.ship.exterior_sprite);
+        this.embedTrueColorSpriteStyle(this.ship.exterior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness);
         this.embedSpriteStyle(this.ship.interior_sprite);
         this.embedTrueColorSpriteStyle(this.ship.interior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness);
         this.embedSpriteStyle(this.ship.logo_sprite, 'grey');
