@@ -861,6 +861,7 @@ class Pixyship(metaclass=Singleton):
                 'name': item['ItemDesignName'],
                 'description': item['ItemDesignDescription'],
                 'sprite': self.get_sprite_infos(int(item['ImageSpriteId'])),
+                'logo_sprite': self.get_sprite_infos(int(item['LogoSpriteId'])),
                 'slot': self.SLOT_MAP.get(item['ItemSubType'], item['ItemSubType']),
                 'enhancement': item.get('EnhancementType').lower(),
                 'disp_enhancement': self.ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
@@ -1300,13 +1301,14 @@ class Pixyship(metaclass=Singleton):
     def get_ship_data(self, player_name):
         """Get user and ship data from API."""
 
-        ship, user, rooms, upgrades = self.summarize_ship(player_name)
+        ship, user, rooms, stickers, upgrades = self.summarize_ship(player_name)
 
         if user:
             data = {
                 'rooms': rooms,
                 'user': user,
                 'ship': ship,
+                'stickers': stickers,
                 'upgrades': upgrades,
                 'status': 'found'
             }
@@ -1414,10 +1416,12 @@ class Pixyship(metaclass=Singleton):
             brightness=ship_data['BrightnessValue'],
         )
 
+        stickers = self._parse_ship_stickers(ship_data)
+
         layout = self.generate_layout(rooms, ship)
         self.compute_total_armor_effects(rooms, layout)
 
-        return ship, user, rooms, sorted(upgrades, key=itemgetter('amount'))
+        return ship, user, rooms, stickers, sorted(upgrades, key=itemgetter('amount'))
 
     @staticmethod
     def get_tournament_infos():
@@ -1441,3 +1445,28 @@ class Pixyship(metaclass=Singleton):
         }
 
         return infos
+
+    def _parse_ship_stickers(self, ship_data):
+        stickers_string = ship_data['StickerString']
+
+        if not stickers_string:
+            return None
+        # 824@527.7917-265.0934-2.457142
+
+        stickers = []
+
+        for sticker_string in stickers_string.split('|'):
+            item_id = int(sticker_string.split('@')[0])
+            item = self.items[item_id]
+            coords = sticker_string.split('@')[1].split('-')
+
+            sticker = {
+                'sprite': item['logo_sprite'],
+                'x': coords[0],
+                'y': coords[1],
+                'size': coords[2],
+            }
+
+            stickers.append(sticker)
+
+        return stickers
