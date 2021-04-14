@@ -99,12 +99,12 @@ def after_request(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers['Content-Security-Policy'] = \
-        "default-src 'self';" \
-        "img-src 'self' data: pixelstarships.s3.amazonaws.com;" \
-        "style-src 'self' 'unsafe-inline' 'unsafe-eval';" \
-        "script-src 'self' 'unsafe-eval';" \
-        "report-uri /csp_report;"
+    #response.headers['Content-Security-Policy'] = \
+    #    "default-src 'self';" \
+    #    "img-src 'self' data: pixelstarships.s3.amazonaws.com;" \
+    #    "style-src 'self' 'unsafe-inline' 'unsafe-eval';" \
+    #    "script-src 'self' 'unsafe-eval';" \
+    #    "report-uri /csp_report;"
 
     return response
 
@@ -247,6 +247,7 @@ def page_crew_prestige(id):
 
 # Vue Rendering
 @app.route('/crew')
+@app.route('/crews')
 @app.route('/items')
 @app.route('/rooms')
 @app.route('/ships')
@@ -254,7 +255,8 @@ def page_crew_prestige(id):
 @app.route('/changes')
 @app.route('/players')
 @app.route('/collections')
-@app.route('/research')
+@app.route('/researches')
+@app.route('/about')
 @app.route('/', defaults={'path': ''})
 def page_base(path=''):
     return render_template('index.html')

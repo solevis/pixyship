@@ -1,7 +1,7 @@
 <template>
   <v-app>
 
-    <v-app-bar app dense>
+    <v-app-bar app>
       <v-toolbar-title>
         <router-link to="/">
           <v-img

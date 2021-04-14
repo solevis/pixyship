@@ -1451,7 +1451,6 @@ class Pixyship(metaclass=Singleton):
 
         if not stickers_string:
             return None
-        # 824@527.7917-265.0934-2.457142
 
         stickers = []
 
