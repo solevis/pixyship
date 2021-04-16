@@ -74,9 +74,9 @@
               <svg v-if="!showExterior" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
                 <!-- Ship color -->
                 <filter id="colorMe">
-                  <feColorMatrix in="SourceGraphic" type="hueRotate" :values="ship.interior_sprite.trueColorStyle.filter.hue" />
-                  <feColorMatrix in="SourceGraphic" type="saturate" :values="ship.interior_sprite.trueColorStyle.filter.saturate" />
-                  <feComponentTransfer in="brightness-filter" result="contrast-filter">
+                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.interior_sprite.trueColorStyle.filter.hue" />
+                  <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.interior_sprite.trueColorStyle.filter.saturate" />
+                  <feComponentTransfer in="saturate-filter" result="contrast-filter">
                     <feFuncR type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncR>
                     <feFuncG type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncG>
                     <feFuncB type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncB>
@@ -132,10 +132,10 @@
 
               <svg v-else :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
                 <!-- Ship color -->
-                <filter id="colorMe">
-                  <feColorMatrix in="SourceGraphic" type="hueRotate" :values="ship.exterior_sprite.trueColorStyle.filter.hue" />
-                  <feColorMatrix in="SourceGraphic" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
-                  <feComponentTransfer in="brightness-filter" result="contrast-filter">
+               <filter id="colorMe">
+                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.exterior_sprite.trueColorStyle.filter.hue" />
+                  <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
+                  <feComponentTransfer in="saturate-filter" result="contrast-filter">
                     <feFuncR type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncR>
                     <feFuncG type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncG>
                     <feFuncB type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncB>
