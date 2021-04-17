@@ -1,167 +1,259 @@
 <template>
-  <div>
-    <v-app dark>
-      <ps-header/>
+  <v-card :loading="isLoading">
+    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
-      <v-container id="offers" v-if="!showData">
-        <v-layout class="column align-center">
-          <strong>Daily Offers</strong>
-          <v-data-table
-            :headers="offerHeaders"
-            :items="offers"
-            hide-actions
+    <v-row v-if="loaded" justify="center">
+      <v-col cols="12" md="6">
+        <v-card outlined class="not-offers">
+          <v-card-title class="overline mb-2"
+            ><v-icon left>mdi-newspaper-variant</v-icon>Pixel Starships
+            News</v-card-title
           >
-            <template slot="items" slot-scope="i">
-              <td :class="[isExpired(i.item.expires) ? 'expired' : '', 'text-xs-right']">{{ i.item.description }}</td>
-              <td :class="[isExpired(i.item.expires) ? 'expired' : '', 'text-xs-right']">
-                <template v-if="i.item.cost && i.item.cost.currency != 'item'">
-                  {{ i.item.cost.price }}
-                  <div class="block middle" :style="currencySprite(i.item.cost.currency)"></div>
+
+          <v-card-subtitle v-if="news.news_moment">{{
+            news.news_moment.format("M/D LT")
+          }}</v-card-subtitle>
+          <v-card-text>
+            <p v-if="news.news_moment">{{ news.news }}</p>
+            <p class="small error">{{ news.maintenance }}</p>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" md="3">
+        <v-card outlined class="not-offers">
+          <v-card-title class="overline mb-2"
+            ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
+          >
+          <v-card-text>
+            <p>
+              Start the {{ nowTime(this.tournament.start) }}<br>
+              Left: {{ this.tournament.left }}
+            </p>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="loaded" justify="center">
+      <v-col cols="12" sm="6" md="3">
+        <v-card outlined :class="[isExpired(this.offers.blueCargo.expires) ? 'expired' : '', 'offers']">
+          <v-card-title class="overline mb-2">
+            <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.blueCargo.sprite, '', 0, 3)"></div>Dropship
+          </v-card-title>
+          
+          <v-card-text>
+            <div v-for="(offer, index) in this.offers.blueCargo.items" :key="'blue-cargo-' + index">
+              <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
+
+              <crew :char="offer.objects[0].object" name="right"/>
+
+              <div style="clear: both" class="pt-2">
+                <template v-if="offer.description == 'Mineral Crew'">
+                  <div class="block middle mr-1">Cost: </div>
+                  <div class="block middle" :style="mineralSprite()"></div>
                 </template>
-                <template v-else-if="i.item.cost && i.item.cost.currency == 'item'">
-                  {{ i.item.cost.count }}
-                  <div class="block middle" :style="spriteStyle(i.item.cost.object.sprite)" :title="i.item.cost.object.name"
+                <template v-else-if="offer.description == 'Starbux Crew'">
+                  <div class="block middle mr-1">Cost: </div>
+                  <div class="block middle" :style="buxSprite()"></div>
+                </template>
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" sm="6" md="3">
+        <v-card outlined :class="[isExpired(this.offers.dailyRewards.expires) ? 'expired' : '', 'offers']">
+          <v-card-title class="overline mb-2">
+            <div class="block mr-1" :style="styleFromSprite(this.offers.dailyRewards.sprite, '', 0, 0.8)"></div>Daily Reward
+          </v-card-title>
+
+          <v-card-text>
+            <div v-for="(object, index) in this.offers.dailyRewards.objects" :key="'daily-reward-' + index">
+              <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
+
+              <div>
+                <template v-if="object.type === 'Item' ||object.type === 'Room'">
+                  {{ 'x' + object.count }} <div class="block mr-2 middle" :style="spriteStyle(object.object.sprite)"></div>
+                  <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{object.object.name }}</div>
+                </template>
+                <template v-else-if="object.type === 'Character'">
+                  <crew :char="object.object" name="right"/>
+                </template>
+                <template v-else-if="object.type === 'Currency'">
+                  {{ 'x' + object.count }} <div class="block middle" :style="currencySprite(object.object.currency)"></div>
+                </template>
+                <template v-else>
+                  <div>{{object.type }}</div>
+                </template>
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" sm="6" md="3">
+        <v-card outlined :class="[isExpired(this.offers.greenCargo.expires) ? 'expired' : '', 'offers']">
+          <v-card-title class="overline mb-2">
+            <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.greenCargo.sprite, '', 0, 3)"></div>Merchant Ship
+          </v-card-title>
+          
+          
+          <v-card-text>
+            <div v-for="(offer, index) in this.offers.greenCargo.items" :key="'green-cargo-' + index">
+              <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
+
+              <div>
+                <template v-if="offer.objects[0].type === 'Item' ||offer.objects[0].type === 'Room'">
+                  {{ 'x' + offer.objects[0].count }} <div class="block mr-2 middle" :style="spriteStyle(offer.objects[0].object.sprite)"></div>
+                  <div :class="[offer.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{offer.objects[0].object.name }}</div>
+                </template>
+                <template v-else-if="offer.objects[0].type === 'Character'">
+                  <crew :char="offer.objects[0].object" name="right"/>
+                </template>
+                <template v-else-if="offer.objects[0].type === 'Currency'">
+                  {{ 'x' + offer.objects[0].count }} <div class="block middle" :style="currencySprite(offer.objects[0].object.currency)"></div>
+                </template>
+                <template v-else>
+                  <div>{{offer.objects[0].type }}</div>
+                </template>
+              </div>
+
+              <div style="clear: both" class="pt-2">
+                <template v-if="offer.cost && offer.cost.currency != 'item'">
+                  <div class="block middle mr-1">Cost: {{ offer.cost.price }}</div>
+                  <div class="block middle" :style="currencySprite(offer.cost.currency)"></div>
+                </template>
+                <template v-else-if="offer.cost && offer.cost.currency == 'item'">
+                  <div class="block middle mr-1">{{ offer.cost.count }}</div>
+                  <div class="block middle" :style="spriteStyle(offer.cost.object.sprite)" :title="offer.cost.object.name"
                   ></div>
                 </template>
-              </td>
-              <td>
-                <div v-for="o in i.item.objects">
-                  <template v-if="o.type === 'Item' || o.type === 'Room'">
-                    {{ o.count }} <div class="block" :style="spriteStyle(o.object.sprite)"></div>
-                    <div :class="[o.object.rarity, 'block', 'nowrap', 'bold']">{{ o.object.name }}</div>
-                  </template>
-                  <template v-else-if="o.type === 'Character'">
-                    <crew :char="o.object" name="right"/>
-                  </template>
-                  <template v-else-if="o.type === 'Currency'">
-                    {{ o.count }} <div class="block middle" :style="currencySprite(o.object.currency)"></div>
-                  </template>
-                  <template v-else>
-                    <div>{{ o.type }}</div>
-                  </template>
-                </div>
-              </td>
-              <td :class="[isExpired(i.item.expires) ? 'expired' : '', 'text-xs-left']">
-                <template v-for="d in i.item.details">
-                  {{ d }}<br/>
-                </template>
-                <template vif="i.item.expires">
-                  {{ nowTime(i.item.expires) }}
-                </template>
-              </td>
-            </template>
-          </v-data-table>
-        </v-layout>
+              </div>
 
-        <v-layout justify-center class="mt-4">
-          <v-flex xs2>
-            <strong><a href="/changes">Changes</a></strong>
-          </v-flex>
-        </v-layout>
-        <v-layout justify-center>
-          <v-flex xs1>
-            <div>Most Recent</div>
-            <Strong>{{ nowTime(changeLatest) }}</Strong>
-          </v-flex>
-          <v-flex xs1>
-            <div># Today</div>
-            <Strong>{{ changesToday }}</Strong>
-          </v-flex>
-          <!--<v-flex xs1>-->
-            <!--<div># Yesterday</div>-->
-            <!--<Strong>{{ changesYesterday }}</Strong>-->
-          <!--</v-flex>-->
-          <v-flex xs1>
-            <div># This Week</div>
-            <Strong>{{ changesThisWeek }}</Strong>
-          </v-flex>
-        </v-layout>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
-        <v-layout justify-center class="mt-4 text-xs-left">
-          <v-flex xs6 v-if="news.news_moment">
-            <h3>News</h3> ({{ news.news_moment.format('M/D LT') }})
-            <p v-if="news.news_moment">{{ news.news }}
-            <p class="small error">{{ news.maintenance }}</p>
-          </v-flex>
-        </v-layout>
+    <v-row v-if="loaded" justify="center">
+      <v-col cols="12" sm="6" md="3">
+        <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
+          <v-card-title  class="overline mb-2" >
+            <div class="block mr-2" :style="styleFromSprite(this.offers.shop.sprite, '', 0, 1)"></div>Shop
+          </v-card-title>
 
-        <!--<v-layout justify-center class="mt-4 text-xs-left">-->
-          <!--<v-flex xs6 v-if="news.news_moment">-->
-            <!--<h3>Announcement</h3>-->
-            <!--<div>-->
-              <!--Some things have changed, watch out for rough edges.-->
-            <!--</div>-->
-          <!--</v-flex>-->
-        <!--</v-layout>-->
+          <v-card-text>
+            <div>
+              <template v-if="this.offers.shop.objects[0].type === 'Item' ||this.offers.shop.objects[0].type === 'Room'">
+                {{this.offers.shop.objects[0].count > 1 ? 'x' + this.offers.shop.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.objects[0].object.sprite)"></div>
+                <div :class="[this.offers.shop.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.objects[0].object.name }}</div>
+              </template>
+              <template v-else-if="this.offers.shop.objects[0].type === 'Character'">
+                <crew :char="this.offers.shop.objects[0].object" name="right"/>
+              </template>
+              <template v-else-if="this.offers.shop.objects[0].type === 'Currency'">
+                {{this.offers.shop.objects[0].count }} <div class="block middle" :style="currencySprite(this.offers.shop.objects[0].object.currency)"></div>
+              </template>
+              <template v-else>
+                <div>{{this.offers.shop.objects[0].type }}</div>
+              </template>
+            </div>
 
-        <!--<v-layout justify-center class="mt-4 text-xs-left">-->
-          <!--<v-flex xs6>-->
-            <!--<h3>Tournament</h3>-->
-            <!--<p>{{ news.tournament_news }}</p>-->
-          <!--</v-flex>-->
-        <!--</v-layout>-->
+            <div style="clear: both" class="pt-2">
+              <template v-if="this.offers.shop.cost && this.offers.shop.cost.currency != 'item'">
+                <div class="block middle mr-1">Cost: {{ this.offers.shop.cost.price }}</div>
+                <div class="block middle" :style="currencySprite(this.offers.shop.cost.currency)"></div>
+              </template>
+              <template v-else-if="this.offers.shop.cost && this.offers.shop.cost.currency == 'item'">
+                <div class="block middle mr-1">{{ this.offers.shop.cost.count }}</div>
+                <div class="block middle" :style="spriteStyle(this.offers.shop.cost.object.sprite)" :title="this.offers.shop.cost.object.name"
+                ></div>
+              </template>
+            </div>
 
-      </v-container>
+            <div class="mt-2 text-right text--disabled">
+              <div>{{ this.offers.shop.details.left }} left</div>
+              <div>Expire at {{ nowTime(this.offers.shop.expires) }}</div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-      <!--<a href="https://discordapp.com/channels/458802127238725632/476911589987975172">PixyShip Discord</a>-->
-    </v-app>
-  </div>
+      <v-col cols="12" sm="6" md="3">
+        <v-card outlined :class="[isExpired(this.offers.sale.expires) ? 'expired' : '', 'offers']">
+          <v-card-title  class="overline mb-2" >
+            <div class="block mr-2" :style="styleFromSprite(this.offers.sale.sprite, '', 0, 1)"></div>Bank
+          </v-card-title>
+
+          <v-card-text>
+            <div>
+              <template v-if="this.offers.sale.objects[0].type === 'Item' ||this.offers.sale.objects[0].type === 'Room'">
+                {{this.offers.sale.objects[0].count > 1 ? 'x' + this.offers.sale.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.objects[0].object.sprite)"></div>
+                <div :class="[this.offers.sale.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.objects[0].object.name }}</div>
+              </template>
+              <template v-else-if="this.offers.sale.objects[0].type === 'Character'">
+                <crew :char="this.offers.sale.objects[0].object" name="right"/>
+              </template>
+              <template v-else-if="this.offers.sale.objects[0].type === 'Currency'">
+                {{this.offers.sale.objects[0].count }} <div class="block middle" :style="currencySprite(this.offers.sale.objects[0].object.currency)"></div>
+              </template>
+              <template v-else>
+                <div>{{this.offers.sale.objects[0].type }}</div>
+              </template>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" sm="6" md="3">
+        <v-card outlined class="not-offers">
+          <v-card-title class="overline mb-2"
+            ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
+          >
+          <v-card-text>
+            <p>
+              Most Recent: {{ nowTime(this.changeLatest) }}<br />
+              Today: {{ this.changesToday }}<br />
+              This Week: {{ this.changesThisWeek }}
+            </p>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn
+              text
+              to="/changes"
+            >
+              See changes
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
 
 <script>
-
-import axios from 'axios'
-import Vue from 'vue'
-import {OrbitSpinner} from 'epic-spinners'
-import moment from 'moment'
-import Crew from '@/components/Crew'
-import Header from '@/components/Header'
-import VueClipboard from 'vue-clipboard2'
-import 'vuetify/dist/vuetify.min.css'
-import mixins from '@/mixins/Common.vue.js'
-require('../assets/common.css')
-var convert = require('xml-js')
-
-Vue.component('crew', Crew)
-Vue.component('ps-header', Header)
-
-Vue.use(VueClipboard)
-
-function styleFromSprite (s, color = '', border = 0, ninepatch = 0) {
-  if (Object.keys(s).length === 0) {
-    return {}
-  }
-  return {
-    background: `${color} url('//pixelstarships.s3.amazonaws.com/${s.source}.png') -${s.x}px -${s.y}px`,
-    width: `${s.width}px`,
-    height: `${s.height}px`,
-    border: `${border}px solid lightgrey`,
-    imageRendering: 'pixelated'
-  }
-}
-
-function embedSpriteStyle (s, color = '', border = 0) {
-  s.style = styleFromSprite(s, color, border)
-}
+import axios from "axios";
+import moment from "moment";
+import mixins from "@/mixins/PixyShip.vue.js";
+import Crew from "@/components/Crew.vue";
+const convert = require("xml-js");
 
 export default {
   mixins: [mixins],
 
-  data () {
+  components: {
+    Crew,
+  },
+
+  data() {
     return {
-      devMode: process.env.NODE_ENV === 'development',
-      searchString: '',
-      selected: '',
-      shipNames: [],
-      shipSearch: null,
-      message: '',
-      chars: [],
-      rooms: [],
-      items: [],
-      upgrades: [],
-      user: {},
-      ship: {},
-      daily: {},
+      loaded: false,
+      daily: null,
+      tournament: {},
       offers: [],
       changes: [],
       changeLatest: null,
@@ -169,799 +261,95 @@ export default {
       changesYesterday: 0,
       changesThisWeek: 0,
       news: {},
-      spinner: 'display: none',
-      showData: false,
-      errorMessage: '',
-      shipData: [],
-      shipList: {},
-      userMinerals: null,
-      userGas: null,
-      confirmMessage: '',
-      showRoomUpgrades: true,
-      charHeaders: [
-        {text: 'Order', align: 'center', sortable: false},
-        {text: 'Level', align: 'left', sortable: false},
-        {text: 'Name', align: 'left', sortable: false},
-        {text: 'Equip', align: 'left', sortable: false},
-        {text: 'Rarity', align: 'left', sortable: false},
-        {text: 'HP', align: 'left', sortable: false},
-        {text: 'Attack', align: 'left', sortable: false},
-        {text: 'Repair', align: 'left', sortable: false},
-        {text: 'Special', align: 'left', sortable: false},
-        {text: 'Ability', align: 'left', sortable: false},
-        {text: 'Pilot', align: 'left', sortable: false},
-        {text: 'Science', align: 'left', sortable: false},
-        {text: 'Engine', align: 'left', sortable: false},
-        {text: 'Weapon', align: 'left', sortable: false},
-        {text: 'Fire', align: 'left', sortable: false},
-        {text: 'Stamina', align: 'left', sortable: false},
-        {text: 'Training', align: 'left', sortable: false},
-        {text: 'Speed', align: 'left', sortable: false}
-      ],
-      basicHeaders: [
-        {text: 'Order', align: 'center', sortable: false},
-        {text: 'Level', align: 'left', sortable: false},
-        {text: 'Name', align: 'left', sortable: false},
-        {text: 'Special', align: 'left', sortable: false}
-      ],
-      offerHeaders: [
-        {text: 'Description', value: 'description', align: 'right', sortable: false},
-        {text: 'Cost', value: 'cost', align: 'right', width: '100px', sortable: false},
-        {text: 'Offer', value: 'offer', width: '250px', sortable: false},
-        {text: 'Details', value: 'details', sortable: false}
-      ],
-      changeHeaders: [
-        {text: 'Image', align: 'right', sortable: false},
-        {text: 'Name', value: 'name'},
-        {text: 'Date', value: 'moment', align: 'center'},
-        {text: 'Change', value: 'change_type', align: 'center'}
-      ],
-      changePagination: {'sortBy': 'moment', 'descending': true},
-      confirmDialog: false,
-      tab: 0
-    }
+    };
   },
 
-  components: {
-    OrbitSpinner
+  computed: {
+    isLoading: function () {
+      return !this.loaded;
+    },
   },
 
-  mounted () {
-    if (localStorage.shipList) {
-      try {
-        this.shipList = JSON.parse(localStorage.getItem('shipList')) || {}
-      } catch (e) {
-        localStorage.removeItem('shipList')
-      }
-      // console.log(this.shipList);
-      if (typeof this.shipList === 'string') {
-        this.shipList = {}
-      }
-    }
-    this.shipData = this.getShipData()
-
-    const q = this.$route.query
-    if (q && q.search) this.getChar(q.search)
-  },
-
-  created: function () {
-    this.getDaily()
+  beforeMount: function () {
+    this.getDaily();
   },
 
   methods: {
-    getShipData () {
-      return Object.values(this.shipList).map(v => ({
-        last: 0,
-        name: v.name,
-        trophies: v.trophies,
-        verified: v.verified
-      }))
-    },
-
-    copyUrl () {
-      this.$copyText(window.location.href)
-    },
-
-    openShipInBuilder () {
-      if (!this.ship) return
-
-      let path = '/builder?ship=' + this.ship.id
-      if (this.rooms) {
-        path += '&rooms=' + this.rooms.map(r => `${r.column},${r.row},${r.design_id}`).join('-')
-      }
-      window.location.href = path
-    },
-
-    getChar (searchName) {
-      if (!searchName) {
-        return
-      }
-      this.spinner = 'display: inline-block'
-      this.showData = false
-      this.errorMessage = ''
-      const endpoint = this.shipEndpoint + encodeURIComponent(searchName)
-      const key = this.getKeyFromName(searchName)
-      axios.get(endpoint, {
-        withCredentials: true,
-        params: {key: key}
-      })
-        .then(r => {
-          // this.shipData = getShipData();
-
-          if (r.data.data.status === 'not found') {
-            this.errorMessage = "Can't find a ship for \"" + searchName + '"'
-          } else {
-            this.chars = r.data.data.chars
-            this.rooms = r.data.data.rooms
-            this.items = r.data.data.items
-            this.user = r.data.data.user
-            this.upgrades = r.data.data.upgrades
-            embedSpriteStyle(this.user.sprite, 'grey')
-            embedSpriteStyle(this.user.alliance_sprite, 'grey')
-            this.ship = r.data.data.ship
-            embedSpriteStyle(this.ship.exterior_sprite)
-            embedSpriteStyle(this.ship.interior_sprite)
-            embedSpriteStyle(this.ship.logo_sprite, 'grey')
-            this.showData = true
-            if (this.user.confirmed) {
-              this.columns = ['character_id', 'level', 'name', 'equipment', 'rarity_order', 'hp', 'attack', 'repair',
-                'special_ability', 'ability', 'pilot', 'science', 'engine', 'weapon', 'fire_resist', 'stamina',
-                'training', 'walk']
-            } else {
-              this.columns = ['character_id', 'level', 'name', 'special_ability']
-              this.user.verified = false
-              this.user.key = null
-            }
-
-            this.updateShipList(this.user.id, this.user)
-          }
-          this.spinner = 'display: none'
-          this.$router.replace('/?search=' + searchName)
-        })
-        .catch(_ => {
-          this.spinner = 'display: none'
-          this.errorMessage = 'In space, no one can hear you scream.'
-        })
-    },
-
-    getKeyFromName (name) {
-      const key = Object
-        .values(this.shipList)
-        .filter(x => x.name === name)
-        .map(x => x.key)
-      return key[0]
-    },
-
-    updateShipList (id, data) {
-      this.shipList[id] = {...(this.shipList[id] || {}), ...data}
-      localStorage.setItem('shipList', JSON.stringify(this.shipList))
-      this.shipData = this.getShipData()
-    },
-
     getDaily: async function () {
-      const r = await axios.get(this.dailyEndpoint)
-      this.offers = r.data.data.offers
-      this.news = r.data.data.news
-      this.news.news_moment = moment.utc(this.news.news_date).local()
-      const changes = await axios.get(this.changesEndpoint)
-      this.changes = changes.data.data.map(x => {
-        x.attributes = this.getAllAttributes(convert.xml2js(x.data).elements[0])
-        x.oldAttributes = x.old_data ? this.getAllAttributes(convert.xml2js(x.old_data).elements[0]) : null
-        x.moment = moment.utc(x.changed_at)
-        x.changes = this.diffAttributes(x.attributes, x.oldAttributes)
-        return x
-      })
-      const oneDay = moment().add(-1, 'days')
-      const twoDay = moment().add(-2, 'days')
-      const oneWeek = moment().add(-7, 'days')
-      this.changesToday = this.changes.filter(c => c.moment > oneDay).length
-      this.changesYesterday = this.changes.filter(c => c.moment > twoDay).length
-      this.changesThisWeek = this.changes.filter(c => c.moment > oneWeek).length
-      this.changeLatest = Math.max(...(this.changes.map(c => c.moment)))
+      const response = await axios.get(this.dailyEndpoint);
+
+      this.offers = response.data.data.offers;
+
+      this.news = response.data.data.news;
+      this.news.news_moment = moment.utc(this.news.news_date).local();
+
+      const changes = await axios.get(this.changesEndpoint);
+      this.changes = changes.data.data.map((change) => {
+        change.attributes = this.getAllAttributes(
+          convert.xml2js(change.data).elements[0]
+        );
+        change.oldAttributes = change.old_data
+          ? this.getAllAttributes(convert.xml2js(change.old_data).elements[0])
+          : null;
+        change.moment = moment.utc(change.changed_at);
+        change.changes = this.diffAttributes(
+          change.attributes,
+          change.oldAttributes
+        );
+        return change;
+      });
+
+      const oneDay = moment().add(-1, "days");
+      const twoDay = moment().add(-2, "days");
+      const oneWeek = moment().add(-7, "days");
+
+      this.changesToday = this.changes.filter(
+        (change) => change.moment > oneDay
+      ).length;
+      this.changesYesterday = this.changes.filter(
+        (change) => change.moment > twoDay
+      ).length;
+      this.changesThisWeek = this.changes.filter(
+        (change) => change.moment > oneWeek
+      ).length;
+      this.changeLatest = Math.max(
+        ...this.changes.map((change) => change.moment)
+      );
+
+
+      const tournamentResponse = await axios.get(this.tournamentEndpoint);
+      this.tournament = tournamentResponse.data.data
+
+      this.loaded = true;
     },
 
-    getAllAttributes (element) {
-      let attr = element.attributes
-      if (element.elements) {
-        element.elements.map(e => {
-          if (!('elements' in e)) {
-            Object.entries(e.attributes).map(a => {
-              attr[e.name + '_' + a[0]] = a[1]
-            })
-          };
-        })
-      }
-      return attr
+    isExpired(time) {
+      if (!time) return false;
+      const res = moment.utc(time) < moment();
+      return res;
     },
-
-    diffAttributes (newAttr, oldAttr) {
-      let changes = {
-        new: [],
-        changed: [],
-        removed: []
-      }
-      if (!oldAttr) {
-        changes.new = Object.entries(newAttr)
-      } else {
-        Object.entries(newAttr).map(v => {
-          if (!(v[0] in oldAttr)) {
-            changes.new.push(v)
-          } else if (v[1] !== oldAttr[v[0]]) {
-            changes.changed.push([v[0], oldAttr[v[0]], v[1]])
-            delete oldAttr[v[0]]
-          } else {
-            delete oldAttr[v[0]]
-          }
-        })
-      }
-      changes.removed = oldAttr ? Object.entries(oldAttr) : []
-      return changes
-    },
-
-    shipSelected () {
-      if (typeof this.searchString === 'string') {
-        this.getChar(this.searchString)
-      } else if (this.searchString) {
-        this.getChar(this.searchString.name)
-      }
-    },
-
-    spriteStyle (s) {
-      return styleFromSprite(s)
-    },
-
-    currencySprite (currency) {
-      switch (currency.toLowerCase()) {
-        case 'starbux':
-          return this.buxSprite()
-        case 'gas':
-          return this.gasSprite()
-        case 'mineral':
-          return this.mineralSprite()
-        case 'supply':
-          return this.supplySprite()
-        default:
-          return ''
-      }
-    },
-
-    isExpired (time) {
-      if (!time) return false
-      const res = moment.utc(time) < moment()
-      return res
-    },
-
-    onImageLoad (event) {
-      // get real image size from img element
-      // This still isn't working on Safari
-      const imageEle = event.path[0]
-      const img = new Image()
-      img.onload = () => {
-        imageEle.setAttribute('width', img.naturalWidth)
-        imageEle.setAttribute('height', img.naturalHeight)
-      }
-      img.src = imageEle.href.baseVal
-    }
-  }
-}
+  },
+};
 </script>
 
-<style>
-  .highlight {
-    color: #24E3FF;
-  }
-
-  .v-datatable, .v-datatable__actions {
-    background-color: inherit !important;
-  }
-
-  .v-datatable td {
-    height: unset !important;
-  }
-
-  .v-datatable td,
-  .v-datatable th {
-    padding: 0 5px !important;
-    color: white !important;
-  }
-
-  .v-datatable tr {
-    height: unset !important;
-  }
-
-  .v-datatable tbody tr:hover {
-    background-color: #222 !important;
-  }
-
-  #offers {
-    margin: 0 auto;
-    flex: unset;
-    min-width: 600px;
-  }
-
-  table.v-datatable {
-    background-color: black !important;
-  }
-
-  /*.v-list__tile {*/
-  /*  height: 25px;*/
-  /*}*/
-
-  .trophy-count {
-    width: 40px;
-  }
-
-  .v-autocomplete {
-    flex: unset;
-  }
-
-  .card__text {
-    background-color: #333;
-  }
-
-  .application .theme--dark.table tbody tr:hover:not(.datatable__expand-row), .theme--dark .table tbody tr:hover:not(.datatable__expand-row) {
-    background: #333;
-  }
-
-  table.table thead tr {
-    height: inherit;
-  }
-
-  table.table tbody td, table.table tbody th {
-    height: inherit;
-  }
-
-  table.table thead th {
-    font-size: 14px;
-    color: white;
-    font-weight: bold;
-  }
-
-  table.table tbody td {
-    font-size: 14px;
-  }
-
-  .application.theme--dark {
-    background-color: black;
-  }
-
-  .theme--dark .table {
-    background: black;
-  }
-
-  /*table.table tbody td:first-child {*/
-    /*padding: 0 2px !important;*/
-  /*}*/
-
-  table.table tbody td, table.table thead th {
-    padding: 0 2px !important;
-  }
-
-  /*table.table thead th {*/
-    /*padding: 0 2px !important;*/
-  /*}*/
-
-  html {
-    background-color: black;
-    color: white;
-  }
-
-  .main {
-    margin-top: 10px;
-  }
-
-  .center {
-    margin: 0 auto;
-  }
-
-  td.center {
-    text-align: center;
-  }
-
-  .char-part {
-    margin: 0px auto;
-  }
-
-  .char {
-    max-width: 25px;
-    margin: 0px;
-  }
-
-  /* this doesn't work except on multiple lines */
-  .name {
-    line-height: .9;
-  }
-
-  span.name {
-    display: inline-block;
-    line-height: .9;
-  }
-
-  .fs-80p {
-    font-size: 80%;
-  }
-
-  .lh-9 {
-    line-height: .9;
-  }
-
-  .name span {
-    color: gray;
-    font-size: 60%;
-  }
-
-  .char-sprite {
-    width: 40px;
-    /*margin: 0 auto;*/
-    display: table;
-  }
-
-  div.upgradable {
-    color: #1be600;
-  }
-
-  rect.upgradable {
-    fill: transparent;
-    stroke-width: 2px;
-    stroke: #1be600;
-  }
-
-  .power-gen{
-    fill: lime;
-    font-weight: 700;
-    font-size: 8px;
-  }
-
-  .power-use {
-    fill: yellow;
-    font-weight: 700;
-    font-size: 8px;
-  }
-
-  .room-name {
-    fill: white;
-    font-size: 8px;
-  }
-
-  .defense {
-    fill: orange;
-    font-weight: 700;
-    font-size: 8px;
-    text-shadow:
-      -1px -1px 0 #000,
-      1px -1px 0 #000,
-      -1px 1px 0 #000,
-      1px 1px 0 #000;
-  }
-
-  .room {
-    margin: 0
-  }
-
-  .room > body {
-    margin: 0
-  }
-
-  .row {
-    display: none;
-  }
-
-  .stats {
-    columns: 150px;
-    max-width: 750px;
-  }
-
-  .stat-card {
-    width: 150px;
-  }
-
-  .stat-card span {
-    font-weight: bold;
-  }
-
-  .stat span {
-    color: gray;
-    font-size: 60%;
-  }
-
-  .stat {
-    line-height: .7;
-  }
-
-  .equip {
-    line-height: 1;
-    font-size: 80%;
-  }
-
-  .VueTables__child-row-toggler {
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-    display: block;
-    margin: auto;
-    text-align: center;
-    background-color: red;
-  }
-
-  .char-item {
-    display: inline-block;
-  }
-
-  .orbit-spinner {
-    margin-top: 20pt;
-  }
-
-  .items {
-    columns: 225px;
-    max-width: 750px;
-  }
-
-  .inline {
-    display: inline-block;
-    margin: 0 5px;
-  }
-
-  .block {
-    display: inline-block;
-  }
-
-  .item div{
-    display: inline-block;
-    margin: 0 5px;
-  }
-
-  .rarity {
-    text-transform: capitalize;
-  }
-
-  .special-ability {
-    font-size: 80%;
-  }
-
-  /* Rarities*/
-  .item {
-    margin: 5px;
-    min-width: 200px;
-  }
-
-  .name {
-    font-weight: bold;
-  }
-
-  .name-link {
-    font-weight: bold;
-    padding: 0 5px;
-    margin: 0 2px;
-    background-color: #333;
-    border-radius: 10px;
-    color: white;
-  }
-
-  .verified {
-    color: #d5aa2a;
-  }
-
-  .name-link:hover {
-    cursor: pointer;
-  }
-
-  .logo {
-    width: 200px;
-  }
-
-  .confirm {
-    max-width: 75px;
-  }
-
-  .confirm-message {
-    margin: 2px 10px;
-    color: red;
-  }
-
-  .unused {
-    color: grey;
-  }
-
-  .item-sprite {
-    min-width: 40px;
-  }
-
-  .item-sprite div {
-    display: table;
-    margin: 0 auto;
-  }
-
-  .input-ship {
-    max-width: 250px;
-    margin: 0 auto;
-  }
-
-  .input-ship .selected-tag {
-    display: none;
-  }
-
-  span.char-order {
-    color: white;
-    font-weight: 700;
-    font-size: 9px;
-    text-shadow:
-      -1px -1px 0 #000,
-      1px -1px 0 #000,
-      -1px 1px 0 #000,
-      1px 1px 0 #000;
-    display: inline;
-    z-index: 1;
-    position: absolute;
-    transform:translate(0, -10px);
-  }
-
-  .bold {
-    font-weight: bold;
-  }
-
-  .alignleft {
-    float: left;
-  }
-
-  .alignright {
-    float: right;
-  }
-
-  input.confirm {
-    color: white;
-    background-color: black;
-    border: 2px solid white;
-    border-top-width: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-    border-radius: 4px;
-  }
-
-  .dark-button {
-    color: white;
-    border-width: 0px;
-    border-radius: 4px;
-    background : #333;
-    filter : progid:DXImageTransform.Microsoft.gradient( startColorstr='#5f6166', endColorstr='#00060a',GradientType=0 );
-  }
-
-  :visited {
-    color: #24E3FF;
-  }
-
-  :link {
-    color: #FF5656;
-    text-decoration: none;
-  }
-
-  .main-table td:nth-child(1){
-    text-align: right;
-    color: grey;
-  }
-
-  .ps-left {
-    text-align: left;
-  }
-
-  .right {
-    text-align: right;
-  }
-
-  .top {
-    vertical-align: top;
-  }
-
-  .side-by-side {
-    float: left
-  }
-
-  .bold {
-    text-weight: bold;
-  }
-
-  .upgrades td:nth-child(1){
-    color: white;
-  }
-
-  table.upgrades {
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  table > tr {
-    vertical-align: top;
-  }
-
-  td > div {
-    text-align: left;
-    vertical-align: top;
-    display: block;
-  }
-
-  figure {
-    break-inside: avoid;
-    background-color: white;
-    -webkit-margin-start: 0;
-    -webkit-margin-end: 0;
-    text-align: center;
-  }
-
-  figure div {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .main-table {
-    margin: 0px auto;
-    vertical-align: top;
-  }
-
-  .five-margin {
-    margin-left: 5px;
-  }
-
-  table.VueTables__table tr > td:nth-child(4) {
-    text-align: left;
-  }
-
-  .example {
-    margin-top: 20px;
-  }
-
-  .collapse.help .collapse-header {
-    background: #333;
-    padding: 0 20px 0 40px;
-  }
-
-  .collapse.help .collapse-content-box {
-    padding: 10px;
-    border: 0 none;
-    max-width: 600px;
-    text-align: left;
-  }
-
-  span.correct {
-    color: #1be600;
-  }
-
-  span.wrong, .error {
-    color: red;
-  }
-
-  .small {
-    font-size: small;
-  }
-
-  .smaller {
-    font-size: x-small;
-  }
-
-  .daily {
-    display: inline-block;
-    vertical-align: top;
-    background-color: #222;
-    border-radius: 4px;
-    min-width: 100px;
-    max-width: 180px;
-    padding: 2px;
-    margin: 2px;
-  }
-
-  .expired {
-    opacity: 0.5;
-  }
-
-  .middle {
-    vertical-align: middle;
-  }
-
-  .nowrap {
-    white-space: nowrap;
-  }
-
-  .col-left-margin {
-    padding-left: 10px;
-  }
-
+<style scoped>
+.expired {
+  opacity: 0.5;
+}
+
+.block {
+  display: inline-block;
+}
+
+.middle {
+  vertical-align: middle;
+}
+
+.offers {
+  min-height: 250px;
+}
+
+.not-offers {
+  min-height: 180px;
+}
 </style>

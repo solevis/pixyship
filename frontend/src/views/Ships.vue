@@ -1,308 +1,301 @@
 <template>
-  <div>
-    <v-app dark>
-      <ps-header/>
-      Ships
-      <p><span class="mr-1"><v-icon>info</v-icon></span>Click a row to see the full sized ship interior sprite.</p>
-      <br/><br/>
-      <div class="center">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          id="search"
-          label="Search"
-          placeholder="search room name, short name, and type"
-        ></v-text-field>
-        <br/>
-        <v-data-table
-          :headers="headers"
-          :items="ships"
-          :rows-per-page-items="[10,20,50,100,200,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-          :pagination.sync="pagination"
-          :search="search"
-          :custom-filter="fieldFilter"
-          :filter="multipleFilter"
-        >
-          <template slot="items" slot-scope="i">
-            <tr @click="toggleExpand(i)">
-              <td class="text-xs-left name bold">{{ i.item.name }}</td>
-              <td class="text-xs-right">{{ i.item.level }}</td>
-              <td class="text-xs-right">{{ i.item.space }}</td>
-              <td class="text-xs-right">{{ i.item.hp }}</td>
-              <td class="center char-sprite">
-                <div :style="spriteStyle(i.item.interior_sprite, 1, 3)"></div>
+  <v-card :loading="isLoading">
+    <v-card-title class="text-center overline">> Ships</v-card-title>
+
+    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+
+    <!-- Filters -->
+    <v-card-subtitle v-if="loaded">
+      <v-row>
+        <v-col cols="12" sm="12" md="8">
+          <v-text-field
+            v-model="searchName"
+            append-icon="mdi-magnify"
+            label='Name'
+            hint='For example: "Starship", Cluck'
+            clearable
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-combobox
+            v-model="searchLevel"
+            :items="levels"
+            label="Level"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-combobox
+            v-model="searchType"
+            :items="types"
+            label="Type"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+      </v-row>
+    </v-card-subtitle>
+
+    <!-- Table -->
+    <v-data-table
+      v-if="loaded"
+      mobile-breakpoint="0"
+      :headers="headers"
+      :items="ships"
+      :search="searchName"
+      :custom-filter="multipleFilterWithNegative"
+      :items-per-page="20"
+      :loading="isLoading"
+      :sortDesc="true"
+      :footer-props="{
+        itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
+      }"
+      multi-sort
+      loading-text="Loading..."
+      class="elevation-1"
+      dense
+    >
+      <template v-slot:item="{ item, expand, isExpanded }">
+        <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
+          <template v-slot:activator="{ on, attrs }">
+            <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
+              <!-- Image -->
+              <td>
+                <div :style="spriteStyle(item.mini_ship_sprite)"></div>
               </td>
-              <td class="text-xs-right">{{ i.item.repair_time }}</td>
+
+              <!-- Name -->
+              <td>
+                <div :class="[item.rarity, 'lh-9', 'name']">
+                  {{ item.name }}<br />
+                </div>
+              </td>
+
+              <td class="text-xs-right">{{ item.level }}</td>
+              <td class="text-xs-right">{{ item.space }}</td>
+              <td class="text-xs-right">{{ item.hp }}</td>
+
+              <td class="text-xs-right">{{ item.repair_time }}</td>
+
               <td style="min-width: 100px">
-                <template v-if="i.item.mineral_cost > 0">
-                  <div>{{ i.item.mineral_cost }}
-                    <div class="block middle" :style="mineralSprite()"></div>
-                  </div>
-                </template>
-                <template v-if="i.item.starbux_cost > 0">
-                  <div>{{ i.item.starbux_cost }}
-                    <div class="block middle" :style="buxSprite()"></div>
-                  </div>
-                </template>
+                <table>
+                  <tr v-if="item.mineral_cost > 0" class="nobreak">
+                    <td>
+                      <div :style="mineralSprite()" />
+                    </td>
+                    <td>{{ item.mineral_cost }}</td>
+                  </tr>
+                  <tr v-if="item.starbux_cost > 0" class="nobreak">
+                    <td>
+                      <div :style="buxSprite()" />
+                    </td>
+                    <td>{{ item.starbux_cost }}</td>
+                  </tr>
+                </table>
               </td>
+
               <td style="min-width: 100px">
-                <template v-if="i.item.mineral_capacity > 0">
-                  <div>{{ i.item.mineral_capacity }}
-                    <div class="block middle" :style="mineralSprite()"></div>
-                  </div>
-                </template>
-                <template v-if="i.item.gas_capacity > 0">
-                  <div>{{ i.item.gas_capacity }}
-                    <div class="block middle" :style="gasSprite()"></div>
-                  </div>
-                </template>
-                <template v-if="i.item.equipment_capacity > 0">
-                  <div>{{ i.item.equipment_capacity }}
-                    <div class="block middle" :style="supplySprite()"></div>
-                  </div>
-                </template>
+                <table>
+                  <tr v-if="item.mineral_capacity > 0" class="nobreak">
+                    <td>
+                      <div :style="mineralSprite()" />
+                    </td>
+                    <td>{{ item.mineral_capacity }}</td>
+                  </tr>
+                  <tr v-if="item.gas_capacity > 0" class="nobreak">
+                    <td>
+                      <div :style="gasSprite()" />
+                    </td>
+                    <td>{{ item.gas_capacity }}</td>
+                  </tr>
+                  <tr v-if="item.equipment_capacity > 0" class="nobreak">
+                    <td>
+                      <div :style="supplySprite()" />
+                    </td>
+                    <td>{{ item.equipment_capacity }}</td>
+                  </tr>
+                </table>
               </td>
-              <td class="text-xs-left">{{ i.item.ship_type }}</td>
-              <td class="text-xs-left">{{ i.item.description }}</td>
+              <td class="text-xs-left">{{ item.ship_type }}</td>
+              <td class="text-xs-left">{{ item.description }}</td>
             </tr>
           </template>
-          <template slot="expand" slot-scope="i">
-              <div id="ship">
-                <div :style="spriteStyle(i.item.interior_sprite)"></div>
-              </div>
-          </template>
-        </v-data-table>
-      </div>
-      <br/>
-      <br/>
-      <div></div>
-      <div>
-        <a href="http://www.pixelstarships.com">Pixel Starships</a>
-      </div>
-    </v-app>
-  </div>
+          <span>Click to display more infos</span>
+        </v-tooltip>
+      </template>
+
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length" align="center" class="pa-2">
+          <v-row>
+            <v-col cols="12">
+              <v-card
+                  elevation="3"
+                  class="px-6 pb-6 pt-2"
+                  outlined
+                  shaped
+                >
+
+                <v-card-subtitle>
+                  <div class="overline">
+                    EXTERIOR
+                  </div>
+                </v-card-subtitle>
+
+                <v-img class="ship-sprite"
+                  :src="getSpriteUrl(item.exterior_sprite)"
+                  :width="item.exterior_sprite.width"
+                  :height="item.exterior_sprite.height"
+                  contain
+                ></v-img>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12">
+              <v-card
+                  elevation="3"
+                  class="px-6 pb-6 pt-2"
+                  outlined
+                  shaped
+                >
+
+                <v-card-subtitle>
+                  <div class="overline">
+                    INTERIOR
+                  </div>
+                </v-card-subtitle>
+
+                <v-img class="ship-sprite"
+                  :src="getSpriteUrl(item.interior_sprite)"
+                  :width="item.interior_sprite.width"
+                  :height="item.interior_sprite.height"
+                  contain
+                ></v-img>
+              </v-card>
+            </v-col>
+          </v-row>
+        </td>
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>
-
-import axios from 'axios'
-import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Header from '@/components/Header'
-import 'vuetify/dist/vuetify.min.css'
-import mixins from '@/mixins/Common.vue.js'
-
-Vue.component('ps-header', Header)
-
-Vue.use(BootstrapVue)
-
-function styleFromSprite (s, color = '', border = 0, ninepatch = 0, scale = 1, portScale = 1) {
-  if (Object.keys(s).length === 0) {
-    return {}
-  }
-  const fillStr = portScale === 1 ? '' : '/ 100% 100%'
-  let obj = {
-    background: `${color} url('//pixelstarships.s3.amazonaws.com/${s.source}.png') -${s.x}px -${s.y}px ${fillStr}`,
-    width: `${s.width / portScale}px`,
-    height: `${s.height / portScale}px`,
-    border: `${border}px solid lightgrey`,
-    imageRendering: 'pixelated'
-  }
-  if (scale !== 1) obj.transform = `scale(${scale}, ${scale})`
-  return obj
-}
+import axios from "axios";
+import mixins from "@/mixins/PixyShip.vue.js";
+import "../assets/css/override.css";
 
 export default {
   mixins: [mixins],
 
-  data () {
+  components: {},
+
+  data() {
     return {
-      devMode: process.env.NODE_ENV === 'development',
-      showInside: true,
-      ships: [],
-      search: '',
+      searchName: "",
+      searchLevel: [],
+      searchType: [],
+      levels: [],
+      types: [],
+      loaded: false,
       headers: [
-        {text: 'Name', align: 'left', value: 'name'},
-        {text: 'Level', align: 'right', value: 'level'},
-        {text: 'Space', align: 'right', value: 'space'},
-        {text: 'Health', align: 'right', value: 'hp'},
-        {text: 'Image', align: 'center', sortable: false},
-        {text: 'Secs/Repair', align: 'right', value: 'repair_time'},
-        {text: 'Cost', align: 'center', value: 'starbux_cost'},
-        {text: 'Capacity', align: 'center', value: 'defense'},
-        {text: 'Type', align: 'left', value: 'ship_type'},
-        {text: 'Description', align: 'left', value: 'description'}
+        { text: "Image", align: "center", sortable: false, filterable: false },
+        { text: "Name", align: "center", value: "name", filterable: true },
+        { text: "Level", align: "right", value: "level", filter: (value) => {
+            return this.filterCombobox(value.toString(), this.searchLevel);
+          },
+        },
+        { text: "Space", align: "right", value: "space", filterable: false },
+        { text: "Health", align: "right", value: "hp", filterable: false },
+        { text: "Secs/Repair", align: "right", value: "repair_time", filterable: false },
+        { text: "Cost", align: "center", value: "starbux_cost", filterable: false },
+        { text: "Capacity", align: "center", value: "defense", filterable: false },
+        { text: "Type", align: "left", value: "ship_type", filter: (value) => {
+            return this.filterCombobox(value.toString(), this.searchType);
+          }, },
+        { text: "Description", align: "left", value: "description", filterable: false },
       ],
-      pagination: {'sortBy': 'name', 'descending': true, 'rowsPerPage': 10}
-    }
+      rooms: [],
+    };
   },
 
-  created: function () {
-    this.init()
+  computed: {
+    isLoading: function () {
+      return !this.loaded;
+    },
+  },
+
+  beforeMount: function () {
+    this.getShips()
   },
 
   methods: {
-    init: async function () {
-      const r = await axios.get(this.shipsEndpoint)
-      let data = []
-      for (const k in r.data.data) {
-        const v = r.data.data[k]
-        let space = 0
-        for (let c of v.mask) {
-          if (c !== '0') space++
+    getShips: async function () {
+      const response = await axios.get(this.shipsEndpoint);
+
+      let ships = [];
+      for (const itemId in response.data.data) {
+        const ship = response.data.data[itemId];
+        let space = 0;
+
+        for (let c of ship.mask) {
+          if (c !== "0") space++;
         }
-        v.space = space
-        data.push(v)
+
+        ship.space = space;
+        ships.push(ship);
       }
-      data.sort((a, b) => b.rarity_order - a.rarity_order)
-      this.ships = data
+
+      ships.sort((a, b) => b.name - a.name);
+
+      this.ships = ships;
+      this.updateFilters();
+
+      this.loaded = true;
+
+      return this.ships;
     },
 
-    shipSelected () {
-      if (typeof this.searchString === 'string') {
-        this.getChar(this.searchString)
-      } else {
-        this.getChar(this.searchString.name)
-      }
-    },
+    updateFilters() {
+      this.levels = Array.from(
+        new Set(this.ships.map((ship) => (!ship.level ? 0 : ship.level)))
+      ).sort((a, b) => a - b);
 
-    onSearch (search, loading) {
-      if (search.length >= 2) {
-        this.getNames(search)
-      } else {
-        this.getNames('')
-      }
+      this.types = Array.from(
+        new Set(
+          this.ships.map((ship) => (!ship.ship_type ? "None" : ship.ship_type))
+        )
+      ).sort((a) => (a === "None" ? -1 : 1));
     },
-
-    spriteStyle (sprite, scale = 1, portScale = 1) {
-      return styleFromSprite(sprite, '', 0, 0, scale, portScale)
-    },
-
-    currencySprite (currency) {
-      switch (currency) {
-        case 'starbux':
-          return this.buxSprite()
-        case 'gas':
-          return this.gasSprite()
-        case 'mineral':
-          return this.mineralSprite()
-        case 'supply':
-          return this.supplySprite()
-        default:
-          return ''
-      }
-    },
-
-    onImageLoad (event) {
-      // get real image size from img element
-      // This still isn't working on Safari
-      const imageEle = event.path[0]
-      const img = new Image()
-      img.onload = () => {
-        imageEle.setAttribute('width', img.naturalWidth)
-        imageEle.setAttribute('height', img.naturalHeight)
-      }
-      img.src = imageEle.href.baseVal
-    },
-
-    fieldFilter (items, search, filter) {
-      search = search.toString().toLowerCase()
-      return items.filter(row =>
-        filter(row['name'], search) ||
-        filter(row['ship_type'], search) ||
-        filter(row['description'], search)
-      )
-    },
-
-    toggleExpand: async function (row) {
-      row.expanded = !row.expanded
-    }
-  }
-}
+  },
+};
 </script>
 
-<style>
-  .nobreak {
-    word-break: keep-all;
-    white-space: nowrap;
-  }
+<style scoped src="@/assets/css/common.css"></style>
+<style scoped>
+.rarity {
+  text-transform: capitalize;
+}
 
-  .application.theme--dark {
-    background-color: black;
-  }
+.name {
+  font-weight: bold;
+}
 
-  .v-datatable, .v-datatable__actions {
-    background-color: inherit !important;
-  }
+a.name {
+  text-decoration: none;
+}
 
-  .v-datatable td {
-    height: unset !important;
-  }
+.name span {
+  color: #9e9e9e;
+}
 
-  .v-datatable td,
-  .v-datatable th {
-    padding: 0 5px !important;
-    color: white !important;
-  }
-
-  .v-datatable tr {
-    height: unset !important;
-    border: 2px solid black
-  }
-
-  .v-datatable tbody tr:hover {
-    background-color: #222 !important;
-  }
-
-  html, body {
-    background-color: black;
-    color: white;
-  }
-
-  .block {
-    display: inline-block;
-  }
-
-  .main {
-    margin-top: 10px;
-  }
-
-  .center {
-    margin: 0 auto;
-    padding: 0 5px;
-  }
-
-  /* this doesn't work except on multiple lines */
-  .name {
-    line-height: 1;
-  }
-
-  :visited {
-    color: #24E3FF;
-  }
-
-  :link {
-    color: #FF5656;
-    text-decoration: none;
-  }
-
-  .bold {
-    font-weight: bold;
-  }
-
-  .middle {
-    vertical-align: middle;
-  }
-
-  .v-datatable tr.v-datatable__expand-row:hover {
-    background-color: #000 !important;
-  }
-
-  #ship {
-    overflow-x: auto;
-    width: 90%;
-  }
-
+.ship-sprite {
+  image-rendering: pixelated;
+}
 </style>

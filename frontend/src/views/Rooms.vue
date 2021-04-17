@@ -1,376 +1,541 @@
 <template>
-  <div>
-    <v-app dark>
-      <ps-header/>
-      Rooms
-      <br/><br/>
-      <div class="center">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          id="search"
-          label="Search"
-          placeholder="search room name, short name, type and description"
-        ></v-text-field>
-        <br/>
-        <v-data-table
-          :headers="headers"
-          :items="rooms"
-          :rows-per-page-items="[10,20,50,100,200,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-          :pagination.sync="pagination"
-          :search="search"
-          :custom-filter="fieldFilter"
-          :filter="multipleFilter"
-        >
-          <template slot="items" slot-scope="i">
-            <td>
-              <div :style="spriteStyle(i.item.sprite)"></div>
-            </td>
-            <td><!-- Name -->
-              <div :class="[i.item.rarity, 'lh-9', 'name', 'text-xs-left']">
-                {{ i.item.name }}
-                <span><br>{{ i.item.short_name }}</span>
-              </div>
-            </td>
-            <td class="text-xs-right">{{ i.item.level }}</td>
-            <td class="text-xs-right">{{ i.item.min_ship_level }}</td>
-            <td class="stat">
-              {{ i.item.reload ? `${i.item.reload / 40}s` : '' }}
-              <span><br>{{ i.item.reload || '' }}</span>
-            </td>
-            <td class="text-xs-right">{{ i.item.capacity || '' }}</td>
-            <td class="text-xs-right">{{ i.item.refill_cost || '' }}</td>
-            <td class="stat">
-              {{ i.item.defense ? (1 - 100 / (100 + i.item.defense)).toLocaleString('en-US', {style: 'percent'}) : '' }}
-              <span><br>{{ i.item.defense || '' }}</span>
-            </td>
-            <td>
-              <div :class="[i.item.power_gen - i.item.power_use >= 0 ? 'positive' : 'negative']">
-                {{ i.item.power_gen - i.item.power_use || '' }}
-              </div>
-            </td>
-            <td class="text-xs-left">{{ i.item.type }}</td>
-            <td class="text-xs-right">{{ i.item.upgrade_cost }}</td>
-            <td>
-              <div :style="currencySprite(i.item.upgrade_currency)"/>
-            </td>
-            <td>{{ formatTime(i.item.upgrade_seconds) }}</td>
-            <td>{{ `${i.item.width}x${i.item.height}`}}</td>
-            <td class="text-xs-left" style="min-width: 200px">{{ i.item.description }}</td>
+  <v-card :loading="isLoading">
+    <v-card-title class="text-center overline">> Rooms</v-card-title>
+
+    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+
+    <!-- Filters -->
+    <v-card-subtitle v-if="loaded">
+      <v-row>
+        <v-col cols="12" sm="12" md="4">
+          <v-text-field
+            v-model="searchName"
+            append-icon="mdi-magnify"
+            label='Name'
+            hint='For example: "Lift Lv2", Vent'
+            clearable
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-combobox
+            v-model="searchLevel"
+            :items="levels"
+            label="Level"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-combobox
+            v-model="searchShipLevel"
+            :items="shipLevels"
+            label="Min Ship Level"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-combobox
+            v-model="searchSize"
+            :items="sizes"
+            label="Size"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-combobox
+            v-model="searchType"
+            :items="types"
+            label="Type"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+      </v-row>
+    </v-card-subtitle>
+
+    <!-- Table -->
+    <v-data-table
+      v-if="loaded"
+      mobile-breakpoint="0"
+      :headers="headers"
+      :items="rooms"
+      :items-per-page="20"
+      :search="searchName"
+      :custom-filter="multipleFilterWithNegative"
+      :loading="isLoading"
+      :sortDesc="true"
+      :footer-props="{
+        itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
+      }"
+      multi-sort
+      loading-text="Loading..."
+      class="elevation-1"
+    >
+      <template v-slot:item="{ item, expand, isExpanded }">
+        <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
+          <template v-slot:activator="{ on, attrs }">
+            <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
+              <!-- Image -->
+              <td class="pa-1">
+                <div :style="spriteStyle(item.sprite)"></div>
+              </td>
+
+              <!-- Name -->
+              <td>
+                <div :class="[item.rarity, 'lh-9', 'name']">
+                  {{ item.name }}
+                </div>
+              </td>
+
+              <td>
+                <div :class="[item.rarity, 'lh-9', 'name']">
+                  <span>{{ item.short_name }}</span>
+                </div>
+              </td>
+
+              <td>{{ item.type }}</td>
+              <td>{{ `${item.width}x${item.height}` }}</td>
+
+              <td>{{ item.level }}</td>
+              <td>{{ item.min_ship_level }}</td>
+              
+              <td>
+                <div
+                  :class="[
+                    item.power_gen - item.power_use >= 0
+                      ? 'positive'
+                      : 'negative',
+                  ]"
+                >
+                  {{ formatPower(item) }}
+                </div>
+              </td>
+              <td align="center">
+                <table v-if="item.purchasable">
+                  <tr class="nobreak">
+                    <td>
+                      <div :style="currencySprite(item.upgrade_currency)" />
+                    </td>
+                    <td>{{ item.upgrade_cost }}</td>
+                  </tr>
+                </table>
+              </td>
+              <td>{{ formatTime(item.upgrade_seconds) }}</td>
+              <td>{{ item.description }}</td>
+            </tr>
           </template>
-        </v-data-table>
-      </div>
-      <br/>
-      <br/>
-      <div></div>
-      <div>
-        <a href="http://www.pixelstarships.com">Pixel Starships</a>
-      </div>
-    </v-app>
-  </div>
+          <span>Click to display more infos</span>
+        </v-tooltip>
+      </template>
+
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length" align="center" style="border-bottom: 10px solid #393939;">
+          <v-row class="ma-3">
+            <v-col>
+              <v-card
+                elevation="3"
+                class="px-6 pb-6 pt-2"
+                outlined
+                shaped
+              >
+                <v-card-subtitle>
+                  <div class="overline">
+                    PRIMARY STATS
+                  </div>
+                </v-card-subtitle>
+
+                <v-simple-table dense style="width: 500px">
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left" style="width: 300px">
+                          Stat
+                        </th>
+                        <th class="text-left">
+                          Value
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                      <tr v-show="item.enhancement_type != 'None'">
+                        <td>Support Stat</td>
+                        <td>{{ item.enhancement_type }}</td>
+                      </tr>
+
+                      <tr v-show="item.reload">
+                        <td>Reload</td>
+                        <td>{{ item.reload }} ({{ `${Math.ceil(item.reload / 40 * 100) / 100}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.capacity">
+                        <td>Capacity</td>
+                        <td>{{ item.capacity }}</td>
+                      </tr>
+
+                      <tr v-show="item.refill_cost">
+                        <td>Refill cost</td>
+                        <td>{{ item.refill_cost }}</td>
+                      </tr>
+
+                      <tr v-show="item.manufacture_type !== 'None'">
+                        <td>Manufacture Type</td>
+                        <td>{{ item.manufacture_type }}</td>
+                      </tr>
+
+                      <tr v-show="item.manufacture_rate">
+                        <td>Manufacture Rate</td>
+                        <td>{{ `${Math.ceil(item.manufacture_rate * 3600)}/hour` }}</td>
+                      </tr>
+
+                      <tr v-show="item.manufacture_capacity">
+                        <td>Manufacture Capacity</td>
+                        <td>{{ item.manufacture_capacity }}</td>
+                      </tr>
+
+                      <tr v-show="item.defense">
+                        <td>Defense</td>
+                        <td>{{ item.defense }} ({{ (1 - 100 / (100 + item.defense)).toLocaleString("en-US", { style: "percent", }) }})</td>
+                      </tr>
+
+                      <tr v-show="item.cooldown_time">
+                        <td>Cooldown</td>
+                        <td>{{ item.cooldown_time }} ({{ `${item.cooldown_time / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-if="item.requirement !== null">
+                        <td>{{ item.requirement.type }} requirement</td>
+                        <td>
+                           
+                        <table>
+                          <tr>
+                            <td>x{{ item.requirement.count }} {{ item.requirement.object.name }}</td>
+                            <td><div :style="spriteStyle(item.requirement.object.sprite)" class="ml-1"></div></td>
+                          </tr>
+                        </table>
+                        </td>
+                      </tr>
+
+                      <tr v-if="!item.purchasable">
+                        <td>Daily offer, event reward or dove ship</td>
+                        <td>Yes</td>
+                      </tr>
+
+                      <tr>
+                        <td>Placeable in the ship extended area</td>
+                        <td v-if="item.extension_grids">Yes</td>
+                        <td v-else>No</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col>
+
+            <v-col>
+              <v-card
+                elevation="3"
+                class="px-6 pb-6 pt-2"
+                outlined
+                shaped
+                v-show="item.has_weapon_stats"
+              >
+
+              <v-card-subtitle>
+                <div class="overline">
+                  WEAPON STATS
+                </div>
+              </v-card-subtitle>
+
+                <v-simple-table dense style="width: 500px">
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left" style="width: 300px">
+                          Stat
+                        </th>
+                        <th class="text-left">
+                          Value
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-show="item.character_damage">
+                        <td>Crew Dmg (dps)</td>
+                        <td>{{ item.character_damage }} ({{ `${computeDps(item.character_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.hull_damage">
+                        <td>Hull Dmg (dps)</td>
+                        <td>{{ item.hull_damage }} ({{ `${computeDps(item.hull_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.hull_percentage_damage">
+                        <td>Hull % Dmg</td>
+                        <td>{{ item.hull_percentage_damage }}%</td>
+                      </tr>
+
+                      <tr v-show="item.shield_damage">
+                        <td>Shield Dmg (dps)</td>
+                        <td>{{ item.shield_damage }} ({{ `${computeDps(item.shield_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.system_damage">
+                        <td>System Dmg (dps)</td>
+                        <td>{{ item.system_damage }} ({{ `${computeDps(item.system_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.direct_system_damage">
+                        <td>AP Dmg (dps)</td>
+                        <td>{{ item.direct_system_damage }} ({{ `${computeDps(item.direct_system_damage, item)}/s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.volley">
+                        <td>Volley</td>
+                        <td>{{ item.volley }}</td>
+                      </tr>
+
+                      <tr v-show="item.volley_delay">
+                        <td>V. Delay</td>
+                        <td>{{ item.volley_delay }} ({{ `${item.volley_delay / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.speed">
+                        <td>Speed</td>
+                        <td>{{ item.speed }} ({{ `${item.speed / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.fire_length">
+                        <td>Incendiary</td>
+                        <td>{{ item.fire_length }} ({{ `${item.fire_length / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.emp_length">
+                        <td>EMP</td>
+                        <td>{{ item.emp_length }} ({{ `${item.emp_length / 40}s` }})</td>
+                      </tr>
+
+                      <tr v-show="item.stun_length">
+                        <td>Stun</td>
+                        <td>{{ item.stun_length }} ({{ `${item.stun_length / 40}s` }})</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col>
+          </v-row>
+        </td>
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>
-
-import axios from 'axios'
-import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Header from '@/components/Header'
-import 'vuetify/dist/vuetify.min.css'
-import mixins from '@/mixins/Common.vue.js'
-
-Vue.component('ps-header', Header)
-
-Vue.use(BootstrapVue)
-
-function styleFromSprite (s, color = '', border = 0, ninepatch = 0) {
-  if (Object.keys(s).length === 0) {
-    return {}
-  }
-  let obj = {
-    background: `${color} url('//pixelstarships.s3.amazonaws.com/${s.source}.png') -${s.x}px -${s.y}px`,
-    width: `${s.width}px`,
-    height: `${s.height}px`,
-    border: `${border}px solid lightgrey`,
-    imageRendering: 'pixelated'
-  }
-  return obj
-}
+import axios from "axios";
+import mixins from "@/mixins/PixyShip.vue.js";
+import "../assets/css/override.css";
 
 export default {
   mixins: [mixins],
 
-  data () {
+  components: {},
+
+  data() {
     return {
-      devMode: process.env.NODE_ENV === 'development',
-      rooms: [],
-      search: '',
+      searchName: "",
+      searchLevel: [],
+      searchShipLevel: [],
+      searchSize: [],
+      searchType: [],
+      levels: [],
+      shipLevels: [],
+      types: [],
+      sizes: [],
+      loaded: false,
       headers: [
-        {text: 'Image', align: 'center', sortable: false},
-        {text: 'Name', align: 'left', value: 'name'},
-        {text: 'Level', align: 'right', value: 'level'},
-        {text: 'Ship Level', align: 'right', value: 'min_ship_level'},
-        {text: 'Reload', align: 'center', value: 'reload'},
-        {text: 'Capacity', align: 'right', value: 'capacity'},
-        {text: 'Refill $', align: 'right', value: 'refill_cost'},
-        {text: 'Defense', align: 'center', value: 'defense'},
-        {text: 'Power', align: 'center', sortable: false},
-        {text: 'Type', align: 'left', value: 'type'},
-        {text: 'Cost', align: 'right', value: 'upgrade_cost'},
-        {text: '$', align: 'left', value: 'upgrade_currency'},
-        {text: 'Time', align: 'center', value: 'upgrade_seconds'},
-        {text: 'Size', align: 'center', sortable: false},
-        {text: 'Description', align: 'center', value: 'description'}
+        { text: "Image", align: "center", sortable: false, filterable: false },
+        { text: "Name", align: "left", value: "name", width: 200 },
+        { text: "Short", align: "left", value: "short_name" },
+        {
+          text: "Type",
+          align: "left",
+          value: "type",
+          filter: (value) => {
+            return this.filterCombobox(value.toString(), this.searchType);
+          },
+        },
+        {
+          text: "Size",
+          align: "center",
+          sortable: false,
+          filter: (value, search, item) => {
+            value = `${item.width}x${item.height}`;
+            return this.filterCombobox(value, this.searchSize);
+          },
+        },
+        {
+          text: "Level",
+          align: "center",
+          value: "level",
+          filter: (value) => {
+            return this.filterCombobox(value.toString(), this.searchLevel);
+          },
+        },
+        {
+          text: "Min Ship Level",
+          align: "center",
+          value: "min_ship_level",
+          filter: (value) => {
+            return this.filterCombobox(value.toString(), this.searchShipLevel);
+          },
+        },
+        { text: "Power", align: "center", sortable: false, filterable: false },
+        {
+          text: "Cost",
+          align: "center",
+          value: "upgrade_cost",
+          filterable: false,
+        },
+        {
+          text: "Time",
+          align: "center",
+          value: "upgrade_seconds",
+          width: 150,
+          filterable: false,
+        },
+        {
+          text: "Description",
+          align: "center",
+          value: "description",
+          filterable: false,
+          sortable: false,
+        },
       ],
-      pagination: {'sortBy': 'name', 'descending': true, 'rowsPerPage': 20}
-    }
+      rooms: [],
+    };
   },
 
-  components: {
+  computed: {
+    isLoading: function () {
+      return !this.loaded;
+    },
   },
 
-  created: function () {
-    this.init()
+  beforeMount: function () {
+    this.getRooms();
   },
 
   methods: {
-    init: async function () {
-      const r = await axios.get(this.roomsEndpoint)
-      let data = []
-      for (const k in r.data.data) {
-        const v = r.data.data[k]
-        data.push(v)
+    computeDps(damage, room) {
+      let volley = room.volley
+      if (volley == 0) {
+        volley = 1
       }
-      data.sort((a, b) => b.rarity_order - a.rarity_order)
-      this.rooms = data
-      return this.items
-    },
 
-    shipSelected () {
-      if (typeof this.searchString === 'string') {
-        this.getChar(this.searchString)
-      } else {
-        this.getChar(this.searchString.name)
+      let volley_delay = room.volley_delay
+      if (volley_delay == 0) {
+        volley_delay = 1
       }
+
+      let reload = room.reload / 40
+      let cooldown = room.cooldown_time ? room.cooldown_time / 40 : 0
+
+      let dps = (damage * volley) / (reload + (volley - 1) * volley_delay + cooldown)
+      return Math.ceil(dps * 100) / 100
     },
 
-    onSearch (search, loading) {
-      if (search.length >= 2) {
-        this.getNames(search)
-      } else {
-        this.getNames('')
+    getRooms: async function () {
+      const response = await axios.get(this.roomsEndpoint);
+
+      let rooms = [];
+      for (const itemId in response.data.data) {
+        const room = response.data.data[itemId];
+        
+        if (!room.purchasable) {
+          room.upgrade_cost = 0
+        }
+
+        rooms.push(room);
       }
+
+      rooms.sort((a, b) => b.name - a.name);
+
+      this.rooms = rooms;
+      this.updateFilters();
+
+      this.loaded = true;
+
+      return this.rooms;
     },
 
-    spriteStyle (s) {
-      return styleFromSprite(s)
+    updateFilters() {
+      this.shipLevels = Array.from(
+        new Set(
+          this.rooms.map((room) =>
+            !room.min_ship_level ? 0 : room.min_ship_level
+          )
+        )
+      ).sort((a, b) => a - b);
+
+      this.levels = Array.from(
+        new Set(this.rooms.map((room) => (!room.level ? 0 : room.level)))
+      ).sort((a, b) => a - b);
+
+      this.sizes = Array.from(
+        new Set(this.rooms.map((room) => `${room.width}x${room.height}`))
+      ).sort();
+
+      this.types = Array.from(
+        new Set(this.rooms.map((room) => (!room.type ? "None" : room.type)))
+      ).sort((a) => a === 'None' ? -1 : 1);
     },
 
-    currencySprite (currency) {
-      switch (currency) {
-        case 'starbux':
-          return this.buxSprite()
-        case 'gas':
-          return this.gasSprite()
-        case 'mineral':
-          return this.mineralSprite()
-        case 'supply':
-          return this.supplySprite()
-        default:
-          return ''
-      }
-    },
+    formatPower(item) {
+      let comsumption = item.power_gen - item.power_use
 
-    onImageLoad (event) {
-      // get real image size from img element
-      // This still isn't working on Safari
-      const imageEle = event.path[0]
-      const img = new Image()
-      img.onload = () => {
-        imageEle.setAttribute('width', img.naturalWidth)
-        imageEle.setAttribute('height', img.naturalHeight)
-      }
-      img.src = imageEle.href.baseVal
-    },
+      if (!comsumption) { return '' }
 
-    fieldFilter (items, search, filter) {
-      search = search.toString().toLowerCase()
-      return items.filter(row =>
-        filter(row['name'], search) ||
-        filter(row['type'], search) ||
-        filter(row['short_name'], search) ||
-        filter(row['description'], search)
-      )
+      let sign = comsumption >= 0 ? '+' : '-'
+      return sign + Math.abs(comsumption)
     }
-  }
-}
+  },
+};
 </script>
 
-<style>
-  .nobreak {
-    word-break: keep-all;
-    white-space: nowrap;
-  }
+<style scoped src="@/assets/css/common.css"></style>
+<style scoped>
+.rarity {
+  text-transform: capitalize;
+}
 
-  .application.theme--dark {
-    background-color: black;
-  }
+.name {
+  font-weight: bold;
+}
 
-  .v-datatable, .v-datatable__actions {
-    background-color: inherit !important;
-  }
+a.name {
+  text-decoration: none;
+}
 
-  .v-datatable td {
-    height: unset !important;
-  }
+.positive {
+  color: #1be600;
+}
 
-  .v-datatable td,
-  .v-datatable th {
-    padding: 0 5px !important;
-    color: white !important;
-  }
+.negative {
+  color: #f44336;
+}
 
-  .v-datatable tr {
-    height: unset !important;
-    border: 2px solid black
-  }
-
-  .v-datatable tbody tr:hover {
-    background-color: #222 !important;
-  }
-
-  html, body {
-    background-color: black;
-    color: white;
-  }
-
-  .form-group {
-    margin-right: 10px;
-  }
-
-  .table-bordered th, .table-bordered td {
-    border: 0;
-  }
-
-  .table th, .table td {
-    padding: 3px;
-    vertical-align: inherit;
-  }
-
-  .page-link, .page-item.disabled .page-link {
-    background-color: inherit;
-    border: 1px solid #222;
-  }
-
-  .form-control, .form-control:focus {
-    background-color: black;
-    color: white;
-  }
-
-  .main {
-    margin-top: 10px;
-  }
-
-  .center {
-    margin: 0 auto;
-  }
-
-  /* this doesn't work except on multiple lines */
-  .name {
-    line-height: .9;
-  }
-
-  .pull-left {
-    float: left !important;
-  }
-
-  .pull-right {
-    /*float: right!important;*/
-  }
-
-  .stat span {
-    color: gray;
-    font-size: 60%;
-  }
-
-  .stat {
-    line-height: .7;
-  }
-
-  .equip {
-    line-height: 1;
-    font-size: 80%;
-  }
-
-  .rarity {
-    text-transform: capitalize;
-  }
-
-  .name {
-    font-weight: bold;
-  }
-
-  :visited {
-    color: #24E3FF;
-  }
-
-  :link {
-    color: #FF5656;
-    text-decoration: none;
-  }
-
-  .positive {
-    color: #1be600;
-  }
-
-  .negative {
-    color: red;
-  }
-
-  .left {
-    text-align: left;
-  }
-
-  .right {
-    text-align: right;
-  }
-
-  .top {
-    vertical-align: top;
-  }
-
-  .side-by-side {
-    float: left
-  }
-
-  .bold {
-    text-weight: bold;
-  }
-
-  .char-part {
-    margin: 0px auto;
-  }
-
-  .char {
-    max-width: 25px;
-    margin: 0px;
-    display: inline-block;
-  }
-
-  td.center > div {
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .name span {
-    color: white;
-    font-size: 60%;
-  }
-
-  td.smaller {
-    font-size: x-small;
-  }
-
+.name span {
+  color: #9e9e9e;
+}
 </style>

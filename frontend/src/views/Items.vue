@@ -1,468 +1,631 @@
 <template>
-  <div>
-    <v-app dark>
-      <ps-header/>
-      Items
-      <p><span class="mr-1"><v-icon>info</v-icon></span>Market prices history, click a row for showing charts.</p>
-      <div class="center">
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          id="search"
-          label="Search"
-          placeholder="search name, slot/type, enhancement, description"
-        ></v-text-field>
-        <br/>
-        <v-data-table
-          :headers="headers"
-          :items="items"
-          :rows-per-page-items="[10,20,50,100,200,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-          :pagination.sync="pagination"
-          :search="search"
-          :custom-filter="fieldFilter"
-          :filter="multipleFilter"
-          item-key="id"
-        >
-          <template slot="items" slot-scope="i">
-            <tr @click="toggleExpand(i)">
-              <td>
-                <div :style="spriteStyle(i.item.sprite)"></div>
-              </td>
-              <td><!-- Name -->
-                <div :class="[i.item.rarity, 'lh-9', 'name', 'text-xs-left']">
-                  {{ i.item.name }}<br/>
-                </div>
-              </td>
-              <td class="text-xs-right">{{ i.item.market_price }}</td>
-              <td>
-                <table>
-                <tr v-for="(price, k, ind) in i.item.prices" class="nobreak">
-                  <td><div class="block" :style="currencySprite(k)"/></td>
-                  <td>{{ price.count }}</td>
-                  <td class="text-xs-left" v-html="priceFormat(price)"></td>
-                </tr>
-                </table>
-              </td>
-              <td class="stat">
-                {{ i.item.slot || i.item.type }}
-                <span v-if="i.item.slot"><br/>{{ i.item.type }}</span>
-              </td>
-              <td class="text-xs-right">{{ i.item.bonus || '' }}</td>
-              <td class="text-xs-left text-capitalize">{{ i.item.enhancement === 'none' ? '' : i.item.enhancement}}</td>
-              <td style="min-width: 55px">
-                <template v-for="j in i.item.recipe">
-                  <div>
-                    {{ j.count }}
-                    <div class="block" :style="spriteStyle(j.sprite)" :title="j.name"></div>
-                  </div>
-                </template>
-              </td>
-              <td class="text-xs-left caption">{{ i.item.description }}</td>
-            </tr>
-          </template>
-          <template slot="expand" slot-scope="i">
-            <v-container class="my-0 py-0">
-              <v-layout justify-center>
-                <v-switch v-model="showGas" label="Gas" color="purple" @click.native="updatePlot"></v-switch>
-                <v-switch v-model="showMineral" label="Mineral" color="blue" hide-details
-                  @click.native="updatePlot"></v-switch>
-                <v-switch v-model="showStarbux" label="Starbux" color="green" hide-details
-                  @click.native="updatePlot"></v-switch>
-              </v-layout>
-            </v-container>
-            <div :id="'chart-' + i.item.id" class="center"></div>
-          </template>
-        </v-data-table>
-      </div>
-      <br/>
-      <div></div>
-      <div>
-        <a href="http://www.pixelstarships.com">Pixel Starships</a>
-      </div>
-    </v-app>
-  </div>
+  <v-card :loading="isLoading">
+    <v-card-title class="text-center overline">> Items</v-card-title>
+
+    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+
+    <!-- Filters -->
+    <v-card-subtitle v-if="loaded">
+      <v-row>
+        <v-col cols="12" sm="12" md="4">
+          <v-text-field
+            v-model="searchName"
+            append-icon="mdi-magnify"
+            label='Name'
+            hint='For example: "Sandbag", Barrier'
+            clearable
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="3" md="2">
+          <v-combobox
+            v-model="searchRarity"
+            :items="rarities"
+            label="Rarity"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="12" sm="3" md="2">
+          <v-combobox
+            v-model="searchType"
+            :items="types"
+            label="Type"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="12" sm="3" md="2">
+          <v-combobox
+            v-model="searchSlot"
+            :items="slots"
+            label="Subtype"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+        <v-col cols="12" sm="3" md="2">
+          <v-combobox
+            v-model="searchStat"
+            :items="stats"
+            label="Bonus"
+            clearable
+            multiple
+            small-chips
+            hide-details
+          ></v-combobox>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <div align="center" class="subtitle-2 mb-2 ml-2">
+            <v-icon>mdi-information</v-icon>
+            Display item market history by clicking the row.
+          </div>
+        </v-col>
+      </v-row>
+    </v-card-subtitle>
+
+    <!-- Table -->
+    <v-data-table
+      v-if="loaded"
+      mobile-breakpoint="0"
+      :headers="headers"
+      :items="items"
+      :search="searchName"
+      :custom-filter="multipleFilterWithNegative"
+      :items-per-page="20"
+      :loading="isLoading"
+      :single-expand="true"
+      :sortDesc="true"
+      :footer-props="{
+        itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
+      }"
+      multi-sort
+      loading-text="Loading..."
+      class="elevation-1"
+      dense
+      @item-expanded="rowExpanded"
+    >
+      <template v-slot:item="{ item, expand, isExpanded }">
+        <v-tooltip bottom color="blue-grey" :disabled="isExpanded || !item.market_price">
+          <template v-slot:activator="{ on, attrs }">
+        <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
+          <!-- Image -->
+          <td>
+            <div :style="spriteStyle(item.sprite)"></div>
+          </td>
+
+          <!-- Name -->
+          <td>
+            <div :class="[item.rarity, 'lh-9', 'name']">
+              {{ item.name }}<br />
+            </div>
+          </td>
+
+          <td>
+            <div :class="['rarity', item.rarity]">{{ item.rarity }}</div>
+          </td>
+
+          <!-- Savy price -->
+          <td>
+            <table v-show="item.market_price">
+              <tr>
+                <td>
+                  <div class="block" :style="currencySprite('Starbux')" />
+                </td>
+                <td class="text-xs-left">{{ item.market_price }}</td>
+              </tr>
+            </table>
+          </td>
+
+          <!-- Market price 48h -->
+          <td class="market">
+            <table>
+              <tr
+                v-for="(price, currency, ind) in item.prices"
+                :key="'item' + item.id + '-price-' + ind"
+                class="nobreak"
+              >
+                <td><div class="block" :style="currencySprite(currency)" /></td>
+                <td>{{ price.count }}</td>
+                <td class="text-xs-left" v-html="priceFormat(price)"></td>
+              </tr>
+            </table>
+          </td>
+
+          <!-- Type -->
+          <td class="stat">
+            {{ item.type }}
+          </td>
+
+          <!-- SubType -->
+          <td class="stat">
+            {{ item.slot }}
+          </td>
+
+          <!-- Bonus -->
+          <!-- <td class="text-xs-right">{{ formatBonus(item) }}</td> -->
+          <td class="text-xs-left text-capitalize bonus">
+            {{ formatBonus(item) }}&nbsp;
+            {{ item.enhancement === "none" ? "" : item.enhancement }}
+          </td>
+
+          <!-- Recipe -->
+          <td class="recipe">
+            <table>
+              <tr
+                v-for="ingredient in item.recipe"
+                :key="'item' + item.id + '-recipe-' + ingredient.name"
+                class="nobreak"
+              >
+                <td>
+                  <v-tooltip bottom color="blue-grey">
+                    <template v-slot:activator="{ on, attrs }">
+                      <div
+                        class="block"
+                        v-bind="attrs"
+                        v-on="on"
+                        :style="spriteStyle(ingredient.sprite)"
+                      ></div>
+                    </template>
+                    {{ ingredient.name }}
+                  </v-tooltip>
+                </td>
+                <td>{{ ingredient.count }}</td>
+              </tr>
+            </table>
+          </td>
+
+          <!-- Description -->
+          <td>
+            {{ item.description }}
+          </td>
+        </tr>
+        </template>
+          <span>Click to display item market history</span>
+        </v-tooltip>
+      </template>
+
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length" v-show="item.market_price" style="border-bottom: 10px solid #393939;">
+          <v-container class="my-0 py-0">
+            <v-layout justify-center>
+              <v-switch
+                class="px-3"
+                v-model="showGas"
+                label="Gas"
+                color="purple"
+                @click.native="updatePlot"
+              ></v-switch>
+              <v-switch
+                class="px-3"
+                v-model="showMineral"
+                label="Mineral"
+                color="blue"
+                hide-details
+                @click.native="updatePlot"
+              ></v-switch>
+              <v-switch
+                class="px-3"
+                v-model="showStarbux"
+                label="Starbux"
+                color="green"
+                hide-details
+                @click.native="updatePlot"
+              ></v-switch>
+            </v-layout>
+          </v-container>
+          <div :id="'chart-' + item.id" class="center"></div>
+        </td>
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>
-
-import axios from 'axios'
-import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Header from '@/components/Header'
-import 'vuetify/dist/vuetify.min.css'
-import mixins from '@/mixins/Common.vue.js'
-import plotly from 'plotly.js-dist'
-require('../assets/common.css')
-
-Vue.component('ps-header', Header)
-
-Vue.use(BootstrapVue)
-
-function styleFromSprite (s, color = '', border = 0, ninepatch = 0) {
-  if (Object.keys(s).length === 0) {
-    return {}
-  }
-  let obj = {
-    background: `${color} url('//pixelstarships.s3.amazonaws.com/${s.source}.png') -${s.x}px -${s.y}px`,
-    width: `${s.width}px`,
-    height: `${s.height}px`,
-    border: `${border}px solid lightgrey`,
-    imageRendering: 'pixelated'
-  }
-  return obj
-}
+import axios from "axios";
+import mixins from "@/mixins/PixyShip.vue.js";
+import plotly from "plotly.js-dist";
 
 export default {
   mixins: [mixins],
 
-  data () {
+  components: {},
+
+  data() {
     return {
-      devMode: process.env.NODE_ENV === 'development',
-      items: [],
-      search: '',
+      searchName: "",
+      searchRarity: [],
+      searchSlot: [],
+      searchType: [],
+      searchStat: [],
+      stats: [],
+      slots: [],
+      types: [],
+      loaded: false,
       headers: [
-        {text: 'Image', align: 'center', sortable: false},
-        {text: 'Name', align: 'center', value: 'name'},
-        {text: 'Savy Price', align: 'center', value: 'market_price'},
-        {text: 'Market $ (48h) | # | 25 - 50 - 75%', align: 'center', value: 'offers'},
-        {text: 'Type', align: 'center', value: 'slot'},
-        {text: 'Bonus', align: 'center', value: 'bonus'},
-        {text: 'Enhancement', align: 'center', value: 'enhancement'},
-        {text: 'Recipie', align: 'center', sortable: false},
-        {text: 'Description', align: 'center', value: 'description'}
+        { text: "Image", align: "center", sortable: false, filterable: false },
+        { text: "Name", align: "center", value: "name", filterable: true },
+        {
+          text: "Rarity",
+          align: "center",
+          value: "rarity",
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchRarity);
+          },
+        },
+        {
+          text: "Savy $",
+          align: "center",
+          value: "market_price",
+          filterable: false,
+        },
+        {
+          text: "Market $ (48h) | # | 25 - 50 - 75%",
+          align: "center",
+          value: "offers",
+          filterable: false,
+          width: 210,
+        },
+        {
+          text: "Type",
+          align: "center",
+          value: "type",
+          sortable: false,
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchType);
+          },
+        },
+        {
+          text: "Subtype",
+          align: "center",
+          value: "slot",
+          sortable: false,
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchSlot);
+          },
+        },
+        {
+          text: "Bonus",
+          align: "center",
+          value: "bonus",
+          filter: (value, search, item) => {
+            return this.filterCombobox(item.enhancement, this.searchStat);
+          },
+        },
+        {
+          text: "Recipie",
+          align: "center",
+          sortable: false,
+          filterable: false,
+        },
+        {
+          text: "Description",
+          align: "center",
+          value: "description",
+          filterable: false,
+          sortable: false,
+          width: "300px",
+        },
       ],
-      pagination: {'sortBy': 'offers', 'descending': true, 'rowsPerPage': 20},
+      items: [],
       showStarbux: true,
       showGas: false,
       showMineral: false,
-      openRow: null
-    }
+      openRow: null,
+    };
   },
 
-  components: {
+  computed: {
+    isLoading: function () {
+      return !this.loaded;
+    },
   },
 
-  created: function () {
-    this.init()
+  beforeMount: function () {
+    this.getItems();
   },
 
   methods: {
-    updatePlot () {
-      if (this.openRow) this.plotData(this.openRow)
+    getItems: async function () {
+      const response = await axios.get(this.itemsEndpoint);
+
+      let items = [];
+      for (const itemId in response.data.data) {
+        const item = response.data.data[itemId];
+        item.id = Number(itemId);
+        items.push(item);
+      }
+
+      items.forEach((item) => {
+        item.offers = item.prices
+          ? Object.keys(item.prices)
+              .map((k) => item.prices[k].count)
+              .reduce((c, s) => c + s)
+          : 0;
+
+        if (item.enhancement === "none") {
+          item.hiddenBonus = item.bonus;
+          item.bonus = 0;
+        }
+      });
+
+      items.sort((a, b) => b.offers - a.offers);
+
+      this.items = items;
+      this.updateFilters();
+
+      this.loaded = true;
+
+      return this.items;
     },
 
-    plotData (row) {
-      const h = row.item.priceHistory
-      if (Object.keys(h).length > 0) {
-        const series = {}
-        const currency = []
-        if (this.showStarbux) currency.push('Starbux')
-        if (this.showGas) currency.push('Gas')
-        if (this.showMineral) currency.push('Mineral')
+    formatBonus(item) {
+      if (item.enhancement !== "none" && item.bonus) {
+        return "+" + item.bonus;
+      }
 
-        const cDetails = {
-          Starbux: {color: '122,255,185', short: '$', side: 'left'},
-          Gas: {color: '168,89,190', short: 'G', side: 'right'},
-          Mineral: {color: '6,152,193', short: 'M', side: 'right'}
+      if (item.hiddenBonus) {
+        return item.hiddenBonus;
+      }
+
+      return "";
+    },
+
+    updateFilters() {
+      this.stats = Array.from(
+        new Set(
+          this.items.map((item) =>
+            item.enhancement === "none"
+              ? "None"
+              : item.enhancement[0].toUpperCase() + item.enhancement.slice(1)
+          )
+        )
+      ).sort((a) => a === 'None' ? -1 : 1);
+
+      this.slots = Array.from(
+        new Set(this.items.map((item) => (!item.slot ? "None" : item.slot)))
+      ).sort((a) => a === 'None' ? -1 : 1);
+
+      this.types = Array.from(
+        new Set(this.items.map((item) => (!item.type ? "None" : item.type)))
+      ).sort((a) => a === 'None' ? -1 : 1);
+      
+      this.rarities = Array.from(
+        new Set(
+          this.items.map(
+            (item) => item.rarity[0].toUpperCase() + item.rarity.slice(1)
+          )
+        )
+      );
+    },
+
+    priceFormat(price) {
+      const formatFunc = function (x) {
+        if (Math.max(price.p25, price.p50, price.p75) > 999999) {
+          return parseFloat((x / 1000000).toFixed(1)) + "M";
+        } else if (Math.max(price.p25, price.p50, price.p75) > 999) {
+          return parseFloat((x / 1000).toFixed(1)) + "K";
+        } else {
+          return x.toFixed(0);
         }
+      };
+
+      let formatedPrice =
+        formatFunc(price.p25) +
+        " - " +
+        "<b>" +
+        formatFunc(price.p50) +
+        "</b>" +
+        " - " +
+        formatFunc(price.p75);
+
+      return formatedPrice;
+    },
+
+    rowExpanded: async function (row) {
+      let item = row.item;
+      // Fetch data if needed
+      if ("priceHistory" in item) {
+        await new Promise((resolve) => setTimeout(resolve, 1));
+      } else {
+        // TODO: Make the transform once then
+        const response = await axios.get(this.itemPricesEndpoint(item.id));
+        item.priceHistory = response.data.data.prices;
+      }
+
+      this.openRow = item;
+      this.plotData(item);
+    },
+
+    updatePlot() {
+      if (this.openRow) {
+        this.plotData(this.openRow);
+      }
+    },
+
+    plotData(item) {
+      const history = item.priceHistory;
+
+      if (Object.keys(history).length > 0) {
+        const series = {};
+        const currencies = [];
+
+        if (this.showStarbux) currencies.push("Starbux");
+        if (this.showGas) currencies.push("Gas");
+        if (this.showMineral) currencies.push("Mineral");
+
+        const currencyDetails = {
+          Starbux: { color: "122,255,185", short: "$", side: "left" },
+          Gas: { color: "168,89,190", short: "G", side: "right" },
+          Mineral: { color: "6,152,193", short: "M", side: "right" },
+        };
 
         // Get the data series indicated
-        currency.map(f => {
-          if (f in h) {
-            series[f] = {}
-            series[f].dates = Object.keys(h[f])
-            series[f].p25 = Object.entries(h[f]).map(e => e[1].p25)
-            series[f].p50 = Object.entries(h[f]).map(e => e[1].p50)
-            series[f].p75 = Object.entries(h[f]).map(e => e[1].p75)
-            series[f].count = Object.entries(h[f]).map(e => e[1].count)
+        currencies.map((currency) => {
+          if (currency in history) {
+            series[currency] = {};
+            series[currency].dates = Object.keys(history[currency]);
+            series[currency].p25 = Object.entries(history[currency]).map(
+              (e) => e[1].p25
+            );
+            series[currency].p50 = Object.entries(history[currency]).map(
+              (e) => e[1].p50
+            );
+            series[currency].p75 = Object.entries(history[currency]).map(
+              (e) => e[1].p75
+            );
+            series[currency].count = Object.entries(history[currency]).map(
+              (e) => e[1].count
+            );
           }
-        })
+        });
 
-        let data = []
-        currency.map(c => {
-          const line = {shape: 'spline', color: 'rgba(' + cDetails[c].color + ',1)'}
-          const bound = {shape: 'spline', color: 'rgba(' + cDetails[c].color + ',0.3)'}
-          const fill = 'rgba(' + cDetails[c].color + ',0.2)'
+        let data = [];
+        currencies.map((currency) => {
+          const line = {
+            shape: "spline",
+            color: "rgba(" + currencyDetails[currency].color + ",1)",
+          };
+          const bound = {
+            shape: "spline",
+            color: "rgba(" + currencyDetails[currency].color + ",0.3)",
+          };
+          const fill = "rgba(" + currencyDetails[currency].color + ",0.2)";
 
-          if (c in series) {
+          if (currency in series) {
+            let serie = series[currency];
+            let currencyDetail = currencyDetails[currency];
+
             data.push({
-              x: series[c].dates,
-              y: series[c].count,
-              type: 'scatter',
-              name: cDetails[c].short + ' Vol',
+              x: serie.dates,
+              y: serie.count,
+              type: "scatter",
+              name: currencyDetail.short + " Vol",
               line: line,
-              xaxis: 'x',
-              yaxis: 'y2'
-            })
+              xaxis: "x",
+              yaxis: "y2",
+            });
 
             const p25 = {
-              x: series[c].dates,
-              y: series[c].p25,
-              type: 'scatter',
-              name: cDetails[c].short + ' 25%',
-              line: bound
-            }
+              x: serie.dates,
+              y: serie.p25,
+              type: "scatter",
+              name: currencyDetail.short + " 25%",
+              line: bound,
+            };
 
             const p75 = {
-              x: series[c].dates,
-              y: series[c].p75,
-              type: 'scatter',
-              name: cDetails[c].short + ' 75%',
+              x: serie.dates,
+              y: serie.p75,
+              type: "scatter",
+              name: currencyDetail.short + " 75%",
               line: bound,
-              fill: 'tonextx',
-              fillcolor: fill
-            }
+              fill: "tonextx",
+              fillcolor: fill,
+            };
 
             const p50 = {
-              x: series[c].dates,
-              y: series[c].p50,
-              type: 'scatter',
-              name: cDetails[c].short + ' 50%',
-              line: line
+              x: serie.dates,
+              y: serie.p50,
+              type: "scatter",
+              name: currencyDetail.short + " 50%",
+              line: line,
+            };
+
+            if (currencyDetail.side === "right") {
+              p25.yaxis = "y3";
+              p50.yaxis = "y3";
+              p75.yaxis = "y3";
             }
 
-            if (cDetails[c].side === 'right') {
-              p25.yaxis = 'y3'
-              p50.yaxis = 'y3'
-              p75.yaxis = 'y3'
-            }
-
-            data.push(p25)
-            data.push(p75)
-            data.push(p50)
+            data.push(p25);
+            data.push(p75);
+            data.push(p50);
           }
-        })
+        });
 
         let layout = {
-          legend: {traceorder: 'reversed'},
+          legend: { traceorder: "reversed" },
           yaxis2: {
             domain: [0, 0.3],
-            title: 'Volume',
-            gridcolor: '#222'
+            title: "Volume",
+            gridcolor: "#9e9e9e47",
           },
 
           xaxis: {
-            showgrid: false
+            showgrid: false,
           },
 
-          paper_bgcolor: 'black',
-          plot_bgcolor: 'black',
-          margin: {t: 35, b: 30},
-          font: {color: 'white'},
-          title: `${row.item.name} prices`
-        }
+          paper_bgcolor: "#1f1f1f",
+          plot_bgcolor: "#1f1f1f",
+          margin: { t: 35, b: 30 },
+          font: { color: "white" },
+          title: `${item.name} prices`,
+        };
 
         if (this.showStarbux) {
           layout.yaxis = {
             domain: [0.3, 1],
-            title: 'Starbux',
-            gridcolor: '#222'
-          }
+            title: "Starbux",
+            gridcolor: "#9e9e9e47",
+          };
 
-          layout.yaxis3 = {title: 'Gas/Mineral', overlaying: 'y', side: 'right'}
+          layout.yaxis3 = {
+            title: "Gas/Mineral",
+            overlaying: "y",
+            side: "right",
+          };
         } else {
           layout.yaxis3 = {
             domain: [0.3, 1],
-            title: 'Gas/Mineral',
-            gridcolor: '#222'
-          }
+            title: "Gas/Mineral",
+            gridcolor: "#9e9e9e47",
+          };
         }
 
-        const options = {displayModeBar: false}
-        plotly.newPlot(document.getElementById('chart-' + row.item.id), data, layout, options)
+        const options = { displayModeBar: false };
+        plotly.newPlot(
+          document.getElementById("chart-" + item.id),
+          data,
+          layout,
+          options
+        );
       }
     },
-
-    toggleExpand: async function (row) {
-      row.expanded = !row.expanded
-      if (row.expanded) {
-        // Fetch data if needed
-        if (!row.item.priceHistory) {
-          // TODO: Make the transform once then
-          const r = await axios.get(this.itemPricesEndpoint(row.item.id))
-          row.item.priceHistory = r.data.data.prices
-        } else {
-          await new Promise(resolve => setTimeout(resolve, 1))
-        }
-        this.openRow = row
-
-        this.plotData(row)
-      }
-    },
-
-    init: async function () {
-      const r = await axios.get(this.itemsEndpoint)
-      let data = []
-      for (const k in r.data.data) {
-        const v = r.data.data[k]
-        v.id = Number(k)
-        data.push(v)
-      }
-      data.forEach(x => {
-        x.offers = x.prices
-          ? Object.keys(x.prices).map(k => x.prices[k].count).reduce((c, s) => c + s)
-          : 0
-      })
-      this.items = data
-      return this.items
-    },
-
-    shipSelected () {
-      if (typeof this.searchString === 'string') {
-        this.getChar(this.searchString)
-      } else {
-        this.getChar(this.searchString.name)
-      }
-    },
-
-    onSearch (search, loading) {
-      if (search.length >= 2) {
-        this.getNames(search)
-      } else {
-        this.getNames('')
-      }
-    },
-
-    spriteStyle (s) {
-      return styleFromSprite(s)
-    },
-
-    priceFormat (p) {
-      const formatFunc = function (x) {
-        if (Math.max(p.p25, p.p50, p.p75) > 999999) {
-          return parseFloat((x / 1000000).toFixed(1)) + 'M'
-        } else if (Math.max(p.p25, p.p50, p.p75) > 999) {
-          return parseFloat((x / 1000).toFixed(1)) + 'K'
-        } else {
-          return x.toFixed(0)
-        }
-      }
-
-      let formatedPrice = formatFunc(p.p25) +
-        ' - ' + '<b>' + formatFunc(p.p50) + '</b>' +
-        ' - ' + formatFunc(p.p75)
-
-      return formatedPrice
-    },
-
-    currencySprite (currency) {
-      switch (currency) {
-        case 'Starbux':
-          return this.buxSprite()
-        case 'Gas':
-          return this.gasSprite()
-        case 'Mineral':
-          return this.mineralSprite()
-        case 'Supply':
-          return this.supplySprite()
-        default:
-          return ''
-      }
-    },
-
-    onImageLoad (event) {
-      // get real image size from img element
-      // This still isn't working on Safari
-      const imageEle = event.path[0]
-      const img = new Image()
-      img.onload = () => {
-        imageEle.setAttribute('width', img.naturalWidth)
-        imageEle.setAttribute('height', img.naturalHeight)
-      }
-      img.src = imageEle.href.baseVal
-    },
-
-    fieldFilter (items, search, filter) {
-      search = search.toString().toLowerCase()
-      return items.filter(row =>
-        filter(row['name'], search) ||
-        filter(row['slot'], search) ||
-        filter(row['type'], search) ||
-        filter(row['enhancement'], search) ||
-        filter(row['description'], search)
-      )
-    }
-  }
-}
+  },
+};
 </script>
 
-<style>
-  .nobreak {
-    word-break: keep-all;
-    white-space: nowrap;
-  }
+<style scoped src="@/assets/css/common.css"></style>
+<style scoped>
+.rarity {
+  text-transform: capitalize;
+}
 
-  .application.theme--dark {
-    background-color: black;
-  }
+.name {
+  font-weight: bold;
+}
 
-  .v-datatable, .v-datatable__actions {
-    background-color: inherit !important;
-  }
+a.name {
+  text-decoration: none;
+}
 
-  .v-datatable td {
-    height: unset !important;
-  }
+.market {
+  min-width: 250px;
+}
 
-  .v-datatable td,
-  .v-datatable th {
-    padding: 0 5px !important;
-    color: white !important;
-  }
+.bonus {
+  min-width: 100px;
+}
 
-  .v-datatable tr {
-    height: unset !important;
-  }
-
-  .v-datatable tbody tr:hover {
-    background-color: #222 !important;
-  }
-
-  .v-datatable tr.v-datatable__expand-row:hover {
-    background-color: #000 !important;
-  }
-
-  html, body {
-    background-color: black;
-    color: white;
-  }
-
-  .main {
-    margin-top: 10px;
-  }
-
-  .center {
-    margin: 0 auto;
-  }
-
-  /* this doesn't work except on multiple lines */
-  .name {
-    line-height: 1;
-    font-weight: bold;
-  }
-
-  .stat span {
-    color: gray;
-    font-size: 60%;
-  }
-
-  .stat {
-    line-height: .7;
-  }
-
-  :visited {
-    color: #24E3FF;
-  }
-
-  :link {
-    color: #FF5656;
-    text-decoration: none;
-  }
-
-  .block {
-    display: inline-block;
-  }
-
+.recipe {
+  min-width: 55px;
+}
 </style>
