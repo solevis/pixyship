@@ -2,6 +2,7 @@ import datetime
 import getpass
 import logging
 import socket
+import sys
 import time
 
 from logging.handlers import SMTPHandler
@@ -50,12 +51,17 @@ class SafeScheduler(Scheduler):
             super()._run_job(job)
         except Exception:
             logger.error('Uncaught scheduler exception', exc_info=True)
-            job.last_run = datetime.datetime.now()
-            job._schedule_next_run()
+
+            if self.reschedule_on_failure:
+                job.last_run = datetime.datetime.now()
+                job._schedule_next_run()
+            else:
+                logger.error('Exit scheduler')
+                sys.exit(1)  # the whole script will be restarted by supervisor, circus or whatever
 
 
 # Scheduler setup
-scheduler = SafeScheduler()
+scheduler = SafeScheduler(False)
 scheduler.every(5).minutes.do(import_assets)
 scheduler.every(1).hours.do(import_market)
 scheduler.every(1).day.do(import_players)
