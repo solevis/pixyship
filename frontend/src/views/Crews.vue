@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" v-resize="onResize">
     <v-card-title class="text-center overline">> Crews</v-card-title>
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
@@ -89,6 +89,8 @@
       loading-text="Loading..."
       class="elevation-1"
       dense
+      fixed-header
+      :height="tableHeight"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -204,8 +206,17 @@ export default {
     Crew,
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   data() {
     return {
+      tableHeight: 0,
+      windowSize: {
+        x: 0,
+        y: 0,
+      },
       searchName: "",
       searchSpecial: [],
       searchRarity: [],
@@ -218,7 +229,7 @@ export default {
       loaded: false,
       headers: [
         { 
-          text: "Order", 
+          text: "Order by ID", 
           align: "center", 
           value: "id", 
           filterable: false 
@@ -357,6 +368,11 @@ export default {
   },
 
   methods: {
+    onResize() {
+      this.windowSize = { x: window.innerWidth, y: window.innerHeight }
+      this.tableHeight = window.innerHeight - 300
+    },
+
     getCrews: async function () {
       const response = await axios.get(this.crewEndpoint);
 

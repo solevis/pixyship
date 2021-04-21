@@ -71,7 +71,7 @@
         <table class="main-table" v-if="showShip">
           <tr>
             <td>
-              <svg v-if="!showExterior" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+              <svg v-show="!showExterior" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
                 <!-- Ship color -->
                 <filter id="colorMe">
                   <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.interior_sprite.trueColorStyle.filter.hue" />
@@ -130,7 +130,7 @@
                 </g>
               </svg>
 
-              <svg v-else :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+              <svg v-show="showExterior" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
                 <!-- Ship color -->
                <filter id="colorMe">
                   <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.exterior_sprite.trueColorStyle.filter.hue" />
