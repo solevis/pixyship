@@ -1,6 +1,5 @@
 <template>
   <v-card :loading="isLoading" v-resize="onResize">
-    <v-card-title class="text-center overline">> Crews</v-card-title>
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -8,6 +7,7 @@
       <v-row>
         <v-col cols="12" sm="4" md="1">
           <v-text-field
+            dense
             v-model="level"
             type="number"
             label="Level"
@@ -18,6 +18,7 @@
         </v-col>
         <v-col cols="12" sm="8" md="3">
           <v-text-field
+            dense
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
@@ -27,6 +28,7 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
+            dense
             v-model="searchEquipment"
             :items="equipments"
             label="Equip"
@@ -38,6 +40,7 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
+            dense
             v-model="searchRarity"
             :items="rarities"
             label="Rarity"
@@ -49,6 +52,7 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
+            dense
             v-model="searchSpecial"
             :items="abilities"
             label="Special"
@@ -60,6 +64,7 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
+            dense
             v-model="searchCollection"
             :items="collections"
             label="Collection"
@@ -206,17 +211,9 @@ export default {
     Crew,
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   data() {
     return {
       tableHeight: 0,
-      windowSize: {
-        x: 0,
-        y: 0,
-      },
       searchName: "",
       searchSpecial: [],
       searchRarity: [],
@@ -353,6 +350,10 @@ export default {
     this.getCrews();
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   watch: {
     level() {
       this.updateCurrentLevel();
@@ -369,8 +370,7 @@ export default {
 
   methods: {
     onResize() {
-      this.windowSize = { x: window.innerWidth, y: window.innerHeight }
-      this.tableHeight = window.innerHeight - 300
+      this.tableHeight = window.innerHeight - 230
     },
 
     getCrews: async function () {

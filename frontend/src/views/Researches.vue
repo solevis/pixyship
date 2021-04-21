@@ -1,6 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
-    <v-card-title class="text-center overline">> Researches</v-card-title>
+  <v-card :loading="isLoading" v-resize="onResize">
 
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
@@ -59,6 +58,8 @@
       loading-text="Loading..."
       class="elevation-1"
       dense
+      fixed-header
+      :height="tableHeight"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -106,6 +107,7 @@ export default {
 
   data() {
     return {
+      tableHeight: 0,
       searchName: "",
       searchType: [],
       searchLabLevel: [],
@@ -147,7 +149,15 @@ export default {
     this.getResearches();
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   methods: {
+    onResize() {
+      this.tableHeight = window.innerHeight - 230
+    },
+
     getResearches: async function () {
       const response = await axios.get(this.researchesEndpoint);
 

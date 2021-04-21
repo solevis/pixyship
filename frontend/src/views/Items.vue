@@ -1,7 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
-    <v-card-title class="text-center overline">> Items</v-card-title>
-
+  <v-card :loading="isLoading" v-resize="onResize">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -9,6 +7,7 @@
       <v-row>
         <v-col cols="12" sm="12" md="4">
           <v-text-field
+            dense
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
@@ -18,6 +17,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
+            dense
             v-model="searchRarity"
             :items="rarities"
             label="Rarity"
@@ -29,6 +29,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
+            dense
             v-model="searchType"
             :items="types"
             label="Type"
@@ -40,6 +41,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
+            dense
             v-model="searchSlot"
             :items="slots"
             label="Subtype"
@@ -51,6 +53,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
+            dense
             v-model="searchStat"
             :items="stats"
             label="Bonus"
@@ -59,14 +62,6 @@
             small-chips
             hide-details
           ></v-combobox>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <div align="center" class="subtitle-2 mb-2 ml-2">
-            <v-icon>mdi-information</v-icon>
-            Display item market history by clicking the row.
-          </div>
         </v-col>
       </v-row>
     </v-card-subtitle>
@@ -90,6 +85,8 @@
       loading-text="Loading..."
       class="elevation-1"
       dense
+      fixed-header
+      :height="tableHeight"
       @item-expanded="rowExpanded"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
@@ -240,6 +237,7 @@ export default {
 
   data() {
     return {
+      tableHeight: 0,
       searchName: "",
       searchRarity: [],
       searchSlot: [],
@@ -332,7 +330,15 @@ export default {
     this.getItems();
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   methods: {
+    onResize() {
+      this.tableHeight = window.innerHeight - 230
+    },
+
     getItems: async function () {
       const response = await axios.get(this.itemsEndpoint);
 

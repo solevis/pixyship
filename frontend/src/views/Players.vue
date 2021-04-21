@@ -1,6 +1,5 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-title class="text-center overline">> Players</v-card-title>
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -188,6 +187,7 @@ export default {
 
   data() {
     return {
+      tableHeight: 0,
       searchPlayer: "",
       searchText: "",
       showUpgrades: true,
@@ -222,7 +222,15 @@ export default {
     this.getPlayers();
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   methods: {
+    onResize() {
+      this.tableHeight = window.innerHeight - 230
+    },
+
     getPlayers: _.debounce(async function () {
       const response = await axios.get(
         this.playersEndpoint,

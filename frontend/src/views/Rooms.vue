@@ -1,7 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
-    <v-card-title class="text-center overline">> Rooms</v-card-title>
-
+  <v-card :loading="isLoading" v-resize="onResize">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -80,6 +78,9 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1"
+      dense
+      fixed-header
+      :height="tableHeight"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
@@ -353,6 +354,7 @@ export default {
 
   data() {
     return {
+      tableHeight: 0,
       searchName: "",
       searchLevel: [],
       searchShipLevel: [],
@@ -436,7 +438,15 @@ export default {
     this.getRooms();
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   methods: {
+    onResize() {
+      this.tableHeight = window.innerHeight - 230
+    },
+
     computeDps(damage, room) {
       let volley = room.volley
       if (volley == 0) {

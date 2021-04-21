@@ -1,7 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
-    <v-card-title class="text-center overline">> Collections</v-card-title>
-
+  <v-card :loading="isLoading" v-resize="onResize">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -14,6 +12,7 @@
             label="Name"
             hint='For example: "Argent", Cat'
             clearable
+            dense
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="3">
@@ -25,6 +24,7 @@
             multiple
             small-chips
             hide-details
+            dense
           ></v-combobox>
         </v-col>
       </v-row>
@@ -47,6 +47,8 @@
       loading-text="Loading..."
       class="elevation-1"
       dense
+      fixed-header
+      :height="tableHeight"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -90,6 +92,7 @@ export default {
 
   data() {
     return {
+      tableHeight: 0,
       searchName: "",
       searchSkill: [],
       skills: [],
@@ -145,7 +148,15 @@ export default {
     this.getCollections();
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   methods: {
+    onResize() {
+      this.tableHeight = window.innerHeight - 230
+    },
+
     getCollections: async function () {
       const response = await axios.get(this.collectionsEndpoint);
 

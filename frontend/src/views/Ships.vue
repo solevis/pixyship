@@ -1,7 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
-    <v-card-title class="text-center overline">> Ships</v-card-title>
-
+  <v-card :loading="isLoading" v-resize="onResize">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -59,6 +57,8 @@
       loading-text="Loading..."
       class="elevation-1"
       dense
+      fixed-header
+      :height="tableHeight"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
@@ -198,6 +198,7 @@ export default {
 
   data() {
     return {
+      tableHeight: 0,
       searchName: "",
       searchLevel: [],
       searchType: [],
@@ -235,7 +236,15 @@ export default {
     this.getShips()
   },
 
+  mounted () {
+    this.onResize()
+  },
+
   methods: {
+    onResize() {
+      this.tableHeight = window.innerHeight - 230
+    },
+
     getShips: async function () {
       const response = await axios.get(this.shipsEndpoint);
 
