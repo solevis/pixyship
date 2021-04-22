@@ -9,8 +9,8 @@
     </v-card-title>
 
     <v-row justify="center">
-      <v-col cols="8">
-        <v-simple-table v-if="loaded" class="">
+      <v-col cols="9">
+        <v-simple-table v-if="loaded" dense>
           <template v-slot:default>
             <thead>
               <tr>
@@ -20,13 +20,13 @@
                 <th class="text-left">Special</th>
                 <th class="text-left">Set</th>
                 <th class="text-left">HP</th>
-                <th class="text-left">Attack</th>
-                <th class="text-left">Repair</th>
-                <th class="text-left">Ability</th>
-                <th class="text-left">Pilot</th>
-                <th class="text-left">Science</th>
-                <th class="text-left">Engine</th>
-                <th class="text-left">Weapon</th>
+                <th class="text-left">ATK</th>
+                <th class="text-left">RPR</th>
+                <th class="text-left">ABL</th>
+                <th class="text-left">PLT</th>
+                <th class="text-left">SCI</th>
+                <th class="text-left">ENG</th>
+                <th class="text-left">WPN</th>
                 <th class="text-left">Fire</th>
                 <th class="text-left">Training</th>
                 <th class="text-left">Speed</th>
@@ -40,6 +40,7 @@
                     type="number"
                     min="1"
                     max="40"
+                    dense
                     single-line
                     :value="level"
                   ></v-text-field>
