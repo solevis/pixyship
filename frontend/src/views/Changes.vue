@@ -5,7 +5,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="12">
+        <v-col cols="8">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -13,6 +13,36 @@
             clearable
             dense
           ></v-text-field>
+        </v-col>
+
+        <v-col
+          cols="4"
+        >
+          <v-menu
+            v-model="menu"
+            :close-on-content-click="false"
+            :nudge-right="40"
+            transition="scale-transition"
+            offset-y
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="searchDate"
+                label="Date"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+                clearable
+                dense
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="searchDate"
+              @input="menu = false"
+            ></v-date-picker>
+          </v-menu>
         </v-col>
       </v-row>
     </v-card-subtitle>
@@ -24,7 +54,6 @@
       :items="changes"
       :search="searchName"
       :custom-filter="multipleFilterWithNegative"
-      :items-per-page="20"
       :loading="isLoading"
       :sortDesc="true"
       :footer-props="{
@@ -36,6 +65,10 @@
       dense
       fixed-header
       :height="tableHeight"
+      :page.sync="page"
+      :items-per-page="itemsPerPage"
+      hide-default-footer
+      @page-count="pageCount = $event"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -48,7 +81,7 @@
             {{ item.name }}
           </td>
 
-          <td style="min-width: 150px">{{ nowTime(item.changed_at) }}</td>
+          <td style="min-width: 150px">{{ item.moment }}</td>
           <td>
             <table v-if="item.change_type === 'Changed'">
               <tr v-for="change in item.changes.new" class="nobreak" :key="change.id">
@@ -74,6 +107,12 @@
         </tr>
       </template>
     </v-data-table>
+    <div class="text-center pt-2">
+      <v-pagination
+        v-model="page"
+        :length="pageCount"
+      ></v-pagination>
+    </div>
   </v-card>
 </template>
 
@@ -90,8 +129,13 @@ export default {
 
   data() {
     return {
+      page: 1,
+      pageCount: 0,
+      itemsPerPage: 20,
       tableHeight: 0,
       searchName: "",
+      searchDate: null,
+      menu: false,
       searchType: [],
       searchLabLevel: [],
       types: [],
@@ -100,7 +144,14 @@ export default {
       headers: [
         {text: 'Image', align: 'left', sortable: false, filterable: false},
         {text: 'Name', value: 'name', align: 'left'},
-        {text: 'Date', value: 'moment', align: 'left', filterable: false},
+        {text: 'Date', value: 'moment', align: 'left', filter: value => { 
+            if (this.searchDate) {
+              return value === this.searchDate
+            }
+
+            return true
+          }
+        },
         {text: 'Change', value: 'change_type', align: 'center', filterable: false}
       ],
       changes: [],
@@ -133,7 +184,7 @@ export default {
         change.attributes = this.getAllAttributes(convert.xml2js(change.data).elements[0])
         change.oldAttributes = change.old_data ? this.getAllAttributes(convert.xml2js(change.old_data).elements[0]) : null
         
-        change.moment = moment.utc(change.changed_at)
+        change.moment = moment.utc(change.changed_at).format('YYYY-MM-DD')
         change.changes = this.diffAttributes(change.attributes, change.oldAttributes)
 
         return change

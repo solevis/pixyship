@@ -1033,7 +1033,7 @@ class Pixyship(metaclass=Singleton):
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
-            LIMIT 500
+            LIMIT 2000
         """
 
         result = db.session.execute(sql).fetchall()
