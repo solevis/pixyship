@@ -29,7 +29,7 @@
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
                 v-model="searchDate"
-                label="Date"
+                label="Until"
                 prepend-icon="mdi-calendar"
                 readonly
                 v-bind="attrs"
@@ -65,10 +65,7 @@
       dense
       fixed-header
       :height="tableHeight"
-      :page.sync="page"
       :items-per-page="itemsPerPage"
-      hide-default-footer
-      @page-count="pageCount = $event"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -107,12 +104,6 @@
         </tr>
       </template>
     </v-data-table>
-    <div class="text-center pt-2">
-      <v-pagination
-        v-model="page"
-        :length="pageCount"
-      ></v-pagination>
-    </div>
   </v-card>
 </template>
 
@@ -129,12 +120,10 @@ export default {
 
   data() {
     return {
-      page: 1,
-      pageCount: 0,
       itemsPerPage: 20,
       tableHeight: 0,
       searchName: "",
-      searchDate: null,
+      searchDate: new Date().toISOString().substr(0, 10),
       menu: false,
       searchType: [],
       searchLabLevel: [],
@@ -146,7 +135,7 @@ export default {
         {text: 'Name', value: 'name', align: 'left'},
         {text: 'Date', value: 'moment', align: 'left', filter: value => { 
             if (this.searchDate) {
-              return value === this.searchDate
+              return value <= this.searchDate
             }
 
             return true
