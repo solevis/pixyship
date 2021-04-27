@@ -1,3 +1,5 @@
+![Python 3.7](https://github.com/solevis/pixyship/actions/workflows/python.yml/badge.svg?branch=master)
+
 # PixyShip
 
 ![Pixyship logo](./pixyship.png) 
