@@ -9,7 +9,8 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 ## Requirements
 
 * Python 3.7
-* NPM 5.8.0
+* NodeJS 15.14
+* npm 7.7
 
 ## Getting Started locally
 
