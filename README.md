@@ -1,4 +1,5 @@
-![Python 3.7](https://github.com/solevis/pixyship/actions/workflows/python.yml/badge.svg?branch=main)
+![Python 3.7](https://github.com/solevis/pixyship/actions/workflows/python.yml/badge.svg?branch=main) 
+![Node.js 15.x](https://github.com/solevis/pixyship/actions/workflows/nodejs.yml/badge.svg?branch=main)
 
 # PixyShip
 
@@ -11,7 +12,7 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 ## Requirements
 
 * Python 3.7
-* NodeJS 15.14
+* Node.js 15
 * npm 7.7
 
 ## Getting Started locally
