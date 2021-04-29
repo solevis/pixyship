@@ -247,7 +247,6 @@ def page_crew_prestige(id):
 
 # Vue Rendering
 @app.route('/crew')
-@app.route('/crews')
 @app.route('/items')
 @app.route('/rooms')
 @app.route('/ships')
