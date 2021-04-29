@@ -99,12 +99,6 @@ def after_request(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers['Content-Security-Policy'] = \
-        "default-src 'self';" \
-        "img-src 'self' data: pixelstarships.s3.amazonaws.com;" \
-        "style-src 'self' 'unsafe-inline' 'unsafe-eval';" \
-        "script-src 'self' 'unsafe-eval';" \
-        "report-uri /csp_report;"
 
     return response
 
