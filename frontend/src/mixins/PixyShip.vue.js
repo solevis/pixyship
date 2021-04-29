@@ -62,7 +62,12 @@ export default {
       }
 
       let result = searchArray.some(search => {
-        return value.toString().toLowerCase() === search.toString().toLowerCase()
+        if (value.toString().toLowerCase().includes(',')) {
+          return value.toString().toLowerCase().includes(search.toString().toLowerCase())
+        } else {
+          return value.toString().toLowerCase() === search.toString().toLowerCase()
+        }
+        
       })
 
       return result
