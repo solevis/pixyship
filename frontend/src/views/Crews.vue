@@ -203,6 +203,7 @@
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
 import Crew from "@/components/Crew.vue";
+import "../assets/css/override.css";
 
 export default {
   mixins: [mixins],
@@ -227,18 +228,18 @@ export default {
       headers: [
         { 
           text: "Order by ID", 
-          align: "center", 
+          align: "start",
           value: "id", 
           filterable: false 
         },
         { 
           text: "Name", 
-          align: "center", 
+          align: "start",
           value: "name",
         },
         {
           text: "Equip",
-          align: "center",
+          align: "start",
           value: "equipment",
           filter: value => { 
             return this.filterCombobox(Object.keys(value).toString(), this.searchEquipment)
@@ -246,7 +247,7 @@ export default {
         },
         { 
           text: "Rarity", 
-          align: "center", 
+          align: "start",
           value: "rarity", 
           filter: value => { 
             return this.filterCombobox(value, this.searchRarity)
@@ -254,7 +255,7 @@ export default {
         },
         { 
           text: "Special", 
-          align: "center", 
+          align: "start",
           value: "special_ability", 
           filter: value => { 
             return this.filterCombobox(value, this.searchSpecial)
@@ -262,7 +263,7 @@ export default {
         },
         { 
           text: "Set", 
-          align: "center", 
+          align: "start",
           value: "collection_name", 
           filter: value => { 
             return this.filterCombobox(value, this.searchCollection)
@@ -270,67 +271,67 @@ export default {
         },
         { 
           text: "HP", 
-          align: "center", 
+          align: "start",
           value: "hp[2]", 
           filterable: false 
         },
         {
           text: "ATK",
-          align: "center",
+          align: "start",
           value: "attack[2]",
           filterable: false,
         },
         {
           text: "RPR",
-          align: "center",
+          align: "start",
           value: "repair[2]",
           filterable: false,
         },
         {
           text: "ABL",
-          align: "center",
+          align: "start",
           value: "ability[2]",
           filterable: false,
         },
         {
           text: "PLT",
-          align: "center",
+          align: "start",
           value: "pilot[2]",
           filterable: false,
         },
         {
           text: "SCI",
-          align: "center",
+          align: "start",
           value: "science[2]",
           filterable: false,
         },
         {
           text: "ENG",
-          align: "center",
+          align: "start",
           value: "engine[2]",
           filterable: false,
         },
         {
           text: "WPN",
-          align: "center",
+          align: "start",
           value: "weapon[2]",
           filterable: false,
         },
         {
           text: "Fire",
-          align: "center",
+          align: "start",
           value: "fire_resist",
           filterable: false,
         },
         {
           text: "Training",
-          align: "center",
+          align: "start",
           value: "training_limit",
           filterable: false,
         },
         { 
           text: "Speed", 
-          align: "center", 
+          align: "start",
           value: "run", 
           filterable: false 
         },
@@ -451,5 +452,4 @@ a.name:hover {
 .equip {
   font-size: 90%;
 }
-
 </style>
