@@ -70,7 +70,11 @@
         <table class="main-table" v-if="showShip">
           <tr>
             <td>
-              <svg v-show="!showExterior" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+              <!-- ############################################################################### -->
+              <!-- Create 4 SVG, because conditional filter inside SVG is broken for some browsers -->
+              <!-- ############################################################################### -->
+
+              <svg v-show="!showExterior && showTrueColor" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
                 <!-- Ship color -->
                 <filter id="colorMe">
                   <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.interior_sprite.trueColorStyle.filter.hue" />
@@ -129,7 +133,54 @@
                 </g>
               </svg>
 
-              <svg v-show="showExterior" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+               <svg v-show="!showExterior && !showTrueColor" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+                <!-- Ship sprite -->
+                <image 
+                  :xlink:href="getSpriteUrl(ship.interior_sprite)" 
+                  x="0" y="0" 
+                  :height="ship.interior_sprite.height" 
+                  :width="ship.interior_sprite.width" 
+                />
+
+                <!-- Rooms -->
+                <g v-for="room in rooms" :key="room.id">
+                  <svg 
+                    :x="`${room.column * 25}px`" 
+                    :y="`${room.row * 25}px`"
+                    :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
+                    :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+
+                    <!-- Room in upgrade -->
+                    <foreignObject v-if="showUpgrades && room.construction" class="room" width="125" height="75">
+                      <body xmlns="http://www.w3.org/1999/xhtml">
+                      <div :style="spriteStyle(room.construction_sprite)"></div>
+                      </body>
+                    </foreignObject>
+
+                    <!-- Room sprite -->
+                    <foreignObject v-else class="room" width="125" height="75">
+                      <body xmlns="http://www.w3.org/1999/xhtml">
+                      <div :style="spriteStyle(room.sprite)"></div>
+                      </body>
+                    </foreignObject>
+
+                    <!-- Room name -->
+                    <text class="room-name" x="2" y="9">{{ room.short_name }}</text>
+
+                    <!-- Power used -->
+                    <text class="power-use" v-if="room.power_use > 0" :x="room.width * 25 - 7" y="9">
+                      {{ room.power_use}}
+                    </text>
+
+                    <!-- Power generated -->
+                    <text class="power-gen" v-if="room.power_gen > 0" :x="room.width * 25 - 9" y="9">
+                      {{ room.power_gen }}
+                    </text>
+                  </svg>
+                </g>
+              </svg>
+
+              <svg v-show="showExterior && showTrueColor" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
                 <!-- Ship color -->
                <filter id="colorMe">
                   <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.exterior_sprite.trueColorStyle.filter.hue" />
@@ -160,6 +211,33 @@
 
                     <!-- Room sprite -->
                     <foreignObject v-if="room.exterior_sprite" class="room" width="125" height="75" :filter="showTrueColor ? 'url(#colorMe)' : ''">
+                      <body xmlns="http://www.w3.org/1999/xhtml">
+                      <div :style="spriteStyle(room.exterior_sprite)"></div>
+                      </body>
+                    </foreignObject>
+                  </svg>
+                </g>
+              </svg>
+
+              <svg v-show="showExterior && !showTrueColor" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+                <!-- Ship sprite -->
+                <image 
+                  :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
+                  x="0" y="0" 
+                  :height="ship.exterior_sprite.height" 
+                  :width="ship.exterior_sprite.width" 
+                />
+
+                <!-- Rooms -->
+                <g v-for="room in rooms" :key="room.id">
+                  <svg 
+                    :x="`${room.column * 25}px`" 
+                    :y="`${room.row * 25}px`"
+                    :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
+                    :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+
+                    <!-- Room sprite -->
+                    <foreignObject v-if="room.exterior_sprite" class="room" width="125" height="75">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.exterior_sprite)"></div>
                       </body>
