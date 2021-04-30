@@ -2,20 +2,20 @@
   <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
-    <v-toolbar v-if="loaded">
+    <v-toolbar v-if="loaded" flat color="#1E1E1E">
       <v-autocomplete
         v-model="searchPlayer"
         :search-input.sync="searchText"
         :items="players"
         clearable
-        placeholder="Search by name"
+        placeholder="Search player by name"
         item-text="name"
         item-value="name"
-        cache-items
         hide-no-data
         hide-details
         filled
-        dense
+        rounded
+        class="mt-2"
       >
       
         <template v-slot:item="data" v-if="$vuetify.breakpoint.xs">
@@ -36,9 +36,11 @@
       >
         <template v-slot:activator="{ on, attrs }">
           <v-btn
+            class="mt-2 mx-1"
             v-bind="attrs"
             v-on="on"
             icon
+            large
           >
             <v-icon>mdi-cog</v-icon>
           </v-btn>
