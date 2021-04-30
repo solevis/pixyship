@@ -5,7 +5,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="8">
+        <v-col cols="12" sm="6" md="9">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -16,7 +16,7 @@
         </v-col>
 
         <v-col
-          cols="4"
+          cols="12" sm="6" md="3"
         >
           <v-menu
             v-model="menu"

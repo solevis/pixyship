@@ -2,55 +2,96 @@
   <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
-    <!-- Filters -->
-    <v-card-subtitle v-if="loaded">
-      <v-row>
-        <v-col cols="6">
-          <v-autocomplete
-              v-model="searchPlayer"
-              :search-input.sync="searchText"
-              :items="players"
-              clearable
-              placeholder="Search by name"
-              item-text="name"
-              item-value="name"
-              rounded
-              filled
-            >
-              <template v-slot:item="data">
-                <div style="width: 5em" class="mr-2"><v-icon style="font-size: 16px" class="mr-2">mdi-trophy-outline</v-icon>{{ data.item.trophies}}</div>
-                <div style="width: 10em" class="ml-2">{{ data.item.name }}</div>
-                <div class="block my-1 mr-1" :style="spriteStyle(data.item.alliance_sprite)"></div>
-                {{ data.item.alliance }}
-              </template>
-            </v-autocomplete>
-        </v-col>
+    <v-toolbar v-if="loaded">
+      <v-autocomplete
+        v-model="searchPlayer"
+        :search-input.sync="searchText"
+        :items="players"
+        clearable
+        placeholder="Search by name"
+        item-text="name"
+        item-value="name"
+        cache-items
+        hide-no-data
+        hide-details
+        filled
+        dense
+      >
+      
+        <template v-slot:item="data" v-if="$vuetify.breakpoint.xs">
+          <div style="width: 10em" class="ml-2">{{ data.item.name }}</div>
+        </template>
+        <template v-slot:item="data" v-else>
+          <div style="width: 5em" class="mr-2"><v-icon style="font-size: 16px" class="mr-2">mdi-trophy-outline</v-icon>{{ data.item.trophies}}</div>
+          <div style="width: 10em" class="ml-2">{{ data.item.name }}</div>
+          <div class="block my-1 mr-1" :style="spriteStyle(data.item.alliance_sprite)"></div>
+          {{ data.item.alliance }}
+        </template>
+      </v-autocomplete>
 
-        <v-col cols="2">
-          <v-switch
-            dense
-            v-model="showUpgrades"
-            label="Show upgrades"
-          ></v-switch>
-        </v-col>
-        <v-col cols="2">
-          <v-switch
-            v-model="showTrueColor"
-            label="Show true color"
-          ></v-switch>
-        </v-col>
-        <v-col cols="2">
-          <v-switch
-            v-model="showExterior"
-            label="Show exterior"
-          ></v-switch>
-        </v-col>
-      </v-row>
-    </v-card-subtitle>
+      <v-menu 
+        v-model="menu"
+        :close-on-content-click="false"
+        offset-y
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            icon
+          >
+            <v-icon>mdi-cog</v-icon>
+          </v-btn>
+        </template>
+        
+        <v-card>
+          <v-list>
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch
+                  v-model="showUpgrades"
+                ></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>Show upgrades</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch
+                  v-model="showTrueColor"
+                ></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>Show true color</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch
+                  v-model="showExterior"
+                ></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>Show exterior</v-list-item-title>
+            </v-list-item>
+          </v-list>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn
+              text
+              @click="menu = false"
+            >
+              Close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
+    </v-toolbar>
 
     <v-row justify="center">
       <v-col cols="6" class="text-center">
         <v-progress-circular
+          class="mt-5"
           :size="200"
           color="blue-grey"
           indeterminate
@@ -265,6 +306,7 @@ export default {
 
   data() {
     return {
+      menu: false,
       tableHeight: 0,
       searchPlayer: "",
       searchText: "",
