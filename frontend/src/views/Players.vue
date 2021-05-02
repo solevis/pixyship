@@ -119,7 +119,7 @@
 
               <svg v-show="!showExterior && showTrueColor" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
                 <!-- Ship color -->
-                <filter id="colorMe">
+                <filter id="interior-color-filter">
                   <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.interior_sprite.trueColorStyle.filter.hue" />
                   <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.interior_sprite.trueColorStyle.filter.saturate" />
                   <feComponentTransfer in="saturate-filter" result="contrast-filter">
@@ -135,7 +135,7 @@
                   x="0" y="0" 
                   :height="ship.interior_sprite.height" 
                   :width="ship.interior_sprite.width" 
-                  :filter="showTrueColor ? 'url(#colorMe)' : ''"
+                  :filter="showTrueColor ? 'url(#interior-color-filter)' : ''"
                 />
 
                 <!-- Rooms -->
@@ -154,7 +154,7 @@
                     </foreignObject>
 
                     <!-- Room sprite -->
-                    <foreignObject v-else class="room" width="125" height="75" :filter="showTrueColor && !room.show_frame ? 'url(#colorMe)' : ''">
+                    <foreignObject v-else class="room" width="125" height="75" :filter="showTrueColor && !room.show_frame ? 'url(#interior-color-filter)' : ''">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.sprite)"></div>
                       </body>
@@ -225,7 +225,7 @@
 
               <svg v-show="showExterior && showTrueColor" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
                 <!-- Ship color -->
-               <filter id="colorMe">
+               <filter id="exterior-color-filter">
                   <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.exterior_sprite.trueColorStyle.filter.hue" />
                   <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
                   <feComponentTransfer in="saturate-filter" result="contrast-filter">
@@ -241,7 +241,7 @@
                   x="0" y="0" 
                   :height="ship.exterior_sprite.height" 
                   :width="ship.exterior_sprite.width" 
-                  :filter="showTrueColor ? 'url(#colorMe)' : ''"
+                  :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''"
                 />
 
                 <!-- Rooms -->
@@ -253,7 +253,7 @@
                     :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
 
                     <!-- Room sprite -->
-                    <foreignObject v-if="room.exterior_sprite" class="room" width="125" height="75" :filter="showTrueColor ? 'url(#colorMe)' : ''">
+                    <foreignObject v-if="room.exterior_sprite" class="room" width="125" height="75" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.exterior_sprite)"></div>
                       </body>
