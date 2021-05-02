@@ -1,7 +1,7 @@
 import os
 
 import flask
-from flask import Flask, render_template, jsonify, session, request
+from flask import Flask, jsonify, session, request
 from flask_cors import CORS
 
 from config import CONFIG
@@ -99,7 +99,7 @@ def after_request(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-    #response.headers['Content-Security-Policy'] = \
+    # response.headers['Content-Security-Policy'] = \
     #    "default-src 'self';" \
     #    "img-src 'self' data: pixelstarships.s3.amazonaws.com;" \
     #    "style-src 'self' 'unsafe-inline' 'unsafe-eval';" \
@@ -240,32 +240,6 @@ def bad_api(path):
     return flask.abort(404)
 
 
-@app.route('/crew/<int:id>')
-def page_crew_prestige(id):
-    return render_template('index.html')
-
-
-# Vue Rendering
-@app.route('/crew')
-@app.route('/items')
-@app.route('/rooms')
-@app.route('/ships')
-@app.route('/builder')
-@app.route('/changes')
-@app.route('/players')
-@app.route('/collections')
-@app.route('/researches')
-@app.route('/about')
-@app.route('/', defaults={'path': ''})
-def page_base(path=''):
-    return render_template('index.html')
-
-
-@app.route('/favicon.ico')
-def favicon():
-    return app.send_static_file('favicon.ico')
-
-
 @app.route('/csp_report', methods=['POST'])
 def csp_report():
     if CONFIG['CSP_REPORT_LOG']:
@@ -273,11 +247,6 @@ def csp_report():
             fh.write(request.data.decode() + "\n")
 
     return 'done'
-
-
-@app.route('/<path:path>')
-def catch_all(path):
-    return flask.redirect("/")
 
 
 if __name__ == '__main__':
