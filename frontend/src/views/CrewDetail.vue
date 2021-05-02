@@ -43,6 +43,7 @@
                     dense
                     single-line
                     :value="level"
+                    style="max-width: 50px"
                   ></v-text-field>
                 </td>
                 <!-- Equip -->
