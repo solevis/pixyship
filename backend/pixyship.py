@@ -1234,6 +1234,7 @@ class Pixyship(metaclass=Singleton):
         }
 
         dailies = {
+            'stardate': self.pixel_starships_api.get_stardate(),
             'news': {
                 'news': data['News'],
                 'news_date': data['NewsUpdateDate'],

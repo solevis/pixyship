@@ -10,10 +10,11 @@
             News</v-card-title
           >
 
-          <v-card-subtitle v-if="news.news_moment">{{
-            news.news_moment.format("M/D LT")
-          }}</v-card-subtitle>
+          <v-card-subtitle v-if="news.news_moment">
+            Stardate #{{ stardate }} ({{ news.news_moment.format('YYYY/MM/DD') }})
+          </v-card-subtitle>
           <v-card-text>
+            <p></p>
             <p v-if="news.news_moment">{{ news.news }}</p>
             <p class="small error">{{ news.maintenance }}</p>
           </v-card-text>
@@ -261,6 +262,7 @@ export default {
       changesYesterday: 0,
       changesThisWeek: 0,
       news: {},
+      stardate: 0,
     };
   },
 
@@ -279,6 +281,7 @@ export default {
       const response = await axios.get(this.dailyEndpoint);
 
       this.offers = response.data.data.offers;
+      this.stardate = response.data.data.stardate
 
       this.news = response.data.data.news;
       this.news.news_moment = moment.utc(this.news.news_date).local();

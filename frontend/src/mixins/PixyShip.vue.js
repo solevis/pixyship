@@ -216,7 +216,7 @@ export default {
     },
 
     nowTime(time) {
-      return time ? moment.utc(time).local().format('M/D LT') : ''
+      return time ? moment.utc(time).local().format('YYYY/MM/DD LT') : ''
     },
 
     formatTime(secs) {

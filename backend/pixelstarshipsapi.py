@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import random
 import re
@@ -16,6 +17,7 @@ class PixelStarshipsApi:
     """Manage Pixel Starships API."""
 
     MIN_DEVICES = 10
+    PSS_START_DATE = datetime.date(year=2016, month=1, day=6)
 
     def __init__(self):
         self.__api_settings = self.get_api_settings()
@@ -705,3 +707,9 @@ class PixelStarshipsApi:
         """Extract prestige data from XML node."""
 
         return prestige_node.attrib.copy()
+
+    def get_stardate(self):
+        """Compute Stardate."""
+        utc_now = datetime.datetime.utcnow()
+        today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
+        return (today - self.PSS_START_DATE).days
