@@ -2,200 +2,314 @@
   <v-card :loading="isLoading">
     <v-card-title v-if="!loaded"> Loading... </v-card-title>
 
+    <!-- Crew sprite -->
     <v-card-title v-if="loaded">
       <div class="mx-auto">
         <crew :char="character" :tip="false" name="bottom" />
       </div>
     </v-card-title>
 
-    <v-row justify="center">
-      <v-col cols="9">
-        <v-simple-table v-if="loaded" dense>
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-left">Level</th>
-                <th class="text-left">Equip</th>
-                <th class="text-left">Rarity</th>
-                <th class="text-left">Special</th>
-                <th class="text-left">Set</th>
-                <th class="text-left">HP</th>
-                <th class="text-left">ATK</th>
-                <th class="text-left">RPR</th>
-                <th class="text-left">ABL</th>
-                <th class="text-left">PLT</th>
-                <th class="text-left">SCI</th>
-                <th class="text-left">ENG</th>
-                <th class="text-left">WPN</th>
-                <th class="text-left">Fire</th>
-                <th class="text-left">Training</th>
-                <th class="text-left">Speed</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <v-text-field
-                    v-model="level"
-                    type="number"
-                    min="1"
-                    max="40"
-                    dense
-                    single-line
-                    :value="level"
-                    style="max-width: 50px"
-                  ></v-text-field>
-                </td>
-                <!-- Equip -->
-                <td>
-                  <div class="ps-left equip">
-                    <div v-for="(s, k) in character.equipment" :key="k">
-                      <div
-                        v-if="s.name"
-                        :title="`${k}: +${s.bonus} ${s.enhancement} ${
-                          s.extra_bonus ? '+' + s.extra_bonus : ''
-                        } ${s.extra_enhancement}`"
-                      >
-                        <div class="char-item" :style="spriteStyle(s.sprite)"></div>
-                        {{ s.name }}
+    <!-- Large screen (Table and prestiges side by side) -->
+    <template v-if="$vuetify.breakpoint.mdAndUp">
+      <v-row justify="center">
+        <v-col cols="9">
+          <v-simple-table v-if="loaded" dense>
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">Level</th>
+                  <th class="text-left">Equip</th>
+                  <th class="text-left">Rarity</th>
+                  <th class="text-left">Special</th>
+                  <th class="text-left">Set</th>
+                  <th class="text-left">HP</th>
+                  <th class="text-left">ATK</th>
+                  <th class="text-left">RPR</th>
+                  <th class="text-left">ABL</th>
+                  <th class="text-left">PLT</th>
+                  <th class="text-left">SCI</th>
+                  <th class="text-left">ENG</th>
+                  <th class="text-left">WPN</th>
+                  <th class="text-left">Fire</th>
+                  <th class="text-left">Training</th>
+                  <th class="text-left">Speed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <v-text-field
+                      v-model="level"
+                      type="number"
+                      min="1"
+                      max="40"
+                      dense
+                      single-line
+                      :value="level"
+                      style="max-width: 50px"
+                    ></v-text-field>
+                  </td>
+                  <!-- Equip -->
+                  <td>
+                    <div class="ps-left equip">
+                      <div v-for="(s, k) in character.equipment" :key="k">
+                        <div
+                          v-if="s.name"
+                          :title="`${k}: +${s.bonus} ${s.enhancement} ${
+                            s.extra_bonus ? '+' + s.extra_bonus : ''
+                          } ${s.extra_enhancement}`"
+                        >
+                          <div class="char-item" :style="spriteStyle(s.sprite)"></div>
+                          {{ s.name }}
+                        </div>
+                        <template v-else>
+                          <div class="unused">{{ k }}</div>
+                        </template>
                       </div>
-                      <template v-else>
-                        <div class="unused">{{ k }}</div>
-                      </template>
                     </div>
-                  </div>
-                </td>
+                  </td>
 
-                <!-- Rarity -->
-                <td>
-                  <div :class="['rarity', character.rarity]">
-                    {{ character.rarity }}
-                  </div>
-                </td>
+                  <!-- Rarity -->
+                  <td>
+                    <div :class="['rarity', character.rarity]">
+                      {{ character.rarity }}
+                    </div>
+                  </td>
 
-                <td>
-                  <div class="special-ability">
-                    <v-tooltip bottom color="blue-grey">
+                  <td>
+                    <div class="special-ability">
+                      <v-tooltip bottom color="blue-grey">
+                        <template v-slot:activator="{ on, attrs }">
+                          <div
+                            v-bind="attrs"
+                            v-on="on"
+                            :style="spriteStyle(character.ability_sprite)"
+                          ></div>
+                        </template>
+                        {{ character.special_ability }}
+                      </v-tooltip>
+                    </div>
+                  </td>
+
+                  <!-- Collection -->
+                  <td>
+                    <v-tooltip v-if="character.collection_sprite" bottom color="blue-grey">
                       <template v-slot:activator="{ on, attrs }">
                         <div
                           v-bind="attrs"
                           v-on="on"
-                          :style="spriteStyle(character.ability_sprite)"
+                          :style="spriteStyle(character.collection_sprite)"
+                          class="center"
                         ></div>
                       </template>
-                      {{ character.special_ability }}
+                      {{ character.collection_name }}
                     </v-tooltip>
-                  </div>
-                </td>
+                  </td>
 
-                <!-- Collection -->
-                <td>
-                  <v-tooltip v-if="character.collection_sprite" bottom color="blue-grey">
-                    <template v-slot:activator="{ on, attrs }">
-                      <div
-                        v-bind="attrs"
-                        v-on="on"
-                        :style="spriteStyle(character.collection_sprite)"
-                        class="center"
-                      ></div>
-                    </template>
-                    {{ character.collection_name }}
-                  </v-tooltip>
-                </td>
+                  <!-- Stats -->
+                  <td>{{ character.hp[2] | statFormat(0) }}</td>
+                  <td>{{ character.attack[2] | statFormat() }}</td>
+                  <td>{{ character.repair[2] | statFormat() }}</td>
+                  <td>{{ character.ability[2] | statFormat() }}</td>
+                  <td>{{ character.pilot[2] | statFormat() }}</td>
+                  <td>{{ character.science[2] | statFormat() }}</td>
+                  <td>{{ character.engine[2] | statFormat() }}</td>
+                  <td>{{ character.weapon[2] | statFormat() }}</td>
 
-                <!-- Stats -->
-                <td>{{ character.hp[2] | statFormat(0) }}</td>
-                <td>{{ character.attack[2] | statFormat() }}</td>
-                <td>{{ character.repair[2] | statFormat() }}</td>
-                <td>{{ character.ability[2] | statFormat() }}</td>
-                <td>{{ character.pilot[2] | statFormat() }}</td>
-                <td>{{ character.science[2] | statFormat() }}</td>
-                <td>{{ character.engine[2] | statFormat() }}</td>
-                <td>{{ character.weapon[2] | statFormat() }}</td>
+                  <!-- Fire -->
+                  <td>{{ character.fire_resist }}</td>
 
-                <!-- Fire -->
-                <td>{{ character.fire_resist }}</td>
+                  <!-- Training -->
+                  <td>{{ character.training_limit }}</td>
 
-                <!-- Training -->
-                <td>{{ character.training_limit }}</td>
+                  <!-- Speed -->
+                  <td>
+                    <div>{{ `${character.walk}:${character.run}` }}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
+      </v-row>
 
-                <!-- Speed -->
-                <td>
-                  <div>{{ `${character.walk}:${character.run}` }}</div>
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </v-col>
-    </v-row>
+      <v-row class="mt-2 pb-2" justify="center">
+        <v-col cols="4">
+          <div class="text-center">
+            <span>Combine both for {{ characters[crewId].name }}:</span>
+          </div>
+        </v-col>
 
-    <v-row class="mt-2 pb-2" justify="center">
-      <v-col cols="4">
-        <div class="text-center">
-          <span>Combine both for {{ characters[crewId].name }}:</span>
-        </div>
-      </v-col>
+        <v-col cols="4">
+          <div class="text-center">
+            <span>Combine with {{ characters[crewId].name }} to get:</span>
+          </div>
+        </v-col>
+      </v-row>
 
-      <v-col cols="4">
-        <div class="text-center">
-          <span>Combine with {{ characters[crewId].name }} to get:</span>
-        </div>
-      </v-col>
-    </v-row>
+      <v-row class="mt-1" justify="center">
+        <v-col cols="4" v-if="notEmptyObject(to)" class="mt-3">
+          <v-row
+            v-for="(olist, t) in to"
+            :key="'grouped-to-' + t"
+            class="mb-2"
+            align="center"
+          >
+            <v-col class="right-curve-border">
+              <v-row v-for="o in olist" :key="'to-' + o">
+                <v-col>
+                  <crew :char="characters[o]" name="left" tipPosition="right"/>
+                </v-col>
+              </v-row>
+            </v-col>
 
-    <v-row class="mt-1" justify="center">
-      <v-col cols="4" v-if="notEmptyObject(to)" class="mt-3">
-        <v-row
-          v-for="(olist, t) in to"
-          :key="'grouped-to-' + t"
-          class="mb-2"
-          align="center"
-        >
-          <v-col class="right-curve-border">
-            <v-row v-for="o in olist" :key="'to-' + o">
-              <v-col>
-                <crew :char="characters[o]" name="left" tipPosition="right"/>
-              </v-col>
-            </v-row>
-          </v-col>
+            <v-col>
+              <crew :char="characters[t]" name="right" />
+            </v-col>
+          </v-row>
+        </v-col>
 
-          <v-col>
-            <crew :char="characters[t]" name="right" />
-          </v-col>
-        </v-row>
-      </v-col>
+        <v-col cols="4" v-else>
+          <div class="text-center">
+            <v-icon>mdi-flask-empty-off-outline</v-icon>
+          </div>
+        </v-col>
 
-      <v-col cols="4" v-else>
-        <div class="text-center">
-          <v-icon>mdi-flask-empty-off-outline</v-icon>
-        </div>
-      </v-col>
+        <v-col cols="4" v-if="notEmptyObject(from)" class="mt-3">
+          <v-row
+            v-for="(olist, t) in from"
+            :key="'grouped-from-' + t"
+            class="mb-2"
+            align="center"
+          >
+            <v-col class="right-curve-border">
+              <v-row v-for="o in olist" :key="'from-' + o">
+                <v-col>
+                  <crew :char="characters[o]" name="left" tipPosition="right"/>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col>
+              <crew :char="characters[t]" name="right" />
+            </v-col>
+          </v-row>
+        </v-col>
 
-      <v-col cols="4" v-if="notEmptyObject(from)" class="mt-3">
-        <v-row
-          v-for="(olist, t) in from"
-          :key="'grouped-from-' + t"
-          class="mb-2"
-          align="center"
-        >
-          <v-col class="right-curve-border">
-            <v-row v-for="o in olist" :key="'from-' + o">
-              <v-col>
-                <crew :char="characters[o]" name="left" tipPosition="right"/>
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-col>
-            <crew :char="characters[t]" name="right" />
-          </v-col>
-        </v-row>
-      </v-col>
+        <v-col cols="4" v-else>
+          <div class="text-center">
+            <v-icon>mdi-flask-empty-off-outline</v-icon>
+          </div>
+        </v-col>
+      </v-row>
+    </template>
 
-      <v-col cols="4" v-else>
-        <div class="text-center">
-          <v-icon>mdi-flask-empty-off-outline</v-icon>
-        </div>
+    <!-- Small screen (infos as card and expandable prestiges) -->
+    <v-row v-else justify="center">
+      <v-col cols="9">
+        <v-card v-if="loaded" outlined>
+          <v-card-title>Core Stats</v-card-title>
+          <v-card-text>
+            <span>HP: {{ character.hp[2] | statFormat(0) }}</span><br>
+            <span>Attack: {{ character.attack[2] | statFormat() }}</span><br>
+            <span>Repair: {{ character.repair[2] | statFormat() }}</span><br>
+            <span>Ability: {{ character.ability[2] | statFormat() }}</span><br>
+          </v-card-text>
+        </v-card>
+
+        <v-card v-if="loaded" outlined class="mt-2">
+          <v-card-title>Room Stats</v-card-title>
+          <v-card-text>
+            <span>Pilot: {{ character.pilot[2] | statFormat() }}</span><br>
+            <span>Science: {{ character.science[2] | statFormat() }}</span><br>
+            <span>Engine: {{ character.engine[2] | statFormat() }}</span><br>
+            <span>Weapon: {{ character.weapon[2] | statFormat() }}</span><br>
+          </v-card-text>
+        </v-card>
+
+        <v-card v-if="loaded" outlined class="mt-2">
+          <v-card-title>Utility Stats</v-card-title>
+          <v-card-text>
+            <span>Equip: {{ Object.keys(character.equipment).join(", ") }}</span><br>
+            <span>Rarity: <span :class="['rarity', character.rarity]">{{ character.rarity }}</span></span><br>
+
+            <!-- <span>Special: <div :style="spriteStyle(character.ability_sprite)" class="center"></div> {{ character.special_ability }}</span>
+            <span>Set: <div :style="spriteStyle(character.collection_sprite)" class="center"></div> {{ character.collection_name }}</span> -->
+            
+            <!-- Fire -->
+            <span>Fire Resist: {{ character.fire_resist }}</span><br>
+
+            <!-- Training -->
+            <span>Training: {{ character.training_limit }}</span><br>
+
+            <!-- Speed -->
+            <span>Walk/Run Speed: {{ `${character.walk}/${character.run}` }}</span><br>
+          </v-card-text>
+        </v-card>
+
+        <v-card v-if="loaded" outlined class="mt-2">
+              <v-card-title>Prestige Options</v-card-title>
+                <v-expansion-panels>
+                  <v-expansion-panel>
+                    <v-expansion-panel-header>
+                      Combine both for {{ characters[crewId].name }}:
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <v-row
+                        v-for="(olist, t) in to"
+                        :key="'grouped-to-' + t"
+                        class="mb-2"
+                        align="center"
+                      >
+                        <v-col class="right-curve-border">
+                          <v-row v-for="o in olist" :key="'to-' + o">
+                            <v-col>
+                              <crew :char="characters[o]" name="left" tipPosition="right"/>
+                            </v-col>
+                          </v-row>
+                        </v-col>
+
+                        <v-col>
+                          <crew :char="characters[t]" name="right" />
+                        </v-col>
+                      </v-row>
+
+                      <div class="text-center" v-if="!notEmptyObject(to)">
+                        <v-icon>mdi-flask-empty-off-outline</v-icon>
+                      </div>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+
+                  <v-expansion-panel>
+                    <v-expansion-panel-header>
+                      Combine with {{ characters[crewId].name }} to get:
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <v-row
+                        v-for="(olist, t) in from"
+                        :key="'grouped-from-' + t"
+                        class="mb-2"
+                        align="center"
+                      >
+                        <v-col class="right-curve-border">
+                          <v-row v-for="o in olist" :key="'from-' + o">
+                            <v-col>
+                              <crew :char="characters[o]" name="left" tipPosition="right"/>
+                            </v-col>
+                          </v-row>
+                        </v-col>
+
+                        <v-col>
+                          <crew :char="characters[t]" name="right" />
+                        </v-col>
+                      </v-row>
+
+                      <div class="text-center" v-if="!notEmptyObject(from)">
+                        <v-icon>mdi-flask-empty-off-outline</v-icon>
+                      </div>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+            </v-card>
       </v-col>
     </v-row>
   </v-card>
