@@ -12,7 +12,7 @@
     <!-- Large screen (Table and prestiges side by side) -->
     <template v-if="$vuetify.breakpoint.mdAndUp">
       <v-row justify="center">
-        <v-col cols="9">
+        <v-col>
           <v-simple-table v-if="loaded" dense>
             <template v-slot:default>
               <thead>
@@ -205,7 +205,7 @@
 
     <!-- Small screen (infos as card and expandable prestiges) -->
     <v-row v-else justify="center">
-      <v-col cols="9">
+      <v-col>
         <v-card v-if="loaded" outlined>
           <v-card-title>Core Stats</v-card-title>
           <v-card-text>
@@ -246,70 +246,76 @@
           </v-card-text>
         </v-card>
 
-        <v-card v-if="loaded" outlined class="mt-2">
-              <v-card-title>Prestige Options</v-card-title>
-                <v-expansion-panels>
-                  <v-expansion-panel>
-                    <v-expansion-panel-header>
-                      Combine both for {{ characters[crewId].name }}:
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      <v-row
-                        v-for="(olist, t) in to"
-                        :key="'grouped-to-' + t"
-                        class="mb-2"
-                        align="center"
-                      >
-                        <v-col class="right-curve-border">
-                          <v-row v-for="o in olist" :key="'to-' + o">
-                            <v-col>
-                              <crew :char="characters[o]" name="left" tipPosition="right"/>
-                            </v-col>
-                          </v-row>
-                        </v-col>
-
-                        <v-col>
-                          <crew :char="characters[t]" name="right" />
-                        </v-col>
+        <v-card v-if="loaded" outlined class="mt-2 text-sm-body-2">
+          <v-card-title>Prestige Options</v-card-title>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Combine both for {{ characters[crewId].name }}:
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-row
+                    v-for="(olist, t) in to"
+                    :key="'grouped-to-' + t"
+                    class="mb-2"
+                    align="center"
+                  >
+                    <v-col>
+                      <v-row class="mb-1">
+                        <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
                       </v-row>
 
-                      <div class="text-center" v-if="!notEmptyObject(to)">
-                        <v-icon>mdi-flask-empty-off-outline</v-icon>
-                      </div>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-
-                  <v-expansion-panel>
-                    <v-expansion-panel-header>
-                      Combine with {{ characters[crewId].name }} to get:
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      <v-row
-                        v-for="(olist, t) in from"
-                        :key="'grouped-from-' + t"
-                        class="mb-2"
-                        align="center"
-                      >
-                        <v-col class="right-curve-border">
-                          <v-row v-for="o in olist" :key="'from-' + o">
-                            <v-col>
-                              <crew :char="characters[o]" name="left" tipPosition="right"/>
-                            </v-col>
-                          </v-row>
-                        </v-col>
-
-                        <v-col>
-                          <crew :char="characters[t]" name="right" />
+                      <v-row class="ml-10" no-gutters v-for="o in olist" :key="'to-' + o">
+                        <v-col cols="auto">
+                          <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                          <crew :char="characters[o]" name="right" tipPosition="right"/>
                         </v-col>
                       </v-row>
+                      <v-divider class="mt-5"></v-divider>
+                    </v-col>
+                  </v-row>
 
-                      <div class="text-center" v-if="!notEmptyObject(from)">
-                        <v-icon>mdi-flask-empty-off-outline</v-icon>
-                      </div>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-            </v-card>
+                  <div class="text-center" v-if="!notEmptyObject(to)">
+                    <v-icon>mdi-flask-empty-off-outline</v-icon>
+                  </div>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Combine with {{ characters[crewId].name }} to get:
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-row
+                    v-for="(olist, t) in from"
+                    :key="'grouped-from-' + t"
+                    class="mb-2"
+                    align="center"
+                  >
+                    <v-col>
+                      <v-row class="mb-1">
+                        <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
+                        <v-icon style="float: left" class="mr-2">mdi-equal</v-icon>
+                      </v-row>
+
+                      <v-row class="ml-8" no-gutters v-for="o in olist" :key="'from-' + o">
+                        <v-col cols="auto">
+                          <span style="float: left" :class="['mr-2', character.rarity]">{{ character.name }}</span>
+                          <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                          <crew :char="characters[o]" name="right" tipPosition="right"/>
+                        </v-col>
+                      </v-row>
+                      <v-divider class="mt-5"></v-divider>
+                    </v-col>
+                  </v-row>
+
+                  <div class="text-center" v-if="!notEmptyObject(from)">
+                    <v-icon>mdi-flask-empty-off-outline</v-icon>
+                  </div>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+        </v-card>
       </v-col>
     </v-row>
   </v-card>
