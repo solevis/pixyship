@@ -22,7 +22,7 @@
       </v-col>
 
       <v-col cols="12" md="3">
-        <v-card outlined class="not-offers">
+        <v-card outlined class="not-offers" :loading="isTournamentLoading">
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
           >
@@ -210,7 +210,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="3">
-        <v-card outlined class="not-offers">
+        <v-card outlined class="not-offers" :loading="isChangesLoading">
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
           >
@@ -253,6 +253,8 @@ export default {
   data() {
     return {
       loaded: false,
+      tournamentLoaded: false,
+      changesLoaded: false,
       daily: null,
       tournament: {},
       offers: [],
@@ -270,10 +272,23 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+
+    isTournamentLoading: function () {
+      return !this.tournamentLoaded;
+    },
+
+    isChangesLoading: function () {
+      return !this.changesLoaded;
+    },
   },
 
   beforeMount: function () {
     this.getDaily();
+  },
+
+  mounted: function () {
+    this.getTournament();
+    this.getChanges();
   },
 
   methods: {
@@ -286,6 +301,10 @@ export default {
       this.news = response.data.data.news;
       this.news.news_moment = moment.utc(this.news.news_date).local();
 
+      this.loaded = true;
+    },
+
+    getChanges: async function () {
       const changes = await axios.get(this.changesEndpoint);
       this.changes = changes.data.data.map((change) => {
         change.attributes = this.getAllAttributes(
@@ -319,11 +338,14 @@ export default {
         ...this.changes.map((change) => change.moment)
       );
 
+      this.changesLoaded = true
+    },
 
+    getTournament: async function () {
       const tournamentResponse = await axios.get(this.tournamentEndpoint);
       this.tournament = tournamentResponse.data.data
 
-      this.loaded = true;
+      this.tournamentLoaded = true
     },
 
     isExpired(time) {
