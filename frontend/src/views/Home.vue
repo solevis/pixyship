@@ -387,7 +387,7 @@ export default {
       let obj = {
         background: `url('${this.getSpriteServer()}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
         backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'top right',
+        backgroundPosition: 'right 10px top 10px',
         imageRendering: 'pixelated'
       }
 
