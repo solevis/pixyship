@@ -158,15 +158,15 @@ export default {
       return result
     },
     
-    spriteStyle(s, color = '', border = 0) {
-      if (Object.keys(s).length === 0) {
+    spriteStyle(sprite, color = '', border = 0) {
+      if (Object.keys(sprite).length === 0) {
         return {}
       }
 
       let obj = {
-        background: `${color} url('${spriteServer}${s.source}.png') -${s.x}px -${s.y}px`,
-        width: `${s.width}px`,
-        height: `${s.height}px`,
+        background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
+        width: `${sprite.width}px`,
+        height: `${sprite.height}px`,
         border: `${border}px solid lightgrey`,
         imageRendering: 'pixelated'
       }
@@ -174,16 +174,16 @@ export default {
       return obj
     },
 
-    styleFromSprite(s, color = '', border = 0, scale = 1, portScale = 1) {
-      if (Object.keys(s).length === 0) {
+    styleFromSprite(sprite, color = '', border = 0, scale = 1, portScale = 1) {
+      if (Object.keys(sprite).length === 0) {
         return {}
       }
 
       const fillStr = portScale === 1 ? '' : '/ 100% 100%'
       let obj = {
-        background: `${color} url('${spriteServer}${s.source}.png') -${s.x}px -${s.y}px ${fillStr}`,
-        width: `${s.width / portScale}px`,
-        height: `${s.height / portScale}px`,
+        background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px ${fillStr}`,
+        width: `${sprite.width / portScale}px`,
+        height: `${sprite.height / portScale}px`,
         border: `${border}px solid lightgrey`,
         imageRendering: 'pixelated'
       }
@@ -282,6 +282,10 @@ export default {
       changes.removed = oldAttributes ? Object.entries(oldAttributes) : []
       return changes
     },
+
+    getSpriteServer() {
+      return spriteServer
+    }
     
   }
 }

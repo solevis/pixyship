@@ -1252,6 +1252,7 @@ class Pixyship(metaclass=Singleton):
                 'news_date': data['NewsUpdateDate'],
                 'maintenance': data['MaintenanceMessage'],
                 'tournament_news': data['TournamentNews'],
+                'sprite': self.get_sprite_infos(data['NewsSpriteId']),
             },
             'offers': offers,
         }
