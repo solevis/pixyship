@@ -288,6 +288,10 @@ export default {
     },
   },
 
+  created() {
+    document.title = 'PixyShip'
+  },
+
   beforeMount: function () {
     this.getDaily();
   },

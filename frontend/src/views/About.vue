@@ -21,3 +21,11 @@
     </v-card>
   </v-card>
 </template>
+
+<script>
+export default {
+  created() {
+    document.title = 'PixyShip - ' + this.$route.name
+  },
+}
+</script>

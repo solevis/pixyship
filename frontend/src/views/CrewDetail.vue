@@ -387,6 +387,7 @@ export default {
       this.to = this.data.to;
 
       this.character = this.characters[this.crewId];
+      document.title = 'PixyShip - ' + this.character.name
 
       this.loaded = true;
       this.updateCurrentLevel();

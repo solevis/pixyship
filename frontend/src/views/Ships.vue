@@ -232,6 +232,10 @@ export default {
     },
   },
 
+  created() {
+    document.title = 'PixyShip - ' + this.$route.name
+  },
+
   beforeMount: function () {
     this.getShips()
   },
