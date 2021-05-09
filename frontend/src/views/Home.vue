@@ -191,7 +191,7 @@
 
           <v-card-text>
             <div>
-              <template v-if="this.offers.sale.objects[0].type === 'Item' ||this.offers.sale.objects[0].type === 'Room'">
+              <template v-if="this.offers.sale.objects[0].type === 'Item' || this.offers.sale.objects[0].type === 'Room'">
                 {{this.offers.sale.objects[0].count > 1 ? 'x' + this.offers.sale.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.objects[0].object.sprite)"></div>
                 <div :class="[this.offers.sale.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.objects[0].object.name }}</div>
               </template>
@@ -204,6 +204,12 @@
               <template v-else>
                 <div>{{this.offers.sale.objects[0].type }}</div>
               </template>
+
+              <div style="clear: both" class="pt-2">
+                <template v-if="this.offers.sale.cost.options">
+                  <div>Cost: {{ formatSaleOptions(this.offers.sale.cost.options) }}</div>
+                </template>
+              </div>
             </div>
           </v-card-text>
         </v-card>
@@ -353,6 +359,25 @@ export default {
       const res = moment.utc(time) < moment();
       return res;
     },
+
+    formatSaleOptions(options) {
+      let result = ''
+      let first = true
+
+      options.forEach((option) => {
+        if (!first) {
+          result += ', '
+        } else {
+          first = false
+        }
+
+        result += option.name + '(' + option.value + ')'
+
+        
+      });
+
+      return result
+    }
   },
 };
 </script>

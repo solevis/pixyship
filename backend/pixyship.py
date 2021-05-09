@@ -102,6 +102,15 @@ class Pixyship(metaclass=Singleton):
         'None': None
     }
 
+    # Daily IAP mask (see https://github.com/PieInTheSky-Inc/YaDc)
+    IAP_OPTIONS_MASK_LOOKUP = {
+        1: ('Clip', 500),
+        2: ('Roll', 1200),
+        4: ('Stash', 2500),
+        8: ('Case', 6500),
+        16: ('Vault', 14000)
+    }
+
     # 0 - Rock?
     # 1 - Pirate/Dark
     # 2 - Fed/Blue
@@ -1229,7 +1238,10 @@ class Pixyship(metaclass=Singleton):
                         data['SaleType'],
                         self.get_object(data['SaleType'], int(data['SaleArgument']))
                     )
-                ]
+                ],
+                {
+                    'options': self._format_daily_sale_options(int(data['SaleItemMask']))
+                }
             )
         }
 
@@ -1470,3 +1482,14 @@ class Pixyship(metaclass=Singleton):
             stickers.append(sticker)
 
         return stickers
+
+    def _format_daily_sale_options(self, daily_sale_flags):
+        """"From flag determine Sale options."""
+
+        result = []
+        for flag in self.IAP_OPTIONS_MASK_LOOKUP.keys():
+            if (daily_sale_flags & flag) != 0:
+                item, value = self.IAP_OPTIONS_MASK_LOOKUP[flag]
+                result.append({'name': item, 'value': value})
+
+        return result
