@@ -313,7 +313,7 @@
 
                       <tr v-show="item.speed">
                         <td>Speed</td>
-                        <td>{{ item.speed }} ({{ `${item.speed / 40}s` }})</td>
+                        <td>{{ item.speed }}px/s</td>
                       </tr>
 
                       <tr v-show="item.fire_length">
