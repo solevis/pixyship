@@ -47,6 +47,11 @@
       </v-row>
     </v-card-subtitle>
 
+
+    <v-card-text v-if="loaded">
+      Legend: <span class="success--text">New value</span> / <span class="warning--text">Changed value</span> / <span class="error--text">Removed value</span>
+    </v-card-text>
+
     <!-- Table -->
     <v-data-table
       v-if="loaded"
@@ -61,7 +66,7 @@
       }"
       multi-sort
       loading-text="Loading..."
-      class="elevation-1"
+      class="elevation-1 px-3"
       dense
       fixed-header
       :height="tableHeight"
@@ -88,10 +93,14 @@
 
               <tr v-for="change in item.changes.changed" class="nobreak" :key="change.id">
                 <td style="vertical-align: top; text-align: right; padding-right: 10px"><div class="warning--text">{{ change[0].replace('_', ' ') }}</div></td>
-                <td>
+                <td v-if="change[1].length > 50 || change[2].length > 50">
                   <div :title="change[1]" class="grey--text text-truncate record-field"> {{ change[1] }}</div>
                   <div :title="change[2]" class="warning--text text-truncate record-field"> {{ change[2] }}</div>
-                  </td>
+                </td>
+                <td v-else>
+                  <span :title="change[1]" class="grey--text text-truncate record-field"> {{ change[1] }}</span>
+                  <span :title="change[2]" class="warning--text text-truncate record-field"> {{ change[2] }}</span>
+                </td>
               </tr>
 
               <tr v-for="change in item.changes.removed" class="nobreak" :key="change.id">
