@@ -19,6 +19,15 @@ class PixelStarshipsApi:
     MIN_DEVICES = 10
     PSS_START_DATE = datetime.date(year=2016, month=1, day=6)
 
+    # Daily IAP mask (see https://github.com/PieInTheSky-Inc/YaDc)
+    IAP_OPTIONS_MASK_LOOKUP = {
+        1: 500,
+        2: 1200,
+        4: 2500,
+        8: 6500,
+        16: 14000
+    }
+
     def __init__(self):
         self.__api_settings = self.get_api_settings()
         self.server = self.__api_settings['ProductionServer']
@@ -710,6 +719,18 @@ class PixelStarshipsApi:
 
     def get_stardate(self):
         """Compute Stardate."""
+
         utc_now = datetime.datetime.utcnow()
         today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
         return (today - self.PSS_START_DATE).days
+
+    def parse_sale_item_mask(self, sale_item_mask):
+        """"From SaleItemMask determine Sale options."""
+
+        result = []
+        for flag in self.IAP_OPTIONS_MASK_LOOKUP.keys():
+            if (sale_item_mask & flag) != 0:
+                value = self.IAP_OPTIONS_MASK_LOOKUP[flag]
+                result.append(value)
+
+        return result
