@@ -10,10 +10,10 @@
     </v-card-title>
 
     <!-- Large screen (Table and prestiges side by side) -->
-    <template v-if="$vuetify.breakpoint.mdAndUp">
+    <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
       <v-row justify="center">
         <v-col>
-          <v-simple-table v-if="loaded" dense>
+          <v-simple-table v-if="loaded" dense class="px-3">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -136,13 +136,13 @@
       <v-row class="mt-2 pb-2" justify="center">
         <v-col cols="4">
           <div class="text-center">
-            <span>Combine both for {{ characters[crewId].name }}:</span>
+            <span>Combine both for {{ character.name }}:</span>
           </div>
         </v-col>
 
         <v-col cols="4">
           <div class="text-center">
-            <span>Combine with {{ characters[crewId].name }} to get:</span>
+            <span>Combine with {{ character.name }} to get:</span>
           </div>
         </v-col>
       </v-row>
@@ -204,7 +204,7 @@
     </template>
 
     <!-- Small screen (infos as card and expandable prestiges) -->
-    <v-row v-else justify="center">
+    <v-row v-else-if="loaded" justify="center">
       <v-col>
         <v-card v-if="loaded" outlined>
           <v-card-title>Core Stats</v-card-title>
@@ -232,8 +232,8 @@
             <span>Equip: {{ Object.keys(character.equipment).join(", ") }}</span><br>
             <span>Rarity: <span :class="['rarity', character.rarity]">{{ character.rarity }}</span></span><br>
 
-            <!-- <span>Special: <div :style="spriteStyle(character.ability_sprite)" class="center"></div> {{ character.special_ability }}</span>
-            <span>Set: <div :style="spriteStyle(character.collection_sprite)" class="center"></div> {{ character.collection_name }}</span> -->
+            <div v-if="character.special_ability">Special: {{ character.special_ability }} <div :style="spriteStyle(character.ability_sprite)" class="center d-inline-block"></div></div>
+            <div v-if="character.collection_name">Set: {{ character.collection_name }} <div :style="spriteStyle(character.collection_sprite)" class="center d-inline-block"></div></div>
             
             <!-- Fire -->
             <span>Fire Resist: {{ character.fire_resist }}</span><br>
