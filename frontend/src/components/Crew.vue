@@ -1,5 +1,5 @@
 <template>
-  <v-tooltip :disabled="!show" :right="right" :left="left">
+  <v-tooltip :disabled="!show" :right="right" :left="left" color="grey darken-3">
     <template v-slot:activator="{ on, attrs }">
       <a :href="`/crew/${char.id}`" v-bind="attrs" v-on="on">
         <div v-if="name === 'top'" class="name" :class="[char.rarity]">
@@ -42,21 +42,29 @@
       <table>
         <tr>
           <td class="text-xs-right">HP:</td>
-          <td class="text-xs-left">{{ char.hp[0] }} - {{ char.hp[1] }}</td>
+          <td class="text-xs-left">{{ char.hp[1] }}</td>
+          <td class="text-xs-right">PLT:</td>
+          <td class="text-xs-left">{{ char.pilot[1] }}</td>
         </tr>
         <tr>
-          <td class="text-xs-right">Attack:</td>
-          <td class="text-xs-left">
-            {{ char.attack[0] }} - {{ char.attack[1] }}
-          </td>
+          <td class="text-xs-right">ATK:</td>
+          <td class="text-xs-left">{{ char.attack[1] }}</td>
+          <td class="text-xs-right">SCI:</td>
+          <td class="text-xs-left">{{ char.science[1] }}</td>
         </tr>
         <tr>
-          <td class="text-xs-right">Repair:</td>
-          <td class="text-xs-left">
-            {{ char.repair[0] }} - {{ char.repair[1] }}
-          </td>
+          <td class="text-xs-right">RPR:</td>
+          <td class="text-xs-left">{{ char.repair[1] }}</td>
+          <td class="text-xs-right">ENG:</td>
+          <td class="text-xs-left">{{ char.engine[1] }}</td>
         </tr>
         <tr>
+          <td class="text-xs-right">ABL:</td>
+          <td class="text-xs-left">{{ char.ability[1] }}</td>
+          <td class="text-xs-right">WPN:</td>
+          <td class="text-xs-left">{{ char.weapon[1] }}</td>
+        </tr>
+        <tr v-if="char.special_ability">
           <td class="text-xs-right">Special:</td>
           <td class="text-xs-left">
             <div
@@ -65,18 +73,11 @@
             ></div>
           </td>
         </tr>
-        <tr>
-          <td class="text-xs-right">Ability:</td>
-          <td class="text-xs-left">
-            {{ char.ability[0] }} - {{ char.ability[1] }}
-          </td>
-        </tr>
-        <tr>
+        
+        <tr v-if="Object.keys(char.equipment).length > 0">
           <td class="text-xs-right">Equip:</td>
           <td>
-            <div v-for="(s, k) in char.equipment" :key="'crew-tooltip-' + k">
-              <div class="small text-xs-left">{{ k }}</div>
-            </div>
+            {{ Object.keys(char.equipment).join(", ") }}
           </td>
         </tr>
       </table>
