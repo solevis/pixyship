@@ -56,7 +56,7 @@
       }"
       multi-sort
       loading-text="Loading..."
-      class="elevation-1"
+      class="elevation-1 px-3"
       dense
       fixed-header
       :height="tableHeight"
