@@ -444,7 +444,7 @@ export default {
 
   methods: {
     onResize() {
-      this.tableHeight = window.innerHeight - 230
+      this.tableHeight = window.innerHeight - 250
     },
 
     computeDps(damage, room) {
