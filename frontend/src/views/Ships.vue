@@ -246,7 +246,7 @@ export default {
 
   methods: {
     onResize() {
-      this.tableHeight = window.innerHeight - 230
+      this.tableHeight = window.innerHeight - 250
     },
 
     getShips: async function () {
