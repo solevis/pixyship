@@ -105,7 +105,7 @@
 
     <!-- Ship -->
     <div id="ship">
-      <svg class="mb-15" v-if="selectedShip" :height="selectedShip.interior_sprite.height" :width="selectedShip.interior_sprite.width" v-on:dragover="allowDrop" v-on:drop="shipOnDrop" v-on:dragleave.self="removeDragRoom">
+      <svg class="mb-5" v-if="selectedShip" :height="selectedShip.interior_sprite.height" :width="selectedShip.interior_sprite.width" v-on:dragover="allowDrop" v-on:drop="shipOnDrop" v-on:dragleave.self="removeDragRoom">
         <!-- Ship interior -->
         <image 
           :xlink:href="getSpriteUrl(selectedShip.interior_sprite)" 
@@ -206,8 +206,8 @@
     </v-row>
 
     <!-- Stats -->
-    <v-row justify="center">
-        <v-col cols="12" sm="12" md="8">
+    <v-row class="pb-15" justify="center">
+        <v-col cols="12" sm="12" md="10">
           <v-card 
             v-if="selectedShip"
             outlined
