@@ -4,7 +4,8 @@
 
     <v-row v-if="loaded" justify="center">
       <v-col cols="12" md="6">
-        <v-card outlined class="not-offers" :style="backgroundNewsSprite(this.news.sprite)">
+        <v-card outlined class="not-offers">
+          <div class="news-sprite" :style="spriteStyle(this.news.sprite)"></div>
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-newspaper-variant</v-icon>Pixel Starships
             News</v-card-title
@@ -382,21 +383,6 @@ export default {
 
       return result
     },
-
-    backgroundNewsSprite(sprite) {
-      if (Object.keys(sprite).length === 0) {
-        return {}
-      }
-
-      let obj = {
-        background: `url('${this.getSpriteServer()}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'right 10px top 10px',
-        imageRendering: 'pixelated'
-      }
-
-      return obj
-    },
   },
 };
 </script>
@@ -420,5 +406,10 @@ export default {
 
 .not-offers {
   min-height: 180px;
+}
+
+.news-sprite {
+  float: right;
+  margin: 10px;
 }
 </style>
