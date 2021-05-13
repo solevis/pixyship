@@ -94,8 +94,8 @@
               <tr v-for="change in item.changes.changed" class="nobreak" :key="change.id">
                 <td style="vertical-align: top; text-align: right; padding-right: 10px"><div class="warning--text">{{ change[0].replace('_', ' ') }}:</div></td>
                 <td v-if="change[1].length > 50 || change[2].length > 50">
-                  <div :title="change[1]" class="grey--text text-truncate record-field"> {{ change[1] }}</div>
-                  <div :title="change[2]" class="text-truncate record-field warning--text">{{ change[2] }}</div>
+                  <div :title="change[1]" style="min-width: 400px; max-width: 600px" class="grey--text record-field"> {{ change[1] }}</div>
+                  <div :title="change[2]" style="min-width: 400px; max-width: 600px" class="record-field warning--text">{{ change[2] }}</div>
                 </td>
                 <td v-else>
                   <span :title="change[1]" class="grey--text text-truncate record-field"> {{ change[1] }}</span>
