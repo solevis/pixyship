@@ -96,6 +96,32 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="3">
+        <v-card outlined class="offers" :loading="isChangesLoading">
+          <v-card-title class="overline mb-2"
+            ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
+          >
+          <v-card-text>
+            <p>
+              Most Recent: {{ nowTime(this.changeLatest) }}<br />
+              Today: {{ this.changesToday }}<br />
+              This Week: {{ this.changesThisWeek }}
+            </p>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn
+              text
+              to="/changes"
+            >
+              See changes
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="loaded" justify="center">
+      <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.greenCargo.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
             <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.greenCargo.sprite, '', 0, 3)"></div>Merchant Ship
@@ -138,9 +164,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-    </v-row>
-
-    <v-row v-if="loaded" justify="center">
+      
       <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
           <v-card-title  class="overline mb-2" >
@@ -216,29 +240,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" sm="6" md="3">
-        <v-card outlined class="not-offers" :loading="isChangesLoading">
-          <v-card-title class="overline mb-2"
-            ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
-          >
-          <v-card-text>
-            <p>
-              Most Recent: {{ nowTime(this.changeLatest) }}<br />
-              Today: {{ this.changesToday }}<br />
-              This Week: {{ this.changesThisWeek }}
-            </p>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn
-              text
-              to="/changes"
-            >
-              See changes
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
+      
     </v-row>
   </v-card>
 </template>
