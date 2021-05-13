@@ -121,12 +121,16 @@
 import axios from "axios";
 import moment from 'moment';
 import mixins from "@/mixins/PixyShip.vue.js";
+import Crew from "@/components/Crew.vue";
+
 const convert = require('xml-js')
 
 export default {
   mixins: [mixins],
 
-  components: {},
+  components: {
+    Crew,
+  },
 
   data() {
     return {
