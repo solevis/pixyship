@@ -10,7 +10,7 @@ Flask==2.0.0
 Flask-Cors==3.0.10
 Flask-SQLAlchemy==2.5.1
 greenlet==1.1.0
-idna==2.10
+idna==2.5
 iniconfig==1.1.1
 ipython-genutils==0.2.0
 itsdangerous==2.0.0
