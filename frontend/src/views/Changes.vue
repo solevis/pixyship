@@ -75,7 +75,7 @@
       <template v-slot:item="{ item }">
         <tr>
           <td>
-            <crew v-if="item.type === 'char'" :char="item.char"/>
+            <crew v-if="item.type === 'char'" :char="item.char" tipPosition="right"/>
             <div v-else class="block my-1 ma-auto" :style="spriteStyle(item.sprite)"></div>
           </td>
 
