@@ -76,7 +76,7 @@
         <tr>
           <td>
             <crew v-if="item.type === 'char'" :char="item.char"/>
-            <div v-else class="block my-1" :style="spriteStyle(item.sprite)"></div>
+            <div v-else class="block my-1 ma-auto" :style="spriteStyle(item.sprite)"></div>
           </td>
 
           <td style="min-width: 250px">
