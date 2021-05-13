@@ -8,7 +8,8 @@
         <p>Main Developper: Solevis <a href="mailto:contact@pixyship.net">&lt;contact@pixyship.net&gt;</a></p>
         <p>Contributor: Bril</p>
         <p>First version by Sokitume </p>
-        <p><v-icon class="mr-1">mdi-github</v-icon><a href="https://github.com/solevis/pixyship/">https://github.com/solevis/pixyship/</a></p>
+        <p><v-icon class="mr-1">mdi-discord</v-icon><a href="https://discord.gg/R49rqhzYrh">Discord</a></p>
+        <p><v-icon class="mr-1">mdi-github</v-icon><a href="https://github.com/solevis/pixyship/">GitHub</a></p>
       </v-card-text>
     </v-card>
 
