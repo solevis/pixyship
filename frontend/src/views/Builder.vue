@@ -338,6 +338,8 @@ import mixins from "@/mixins/PixyShip.vue.js";
 import VueClipboard from 'vue-clipboard2'
 import "../assets/css/override.css";
 
+require('../js/DragDropTouch')
+
 Vue.use(VueClipboard)
 
 export default {
