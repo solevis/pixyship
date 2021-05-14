@@ -370,7 +370,10 @@ class PixelStarshipsApi:
 
         for room_node in room_nodes:
             # if room purchase, add node to room node
-            room_purchase = next((room_purchase for room_purchase in rooms_purchase if room_purchase['RoomDesignId'] == room_node.attrib['RootRoomDesignId']), None)
+            room_purchase = next(
+                (room_purchase for room_purchase in rooms_purchase if room_purchase['RoomDesignId'] == room_node.attrib['RootRoomDesignId']),
+                None
+            )
             if room_purchase:
                 room_node.set('AvailabilityMask', room_purchase['AvailabilityMask'])
 

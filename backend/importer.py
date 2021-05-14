@@ -3,13 +3,12 @@ import logging
 import os
 import sys
 from urllib import request
-from xml.etree import ElementTree
 
 from contexttimer import Timer
 
 from config import CONFIG
 from db import db
-from models import Listing, Record, Alliance, Player
+from models import Listing, Alliance, Player
 from pixyship import Pixyship
 from run import push_context
 
