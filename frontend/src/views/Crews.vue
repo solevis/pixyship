@@ -242,7 +242,7 @@ export default {
           align: "start",
           value: "equipment",
           filter: value => { 
-            return this.filterCombobox(Object.keys(value).toString(), this.searchEquipment)
+            return this.filterCombobox(Object.keys(value).toString(), this.searchEquipment, true)
           }
         },
         { 

@@ -48,7 +48,7 @@ export default {
       }
     },
 
-    filterCombobox(value, searchArray) {
+    filterCombobox(value, searchArray, andSearch = false) {
       if (searchArray === null) {
         return true
       }
@@ -61,17 +61,30 @@ export default {
           value = 'None'
       }
 
-      let result = searchArray.some(search => {
-        if (value.toString().toLowerCase().includes(',')) {
-          return value.toString().toLowerCase().includes(search.toString().toLowerCase())
-        } else {
-          return value.toString().toLowerCase() === search.toString().toLowerCase()
-        }
-        
-      })
+      let result = false;
+
+      if (andSearch) {
+        result = searchArray.every(search => {
+          if (value.toString().toLowerCase().includes(',')) {
+            return value.toString().toLowerCase().includes(search.toString().toLowerCase())
+          } else {
+            return value.toString().toLowerCase() === search.toString().toLowerCase()
+          }
+
+        })
+      } else {
+        result = searchArray.some(search => {
+          if (value.toString().toLowerCase().includes(',')) {
+            return value.toString().toLowerCase().includes(search.toString().toLowerCase())
+          } else {
+            return value.toString().toLowerCase() === search.toString().toLowerCase()
+          }
+
+        })
+      }
+      
 
       return result
-
     },
 
     multipleFilter(value, search) {
