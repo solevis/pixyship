@@ -2,7 +2,7 @@
   <v-app>
 
     <v-app-bar app >
-      <v-app-bar-nav-icon v-if="$vuetify.breakpoint.smAndDown" @click="drawer = true"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-if="$vuetify.breakpoint.smAndDown" aria-label="Menu" @click="drawer = true"></v-app-bar-nav-icon>
 
       <v-toolbar-title v-if="$vuetify.breakpoint.smAndDown || $vuetify.breakpoint.lgAndUp">
         <router-link to="/">
@@ -11,6 +11,7 @@
             max-height="57"
             max-width="150"
             contain
+            alt="PixyShip logo"
           ></v-img>
         </router-link>
       </v-toolbar-title>
