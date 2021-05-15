@@ -78,6 +78,8 @@
 
               <td class="text-xs-right">{{ item.level }}</td>
               <td class="text-xs-right">{{ item.space }}</td>
+              <td class="text-xs-right">{{ item.spaceT1 }}</td>
+              <td class="text-xs-right">{{ item.spaceT2 }}</td>
               <td class="text-xs-right">{{ item.hp }}</td>
 
               <td class="text-xs-right">{{ item.repair_time }}</td>
@@ -213,6 +215,8 @@ export default {
           },
         },
         { text: "Space", align: "right", value: "space", filterable: false },
+        { text: "T1", align: "right", value: "spaceT1", filterable: false },
+        { text: "T2", align: "right", value: "spaceT2", filterable: false },
         { text: "Health", align: "right", value: "hp", filterable: false },
         { text: "Secs/Repair", align: "right", value: "repair_time", filterable: false },
         { text: "Cost", align: "center", value: "starbux_cost", filterable: false },
@@ -255,13 +259,17 @@ export default {
       let ships = [];
       for (const itemId in response.data.data) {
         const ship = response.data.data[itemId];
-        let space = 0;
+        let spaceT1 = 0;
+        let spaceT2 = 0;
 
         for (let c of ship.mask) {
-          if (c !== "0") space++;
+          if (c === "1") spaceT1++;
+          if (c === "2") spaceT2++;
         }
 
-        ship.space = space;
+        ship.space = spaceT1 + spaceT2;
+        ship.spaceT1 = spaceT1;
+        ship.spaceT2 = spaceT2;
         ships.push(ship);
       }
 
