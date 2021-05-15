@@ -137,38 +137,41 @@ export default {
         return false
       }
 
-      let result = terms.some(term => {
-        let computedTerm = term
-        let prohibitOperator = false
+      const negativeTerms = terms.filter(term => term.length >= 2 && term[0] === '-');
+      const positiveTerms = terms.filter(term => term.length >= 2 && term[0] !== '-');
 
-        if (term.length >= 2 && term[0] === '-') {
-          computedTerm = term.substring(1, term.length);
-          prohibitOperator = true
-        }
+      let positiveResult = true
+      let negativeResult = false
 
-        if (prohibitOperator 
-          && computedTerm.length >= 2
-          && (computedTerm[0] === "'" || computedTerm[0] === '"') 
-          && computedTerm[0] === computedTerm[computedTerm.length - 1]
-        ) {
-          return value.toString().toLowerCase() !== computedTerm.substring(1, computedTerm.length - 1)
-        }
+      if (positiveTerms.length > 0) {
+        positiveResult = positiveTerms.some(term => {
+          if (term.length >= 2
+            && (term[0] === "'" || term[0] === '"') 
+            && term[0] === term[term.length - 1]
+          ) {
+            return value.toString().toLowerCase() === term.substring(1, term.length - 1)
+          }
 
-        if (computedTerm.length >= 2
-          && (computedTerm[0] === "'" || computedTerm[0] === '"') 
-          && computedTerm[0] === computedTerm[computedTerm.length - 1]
-        ) {
-          return value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
-        }
+          return value.toString().toLowerCase().indexOf(term) !== -1
+        })
+      }
 
-        if (prohibitOperator) {
-          return value.toString().toLowerCase().indexOf(computedTerm) === -1
-        }
+      if (negativeTerms.length > 0) {
+        negativeResult = negativeTerms.some(term => {
+          let computedTerm = term.substring(1, term.length);
 
-        return value.toString().toLowerCase().indexOf(computedTerm) !== -1
-      })
+          if (computedTerm.length >= 2
+            && (computedTerm[0] === "'" || computedTerm[0] === '"')
+            && computedTerm[0] === computedTerm[computedTerm.length - 1]
+          ) {
+            return value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
+          }
 
-      return result
+          return value.toString().toLowerCase().indexOf(computedTerm) !== -1
+        })
+      }
+
+      return positiveResult && !negativeResult
     },
     
     spriteStyle(sprite, color = '', border = 0) {
