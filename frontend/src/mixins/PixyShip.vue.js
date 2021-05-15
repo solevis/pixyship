@@ -2,7 +2,7 @@
 import moment from 'moment'
 
 const apiServer = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '/'
-const spriteServer = process.env.NODE_ENV === 'development' ? '//pixelstarships.s3.amazonaws.com/' : 'https://v2.pixyship.com/sprites/'
+const spriteServer = '//pixelstarships.s3.amazonaws.com/'
 
 export default {
   data() {
