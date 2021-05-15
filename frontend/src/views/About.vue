@@ -20,7 +20,7 @@
           <p class="ml-2 font-weight-bold d-inline-block" style="vertical-align: middle">
             You like PixyShip?
             <br>
-            Buy my captain some coffee <v-icon>mdi-glass-mug</v-icon>
+            Buy my captain some coffee <v-icon>mdi-coffee</v-icon>
             <br>
             
           </p>
