@@ -144,20 +144,25 @@
 
                 <v-card-subtitle>
                   <div class="overline">
-                    EXTERIOR
+                    INTERIOR
                   </div>
                 </v-card-subtitle>
 
                 <v-img class="ship-sprite"
-                  :src="getSpriteUrl(item.exterior_sprite)"
-                  :width="item.exterior_sprite.width"
-                  :height="item.exterior_sprite.height"
+                  :src="getSpriteUrl(item.interior_sprite)"
+                  :width="item.interior_sprite.width"
+                  :height="item.interior_sprite.height"
                   contain
                 ></v-img>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn text @click="openShipInBuilder(item.id)">Open in Builder</v-btn>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
               </v-card>
             </v-col>
           </v-row>
-
           <v-row>
             <v-col cols="12">
               <v-card
@@ -169,14 +174,14 @@
 
                 <v-card-subtitle>
                   <div class="overline">
-                    INTERIOR
+                    EXTERIOR
                   </div>
                 </v-card-subtitle>
 
                 <v-img class="ship-sprite"
-                  :src="getSpriteUrl(item.interior_sprite)"
-                  :width="item.interior_sprite.width"
-                  :height="item.interior_sprite.height"
+                  :src="getSpriteUrl(item.exterior_sprite)"
+                  :width="item.exterior_sprite.width"
+                  :height="item.exterior_sprite.height"
                   contain
                 ></v-img>
               </v-card>
@@ -293,6 +298,11 @@ export default {
           this.ships.map((ship) => (!ship.ship_type ? "None" : ship.ship_type))
         )
       ).sort((a) => (a === "None" ? -1 : 1));
+    },
+
+    openShipInBuilder(shipId) {
+      let path = '/builder?ship=' + shipId
+      this.$router.push({ path: path })
     },
   },
 };
