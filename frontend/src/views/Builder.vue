@@ -130,8 +130,18 @@
           <template v-for="c in selectedShip.columns" >
             <rect 
               :key="'grid-' + r + '-' + c"
-              v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] > '0'" :x="25 * c - 25" :y="25 * r - 25"
+              v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '1'" :x="25 * c - 25" :y="25 * r - 25"
               width="25" height="25" stroke="#fff" fill="#0004">
+            </rect>
+          </template>
+        </template>
+
+        <template v-for="r in selectedShip.rows" >
+          <template v-for="c in selectedShip.columns" >
+            <rect 
+              :key="'grid-' + r + '-' + c"
+              v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '2'" :x="25 * c - 25" :y="25 * r - 25"
+              width="25" height="25" stroke="#ff8000" fill="#0004">
             </rect>
           </template>
         </template>

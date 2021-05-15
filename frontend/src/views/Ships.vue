@@ -148,12 +148,36 @@
                   </div>
                 </v-card-subtitle>
 
-                <v-img class="ship-sprite"
-                  :src="getSpriteUrl(item.interior_sprite)"
-                  :width="item.interior_sprite.width"
-                  :height="item.interior_sprite.height"
-                  contain
-                ></v-img>
+                <svg class="mb-5" :height="item.interior_sprite.height" :width="item.interior_sprite.width">
+                  <!-- Ship interior -->
+                  <image 
+                    :xlink:href="getSpriteUrl(item.interior_sprite)" 
+                    x="0" y="0" 
+                    :height="item.interior_sprite.height" 
+                    :width="item.interior_sprite.width" 
+                  />
+
+                  <!-- Ship Grid -->
+                  <template v-for="r in item.rows" >
+                    <template v-for="c in item.columns" >
+                      <rect 
+                        :key="'grid-' + r + '-' + c"
+                        v-if="item.mask[item.columns * (r-1) + (c-1)] === '1'" :x="25 * c - 25" :y="25 * r - 25"
+                        width="25" height="25" stroke="#fff" fill="#0004">
+                      </rect>
+                    </template>
+                  </template>
+
+                  <template v-for="r in item.rows" >
+                    <template v-for="c in item.columns" >
+                      <rect 
+                        :key="'grid-' + r + '-' + c"
+                        v-if="item.mask[item.columns * (r-1) + (c-1)] === '2'" :x="25 * c - 25" :y="25 * r - 25"
+                        width="25" height="25" stroke="#ff8000" fill="#0004">
+                      </rect>
+                    </template>
+                  </template>
+                </svg>
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
