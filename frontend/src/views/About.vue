@@ -8,7 +8,7 @@
       <v-card-text>
         <p class="font-weight-bold">A special thanks to all of the <a href="https://www.okpal.com/pixyship/#/" target="_blank">crowfunding campaign</a> crontributors, and especially to:</p>
         <p>Admiral Col, Albathoor, Alisrassa, Baradum, GudegLezat, Human Fly, Jean, JustcallmeDr, Maccinae, Matthew-II, Muinmacar, Phinie, Ruthless Rhino, Sahara Fleet, Scorpio99, ShadowfireAngel, Solphaen, Spaceman Spiff, The Flying Brick, The worst. and YankeeDood</p>
-        <div class="mt-5" @click="buyMeACoffee" style="cursor: pointer; width: 275px;">
+        <div class="mt-5" @click="buyMeACoffee" style="cursor: pointer; width: 300px;">
           <v-img
             :src="require('../assets/img/Solevis.png')"
             max-height="78"
@@ -20,7 +20,7 @@
           <p class="ml-2 font-weight-bold d-inline-block" style="vertical-align: middle">
             You like PixyShip?
             <br>
-            <a href="https://www.buymeacoffee.com/solevis">Buy my captain some coffee</a> <v-icon>mdi-coffee</v-icon>
+            <a href="https://www.buymeacoffee.com/solevis">Why not buy my captain a coffee?</a> <v-icon>mdi-coffee</v-icon>
             <br>
             
           </p>
