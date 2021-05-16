@@ -13,7 +13,7 @@
             label="Name"
             hint='For example: "Argent", Cat'
             clearable
-            dense
+            outlined
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="3">
@@ -25,7 +25,7 @@
             multiple
             small-chips
             hide-details
-            dense
+            outlined
           ></v-combobox>
         </v-col>
       </v-row>
@@ -47,7 +47,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      dense
     >
       <template v-slot:item="{ item }">
         <tr>

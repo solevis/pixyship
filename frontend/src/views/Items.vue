@@ -8,7 +8,7 @@
       <v-row>
         <v-col cols="12" sm="12" md="4">
           <v-text-field
-            dense
+            outlined
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
@@ -18,7 +18,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
-            dense
+            outlined
             v-model="searchRarity"
             :items="rarities"
             label="Rarity"
@@ -30,7 +30,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
-            dense
+            outlined
             v-model="searchType"
             :items="types"
             label="Type"
@@ -42,7 +42,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
-            dense
+            outlined
             v-model="searchSlot"
             :items="slots"
             label="Subtype"
@@ -54,7 +54,7 @@
         </v-col>
         <v-col cols="12" sm="3" md="2">
           <v-combobox
-            dense
+            outlined
             v-model="searchStat"
             :items="stats"
             label="Bonus"
@@ -85,7 +85,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      dense
       @item-expanded="rowExpanded"
     >
       <template v-slot:item="{ item, expand, isExpanded }">

@@ -13,7 +13,7 @@
     <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
       <v-row justify="center">
         <v-col>
-          <v-simple-table v-if="loaded" dense class="px-3">
+          <v-simple-table v-if="loaded" class="px-3">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -43,7 +43,6 @@
                       type="number"
                       min="1"
                       max="40"
-                      dense
                       single-line
                       :value="level"
                       style="max-width: 50px"

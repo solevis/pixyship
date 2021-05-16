@@ -15,6 +15,7 @@
           @input="selectShip()"
           item-text="name"
           return-object
+          outlined
         >
           <template slot-scope="s" slot="item">
             <div
@@ -43,6 +44,7 @@
             placeholder="Type to search"
             item-text="name"
             return-object
+            outlined
           >
           </v-autocomplete>
         </v-col>
@@ -55,6 +57,7 @@
             placeholder="Type to search rooms"
             item-text="name"
             return-object
+            outlined
           >
             <template slot-scope="r" slot="item">
               <div

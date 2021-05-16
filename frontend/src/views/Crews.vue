@@ -8,32 +8,32 @@
       <v-row>
         <v-col cols="12" sm="4" md="1">
           <v-text-field
-            dense
             v-model="level"
             type="number"
             label="Level"
             min="1"
             max="40"
             :value="level"
+            outlined
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="8" md="3">
           <v-text-field
-            dense
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
             hint='For example: "Zombie", Eva'
             clearable
+            outlined
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
-            dense
             v-model="searchEquipment"
             :items="equipments"
             label="Equip"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -41,11 +41,11 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
-            dense
             v-model="searchRarity"
             :items="rarities"
             label="Rarity"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -53,11 +53,11 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
-            dense
             v-model="searchSpecial"
             :items="abilities"
             label="Special"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -65,11 +65,11 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-combobox
-            dense
             v-model="searchCollection"
             :items="collections"
             label="Collection"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -94,7 +94,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      dense
     >
       <template v-slot:item="{ item }">
         <tr>

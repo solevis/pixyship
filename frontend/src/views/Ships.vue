@@ -13,6 +13,7 @@
             label='Name'
             hint='For example: "Starship", Cluck'
             clearable
+            outlined
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="2">
@@ -21,6 +22,7 @@
             :items="levels"
             label="Level"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -32,6 +34,7 @@
             :items="types"
             label="Type"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -57,7 +60,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      dense
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
@@ -133,7 +135,7 @@
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length" align="center" >
           <v-card>
-            <v-row class="pa-2">
+            <v-row class="ma-2">
               <v-col cols="12" sm="6">
                 <v-card
                     elevation="3"

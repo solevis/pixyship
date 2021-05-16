@@ -12,7 +12,7 @@
             append-icon="mdi-magnify"
             label='Name'
             clearable
-            dense
+            outlined
           ></v-text-field>
         </v-col>
 
@@ -31,12 +31,11 @@
               <v-text-field
                 v-model="searchDate"
                 label="Until"
-                prepend-icon="mdi-calendar"
                 readonly
                 v-bind="attrs"
                 v-on="on"
                 clearable
-                dense
+                outlined
               ></v-text-field>
             </template>
             <v-date-picker
@@ -68,7 +67,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      dense
       :items-per-page="itemsPerPage"
     >
       <template v-slot:item="{ item }">

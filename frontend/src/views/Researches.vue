@@ -13,6 +13,7 @@
             label='Name'
             hint='For example: "Beer", Missile'
             clearable
+            outlined
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="3">
@@ -21,6 +22,7 @@
             :items="types"
             label="Type"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -32,6 +34,7 @@
             :items="labLevels"
             label="Lab Level"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -57,7 +60,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      dense
     >
       <template v-slot:item="{ item }">
         <tr>

@@ -13,6 +13,7 @@
             label='Name'
             hint='For example: "Lift Lv2", Vent'
             clearable
+            outlined
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="2">
@@ -21,6 +22,7 @@
             :items="levels"
             label="Level"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -32,6 +34,7 @@
             :items="shipLevels"
             label="Min Ship Level"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -43,6 +46,7 @@
             :items="sizes"
             label="Size"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
@@ -54,6 +58,7 @@
             :items="types"
             label="Type"
             clearable
+            outlined
             multiple
             small-chips
             hide-details
