@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading">
     <v-card-title class="overline">> Players </v-card-title>
-    <v-card-subtitle>Search top players and see their layout</v-card-subtitle>
+    <v-card-subtitle>Search top players and see their layout (click the gear icon for options)</v-card-subtitle>
 
     <v-toolbar v-if="loaded" flat color="#1E1E1E">
       <v-autocomplete
@@ -14,8 +14,7 @@
         item-value="name"
         hide-no-data
         hide-details
-        filled
-        rounded
+        outlined
         class="mt-2"
       >
       
