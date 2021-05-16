@@ -309,7 +309,6 @@ export default {
   data() {
     return {
       menu: false,
-      tableHeight: 0,
       searchPlayer: "",
       searchText: "",
       showUpgrades: true,
@@ -348,15 +347,7 @@ export default {
     this.getPlayers();
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 230
-    },
-
     getPlayers: _.debounce(async function () {
       const response = await axios.get(
         this.playersEndpoint,

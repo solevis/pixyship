@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading" v-resize="onResize">
+  <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -47,8 +47,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      fixed-header
-      :height="tableHeight"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -92,44 +90,48 @@ export default {
 
   data() {
     return {
-      tableHeight: 0,
       searchName: "",
       searchSkill: [],
       skills: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
-        { text: "Name", align: "left", value: "name" },
+        { text: "Image", align: "center", class: 'sticky-header', sortable: false, filterable: false },
+        { text: "Name", align: "left", class: 'sticky-header', value: "name" },
         {
           text: "Skill",
           align: "left",
+          class: 'sticky-header',
           value: "ability_name",
           filter: (value) => {
             return this.filterCombobox(value, this.searchSkill);
           },
         },
-        { text: "Chars", align: "left", sortable: false, filterable: false },
+        { text: "Chars", align: "left", class: 'sticky-header', sortable: false, filterable: false },
         {
           text: "Required (Min - Max)",
           align: "center",
+          class: 'sticky-header',
           value: "min",
           filterable: false,
         },
         {
           text: "Base Bonus",
           align: "right",
+          class: 'sticky-header',
           value: "base_enhancement",
           filterable: false,
         },
         {
           text: "Step Bonus",
           align: "right",
+          class: 'sticky-header',
           value: "step_enhancement",
           filterable: false,
         },
         {
           text: "Description",
           align: "left",
+          class: 'sticky-header',
           value: "CollectionDescription",
           filterable: false,
         },
@@ -151,16 +153,8 @@ export default {
   beforeMount: function () {
     this.getCollections();
   },
-
-  mounted () {
-    this.onResize()
-  },
-
+  
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 230
-    },
-
     getCollections: async function () {
       const response = await axios.get(this.collectionsEndpoint);
 
@@ -186,6 +180,7 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
+<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .center {
   margin: 0 auto;

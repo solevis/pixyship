@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading" v-resize="onResize">
+  <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -79,8 +79,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      fixed-header
-      :height="tableHeight"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
@@ -345,7 +343,7 @@
 <script>
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
-import "../assets/css/override.css";
+import "@/assets/css/override.css";
 
 export default {
   mixins: [mixins],
@@ -354,7 +352,6 @@ export default {
 
   data() {
     return {
-      tableHeight: 0,
       searchName: "",
       searchLevel: [],
       searchShipLevel: [],
@@ -366,12 +363,13 @@ export default {
       sizes: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
-        { text: "Name", align: "left", value: "name", width: 200 },
-        { text: "Short", align: "left", value: "short_name" },
+        { text: "Image", align: "center", class: 'sticky-header', sortable: false, filterable: false },
+        { text: "Name", align: "left", class: 'sticky-header', value: "name", width: 200 },
+        { text: "Short", align: "left", class: 'sticky-header', value: "short_name" },
         {
           text: "Type",
           align: "left",
+          class: 'sticky-header',
           value: "type",
           filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchType);
@@ -380,6 +378,7 @@ export default {
         {
           text: "Size",
           align: "center",
+          class: 'sticky-header',
           sortable: false,
           filter: (value, search, item) => {
             value = `${item.width}x${item.height}`;
@@ -389,6 +388,7 @@ export default {
         {
           text: "Level",
           align: "center",
+          class: 'sticky-header',
           value: "level",
           filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchLevel);
@@ -397,21 +397,24 @@ export default {
         {
           text: "Min Ship Level",
           align: "center",
+          class: 'sticky-header',
           value: "min_ship_level",
           filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchShipLevel);
           },
         },
-        { text: "Power", align: "center", sortable: false, filterable: false },
+        { text: "Power", align: "center", class: 'sticky-header', sortable: false, filterable: false },
         {
           text: "Cost",
           align: "center",
+          class: 'sticky-header',
           value: "upgrade_cost",
           filterable: false,
         },
         {
           text: "Time",
           align: "center",
+          class: 'sticky-header',
           value: "upgrade_seconds",
           width: 150,
           filterable: false,
@@ -419,6 +422,7 @@ export default {
         {
           text: "Description",
           align: "center",
+          class: 'sticky-header',
           value: "description",
           filterable: false,
           sortable: false,
@@ -442,15 +446,7 @@ export default {
     this.getRooms();
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 250
-    },
-
     computeDps(damage, room) {
       let volley = room.volley
       if (volley == 0) {
@@ -528,6 +524,7 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
+<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .rarity {
   text-transform: capitalize;

@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading" v-resize="onResize">
+  <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -94,8 +94,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      fixed-header
-      :height="tableHeight"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -203,7 +201,7 @@
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
 import Crew from "@/components/Crew.vue";
-import "../assets/css/override.css";
+import "@/assets/css/override.css";
 
 export default {
   mixins: [mixins],
@@ -214,7 +212,6 @@ export default {
 
   data() {
     return {
-      tableHeight: 0,
       searchName: "",
       searchSpecial: [],
       searchRarity: [],
@@ -230,16 +227,19 @@ export default {
           text: "Order by ID", 
           align: "start",
           value: "id", 
+          class: 'sticky-header',
           filterable: false 
         },
         { 
           text: "Name", 
           align: "start",
+          class: 'sticky-header',
           value: "name",
         },
         {
           text: "Equip",
           align: "start",
+          class: 'sticky-header',
           value: "equipment",
           filter: value => { 
             return this.filterCombobox(Object.keys(value).toString(), this.searchEquipment, true)
@@ -248,6 +248,7 @@ export default {
         { 
           text: "Rarity", 
           align: "start",
+          class: 'sticky-header',
           value: "rarity", 
           filter: value => { 
             return this.filterCombobox(value, this.searchRarity)
@@ -256,6 +257,7 @@ export default {
         { 
           text: "Special", 
           align: "start",
+          class: 'sticky-header',
           value: "special_ability", 
           filter: value => { 
             return this.filterCombobox(value, this.searchSpecial)
@@ -264,6 +266,7 @@ export default {
         { 
           text: "Set", 
           align: "start",
+          class: 'sticky-header',
           value: "collection_name", 
           filter: value => { 
             return this.filterCombobox(value, this.searchCollection)
@@ -272,66 +275,77 @@ export default {
         { 
           text: "HP", 
           align: "start",
+          class: 'sticky-header',
           value: "hp[2]", 
           filterable: false 
         },
         {
           text: "ATK",
           align: "start",
+          class: 'sticky-header',
           value: "attack[2]",
           filterable: false,
         },
         {
           text: "RPR",
           align: "start",
+          class: 'sticky-header',
           value: "repair[2]",
           filterable: false,
         },
         {
           text: "ABL",
           align: "start",
+          class: 'sticky-header',
           value: "ability[2]",
           filterable: false,
         },
         {
           text: "PLT",
           align: "start",
+          class: 'sticky-header',
           value: "pilot[2]",
           filterable: false,
         },
         {
           text: "SCI",
           align: "start",
+          class: 'sticky-header',
           value: "science[2]",
           filterable: false,
         },
         {
           text: "ENG",
           align: "start",
+          class: 'sticky-header',
           value: "engine[2]",
           filterable: false,
         },
         {
           text: "WPN",
           align: "start",
+          class: 'sticky-header',
           value: "weapon[2]",
           filterable: false,
         },
         {
           text: "Fire",
           align: "start",
+          class: 'sticky-header',
           value: "fire_resist",
           filterable: false,
         },
         {
           text: "Training",
           align: "start",
+          class: 'sticky-header',
           value: "training_limit",
           filterable: false,
         },
         { 
           text: "Speed", 
           align: "start",
+          class: 'sticky-header',
           value: "run", 
           filterable: false 
         },
@@ -355,10 +369,6 @@ export default {
     this.getCrews();
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   watch: {
     level() {
       this.updateCurrentLevel();
@@ -374,10 +384,6 @@ export default {
   },
 
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 230
-    },
-
     getCrews: async function () {
       const response = await axios.get(this.crewEndpoint);
 
@@ -436,6 +442,7 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
+<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .rarity {
   text-transform: capitalize;

@@ -346,7 +346,7 @@ import Vue from 'vue'
 import axios from 'axios'
 import mixins from "@/mixins/PixyShip.vue.js";
 import VueClipboard from 'vue-clipboard2'
-import "../assets/css/override.css";
+import "@/assets/css/override.css";
 
 require('../js/DragDropTouch')
 

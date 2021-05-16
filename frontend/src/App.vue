@@ -1,7 +1,7 @@
 <template>
   <v-app>
 
-    <v-app-bar app >
+    <v-app-bar app ref="toolbar">
       <v-app-bar-nav-icon v-if="$vuetify.breakpoint.smAndDown" aria-label="Menu" @click="drawer = true"></v-app-bar-nav-icon>
 
       <v-toolbar-title v-if="$vuetify.breakpoint.smAndDown || $vuetify.breakpoint.lgAndUp">
@@ -84,6 +84,23 @@
 
 <script>
 export default {
+  mounted () {
+    this.onMutate()
+  },
+
+  methods: {
+    onMutate () {
+      let height = 0
+      const toolbar = this.$refs.toolbar
+      
+      if (toolbar) {
+        height = `${toolbar.$el.offsetHeight}px`
+      }
+
+      document.documentElement.style.setProperty('--headerHeight', height)
+    }
+  },
+
   name: "App",
   data: () => ({
     drawer: false,

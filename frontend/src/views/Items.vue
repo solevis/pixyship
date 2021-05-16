@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading" v-resize="onResize">
+  <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -85,8 +85,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      fixed-header
-      :height="tableHeight"
       @item-expanded="rowExpanded"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
@@ -237,7 +235,6 @@ export default {
 
   data() {
     return {
-      tableHeight: 0,
       searchName: "",
       searchRarity: [],
       searchSlot: [],
@@ -248,11 +245,12 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
-        { text: "Name", align: "center", value: "name", filterable: true },
+        { text: "Image", align: "center", class: 'sticky-header', sortable: false, filterable: false },
+        { text: "Name", align: "center", class: 'sticky-header', value: "name", filterable: true },
         {
           text: "Rarity",
           align: "center",
+          class: 'sticky-header',
           value: "rarity",
           filter: (value) => {
             return this.filterCombobox(value, this.searchRarity);
@@ -261,12 +259,14 @@ export default {
         {
           text: "Savy $",
           align: "center",
+          class: 'sticky-header',
           value: "market_price",
           filterable: false,
         },
         {
           text: "Market $ (48h) | # | 25 - 50 - 75%",
           align: "center",
+          class: 'sticky-header',
           value: "offers",
           filterable: false,
           width: 210,
@@ -274,6 +274,7 @@ export default {
         {
           text: "Type",
           align: "center",
+          class: 'sticky-header',
           value: "type",
           sortable: false,
           filter: (value) => {
@@ -283,6 +284,7 @@ export default {
         {
           text: "Subtype",
           align: "center",
+          class: 'sticky-header',
           value: "slot",
           sortable: false,
           filter: (value) => {
@@ -292,6 +294,7 @@ export default {
         {
           text: "Bonus",
           align: "center",
+          class: 'sticky-header',
           value: "bonus",
           filter: (value, search, item) => {
             return this.filterCombobox(item.enhancement, this.searchStat);
@@ -300,12 +303,14 @@ export default {
         {
           text: "Recipie",
           align: "center",
+          class: 'sticky-header',
           sortable: false,
           filterable: false,
         },
         {
           text: "Description",
           align: "center",
+          class: 'sticky-header',
           value: "description",
           filterable: false,
           sortable: false,
@@ -334,15 +339,7 @@ export default {
     this.getItems();
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 230
-    },
-
     getItems: async function () {
       const response = await axios.get(this.itemsEndpoint);
 
@@ -614,6 +611,7 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
+<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .rarity {
   text-transform: capitalize;

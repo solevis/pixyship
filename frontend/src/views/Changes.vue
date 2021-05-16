@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading" v-resize="onResize">
+  <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -68,8 +68,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      fixed-header
-      :height="tableHeight"
       :items-per-page="itemsPerPage"
     >
       <template v-slot:item="{ item }">
@@ -122,6 +120,7 @@ import axios from "axios";
 import moment from 'moment';
 import mixins from "@/mixins/PixyShip.vue.js";
 import Crew from "@/components/Crew.vue";
+import "@/assets/css/override.css";
 
 const convert = require('xml-js')
 
@@ -135,7 +134,6 @@ export default {
   data() {
     return {
       itemsPerPage: 20,
-      tableHeight: 0,
       searchName: "",
       searchDate: new Date().toISOString().substr(0, 10),
       menu: false,
@@ -145,9 +143,9 @@ export default {
       labLevers: [],
       loaded: false,
       headers: [
-        {text: 'Image', align: 'left', sortable: false, filterable: false},
-        {text: 'Name', value: 'name', align: 'left'},
-        {text: 'Date', value: 'moment', align: 'left', filter: value => { 
+        {text: 'Image', align: 'left', class: 'sticky-header',sortable: false, filterable: false},
+        {text: 'Name', value: 'name', align: 'left', class: 'sticky-header'},
+        {text: 'Date', value: 'moment', align: 'left', class: 'sticky-header', filter: value => { 
             if (this.searchDate) {
               return value <= this.searchDate
             }
@@ -155,7 +153,7 @@ export default {
             return true
           }
         },
-        {text: 'Change', value: 'change_type', align: 'center', filterable: false}
+        {text: 'Change', value: 'change_type', align: 'center', class: 'sticky-header', filterable: false}
       ],
       changes: [],
     };
@@ -175,15 +173,7 @@ export default {
     this.getChanges();
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 265
-    },
-
     getChanges: async function () {
       const response = await axios.get(this.changesEndpoint);
 
@@ -207,6 +197,7 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
+<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .name {
   font-weight: bold;

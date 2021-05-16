@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading" v-resize="onResize">
+  <v-card :loading="isLoading">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <!-- Filters -->
@@ -57,8 +57,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      fixed-header
-      :height="tableHeight"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
@@ -220,7 +218,7 @@
 <script>
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
-import "../assets/css/override.css";
+import "@/assets/css/override.css";
 
 export default {
   mixins: [mixins],
@@ -229,7 +227,6 @@ export default {
 
   data() {
     return {
-      tableHeight: 0,
       searchName: "",
       searchLevel: [],
       searchType: [],
@@ -237,23 +234,23 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
-        { text: "Name", align: "center", value: "name", filterable: true },
-        { text: "Level", align: "right", value: "level", filter: (value) => {
+        { text: "Image", align: "center", class: 'sticky-header', sortable: false, filterable: false },
+        { text: "Name", align: "center", class: 'sticky-header', value: "name", filterable: true },
+        { text: "Level", align: "right", class: 'sticky-header', value: "level", filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchLevel);
           },
         },
-        { text: "Space", align: "right", value: "space", filterable: false },
-        { text: "T1", align: "right", value: "spaceT1", filterable: false },
-        { text: "T2", align: "right", value: "spaceT2", filterable: false },
-        { text: "Health", align: "right", value: "hp", filterable: false },
-        { text: "Secs/Repair", align: "right", value: "repair_time", filterable: false },
-        { text: "Cost", align: "center", value: "starbux_cost", filterable: false },
-        { text: "Capacity", align: "center", value: "defense", filterable: false },
-        { text: "Type", align: "left", value: "ship_type", filter: (value) => {
+        { text: "Space", align: "right", class: 'sticky-header', value: "space", filterable: false },
+        { text: "T1", align: "right", class: 'sticky-header', value: "spaceT1", filterable: false },
+        { text: "T2", align: "right", class: 'sticky-header', value: "spaceT2", filterable: false },
+        { text: "Health", align: "right", class: 'sticky-header', value: "hp", filterable: false },
+        { text: "Secs/Repair", align: "right", class: 'sticky-header', value: "repair_time", filterable: false },
+        { text: "Cost", align: "center", class: 'sticky-header', value: "starbux_cost", filterable: false },
+        { text: "Capacity", align: "center", class: 'sticky-header', value: "defense", filterable: false },
+        { text: "Type", align: "left", class: 'sticky-header', value: "ship_type", filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchType);
           }, },
-        { text: "Description", align: "left", value: "description", filterable: false },
+        { text: "Description", align: "left", class: 'sticky-header', value: "description", filterable: false },
       ],
       rooms: [],
     };
@@ -273,15 +270,7 @@ export default {
     this.getShips()
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 250
-    },
-
     getShips: async function () {
       const response = await axios.get(this.shipsEndpoint);
 
@@ -333,6 +322,7 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
+<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .rarity {
   text-transform: capitalize;

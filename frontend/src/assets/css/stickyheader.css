@@ -1,0 +1,9 @@
+.v-data-table /deep/ .sticky-header {
+  background-color: #1e1e1e;
+  position: sticky;
+  top: var(--headerHeight);
+}
+
+.v-data-table /deep/ .v-data-table__wrapper {
+  overflow: unset;
+}

@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading" v-resize="onResize">
+  <v-card :loading="isLoading">
 
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
@@ -58,8 +58,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      fixed-header
-      :height="tableHeight"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -107,7 +105,6 @@ export default {
 
   data() {
     return {
-      tableHeight: 0,
       searchName: "",
       searchType: [],
       searchLabLevel: [],
@@ -115,25 +112,27 @@ export default {
       labLevers: [],
       loaded: false,
       headers: [
-        {text: 'Image', sortable: false},
-        {text: 'Name', value: 'name'},
+        {text: 'Image', class: 'sticky-header', sortable: false},
+        {text: 'Name', class: 'sticky-header', value: 'name'},
         {
           text: 'Lab Level', 
           value: 'lab_level', 
+          class: 'sticky-header',
           filter: (value) => {
             return this.filterCombobox(value, this.searchLabLevel);
           },
         },
-        {text: 'Requirement', value: 'required_research_name'},
+        {text: 'Requirement', class: 'sticky-header', value: 'required_research_name'},
         {
           text: 'Type', 
+          class: 'sticky-header',
           value: 'research_type',
           filter: (value) => {
             return this.filterCombobox(value, this.searchType);
           },
         },
-        {text: 'Cost', value: 'cost'},
-        {text: 'Upgrade Time', value: 'research_seconds'}
+        {text: 'Cost', class: 'sticky-header', value: 'cost'},
+        {text: 'Upgrade Time', class: 'sticky-header', value: 'research_seconds'}
       ],
       researches: [],
     };
@@ -153,15 +152,7 @@ export default {
     this.getResearches();
   },
 
-  mounted () {
-    this.onResize()
-  },
-
   methods: {
-    onResize() {
-      this.tableHeight = window.innerHeight - 250
-    },
-
     getResearches: async function () {
       const response = await axios.get(this.researchesEndpoint);
 
@@ -193,6 +184,7 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
+<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .name {
   font-weight: bold;
