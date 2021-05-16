@@ -1,6 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Ships </v-card-title>
+    <v-card-subtitle>All Pixel Starships ships infos and sprites (click on a row to see interior and exterior)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -130,85 +131,94 @@
       </template>
 
       <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" align="center" class="pa-2">
-          <v-row>
-            <v-col cols="12">
-              <v-card
-                  elevation="3"
-                  class="px-6 pb-6 pt-2"
-                  outlined
-                  shaped
-                >
+        <td :colspan="headers.length" align="center" >
+          <v-card>
+            <v-row class="pa-2">
+              <v-col cols="12" sm="6">
+                <v-card
+                    elevation="3"
+                    outlined
+                    shaped
+                  >
 
-                <v-card-subtitle>
-                  <div class="overline">
-                    INTERIOR
-                  </div>
-                </v-card-subtitle>
+                  <v-card-subtitle>
+                    <div class="overline">
+                      INTERIOR
+                    </div>
+                  </v-card-subtitle>
 
-                <svg class="mb-5" :height="item.interior_sprite.height" :width="item.interior_sprite.width">
-                  <!-- Ship interior -->
-                  <image 
-                    :xlink:href="getSpriteUrl(item.interior_sprite)" 
-                    x="0" y="0" 
-                    :height="item.interior_sprite.height" 
-                    :width="item.interior_sprite.width" 
-                  />
+                  <svg class="mb-5" :height="item.interior_sprite.height * getShipScalingRatio(item)" :width="item.interior_sprite.width * getShipScalingRatio(item) ">
+                    <!-- Ship interior -->
+                    <image 
+                      :xlink:href="getSpriteUrl(item.interior_sprite)" 
+                      x="0" y="0" 
+                      :height="item.interior_sprite.height * getShipScalingRatio(item)" 
+                      :width="item.interior_sprite.width * getShipScalingRatio(item)" 
+                    />
 
-                  <!-- Ship Grid -->
-                  <template v-for="r in item.rows" >
-                    <template v-for="c in item.columns" >
-                      <rect 
-                        :key="'grid-' + r + '-' + c"
-                        v-if="item.mask[item.columns * (r-1) + (c-1)] === '1'" :x="25 * c - 25" :y="25 * r - 25"
-                        width="25" height="25" stroke="#fff" fill="#0004">
-                      </rect>
+                    <!-- Ship Grid -->
+                    <template v-for="r in item.rows" >
+                      <template v-for="c in item.columns" >
+                        <rect 
+                          :key="'grid-' + r + '-' + c"
+                          v-if="item.mask[item.columns * (r-1) + (c-1)] === '1'" 
+                          :x="(25 * getShipScalingRatio(item)) * c - (25 * getShipScalingRatio(item))" 
+                          :y="(25 * getShipScalingRatio(item)) * r - (25 * getShipScalingRatio(item))"
+                          :width="25 * getShipScalingRatio(item)" 
+                          :height="25 * getShipScalingRatio(item)" 
+                          stroke="#fff" fill="#0004">
+                        </rect>
+                      </template>
                     </template>
-                  </template>
 
-                  <template v-for="r in item.rows" >
-                    <template v-for="c in item.columns" >
-                      <rect 
-                        :key="'grid-' + r + '-' + c"
-                        v-if="item.mask[item.columns * (r-1) + (c-1)] === '2'" :x="25 * c - 25" :y="25 * r - 25"
-                        width="25" height="25" stroke="#ff8000" fill="#0004">
-                      </rect>
+                    <template v-for="r in item.rows" >
+                      <template v-for="c in item.columns" >
+                        <rect 
+                          :key="'grid-' + r + '-' + c"
+                          v-if="item.mask[item.columns * (r-1) + (c-1)] === '2'" 
+                          :x="(25 * getShipScalingRatio(item)) * c - (25 * getShipScalingRatio(item))" 
+                          :y="(25 * getShipScalingRatio(item)) * r - (25 * getShipScalingRatio(item))"
+                          :width="25 * getShipScalingRatio(item)" 
+                          :height="25 * getShipScalingRatio(item)" 
+                          stroke="#ff8000" fill="#0004">
+                        </rect>
+                      </template>
                     </template>
-                  </template>
-                </svg>
+                  </svg>
+                </v-card>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-card
+                    elevation="3"
+                    outlined
+                    shaped
+                  >
 
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn text @click="openShipInBuilder(item.id)">Open in Builder</v-btn>
-                  <v-spacer></v-spacer>
-                </v-card-actions>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-card
-                  elevation="3"
-                  class="px-6 pb-6 pt-2"
-                  outlined
-                  shaped
-                >
+                  <v-card-subtitle>
+                    <div class="overline">
+                      EXTERIOR
+                    </div>
+                  </v-card-subtitle>
 
-                <v-card-subtitle>
-                  <div class="overline">
-                    EXTERIOR
-                  </div>
-                </v-card-subtitle>
+                  <svg class="mb-5" :height="item.exterior_sprite.height * getShipScalingRatio(item)" :width="item.exterior_sprite.width * getShipScalingRatio(item) ">
+                    <!-- Ship interior -->
+                    <image 
+                      :xlink:href="getSpriteUrl(item.exterior_sprite)" 
+                      x="0" y="0" 
+                      :height="item.exterior_sprite.height * getShipScalingRatio(item)" 
+                      :width="item.exterior_sprite.width * getShipScalingRatio(item)" 
+                    />
+                  </svg>
+                </v-card>
+              </v-col>
+            </v-row>
 
-                <v-img class="ship-sprite"
-                  :src="getSpriteUrl(item.exterior_sprite)"
-                  :width="item.exterior_sprite.width"
-                  :height="item.exterior_sprite.height"
-                  contain
-                ></v-img>
-              </v-card>
-            </v-col>
-          </v-row>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="openShipInBuilder(item.id)">Open in Builder</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
         </td>
       </template>
     </v-data-table>
@@ -234,7 +244,7 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", class: 'sticky-header', sortable: false, filterable: false },
+        { text: "", align: "center", class: 'sticky-header', sortable: false, filterable: false },
         { text: "Name", align: "center", class: 'sticky-header', value: "name", filterable: true },
         { text: "Level", align: "right", class: 'sticky-header', value: "level", filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchLevel);
@@ -316,6 +326,12 @@ export default {
     openShipInBuilder(shipId) {
       let path = '/builder?ship=' + shipId
       this.$router.push({ path: path })
+    },
+
+    getShipScalingRatio(ship) {
+      let scale = (window.innerWidth / 2.5) / Math.max(ship.interior_sprite.width,ship.interior_sprite.height)
+      scale = scale > 1 ? 1 : scale
+      return scale
     },
   },
 };
