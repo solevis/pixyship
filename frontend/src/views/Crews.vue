@@ -1,6 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Crews </v-card-title>
+    <v-card-subtitle>All Pixel Starships crews (click on crew name to see prestiges infos)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">

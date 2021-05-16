@@ -1,6 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Rooms </v-card-title>
+    <v-card-subtitle>All Pixel Starships rooms (click on a row to display more infos)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">

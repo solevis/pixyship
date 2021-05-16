@@ -1,6 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Items </v-card-title>
+    <v-card-subtitle>All Pixel Starships items and market history (click on a row to display more market data)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">

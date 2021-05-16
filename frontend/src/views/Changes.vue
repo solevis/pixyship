@@ -1,6 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Changes </v-card-title>
+    <v-card-subtitle>API changes for common assets of Pixel Starships</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">

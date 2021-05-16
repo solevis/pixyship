@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Researches </v-card-title>
+    <v-card-subtitle>All Pixel Starships researches</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">

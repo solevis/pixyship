@@ -1,6 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Builder </v-card-title>
+    <v-card-subtitle>Build your ship directly from PixyShip</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">

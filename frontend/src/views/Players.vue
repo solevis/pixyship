@@ -1,6 +1,7 @@
 <template>
   <v-card :loading="isLoading">
-    <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
+    <v-card-title class="overline">> Players </v-card-title>
+    <v-card-subtitle>Search top players and see their layout</v-card-subtitle>
 
     <v-toolbar v-if="loaded" flat color="#1E1E1E">
       <v-autocomplete
