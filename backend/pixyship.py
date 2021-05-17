@@ -1451,14 +1451,22 @@ class Pixyship(metaclass=Singleton):
         tournament_left_days, tournament_left_hours = divmod(tournament_left_hours, 24)
         tournament_left_weeks, tournament_left_days = divmod(tournament_left_days, 7)
 
-        tournament_left_formatted = '{}w {}d {}h {}m {}s '.format(
-            tournament_left_weeks, tournament_left_days, tournament_left_hours,
-            tournament_left_minutes, tournament_left_seconds
-        )
+        tournament_left_formatted = ''
+        if tournament_left_weeks > 0:
+            tournament_left_formatted += '{}w'.format(tournament_left_weeks)
+
+        if tournament_left_days > 0:
+            tournament_left_formatted += ' {}d'.format(tournament_left_days)
+
+        if tournament_left_hours > 0:
+            tournament_left_formatted += ' {}h'.format(tournament_left_hours)
+
+        if tournament_left_minutes > 0:
+            tournament_left_formatted += ' {}m'.format(tournament_left_minutes)
 
         infos = {
             'start': tournament_start,
-            'left': tournament_left_formatted
+            'left': tournament_left_formatted.strip()
         }
 
         return infos
