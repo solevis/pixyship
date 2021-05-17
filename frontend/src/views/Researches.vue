@@ -11,7 +11,7 @@
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
-            hint='For example: "Beer", Missile'
+            hint='For example: Missile, -Jungler, "Beer"'
             clearable
             outlined
           ></v-text-field>

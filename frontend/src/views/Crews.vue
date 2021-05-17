@@ -22,7 +22,7 @@
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
-            hint='For example: "Zombie", Eva'
+            hint='For example: "Zombie", Alien, -Pony'
             clearable
             outlined
           ></v-text-field>

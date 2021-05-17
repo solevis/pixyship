@@ -11,7 +11,7 @@
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
-            hint='For example: "Lift Lv2", Vent'
+            hint='For example: Bedroom, -Destroyed, SPL'
             clearable
             outlined
           ></v-text-field>

@@ -11,7 +11,7 @@
             v-model="searchName"
             append-icon="mdi-magnify"
             label="Name"
-            hint='For example: "Argent", Cat'
+            hint='For example: "Ardent", Cat'
             clearable
             outlined
           ></v-text-field>
