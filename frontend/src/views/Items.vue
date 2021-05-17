@@ -12,7 +12,7 @@
             v-model="searchName"
             append-icon="mdi-magnify"
             label='Name'
-            hint='For example: "Sandbag", Barrier, -Energy, -Zaki'
+            hint='For example: "Sandbag", Barrier, -Energy'
             clearable
           ></v-text-field>
         </v-col>
