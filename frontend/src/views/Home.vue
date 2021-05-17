@@ -95,7 +95,8 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" sm="6" md="3">
+      <!-- Changes on large screen -->
+      <v-col md="3" v-if="$vuetify.breakpoint.mdAndUp">
         <v-card outlined class="offers" :loading="isChangesLoading">
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
@@ -240,7 +241,30 @@
         </v-card>
       </v-col>
 
-      
+      <!-- Changes on small screen to the bottom -->
+      <v-col cols="12" sm="6" v-if="$vuetify.breakpoint.smAndDown">
+        <v-card outlined class="offers" :loading="isChangesLoading">
+          <v-card-title class="overline mb-2"
+            ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
+          >
+          <v-card-text>
+            <p>
+              Most Recent: {{ nowTime(this.changeLatest) }}<br />
+              Today: {{ this.changesToday }}<br />
+              This Week: {{ this.changesThisWeek }}
+            </p>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn
+              text
+              to="/changes"
+            >
+              See changes
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
     </v-row>
   </v-card>
 </template>
