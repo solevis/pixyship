@@ -27,7 +27,14 @@
           <v-card-title class="overline mb-2"
             ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
           >
-          <v-card-text>
+          <v-card-text v-if="this.tournament.started">
+            <p>
+              End the {{ nowTime(this.tournament.end) }}<br>
+              Left: {{ this.tournament.left }}
+            </p>
+          </v-card-text>
+
+          <v-card-text v-else>
             <p>
               Start the {{ nowTime(this.tournament.start) }}<br>
               Left: {{ this.tournament.left }}

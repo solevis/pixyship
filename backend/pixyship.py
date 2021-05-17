@@ -1466,7 +1466,9 @@ class Pixyship(metaclass=Singleton):
 
         infos = {
             'start': tournament_start,
-            'left': tournament_left_formatted.strip()
+            'end': first_day_next_month,
+            'left': tournament_left_formatted.strip(),
+            'started': tournament_left_delta.total_seconds() < 0
         }
 
         return infos
