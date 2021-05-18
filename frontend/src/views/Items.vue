@@ -295,7 +295,7 @@ export default {
           },
         },
         {
-          text: "Recipie",
+          text: "Recipe",
           align: "center",          
           sortable: false,
           filterable: false,
