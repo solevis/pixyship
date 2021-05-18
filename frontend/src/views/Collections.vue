@@ -95,43 +95,38 @@ export default {
       skills: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", class: 'sticky-header', sortable: false, filterable: false },
-        { text: "Name", align: "left", class: 'sticky-header', value: "name" },
+        { text: "Image", align: "center", sortable: false, filterable: false },
+        { text: "Name", align: "left", value: "name" },
         {
           text: "Skill",
           align: "left",
-          class: 'sticky-header',
           value: "ability_name",
           filter: (value) => {
             return this.filterCombobox(value, this.searchSkill);
           },
         },
-        { text: "Chars", align: "left", class: 'sticky-header', sortable: false, filterable: false },
+        { text: "Chars", align: "left", sortable: false, filterable: false },
         {
           text: "Required (Min - Max)",
           align: "center",
-          class: 'sticky-header',
           value: "min",
           filterable: false,
         },
         {
           text: "Base Bonus",
           align: "right",
-          class: 'sticky-header',
           value: "base_enhancement",
           filterable: false,
         },
         {
           text: "Step Bonus",
           align: "right",
-          class: 'sticky-header',
           value: "step_enhancement",
           filterable: false,
         },
         {
           text: "Description",
           align: "left",
-          class: 'sticky-header',
           value: "CollectionDescription",
           filterable: false,
         },
@@ -180,7 +175,6 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
-<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .center {
   margin: 0 auto;

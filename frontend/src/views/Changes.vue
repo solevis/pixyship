@@ -142,9 +142,9 @@ export default {
       labLevers: [],
       loaded: false,
       headers: [
-        {text: 'Image', align: 'left', class: 'sticky-header',sortable: false, filterable: false},
-        {text: 'Name', value: 'name', align: 'left', class: 'sticky-header'},
-        {text: 'Date', value: 'moment', align: 'left', class: 'sticky-header', filter: value => { 
+        {text: 'Image', align: 'left', sortable: false, filterable: false},
+        {text: 'Name', value: 'name', align: 'left'},
+        {text: 'Date', value: 'moment', align: 'left', filter: value => { 
             if (this.searchDate) {
               return value <= this.searchDate
             }
@@ -152,7 +152,7 @@ export default {
             return true
           }
         },
-        {text: 'Change', value: 'change_type', align: 'center', class: 'sticky-header', filterable: false}
+        {text: 'Change', value: 'change_type', align: 'center', filterable: false}
       ],
       changes: [],
     };
@@ -196,7 +196,6 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
-<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .name {
   font-weight: bold;

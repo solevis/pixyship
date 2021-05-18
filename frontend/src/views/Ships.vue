@@ -246,23 +246,23 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "", align: "center", class: 'sticky-header', sortable: false, filterable: false },
-        { text: "Name", align: "center", class: 'sticky-header', value: "name", filterable: true },
-        { text: "Level", align: "right", class: 'sticky-header', value: "level", filter: (value) => {
+        { text: "", align: "center", sortable: false, filterable: false },
+        { text: "Name", align: "center", value: "name", filterable: true },
+        { text: "Level", align: "right", value: "level", filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchLevel);
           },
         },
-        { text: "Space", align: "right", class: 'sticky-header', value: "space", filterable: false },
-        { text: "T1", align: "right", class: 'sticky-header', value: "spaceT1", filterable: false },
-        { text: "T2", align: "right", class: 'sticky-header', value: "spaceT2", filterable: false },
-        { text: "Health", align: "right", class: 'sticky-header', value: "hp", filterable: false },
-        { text: "Secs/Repair", align: "right", class: 'sticky-header', value: "repair_time", filterable: false },
-        { text: "Cost", align: "center", class: 'sticky-header', value: "starbux_cost", filterable: false },
-        { text: "Capacity", align: "center", class: 'sticky-header', value: "defense", filterable: false },
-        { text: "Type", align: "left", class: 'sticky-header', value: "ship_type", filter: (value) => {
+        { text: "Space", align: "right", value: "space", filterable: false },
+        { text: "T1", align: "right", value: "spaceT1", filterable: false },
+        { text: "T2", align: "right", value: "spaceT2", filterable: false },
+        { text: "Health", align: "right", value: "hp", filterable: false },
+        { text: "Secs/Repair", align: "right", value: "repair_time", filterable: false },
+        { text: "Cost", align: "center", value: "starbux_cost", filterable: false },
+        { text: "Capacity", align: "center", value: "defense", filterable: false },
+        { text: "Type", align: "left", value: "ship_type", filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchType);
           }, },
-        { text: "Description", align: "left", class: 'sticky-header', value: "description", filterable: false },
+        { text: "Description", align: "left", value: "description", filterable: false },
       ],
       rooms: [],
     };
@@ -340,7 +340,6 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
-<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .rarity {
   text-transform: capitalize;

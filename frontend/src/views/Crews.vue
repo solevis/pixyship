@@ -226,20 +226,17 @@ export default {
         { 
           text: "Order by ID", 
           align: "start",
-          value: "id", 
-          class: 'sticky-header',
+          value: "id",           
           filterable: false 
         },
         { 
           text: "Name", 
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "name",
         },
         {
           text: "Equip",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "equipment",
           filter: value => { 
             return this.filterCombobox(Object.keys(value).toString(), this.searchEquipment, true)
@@ -247,8 +244,7 @@ export default {
         },
         { 
           text: "Rarity", 
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "rarity", 
           filter: value => { 
             return this.filterCombobox(value, this.searchRarity)
@@ -256,8 +252,7 @@ export default {
         },
         { 
           text: "Special", 
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "special_ability", 
           filter: value => { 
             return this.filterCombobox(value, this.searchSpecial)
@@ -265,8 +260,7 @@ export default {
         },
         { 
           text: "Set", 
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "collection_name", 
           filter: value => { 
             return this.filterCombobox(value, this.searchCollection)
@@ -274,78 +268,67 @@ export default {
         },
         { 
           text: "HP", 
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "hp[2]", 
           filterable: false 
         },
         {
           text: "ATK",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "attack[2]",
           filterable: false,
         },
         {
           text: "RPR",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "repair[2]",
           filterable: false,
         },
         {
           text: "ABL",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "ability[2]",
           filterable: false,
         },
         {
           text: "PLT",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "pilot[2]",
           filterable: false,
         },
         {
           text: "SCI",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "science[2]",
           filterable: false,
         },
         {
           text: "ENG",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "engine[2]",
           filterable: false,
         },
         {
           text: "WPN",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "weapon[2]",
           filterable: false,
         },
         {
           text: "Fire",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "fire_resist",
           filterable: false,
         },
         {
           text: "Training",
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "training_limit",
           filterable: false,
         },
         { 
           text: "Speed", 
-          align: "start",
-          class: 'sticky-header',
+          align: "start",          
           value: "run", 
           filterable: false 
         },
@@ -442,7 +425,6 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
-<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .rarity {
   text-transform: capitalize;

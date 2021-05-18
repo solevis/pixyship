@@ -114,27 +114,25 @@ export default {
       labLevers: [],
       loaded: false,
       headers: [
-        {text: 'Image', class: 'sticky-header', sortable: false},
-        {text: 'Name', class: 'sticky-header', value: 'name'},
+        {text: 'Image', sortable: false},
+        {text: 'Name', value: 'name'},
         {
           text: 'Lab Level', 
           value: 'lab_level', 
-          class: 'sticky-header',
           filter: (value) => {
             return this.filterCombobox(value, this.searchLabLevel);
           },
         },
-        {text: 'Requirement', class: 'sticky-header', value: 'required_research_name'},
+        {text: 'Requirement', value: 'required_research_name'},
         {
           text: 'Type', 
-          class: 'sticky-header',
           value: 'research_type',
           filter: (value) => {
             return this.filterCombobox(value, this.searchType);
           },
         },
-        {text: 'Cost', class: 'sticky-header', value: 'cost'},
-        {text: 'Upgrade Time', class: 'sticky-header', value: 'research_seconds'}
+        {text: 'Cost', value: 'cost'},
+        {text: 'Upgrade Time', value: 'research_seconds'}
       ],
       researches: [],
     };
@@ -186,7 +184,6 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
-<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .name {
   font-weight: bold;

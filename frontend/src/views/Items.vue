@@ -245,12 +245,11 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", class: 'sticky-header', sortable: false, filterable: false },
-        { text: "Name", align: "center", class: 'sticky-header', value: "name", filterable: true },
+        { text: "Image", align: "center", sortable: false, filterable: false },
+        { text: "Name", align: "center", value: "name", filterable: true },
         {
           text: "Rarity",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           value: "rarity",
           filter: (value) => {
             return this.filterCombobox(value, this.searchRarity);
@@ -258,23 +257,20 @@ export default {
         },
         {
           text: "Savy $",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           value: "market_price",
           filterable: false,
         },
         {
           text: "Market $ (48h) | # | 25 - 50 - 75%",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           value: "offers",
           filterable: false,
           width: 210,
         },
         {
           text: "Type",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           value: "type",
           sortable: false,
           filter: (value) => {
@@ -283,8 +279,7 @@ export default {
         },
         {
           text: "Subtype",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           value: "slot",
           sortable: false,
           filter: (value) => {
@@ -293,8 +288,7 @@ export default {
         },
         {
           text: "Bonus",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           value: "bonus",
           filter: (value, search, item) => {
             return this.filterCombobox(item.enhancement, this.searchStat);
@@ -302,15 +296,13 @@ export default {
         },
         {
           text: "Recipie",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           sortable: false,
           filterable: false,
         },
         {
           text: "Description",
-          align: "center",
-          class: 'sticky-header',
+          align: "center",          
           value: "description",
           filterable: false,
           sortable: false,
@@ -611,7 +603,6 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
-<style scoped src="@/assets/css/stickyheader.css"></style>
 <style scoped>
 .rarity {
   text-transform: capitalize;
