@@ -247,13 +247,15 @@
                 <!-- Rooms -->
                 <g v-for="room in rooms" :key="room.id">
                   <svg 
+                    v-if="room.exterior_sprite"
                     :x="`${room.column * 25}px`" 
                     :y="`${room.row * 25}px`"
-                    :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
-                    :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+                    :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
+                    :width="`${room.exterior_sprite.width}px`" 
+                    :height="`${room.exterior_sprite.height}px`">
 
                     <!-- Room sprite -->
-                    <foreignObject v-if="room.exterior_sprite" class="room" width="125" height="75" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
+                    <foreignObject class="room" width="125" height="75" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.exterior_sprite)"></div>
                       </body>
@@ -274,13 +276,14 @@
                 <!-- Rooms -->
                 <g v-for="room in rooms" :key="room.id">
                   <svg 
+                    v-if="room.exterior_sprite"
                     :x="`${room.column * 25}px`" 
                     :y="`${room.row * 25}px`"
-                    :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
-                    :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+                    :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
+                    :width="`${room.exterior_sprite.width}px`" :height="`${room.exterior_sprite.height}px`">
 
                     <!-- Room sprite -->
-                    <foreignObject v-if="room.exterior_sprite" class="room" width="125" height="75">
+                    <foreignObject class="room" width="125" height="75">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.exterior_sprite)"></div>
                       </body>
