@@ -27,8 +27,7 @@ def import_players():
     pixyship = Pixyship()
 
     logger.info('## top 100 players')
-    top_users = pixyship.get_top100_users_from_api()
-    __save_users(top_users)
+    top_users = list(pixyship.get_top100_users_from_api().items())
 
     logger.info('## top 100 alliances')
     count = 0
@@ -37,10 +36,20 @@ def import_players():
         try:
             count += 1
             logger.info('[{}/100] {}...'.format(count, alliance['name']))
-            top_users = pixyship.get_alliance_users_from_api(alliance_id)
-            __save_users(top_users)
+            top_users += list(pixyship.get_alliance_users_from_api(alliance_id).items())
         except Exception as e:
             logger.error(e)
+
+    try:
+        # purge old data
+        db.session.query(Player).delete()
+        db.session.query(Alliance).delete()
+        db.session.commit()
+    except:
+        db.session.rollback()
+
+    # save new data
+    __save_users(top_users)
 
     logger.info('Done')
 
@@ -149,8 +158,6 @@ def dowload_sprites():
 
 def __save_users(users):
     """Save users and attached alliance in database."""
-
-    users = list(users.items())
 
     for user_id, user in users:
         player = Player(
