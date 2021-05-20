@@ -402,7 +402,7 @@ export default {
             (item) => item.rarity[0].toUpperCase() + item.rarity.slice(1)
           )
         )
-      );
+      ).sort((a ,b) => this.rarityOrder[a] < this.rarityOrder[b] ? -1 : 1)
     },
 
     priceFormat(price) {
