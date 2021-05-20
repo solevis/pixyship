@@ -17,7 +17,7 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-combobox
+          <v-autocomplete
             v-model="searchSkill"
             :items="skills"
             label="Skill"
@@ -26,7 +26,7 @@
             small-chips
             hide-details
             outlined
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
       </v-row>
     </v-card-subtitle>

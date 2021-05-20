@@ -17,7 +17,7 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchLevel"
             :items="levels"
             label="Level"
@@ -26,10 +26,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchShipLevel"
             :items="shipLevels"
             label="Min Ship Level"
@@ -38,10 +38,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchSize"
             :items="sizes"
             label="Size"
@@ -50,10 +50,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchType"
             :items="types"
             label="Type"
@@ -62,7 +62,7 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
       </v-row>
     </v-card-subtitle>

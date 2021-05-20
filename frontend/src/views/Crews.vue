@@ -28,7 +28,7 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchEquipment"
             :items="equipments"
             label="Equip"
@@ -37,10 +37,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchRarity"
             :items="rarities"
             label="Rarity"
@@ -49,10 +49,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchSpecial"
             :items="abilities"
             label="Special"
@@ -61,10 +61,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
-          <v-combobox
+          <v-autocomplete
             v-model="searchCollection"
             :items="collections"
             label="Collection"
@@ -73,7 +73,7 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
       </v-row>
     </v-card-subtitle>

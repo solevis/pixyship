@@ -17,7 +17,7 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="3" md="2">
-          <v-combobox
+          <v-autocomplete
             outlined
             v-model="searchRarity"
             :items="rarities"
@@ -26,10 +26,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="3" md="2">
-          <v-combobox
+          <v-autocomplete
             outlined
             v-model="searchType"
             :items="types"
@@ -38,10 +38,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="3" md="2">
-          <v-combobox
+          <v-autocomplete
             outlined
             v-model="searchSlot"
             :items="slots"
@@ -50,10 +50,10 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="3" md="2">
-          <v-combobox
+          <v-autocomplete
             outlined
             v-model="searchStat"
             :items="stats"
@@ -62,7 +62,7 @@
             multiple
             small-chips
             hide-details
-          ></v-combobox>
+          ></v-autocomplete>
         </v-col>
       </v-row>
     </v-card-subtitle>
