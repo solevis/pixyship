@@ -231,7 +231,7 @@
                         </td>
                       </tr>
 
-                      <tr v-if="item.purchasable === false">
+                      <tr v-if="!item.purchasable">
                         <td>Daily offer, event reward or dove ship</td>
                         <td>Yes</td>
                       </tr>
@@ -471,7 +471,7 @@ export default {
       for (const itemId in response.data.data) {
         const room = response.data.data[itemId];
         
-        if (room.purchasable === false) {
+        if (!room.purchasable) {
           room.upgrade_cost = 0
         }
 
