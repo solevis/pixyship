@@ -61,36 +61,84 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
     >
-      <template v-slot:item="{ item }">
-        <tr>
-          <td>
-            <crew v-if="item.type === 'char'" :char="item.char"/>
-            <div v-else class="block my-1" :style="spriteStyle(item.sprite)"></div>
-          </td>
-          <td class="name">
-            {{ item.name }}
-          </td>
-          <td>{{ item.lab_level }}</td>
-          <td>{{ item.required_research_name }}</td>
-          <td>{{ item.research_type }}</td>
-          <td>
-            <table>
-              <tr class="nobreak" v-if="item.gas_cost > 0">
-                <td>
-                  <div :style="gasSprite()" />
-                </td>
-                <td>{{ item.gas_cost }}</td>
-              </tr>
-              <tr class="nobreak" v-if="item.starbux_cost > 0">
-                <td>
-                  <div :style="buxSprite()" />
-                </td>
-                <td>{{ item.starbux_cost }}</td>
-              </tr>
-            </table>
-          </td>
-          <td>{{ formatTime(item.research_seconds) }}</td>
-        </tr>
+      <template v-slot:item="{ item, expand, isExpanded }">
+         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
+          <template v-slot:activator="{ on, attrs }">
+            <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
+              <td>
+                <crew v-if="item.type === 'char'" :char="item.char"/>
+                <div v-else class="block my-1" :style="spriteStyle(item.sprite)"></div>
+              </td>
+              <td class="name">
+                {{ item.name }}
+              </td>
+              <td>{{ item.lab_level }}</td>
+              <td>{{ item.required_research_name }}</td>
+              <td>{{ item.research_type }}</td>
+              <td>
+                <table>
+                  <tr class="nobreak" v-if="item.gas_cost > 0">
+                    <td>
+                      <div :style="gasSprite()" />
+                    </td>
+                    <td>{{ item.gas_cost }}</td>
+                  </tr>
+                  <tr class="nobreak" v-if="item.starbux_cost > 0">
+                    <td>
+                      <div :style="buxSprite()" />
+                    </td>
+                    <td>{{ item.starbux_cost }}</td>
+                  </tr>
+                </table>
+              </td>
+              <td>{{ formatTime(item.research_seconds) }}</td>
+            </tr>
+          </template>
+          <span>Click to display more infos</span>
+        </v-tooltip>
+      </template>
+
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length" align="center" style="border-bottom: 10px solid #393939;">
+          <v-row class="ma-3" justify="center">
+            <v-col cols="6">
+              <v-card
+                elevation="3"
+                class="px-6 pb-6 pt-2"
+                outlined
+                shaped
+              >
+                <v-card-subtitle>
+                  <div class="overline">
+                    INFOS
+                  </div>
+                </v-card-subtitle>
+
+                <v-simple-table dense style="width: 500px">
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left" style="width: 300px">
+                          Stat
+                        </th>
+                        <th class="text-left">
+                          Value
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                      <tr v-show="item.enhancement_type != 'None'">
+                        <td>Description</td>
+                        <td>{{ item.ResearchDescription }}</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col>
+          </v-row>
+        </td>
       </template>
     </v-data-table>
   </v-card>
