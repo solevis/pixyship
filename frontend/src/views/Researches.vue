@@ -132,7 +132,7 @@ export default {
           },
         },
         {text: 'Cost', value: 'cost'},
-        {text: 'Upgrade Time', value: 'research_seconds'}
+        {text: 'Research Time', value: 'research_seconds'}
       ],
       researches: [],
     };

@@ -3,6 +3,15 @@ import moment from 'moment'
 
 const apiServer = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '/'
 const spriteServer = '//pixelstarships.s3.amazonaws.com/'
+const rarityOrder = {
+  "Common": 0,
+  "Elite": 1,
+  "Unique": 2,
+  "Epic": 3, 
+  "Hero": 4, 
+  "Special": 5, 
+  "Legendary": 6, 
+} 
 
 export default {
   data() {
@@ -23,6 +32,7 @@ export default {
       researchesEndpoint: apiServer + 'api/research',
       playersEndpoint: apiServer + 'api/players',
       tournamentEndpoint: apiServer + 'api/tournament',
+      rarityOrder: rarityOrder,
     }
   },
 
