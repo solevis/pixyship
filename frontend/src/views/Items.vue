@@ -77,7 +77,8 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
-      :single-expand="true"
+      :single-expand="false"
+      :expanded.sync="expanded"
       :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
@@ -235,6 +236,7 @@ export default {
 
   data() {
     return {
+      expanded: [],
       searchName: "",
       searchRarity: [],
       searchSlot: [],
@@ -430,11 +432,11 @@ export default {
 
     rowExpanded: async function (row) {
       let item = row.item;
-      // Fetch data if needed
+
+      // fetch data if needed
       if ("priceHistory" in item) {
         await new Promise((resolve) => setTimeout(resolve, 1));
       } else {
-        // TODO: Make the transform once then
         const response = await axios.get(this.itemPricesEndpoint(item.id));
         item.priceHistory = response.data.data.prices;
       }
@@ -444,8 +446,8 @@ export default {
     },
 
     updatePlot() {
-      if (this.openRow) {
-        this.plotData(this.openRow);
+      for (var i = 0; i < this.expanded.length; i++) {
+        this.plotData(this.expanded[i]);
       }
     },
 
