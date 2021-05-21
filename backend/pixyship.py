@@ -83,7 +83,8 @@ class Pixyship(metaclass=Singleton):
 
     DEFAULT_EXPIRATION_DURATION = 60 * 60 * 6  # 6 hours
 
-    EQUIPMENT_SLOTS = ['Head', 'Body', 'Leg', 'Hand', 'Accessory']
+    EQUIPMENT_SLOTS = ['Body', 'Leg', 'Weapon', 'Accessory', 'Pet', 'Head']
+
 
     SLOT_MAP = {
         'None': None,
@@ -92,6 +93,7 @@ class Pixyship(metaclass=Singleton):
         'EquipmentBody': 'Body',
         'EquipmentLeg': 'Leg',
         'EquipmentAccessory': 'Accessory',
+        'EquipmentPet': 'Pet',
         'MineralPack': 'Mineral Pack',
         'GasPack': 'Gas Pack',
         'InstantPrize': 'Instant Prize',
@@ -723,7 +725,7 @@ class Pixyship(metaclass=Singleton):
         """Determine equipments slots with char equipment mask."""
 
         equipment_mask = int(char['EquipmentMask'])
-        output = [int(x) for x in '{:05b}'.format(equipment_mask)]
+        output = [int(x) for x in '{:06b}'.format(equipment_mask)]
         slots = {self.EQUIPMENT_SLOTS[4 - i]: {} for i, b in enumerate(output) if b}
 
         return slots
