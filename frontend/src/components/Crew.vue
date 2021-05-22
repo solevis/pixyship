@@ -39,7 +39,7 @@
 
     <div>
       <span :class="[char.rarity, 'font-weight-bold']">{{ char.name }}</span>
-      <table>
+      <table style="min-width: 200px">
         <tr>
           <td class="text-xs-right">HP:</td>
           <td class="text-xs-left">{{ char.hp[1] }}</td>
@@ -66,7 +66,7 @@
         </tr>
         <tr v-if="char.special_ability">
           <td class="text-xs-right">Special:</td>
-          <td class="text-xs-left">
+          <td class="text-xs-left" colspan="3">
             <div
               :style="spriteStyle(char.ability_sprite)"
               :title="char.special_ability"
@@ -76,7 +76,7 @@
         
         <tr v-if="Object.keys(char.equipment).length > 0">
           <td class="text-xs-right">Equip:</td>
-          <td>
+          <td colspan="3">
             {{ Object.keys(char.equipment).join(", ") }}
           </td>
         </tr>
