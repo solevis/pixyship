@@ -88,7 +88,7 @@ class Pixyship(metaclass=Singleton):
     SLOT_MAP = {
         'None': None,
         'EquipmentHead': 'Head',
-        'EquipmentWeapon': 'Hand',
+        'EquipmentWeapon': 'Weapon',
         'EquipmentBody': 'Body',
         'EquipmentLeg': 'Leg',
         'EquipmentAccessory': 'Accessory',
@@ -96,10 +96,36 @@ class Pixyship(metaclass=Singleton):
         'MineralPack': 'Mineral Pack',
         'GasPack': 'Gas Pack',
         'InstantPrize': 'Instant Prize',
+        'InstantTraining': 'Instant Training',
+        'ReducePrestige': 'Reduce Prestige',
+        'ReduceFatigue': 'Reduce Fatigue',
+        'ResetTraining': 'Reset Training',
+        'AIBook': 'AI Book',
+        'FillMineralStorage': 'Fill Mineral Storage',
+        'FillGasStorage': 'Fill Gas Storage',
+        'SpeedUpConstruction': 'SpeedUp Construction',
+    }
+
+    ROOM_TYPE_MAP = {
+        'Wall': 'Armor',
+        'None': None
     }
 
     ENHANCE_MAP = {
-        'FireResistance': 'Fire Resistance',
+        'Fireresistance': 'Fire Resistance',
+        'None': None
+    }
+
+    RESEARCH_TYPE_MAP = {
+        'CrewLevelUpCost': 'Crew LevelUp Cost',
+        'ConcurrentConstruction': 'Concurrent Construction',
+        'TradeCapacity': 'Trade',
+        'ModuleCapacity': 'Module',
+        'StickerCapacity': 'Sticker',
+        'AmmoSalvageCapacity': 'Ammo Recycling',
+        'CollectAll': 'Collector',
+        'ItemRecycling': 'Item Recycling',
+        'BoostGauge': 'Boost Gauge',
         'None': None
     }
 
@@ -633,7 +659,7 @@ class Pixyship(metaclass=Singleton):
                 'logo_sprite': self.get_sprite_infos(research['LogoSpriteId']),
                 'sprite': self.get_sprite_infos(research['ImageSpriteId']),
                 'required_research_id': int(research['RequiredResearchDesignId']),
-                'research_type': research['ResearchDesignType']
+                'research_type': self.RESEARCH_TYPE_MAP.get(research['ResearchDesignType'], research['ResearchDesignType'])
             }
 
         for research in researches.values():
@@ -680,7 +706,7 @@ class Pixyship(metaclass=Singleton):
                 'id': record.type_id,
                 'name': room['RoomName'],
                 'short_name': room['RoomShortName'],
-                'type': room['RoomType'],
+                'type': self.ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType']),
                 'level': int(room['Level']),
                 'capacity': int(room['Capacity']),
                 'height': int(room['Rows']),

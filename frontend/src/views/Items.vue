@@ -149,7 +149,7 @@
           <!-- <td class="text-xs-right">{{ formatBonus(item) }}</td> -->
           <td class="text-xs-left text-capitalize bonus">
             {{ formatBonus(item) }}&nbsp;
-            {{ item.enhancement === "none" ? "" : item.enhancement }}
+            {{ item.disp_enhancement == null ? "" : item.disp_enhancement }}
           </td>
 
           <!-- Recipe -->
@@ -293,7 +293,7 @@ export default {
           align: "center",          
           value: "bonus",
           filter: (value, search, item) => {
-            return this.filterCombobox(item.enhancement, this.searchStat);
+            return this.filterCombobox(item.disp_enhancement, this.searchStat);
           },
         },
         {
@@ -351,7 +351,7 @@ export default {
               .reduce((c, s) => c + s)
           : 0;
 
-        if (item.enhancement === "none") {
+        if (item.disp_enhancement == null) {
           item.hiddenBonus = item.bonus;
           item.bonus = 0;
         }
@@ -368,7 +368,7 @@ export default {
     },
 
     formatBonus(item) {
-      if (item.enhancement !== "none" && item.bonus) {
+      if (item.disp_enhancement != null && item.bonus) {
         return "+" + item.bonus;
       }
 
@@ -383,9 +383,9 @@ export default {
       this.stats = Array.from(
         new Set(
           this.items.map((item) =>
-            item.enhancement === "none"
+            item.disp_enhancement == null
               ? "None"
-              : item.enhancement[0].toUpperCase() + item.enhancement.slice(1)
+              : item.disp_enhancement[0].toUpperCase() + item.disp_enhancement.slice(1)
           )
         )
       ).sort((a) => a === 'None' ? -1 : 1);

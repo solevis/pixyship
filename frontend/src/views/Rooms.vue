@@ -377,7 +377,7 @@ export default {
           align: "left",          
           value: "type",
           filter: (value) => {
-            return this.filterCombobox(value.toString(), this.searchType);
+            return this.filterCombobox(value, this.searchType);
           },
         },
         {
