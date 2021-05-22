@@ -108,7 +108,6 @@ class Pixyship(metaclass=Singleton):
 
     ROOM_TYPE_MAP = {
         'Wall': 'Armor',
-        'None': None
     }
 
     ENHANCE_MAP = {

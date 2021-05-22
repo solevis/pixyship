@@ -80,7 +80,7 @@
     </v-card-subtitle>
 
     <!-- Recent rooms -->
-    <v-row justify="center">
+    <v-row justify="center" v-if="loaded">
         <v-col cols="12" sm="12" md="10">
           <v-data-iterator
             :items="recentRooms"
@@ -108,7 +108,7 @@
     </v-row>
 
     <!-- Ship -->
-    <div id="ship">
+    <div id="ship" v-if="loaded">
       <svg class="mb-5" v-if="selectedShip" :height="selectedShip.interior_sprite.height" :width="selectedShip.interior_sprite.width" v-on:dragover="allowDrop" v-on:drop="shipOnDrop" v-on:dragleave.self="removeDragRoom">
         <!-- Ship interior -->
         <image 
@@ -213,14 +213,14 @@
       </svg>
     </div>
 
-    <v-row justify="center">
+    <v-row justify="center" v-if="loaded">
       <v-col cols="1">
         <v-btn v-if="selectedShip" @click="copyUrl">Copy Link</v-btn>
       </v-col>
     </v-row>
 
     <!-- Stats -->
-    <v-row class="pb-15" justify="center">
+    <v-row class="pb-15" justify="center" v-if="loaded">
         <v-col cols="12" sm="12" md="10">
           <v-card 
             v-if="selectedShip"
@@ -377,7 +377,7 @@ export default {
       selectedShip: null,
       selectedRoomType: null,
       selectedRoom: null,
-      loaded: true,
+      loaded: false,
       occupied: [0],
       shipRooms: [],
       dropLoc: null,
@@ -494,7 +494,7 @@ export default {
       // initialize all distinct type of rooms
       this.roomTypeList = [...new Set(
         Object.keys(this.rooms).map(roomId => this.rooms[roomId]['type'])
-      )]
+      )].sort(this.sortAlphabeticallyExceptNone)
 
       // by default, select the first type of room
       this.selectedRoomType = this.roomTypeList[0]
@@ -525,6 +525,7 @@ export default {
       }
 
       this.update()
+      this.loaded = true
     },
 
     selectShip () {
