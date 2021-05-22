@@ -165,7 +165,7 @@ def api_collections():
 @enforce_source
 def api_research():
     return jsonify({
-        'data': pixyship.researches,
+        'data': pixyship.get_researches_and_ship_min_level(),
         'status': 'success',
     })
 

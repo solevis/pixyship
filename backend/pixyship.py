@@ -134,6 +134,7 @@ class Pixyship(metaclass=Singleton):
         self._sprites = None
         self._rooms_sprites = None
         self._upgrades = None
+        self._rooms_by_name = None
         self._pixel_starships_api = None
         self.__data_expiration = {}
 
@@ -180,10 +181,18 @@ class Pixyship(metaclass=Singleton):
     @property
     def rooms(self):
         if not self._rooms or self.expired('room'):
-            self._rooms, self._upgrades = self._get_rooms_from_db()
+            self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
             self.expire_at('room', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms
+
+    @property
+    def rooms_by_name(self):
+        if not self._rooms_by_name or self.expired('room'):
+            self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
+            self.expire_at('room', self.DEFAULT_EXPIRATION_DURATION)
+
+        return self._rooms_by_name
 
     @property
     def researches(self):
@@ -196,7 +205,7 @@ class Pixyship(metaclass=Singleton):
     @property
     def upgrades(self):
         if not self._upgrades or self.expired('room'):
-            self._rooms, self._upgrades = self._get_rooms_from_db()
+            self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
             self.expire_at('room', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._upgrades
@@ -718,7 +727,12 @@ class Pixyship(metaclass=Singleton):
             room_id, room in rooms.items()
         }
 
-        return rooms, upgrades
+        rooms_by_name = {
+            room['name']: room for
+            room_id, room in rooms.items()
+        }
+
+        return rooms, upgrades, rooms_by_name
 
     def _parse_equipment_slots(self, char):
         """Determine equipments slots with char equipment mask."""
@@ -1509,3 +1523,18 @@ class Pixyship(metaclass=Singleton):
             result.append({'name': name, 'value': option})
 
         return result
+
+    def get_researches_and_ship_min_level(self):
+        """Retrieve research and min ship level of the needed lab."""
+
+        researches = self.researches
+
+        # get lab room and its min ship level
+        for research in researches.values():
+            # TODO: don't use the name but the lab level
+            lab_name = 'Laboratory Lv{}'.format(research['lab_level'])
+            if lab_name in self.rooms_by_name:
+                room = self.rooms_by_name[lab_name]
+                research['min_ship_level'] = room['min_ship_level']
+
+        return researches

@@ -16,7 +16,7 @@
             outlined
           ></v-text-field>
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="2">
           <v-autocomplete
             v-model="searchType"
             :items="types"
@@ -28,11 +28,23 @@
             hide-details
           ></v-autocomplete>
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="2">
           <v-autocomplete
             v-model="searchLabLevel"
             :items="labLevels"
             label="Lab Level"
+            clearable
+            outlined
+            multiple
+            small-chips
+            hide-details
+          ></v-autocomplete>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-autocomplete
+            v-model="searchMinShipLevel"
+            :items="minShipLevels"
+            label="Ship Level"
             clearable
             outlined
             multiple
@@ -73,6 +85,7 @@
                 {{ item.name }}
               </td>
               <td>{{ item.lab_level }}</td>
+              <td>{{ item.min_ship_level }}</td>
               <td>{{ item.required_research_name }}</td>
               <td>{{ item.research_type }}</td>
               <td>
@@ -158,8 +171,10 @@ export default {
       searchName: "",
       searchType: [],
       searchLabLevel: [],
+      searchMinShipLevel: [],
       types: [],
-      labLevers: [],
+      labLevels: [],
+      minShipLevels: [],
       loaded: false,
       headers: [
         {text: 'Image', sortable: false},
@@ -169,6 +184,13 @@ export default {
           value: 'lab_level', 
           filter: (value) => {
             return this.filterCombobox(value, this.searchLabLevel);
+          },
+        },
+        {
+          text: 'Ship Level', 
+          value: 'min_ship_level', 
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchMinShipLevel);
           },
         },
         {text: 'Requirement', value: 'required_research_name'},
@@ -226,6 +248,10 @@ export default {
       this.labLevels = Array.from(
         new Set(this.researches.map((research) => (!research.lab_level ? "None" : research.lab_level)))
       ).sort((a, b) => a - b);
+
+      this.minShipLevels = Array.from(
+        new Set(this.researches.map((research) => (!research.min_ship_level ? "None" : research.min_ship_level)))
+      ).sort((a, b) => a === 'None' ? -1 : (a - b));
     },
   },
 };
