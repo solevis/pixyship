@@ -112,7 +112,8 @@ class Pixyship(metaclass=Singleton):
     }
 
     ENHANCE_MAP = {
-        'Fireresistance': 'Fire Resistance',
+        'FireResistance': 'Fire Resistance',
+        'FreezeAttackSkill': 'Freeze',
         'None': None
     }
 
