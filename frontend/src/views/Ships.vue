@@ -316,13 +316,13 @@ export default {
     updateFilters() {
       this.levels = Array.from(
         new Set(this.ships.map((ship) => (!ship.level ? 0 : ship.level)))
-      ).sort((a, b) => a - b);
+      ).sort(this.sortAlphabeticallyExceptNone);
 
       this.types = Array.from(
         new Set(
           this.ships.map((ship) => (!ship.ship_type ? "None" : ship.ship_type))
         )
-      ).sort((a) => (a === "None" ? -1 : 1));
+      ).sort(this.sortAlphabeticallyExceptNone);
     },
 
     openShipInBuilder(shipId) {

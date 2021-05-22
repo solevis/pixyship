@@ -388,15 +388,15 @@ export default {
               : item.disp_enhancement[0].toUpperCase() + item.disp_enhancement.slice(1)
           )
         )
-      ).sort((a) => a === 'None' ? -1 : 1);
+      ).sort(this.sortAlphabeticallyExceptNone);
 
       this.slots = Array.from(
         new Set(this.items.map((item) => (!item.slot ? "None" : item.slot)))
-      ).sort((a) => a === 'None' ? -1 : 1);
+      ).sort(this.sortAlphabeticallyExceptNone);
 
       this.types = Array.from(
         new Set(this.items.map((item) => (!item.type ? "None" : item.type)))
-      ).sort((a) => a === 'None' ? -1 : 1);
+      ).sort(this.sortAlphabeticallyExceptNone);
       
       this.rarities = Array.from(
         new Set(
@@ -404,7 +404,7 @@ export default {
             (item) => item.rarity[0].toUpperCase() + item.rarity.slice(1)
           )
         )
-      ).sort((a ,b) => this.rarityOrder[a] < this.rarityOrder[b] ? -1 : 1)
+      ).sort(this.sortRarity)
     },
 
     priceFormat(price) {

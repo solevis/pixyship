@@ -413,12 +413,12 @@ export default {
     },
 
     updateFilters() {
-      this.rarities = Array.from(new Set(this.crews.map((crew) => crew.rarity[0].toUpperCase() + crew.rarity.slice(1) ))).sort((a ,b) => this.rarityOrder[a] < this.rarityOrder[b] ? -1 : 1)
-      this.abilities = Array.from(new Set(this.crews.map((crew) => crew.special_ability.length === 0 ? 'None' : crew.special_ability))).sort()
-      this.collections = Array.from(new Set(this.crews.map((crew) => crew.collection_name.length === 0 ? 'None' : crew.collection_name))).sort()
+      this.rarities = Array.from(new Set(this.crews.map((crew) => crew.rarity[0].toUpperCase() + crew.rarity.slice(1) ))).sort(this.sortRarity)
+      this.abilities = Array.from(new Set(this.crews.map((crew) => crew.special_ability.length === 0 ? 'None' : crew.special_ability))).sort(this.sortAlphabeticallyExceptNone)
+      this.collections = Array.from(new Set(this.crews.map((crew) => crew.collection_name.length === 0 ? 'None' : crew.collection_name))).sort(this.sortAlphabeticallyExceptNone)
 
       let values = this.crews.map((crew) => Object.keys(crew.equipment).length === 0 ? ['None'] : Object.keys(crew.equipment))
-      this.equipments =  Array.from(new Set(values.flat())).sort()
+      this.equipments =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
     },
   },
 };

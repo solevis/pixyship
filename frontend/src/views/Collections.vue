@@ -168,7 +168,7 @@ export default {
     updateFilters() {
       this.skills = Array.from(
         new Set(this.collections.map((collection) => collection.ability_name))
-      );
+      ).sort(this.sortAlphabeticallyExceptNone);
     },
   },
 };

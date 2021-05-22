@@ -311,6 +311,37 @@ export default {
 
     getSpriteServer() {
       return spriteServer
+    },
+
+    sortRarity(a, b) {
+      let rarityAOrder = this.rarityOrder[a]
+      let rarityBOrder = this.rarityOrder[b]
+
+      return this.sortAlphabeticallyExceptNone(rarityAOrder, rarityBOrder)
+    },
+
+    sortAlphabeticallyExceptNone(a, b) {
+      if (a == b) {
+        return 0;
+      }
+
+      if (a == 'None') {
+        return -1;
+      }
+
+      if (b == 'None') {
+        return 1;
+      }
+
+      if (a < b) {
+        return -1;
+      }
+       
+      if (a > b) {
+        return 1;
+      }
+        
+      return 0;
     }
     
   }

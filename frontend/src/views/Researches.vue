@@ -243,15 +243,15 @@ export default {
     updateFilters() {
       this.types = Array.from(
         new Set(this.researches.map((research) => (!research.research_type ? "None" : research.research_type)))
-      ).sort((a) => a === 'None' ? -1 : 1);
+      ).sort(this.sortAlphabeticallyExceptNone);
 
       this.labLevels = Array.from(
         new Set(this.researches.map((research) => (!research.lab_level ? "None" : research.lab_level)))
-      ).sort((a, b) => a - b);
+      ).sort(this.sortAlphabeticallyExceptNone);
 
       this.minShipLevels = Array.from(
         new Set(this.researches.map((research) => (!research.min_ship_level ? "None" : research.min_ship_level)))
-      ).sort((a, b) => a === 'None' ? -1 : (a - b));
+      ).sort(this.sortAlphabeticallyExceptNone);
     },
   },
 };

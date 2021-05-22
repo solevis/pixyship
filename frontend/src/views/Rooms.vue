@@ -495,11 +495,11 @@ export default {
             !room.min_ship_level ? 0 : room.min_ship_level
           )
         )
-      ).sort((a, b) => a - b);
+      ).sort(this.sortAlphabeticallyExceptNone);
 
       this.levels = Array.from(
         new Set(this.rooms.map((room) => (!room.level ? 0 : room.level)))
-      ).sort((a, b) => a - b);
+      ).sort(this.sortAlphabeticallyExceptNone);
 
       this.sizes = Array.from(
         new Set(this.rooms.map((room) => `${room.width}x${room.height}`))
@@ -507,7 +507,7 @@ export default {
 
       this.types = Array.from(
         new Set(this.rooms.map((room) => (!room.type ? "None" : room.type)))
-      ).sort((a) => a === 'None' ? -1 : 1);
+      ).sort(this.sortAlphabeticallyExceptNone);
     },
 
     formatPower(item) {
