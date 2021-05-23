@@ -379,7 +379,7 @@ export default {
       searchPlayer: "",
       searchText: "",
       showUpgrades: true,
-      showTrueColor: true,
+      showTrueColor: false,
       showExterior: false,
       loaded: false,
       players: [],
