@@ -145,6 +145,13 @@ class Pixyship(metaclass=Singleton):
     # 4 - Visiri/Red
     # 5 - UFO/Green
     # 6 - Starbase
+    RACES = {
+        1: "Pirate",
+        2: "Federation",
+        3: "Qtarian",
+        4: "Visiri",
+        5: "Gray",
+    }
 
     def __init__(self):
         self._changes = None
@@ -1417,6 +1424,7 @@ class Pixyship(metaclass=Singleton):
 
         upgrades = []
         user_data = inspect_ship['User']
+        more_user_data = self.pixel_starships_api.search_users(user_data['Name'], True)[0]
         ship_data = inspect_ship['Ship']
 
         user = dict(
@@ -1424,9 +1432,23 @@ class Pixyship(metaclass=Singleton):
             name=user_data['Name'],
             sprite=self.get_sprite_infos(int(user_data['IconSpriteId'])),
             alliance_name=user_data.get('AllianceName'),
+            alliance_membership=user_data.get('AllianceMembership'),
+            alliance_join_date=more_user_data.get('AllianceJoinDate'),
             alliance_sprite=self.get_sprite_infos(int(user_data.get('AllianceSpriteId'))),
             trophies=int(user_data['Trophy']),
             last_date=user_data['LastAlertDate'],
+            pvpattack_wins=more_user_data['PVPAttackWins'],
+            pvpattack_losses=more_user_data['PVPAttackLosses'],
+            pvpattack_draws=more_user_data['PVPAttackDraws'],
+            pvpdefence_draws=more_user_data['PVPDefenceDraws'],
+            pvpdefence_wins=more_user_data['PVPDefenceWins'],
+            pvpdefence_losses=more_user_data['PVPDefenceLosses'],
+            highest_trophy=more_user_data['HighestTrophy'],
+            crew_donated=more_user_data['CrewDonated'],
+            crew_received=more_user_data['CrewReceived'],
+            creation_date=more_user_data['CreationDate'],
+            race=self.RACES.get(int(ship_data['OriginalRaceId']), 'Unknown'),
+            status=ship_data['ShipStatus'],
         )
 
         ship_id = int(ship_data['ShipDesignId'])

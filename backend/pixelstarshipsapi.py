@@ -213,6 +213,44 @@ class PixelStarshipsApi:
 
         return inspect_ship
 
+    def search_users(self, user_name, exact_match = False):
+        """Get player ship data from API."""
+
+        params = {
+            'searchstring': user_name,
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/UserService/SearchUsers'
+        response = self.call(endpoint, params=params, access=True)
+        root = ElementTree.fromstring(response.text)
+
+        users = []
+
+        if exact_match:
+            user_node = root.find('.//User[@Name="{}"]'.format(user_name))
+
+            user = self.parse_user_node(user_node)
+
+            user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
+            users.append(user)
+        else:
+            users_node = root.find('.//User')
+
+            for user_node in users_node:
+                user = self.parse_user_node(user_node)
+
+                user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
+                users.append(user)
+
+        return users
+
+    @staticmethod
+    def parse_user_node(user_node):
+        """Extract user data from XML node."""
+
+        return user_node.attrib
+
     def get_dailies(self):
         """Get dailies from settings service from API."""
 

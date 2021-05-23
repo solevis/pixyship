@@ -296,6 +296,70 @@
         </table>
       </v-col>
     </v-row>
+
+    <v-row justify="center">
+      <v-col cols="6">
+        <v-card
+          v-if="showShip"
+          outlined
+          shaped
+          class="px-6 pb-6 pt-2"
+        >
+
+          <v-simple-table dense>
+            <template v-slot:default>
+              <tbody>
+                <tr v-show="user.alliance_name">
+                  <td>Alliance</td>
+                  <td>{{ user.alliance_name }} ({{ user.alliance_membership }})</td>
+                </tr>
+
+                <tr v-show="user.alliance_name">
+                  <td>Alliance join date</td>
+                  <td>{{ nowTime(user.alliance_join_date) }}</td>
+                </tr>
+
+                <tr v-show="user.alliance_name">
+                  <td>Crew donated/borrowed</td>
+                  <td>{{ user.crew_donated }} / {{ user.crew_received }}</td>
+                </tr>
+
+                <tr>
+                  <td>Trophies</td>
+                  <td>{{ user.trophies }} (highest {{ user.highest_trophy }})</td>
+                </tr>
+
+                <tr>
+                  <td>Attacks Win/Loss/Draw</td>
+                  <td>{{ user.pvpattack_wins }} / {{ user.pvpattack_draws }} / {{ user.pvpattack_losses }}</td>
+                </tr>
+
+                <tr>
+                  <td>Defenses Win/Loss/Draw</td>
+                  <td>{{ user.pvpdefence_wins }} / {{ user.pvpdefence_draws }} / {{ user.pvpdefence_losses }}</td>
+                </tr>
+
+                <tr>
+                  <td>Faction</td>
+                  <td>{{ user.race }}</td>
+                </tr>
+
+                <tr>
+                  <td>Status</td>
+                  <td>{{ user.status }}</td>
+                </tr>
+
+                <tr>
+                  <td>Account creation</td>
+                  <td>{{ nowTime(user.creation_date) }}</td>
+                </tr>
+
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-card>
 </template>
 
