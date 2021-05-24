@@ -442,7 +442,7 @@ class Pixyship(metaclass=Singleton):
 
         room = self.get_object('Room', room_id)
 
-        if room['type'] in ('Wall', 'Lift'):
+        if room['type'] in ('Armor', 'Lift'):
             ship = self.get_object('Ship', ship_id)
 
             if room['sprite']['source'] in self.RACE_SPECIFIC_SPRITE_MAP:

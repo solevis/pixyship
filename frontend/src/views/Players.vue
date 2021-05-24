@@ -121,7 +121,7 @@
               <svg v-show="!showExterior && showTrueColor" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
                 <!-- Ship color -->
                 <filter id="interior-color-filter">
-                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.interior_sprite.trueColorStyle.filter.hue" />
+                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
                   <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.interior_sprite.trueColorStyle.filter.saturate" />
                   <feComponentTransfer in="saturate-filter" result="contrast-filter">
                     <feFuncR type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncR>
@@ -145,17 +145,19 @@
                     :x="`${room.column * 25}px`" 
                     :y="`${room.row * 25}px`"
                     :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
-                    :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+                    :width="`${room.sprite.width}px`" 
+                    :height="`${room.sprite.height}px`"
+                    >
 
                     <!-- Room in upgrade -->
-                    <foreignObject v-if="showUpgrades && room.construction" class="room" width="125" height="75">
+                    <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.construction_sprite)"></div>
                       </body>
                     </foreignObject>
 
                     <!-- Room sprite -->
-                    <foreignObject v-else class="room" width="125" height="75" :filter="showTrueColor && !room.show_frame ? 'url(#interior-color-filter)' : ''">
+                    <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height" :filter="showTrueColor && !room.show_frame ? 'url(#interior-color-filter)' : ''">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.sprite)"></div>
                       </body>
@@ -195,14 +197,14 @@
                     :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
 
                     <!-- Room in upgrade -->
-                    <foreignObject v-if="showUpgrades && room.construction" class="room" width="125" height="75">
+                    <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.construction_sprite)"></div>
                       </body>
                     </foreignObject>
 
                     <!-- Room sprite -->
-                    <foreignObject v-else class="room" width="125" height="75">
+                    <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.sprite)"></div>
                       </body>
@@ -227,7 +229,7 @@
               <svg v-show="showExterior && showTrueColor" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
                 <!-- Ship color -->
                <filter id="exterior-color-filter">
-                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="hueRotate" :values="ship.exterior_sprite.trueColorStyle.filter.hue" />
+                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
                   <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
                   <feComponentTransfer in="saturate-filter" result="contrast-filter">
                     <feFuncR type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncR>
@@ -256,7 +258,7 @@
                     :height="`${room.exterior_sprite.height}px`">
 
                     <!-- Room sprite -->
-                    <foreignObject class="room" width="125" height="75" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
+                    <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.exterior_sprite)"></div>
                       </body>
@@ -284,7 +286,7 @@
                     :width="`${room.exterior_sprite.width}px`" :height="`${room.exterior_sprite.height}px`">
 
                     <!-- Room sprite -->
-                    <foreignObject class="room" width="125" height="75">
+                    <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height">
                       <body xmlns="http://www.w3.org/1999/xhtml">
                       <div :style="spriteStyle(room.exterior_sprite)"></div>
                       </body>
@@ -386,7 +388,7 @@ export default {
       searchPlayer: "",
       searchText: "",
       showUpgrades: true,
-      showTrueColor: false,
+      showTrueColor: true,
       showExterior: false,
       loaded: false,
       players: [],
@@ -489,6 +491,69 @@ export default {
 
       this.$router.push({ path: path })
     },
+
+    hueRotate(rotation) {
+      rotation = (rotation || 0) / 180 * Math.PI;
+      let cosR = Math.cos(rotation),
+        sinR = Math.sin(rotation),
+        sqrt = Math.sqrt;
+
+      let w = 1 / 3, sqrW = sqrt(w);
+      let a00 = cosR + (1.0 - cosR) * w;
+      let a01 = w * (1.0 - cosR) - sqrW * sinR;
+      let a02 = w * (1.0 - cosR) + sqrW * sinR;
+      let a10 = w * (1.0 - cosR) + sqrW * sinR;
+      let a11 = cosR + w * (1.0 - cosR);
+      let a12 = w * (1.0 - cosR) - sqrW * sinR;
+      let a20 = w * (1.0 - cosR) - sqrW * sinR;
+      let a21 = w * (1.0 - cosR) + sqrW * sinR;
+      let a22 = cosR + w * (1.0 - cosR);
+
+      let matrix = [
+        a00, a01, a02, 0, 0,
+        a10, a11, a12, 0, 0,
+        a20, a21, a22, 0, 0,
+        0, 0, 0, 1, 0,
+      ];
+
+      return matrix.join(' ');
+    },
+
+    rgbToHsl(arr) {
+      let r = arr[0] / 255,
+        g = arr[1] / 255,
+        b = arr[2] / 255;
+      let max = Math.max(r, g, b);
+      let min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+
+      if (max == min) {
+        h = s = 0;
+      } else {
+        let delta = max - min;
+        s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+
+        switch (max) {
+          case r:
+            h = (g - b) / delta + (g < b ? 6 : 0);
+            break;
+          case g:
+            h = (b - r) / delta + 2;
+            break;
+          case b:
+            h = (r - g) / delta + 4;
+            break;
+        }
+
+        h /= 6;
+      }
+
+      return [
+        Math.round(h * 360),
+        Math.round(s * 100),
+        Math.round(l * 100)
+      ];
+    }
   },
 };
 </script>
