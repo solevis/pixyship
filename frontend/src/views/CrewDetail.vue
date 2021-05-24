@@ -12,7 +12,7 @@
     <!-- Large screen (Table and prestiges side by side) -->
     <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
       <v-row justify="center">
-        <v-col>
+        <v-col cols="8">
           <v-simple-table v-if="loaded" class="px-3">
             <template v-slot:default>
               <thead>
