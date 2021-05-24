@@ -41,6 +41,7 @@
             v-on="on"
             icon
             large
+            aria-label="Options"
           >
             <v-icon>mdi-cog</v-icon>
           </v-btn>

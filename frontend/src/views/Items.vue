@@ -196,14 +196,14 @@
                 class="px-3"
                 v-model="showGas"
                 label="Gas"
-                color="purple"
+                color="purple lighten-2"
                 @click.native="updatePlot"
               ></v-switch>
               <v-switch
                 class="px-3"
                 v-model="showMineral"
                 label="Mineral"
-                color="blue"
+                color="blue lighten-2"
                 hide-details
                 @click.native="updatePlot"
               ></v-switch>
@@ -211,7 +211,7 @@
                 class="px-3"
                 v-model="showStarbux"
                 label="Starbux"
-                color="green"
+                color="green lighten-2"
                 hide-details
                 @click.native="updatePlot"
               ></v-switch>

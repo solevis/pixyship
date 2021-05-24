@@ -40,7 +40,7 @@
         <v-btn text to="/ships">Ships</v-btn>
         <v-btn text to="/collections">Collections</v-btn>
         <v-btn text to="/researches">Researches</v-btn>
-        <v-btn icon to="/about"><v-icon>mdi-help-circle-outline</v-icon></v-btn>
+        <v-btn aria-label="About" icon to="/about"><v-icon>mdi-help-circle-outline</v-icon></v-btn>
       </template>
     </v-app-bar>
 
