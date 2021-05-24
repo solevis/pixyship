@@ -54,7 +54,7 @@
           nav
           dense
         >
-          <v-list-item-group v-model="group">
+          <v-list-item-group>
              <v-list-item to="/"><v-list-item-title>Home</v-list-item-title></v-list-item>
             <v-list-item to="/players"><v-list-item-title>Players</v-list-item-title></v-list-item>
             <v-list-item to="/builder"><v-list-item-title>Builder</v-list-item-title></v-list-item>
