@@ -109,199 +109,193 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col cols="12">
-        <table class="main-table" v-if="showShip">
-          <tr>
-            <td>
-              <!-- ############################################################################### -->
-              <!-- Create 4 SVG, because conditional filter inside SVG is broken for some browsers -->
-              <!-- ############################################################################### -->
+    <v-row v-if="showShip">
+      <v-col cols="12" class="ship-panel">
+        <!-- ############################################################################### -->
+        <!-- Create 4 SVG, because conditional filter inside SVG is broken for some browsers -->
+        <!-- ############################################################################### -->
 
-              <svg v-show="!showExterior && showTrueColor" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
-                <!-- Ship color -->
-                <filter id="interior-color-filter">
-                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
-                  <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.interior_sprite.trueColorStyle.filter.saturate" />
-                  <feComponentTransfer in="saturate-filter" result="contrast-filter">
-                    <feFuncR type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncR>
-                    <feFuncG type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncG>
-                    <feFuncB type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncB>
-                  </feComponentTransfer>
-                </filter>
+          <svg v-show="!showExterior && showTrueColor" class="ship" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+            <!-- Ship color -->
+            <filter id="interior-color-filter">
+              <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
+              <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.interior_sprite.trueColorStyle.filter.saturate" />
+              <feComponentTransfer in="saturate-filter" result="contrast-filter">
+                <feFuncR type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncR>
+                <feFuncG type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncG>
+                <feFuncB type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncB>
+              </feComponentTransfer>
+            </filter>
 
-                <!-- Ship sprite -->
-                <image 
-                  :xlink:href="getSpriteUrl(ship.interior_sprite)" 
-                  x="0" y="0" 
-                  :height="ship.interior_sprite.height" 
-                  :width="ship.interior_sprite.width" 
-                  :filter="showTrueColor ? 'url(#interior-color-filter)' : ''"
-                />
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.interior_sprite)" 
+              x="0" y="0" 
+              :height="ship.interior_sprite.height" 
+              :width="ship.interior_sprite.width" 
+              :filter="showTrueColor ? 'url(#interior-color-filter)' : ''"
+            />
 
-                <!-- Rooms -->
-                <g v-for="room in rooms" :key="room.id">
-                  <svg 
-                    :x="`${room.column * 25}px`" 
-                    :y="`${room.row * 25}px`"
-                    :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
-                    :width="`${room.sprite.width}px`" 
-                    :height="`${room.sprite.height}px`"
-                    >
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
+                :width="`${room.sprite.width}px`" 
+                :height="`${room.sprite.height}px`"
+                >
 
-                    <!-- Room in upgrade -->
-                    <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
-                      <body xmlns="http://www.w3.org/1999/xhtml">
-                      <div :style="spriteStyle(room.construction_sprite)"></div>
-                      </body>
-                    </foreignObject>
+                <!-- Room in upgrade -->
+                <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.construction_sprite)"></div>
+                  </body>
+                </foreignObject>
 
-                    <!-- Room sprite -->
-                    <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height" :filter="showTrueColor && !room.show_frame ? 'url(#interior-color-filter)' : ''">
-                      <body xmlns="http://www.w3.org/1999/xhtml">
-                      <div :style="spriteStyle(room.sprite)"></div>
-                      </body>
-                    </foreignObject>
+                <!-- Room sprite -->
+                <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height" :filter="showTrueColor && !room.show_frame ? 'url(#interior-color-filter)' : ''">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.sprite)"></div>
+                  </body>
+                </foreignObject>
 
-                    <!-- Room name -->
-                    <text class="room-name" x="2" y="9">{{ room.short_name }}</text>
+                <!-- Room name -->
+                <text class="room-name" x="2" y="9">{{ room.short_name }}</text>
 
-                    <!-- Power used -->
-                    <text class="power-use" v-if="room.power_use > 0" :x="room.width * 25 - 7" y="9">
-                      {{ room.power_use}}
-                    </text>
+                <!-- Power used -->
+                <text class="power-use" v-if="room.power_use > 0" :x="room.width * 25 - 7" y="9">
+                  {{ room.power_use}}
+                </text>
 
-                    <!-- Power generated -->
-                    <text class="power-gen" v-if="room.power_gen > 0" :x="room.width * 25 - 9" y="9">
-                      {{ room.power_gen }}
-                    </text>
-                  </svg>
-                </g>
+                <!-- Power generated -->
+                <text class="power-gen" v-if="room.power_gen > 0" :x="room.width * 25 - 9" y="9">
+                  {{ room.power_gen }}
+                </text>
               </svg>
+            </g>
+          </svg>
 
-               <svg v-show="!showExterior && !showTrueColor" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
-                <!-- Ship sprite -->
-                <image 
-                  :xlink:href="getSpriteUrl(ship.interior_sprite)" 
-                  x="0" y="0" 
-                  :height="ship.interior_sprite.height" 
-                  :width="ship.interior_sprite.width" 
-                />
+            <svg v-show="!showExterior && !showTrueColor" class="ship" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.interior_sprite)" 
+              x="0" y="0" 
+              :height="ship.interior_sprite.height" 
+              :width="ship.interior_sprite.width" 
+            />
 
-                <!-- Rooms -->
-                <g v-for="room in rooms" :key="room.id">
-                  <svg 
-                    :x="`${room.column * 25}px`" 
-                    :y="`${room.row * 25}px`"
-                    :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
-                    :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
+                :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
 
-                    <!-- Room in upgrade -->
-                    <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
-                      <body xmlns="http://www.w3.org/1999/xhtml">
-                      <div :style="spriteStyle(room.construction_sprite)"></div>
-                      </body>
-                    </foreignObject>
+                <!-- Room in upgrade -->
+                <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.construction_sprite)"></div>
+                  </body>
+                </foreignObject>
 
-                    <!-- Room sprite -->
-                    <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height">
-                      <body xmlns="http://www.w3.org/1999/xhtml">
-                      <div :style="spriteStyle(room.sprite)"></div>
-                      </body>
-                    </foreignObject>
+                <!-- Room sprite -->
+                <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.sprite)"></div>
+                  </body>
+                </foreignObject>
 
-                    <!-- Room name -->
-                    <text class="room-name" x="2" y="9">{{ room.short_name }}</text>
+                <!-- Room name -->
+                <text class="room-name" x="2" y="9">{{ room.short_name }}</text>
 
-                    <!-- Power used -->
-                    <text class="power-use" v-if="room.power_use > 0" :x="room.width * 25 - 7" y="9">
-                      {{ room.power_use}}
-                    </text>
+                <!-- Power used -->
+                <text class="power-use" v-if="room.power_use > 0" :x="room.width * 25 - 7" y="9">
+                  {{ room.power_use}}
+                </text>
 
-                    <!-- Power generated -->
-                    <text class="power-gen" v-if="room.power_gen > 0" :x="room.width * 25 - 9" y="9">
-                      {{ room.power_gen }}
-                    </text>
-                  </svg>
-                </g>
+                <!-- Power generated -->
+                <text class="power-gen" v-if="room.power_gen > 0" :x="room.width * 25 - 9" y="9">
+                  {{ room.power_gen }}
+                </text>
               </svg>
+            </g>
+          </svg>
 
-              <svg v-show="showExterior && showTrueColor" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
-                <!-- Ship color -->
-               <filter id="exterior-color-filter">
-                  <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
-                  <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
-                  <feComponentTransfer in="saturate-filter" result="contrast-filter">
-                    <feFuncR type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncR>
-                    <feFuncG type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncG>
-                    <feFuncB type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncB>
-                  </feComponentTransfer>
-                </filter>
+          <svg v-show="showExterior && showTrueColor" class="ship" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+            <!-- Ship color -->
+            <filter id="exterior-color-filter">
+              <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
+              <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
+              <feComponentTransfer in="saturate-filter" result="contrast-filter">
+                <feFuncR type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncR>
+                <feFuncG type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncG>
+                <feFuncB type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncB>
+              </feComponentTransfer>
+            </filter>
 
-                <!-- Ship sprite -->
-                <image 
-                  :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
-                  x="0" y="0" 
-                  :height="ship.exterior_sprite.height" 
-                  :width="ship.exterior_sprite.width" 
-                  :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''"
-                />
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
+              x="0" y="0" 
+              :height="ship.exterior_sprite.height" 
+              :width="ship.exterior_sprite.width" 
+              :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''"
+            />
 
-                <!-- Rooms -->
-                <g v-for="room in rooms" :key="room.id">
-                  <svg 
-                    v-if="room.exterior_sprite"
-                    :x="`${room.column * 25}px`" 
-                    :y="`${room.row * 25}px`"
-                    :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
-                    :width="`${room.exterior_sprite.width}px`" 
-                    :height="`${room.exterior_sprite.height}px`">
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                v-if="room.exterior_sprite"
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
+                :width="`${room.exterior_sprite.width}px`" 
+                :height="`${room.exterior_sprite.height}px`">
 
-                    <!-- Room sprite -->
-                    <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
-                      <body xmlns="http://www.w3.org/1999/xhtml">
-                      <div :style="spriteStyle(room.exterior_sprite)"></div>
-                      </body>
-                    </foreignObject>
-                  </svg>
-                </g>
+                <!-- Room sprite -->
+                <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.exterior_sprite)"></div>
+                  </body>
+                </foreignObject>
               </svg>
+            </g>
+          </svg>
 
-              <svg v-show="showExterior && !showTrueColor" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
-                <!-- Ship sprite -->
-                <image 
-                  :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
-                  x="0" y="0" 
-                  :height="ship.exterior_sprite.height" 
-                  :width="ship.exterior_sprite.width" 
-                />
+          <svg v-show=" showExterior && !showTrueColor" class="ship" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
+              x="0" y="0" 
+              :height="ship.exterior_sprite.height" 
+              :width="ship.exterior_sprite.width" 
+            />
 
-                <!-- Rooms -->
-                <g v-for="room in rooms" :key="room.id">
-                  <svg 
-                    v-if="room.exterior_sprite"
-                    :x="`${room.column * 25}px`" 
-                    :y="`${room.row * 25}px`"
-                    :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
-                    :width="`${room.exterior_sprite.width}px`" :height="`${room.exterior_sprite.height}px`">
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                v-if="room.exterior_sprite"
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
+                :width="`${room.exterior_sprite.width}px`" :height="`${room.exterior_sprite.height}px`">
 
-                    <!-- Room sprite -->
-                    <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height">
-                      <body xmlns="http://www.w3.org/1999/xhtml">
-                      <div :style="spriteStyle(room.exterior_sprite)"></div>
-                      </body>
-                    </foreignObject>
-                  </svg>
-                </g>
+                <!-- Room sprite -->
+                <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.exterior_sprite)"></div>
+                  </body>
+                </foreignObject>
               </svg>
-            </td>
-          </tr>
-        </table>
+            </g>
+          </svg>
       </v-col>
     </v-row>
 
     <v-row justify="center">
-      <v-col cols="6">
+      <v-col cols="12" sm="12" md="6">
         <v-card
           v-if="showShip"
           outlined
@@ -325,12 +319,12 @@
                 </tr>
 
                 <tr v-show="user.alliance_name">
-                  <td>Alliance join date</td>
+                  <td>Alliance Join Date</td>
                   <td>{{ nowTime(user.alliance_join_date) }}</td>
                 </tr>
 
                 <tr v-show="user.alliance_name">
-                  <td>Crew donated/borrowed</td>
+                  <td>Crews Donated/Borrowed</td>
                   <td>{{ user.crew_donated }} / {{ user.crew_received }}</td>
                 </tr>
 
@@ -360,7 +354,7 @@
                 </tr>
 
                 <tr>
-                  <td>Account creation</td>
+                  <td>Account Creation</td>
                   <td>{{ nowTime(user.creation_date) }}</td>
                 </tr>
               </tbody>
@@ -518,42 +512,6 @@ export default {
 
       return matrix.join(' ');
     },
-
-    rgbToHsl(arr) {
-      let r = arr[0] / 255,
-        g = arr[1] / 255,
-        b = arr[2] / 255;
-      let max = Math.max(r, g, b);
-      let min = Math.min(r, g, b);
-      let h, s, l = (max + min) / 2;
-
-      if (max == min) {
-        h = s = 0;
-      } else {
-        let delta = max - min;
-        s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-
-        switch (max) {
-          case r:
-            h = (g - b) / delta + (g < b ? 6 : 0);
-            break;
-          case g:
-            h = (b - r) / delta + 2;
-            break;
-          case b:
-            h = (r - g) / delta + 4;
-            break;
-        }
-
-        h /= 6;
-      }
-
-      return [
-        Math.round(h * 360),
-        Math.round(s * 100),
-        Math.round(l * 100)
-      ];
-    }
   },
 };
 </script>
@@ -577,8 +535,12 @@ export default {
   font-size: 8px;
 }
 
-.main-table {
+.ship {
+  display: block;
   margin: 0px auto;
-  vertical-align: top;
+}
+
+.ship-panel {
+  overflow: auto;
 }
 </style>
