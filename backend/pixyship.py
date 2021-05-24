@@ -1437,18 +1437,22 @@ class Pixyship(metaclass=Singleton):
             alliance_sprite=self.get_sprite_infos(int(user_data.get('AllianceSpriteId'))),
             trophies=int(user_data['Trophy']),
             last_date=user_data['LastAlertDate'],
-            pvpattack_wins=more_user_data['PVPAttackWins'],
-            pvpattack_losses=more_user_data['PVPAttackLosses'],
-            pvpattack_draws=more_user_data['PVPAttackDraws'],
-            pvpdefence_draws=more_user_data['PVPDefenceDraws'],
-            pvpdefence_wins=more_user_data['PVPDefenceWins'],
-            pvpdefence_losses=more_user_data['PVPDefenceLosses'],
-            highest_trophy=more_user_data['HighestTrophy'],
-            crew_donated=more_user_data['CrewDonated'],
-            crew_received=more_user_data['CrewReceived'],
+            pvpattack_wins=int(more_user_data['PVPAttackWins']),
+            pvpattack_losses=int(more_user_data['PVPAttackLosses']),
+            pvpattack_draws=int(more_user_data['PVPAttackDraws']),
+            pvpattack_ratio=self._compute_pvp_ratio(int(more_user_data['PVPAttackWins']), int(more_user_data['PVPAttackLosses']),
+                                                    int(more_user_data['PVPAttackDraws'])),
+            pvpdefence_draws=int(more_user_data['PVPDefenceDraws']),
+            pvpdefence_wins=int(more_user_data['PVPDefenceWins']),
+            pvpdefence_losses=int(more_user_data['PVPDefenceLosses']),
+            pvpdefence_ratio=self._compute_pvp_ratio(int(more_user_data['PVPDefenceWins']), int(more_user_data['PVPDefenceLosses']),
+                                                     int(more_user_data['PVPDefenceDraws'])),
+            highest_trophy=int(more_user_data['HighestTrophy']),
+            crew_donated=int(more_user_data['CrewDonated']),
+            crew_received=int(more_user_data['CrewReceived']),
             creation_date=more_user_data['CreationDate'],
             race=self.RACES.get(int(ship_data['OriginalRaceId']), 'Unknown'),
-            status=ship_data['ShipStatus'],
+            last_login_date=more_user_data['LastLoginDate'],
         )
 
         ship_id = int(ship_data['ShipDesignId'])
@@ -1586,3 +1590,16 @@ class Pixyship(metaclass=Singleton):
                 research['min_ship_level'] = room['min_ship_level']
 
         return researches
+
+    @staticmethod
+    def _compute_pvp_ratio(wins, losses, draws):
+        """Compute PVP ratio, same formula as Dolores Bot."""
+
+        ratio = 0.0
+        battles = wins + losses + draws
+
+        if battles > 0:
+            ratio = (wins + .5 * draws) / battles
+            ratio *= 100
+
+        return round(ratio, 2)

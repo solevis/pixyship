@@ -104,7 +104,7 @@
 
     <v-row justify="center" v-if="showShip">
       <v-col cols="6" class="text-center">
-        Level {{ ship.level }} / {{ ship.name }} <v-btn class="ml-4" elevation="1" small @click="openShipInBuilder">Edit in Builder</v-btn>
+        Level {{ ship.level }} / {{ ship.name }} <v-btn class="ml-4" elevation="1" outlined small @click="openShipInBuilder">Edit in Builder</v-btn>
       </v-col>
     </v-row>
 
@@ -303,14 +303,21 @@
           v-if="showShip"
           outlined
           shaped
-          class="px-6 pb-6 pt-2"
         >
 
-          <v-simple-table dense>
+          <v-card-title>
+            {{ user.name}}
+          </v-card-title>
+
+          <v-card-subtitle>
+            {{ ship.name }} (Level {{ ship.level }})
+          </v-card-subtitle>
+
+          <v-simple-table dense class="px-6 pb-6 pt-2">
             <template v-slot:default>
               <tbody>
                 <tr v-show="user.alliance_name">
-                  <td>Alliance</td>
+                  <td>Alliance (Rank)</td>
                   <td>{{ user.alliance_name }} ({{ user.alliance_membership }})</td>
                 </tr>
 
@@ -326,17 +333,17 @@
 
                 <tr>
                   <td>Trophies</td>
-                  <td>{{ user.trophies }} (highest {{ user.highest_trophy }})</td>
+                  <td>{{ user.trophies }} (highest: {{ user.highest_trophy }})</td>
                 </tr>
 
                 <tr>
                   <td>Attacks Win/Loss/Draw</td>
-                  <td>{{ user.pvpattack_wins }} / {{ user.pvpattack_draws }} / {{ user.pvpattack_losses }}</td>
+                  <td>{{ user.pvpattack_wins }} / {{ user.pvpattack_losses }} / {{ user.pvpattack_draws }} ({{ user.pvpattack_ratio }}%)</td>
                 </tr>
 
                 <tr>
                   <td>Defenses Win/Loss/Draw</td>
-                  <td>{{ user.pvpdefence_wins }} / {{ user.pvpdefence_draws }} / {{ user.pvpdefence_losses }}</td>
+                  <td>{{ user.pvpdefence_wins }} / {{ user.pvpdefence_losses }} / {{ user.pvpdefence_draws }} ({{ user.pvpdefence_ratio }}%)</td>
                 </tr>
 
                 <tr>
@@ -345,15 +352,14 @@
                 </tr>
 
                 <tr>
-                  <td>Status</td>
-                  <td>{{ user.status }}</td>
+                  <td>Last Login</td>
+                  <td>{{ nowTime(user.last_login_date) }}</td>
                 </tr>
 
                 <tr>
                   <td>Account creation</td>
                   <td>{{ nowTime(user.creation_date) }}</td>
                 </tr>
-
               </tbody>
             </template>
           </v-simple-table>
