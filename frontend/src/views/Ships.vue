@@ -331,7 +331,8 @@ export default {
     },
 
     getShipScalingRatio(ship) {
-      let scale = (window.innerWidth / 2.5) / Math.max(ship.interior_sprite.width,ship.interior_sprite.height)
+      let baseRatio = this.$vuetify.breakpoint.xsOnly ? 1.1 : 2.5
+      let scale = (window.innerWidth / baseRatio) / Math.max(ship.interior_sprite.width,ship.interior_sprite.height)
       scale = scale > 1 ? 1 : scale
       return scale
     },
