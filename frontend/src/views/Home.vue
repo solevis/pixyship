@@ -409,7 +409,7 @@ export default {
           first = false
         }
 
-        result += option.name + '(' + option.value + ')'
+        result += option.name + ' (' + option.value + ')'
 
         
       });
