@@ -133,7 +133,7 @@
               x="0" y="0" 
               :height="ship.interior_sprite.height" 
               :width="ship.interior_sprite.width" 
-              :filter="showTrueColor ? 'url(#interior-color-filter)' : ''"
+              filter="url(#interior-color-filter)"
             />
 
             <!-- Rooms -->
@@ -154,7 +154,7 @@
                 </foreignObject>
 
                 <!-- Room sprite -->
-                <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height" :filter="showTrueColor && !room.show_frame ? 'url(#interior-color-filter)' : ''">
+                <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height" :filter="!room.show_frame ? 'url(#interior-color-filter)' : ''">
                   <body xmlns="http://www.w3.org/1999/xhtml">
                   <div :style="spriteStyle(room.sprite)"></div>
                   </body>
@@ -176,7 +176,7 @@
             </g>
           </svg>
 
-            <svg v-show="!showExterior && !showTrueColor" class="ship" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+          <svg v-show="!showExterior && !showTrueColor" class="ship" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
             <!-- Ship sprite -->
             <image 
               :xlink:href="getSpriteUrl(ship.interior_sprite)" 
@@ -241,7 +241,7 @@
               x="0" y="0" 
               :height="ship.exterior_sprite.height" 
               :width="ship.exterior_sprite.width" 
-              :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''"
+              filter="url(#exterior-color-filter)"
             />
 
             <!-- Rooms -->
@@ -255,7 +255,7 @@
                 :height="`${room.exterior_sprite.height}px`">
 
                 <!-- Room sprite -->
-                <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height" :filter="showTrueColor ? 'url(#exterior-color-filter)' : ''">
+                <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height" filter="url(#exterior-color-filter)">
                   <body xmlns="http://www.w3.org/1999/xhtml">
                   <div :style="spriteStyle(room.exterior_sprite)"></div>
                   </body>
@@ -264,7 +264,7 @@
             </g>
           </svg>
 
-          <svg v-show=" showExterior && !showTrueColor" class="ship" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+          <svg v-show="showExterior && !showTrueColor" class="ship" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
             <!-- Ship sprite -->
             <image 
               :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
@@ -382,7 +382,7 @@ export default {
       searchPlayer: "",
       searchText: "",
       showUpgrades: true,
-      showTrueColor: true,
+      showTrueColor: false,
       showExterior: false,
       loaded: false,
       players: [],
