@@ -114,7 +114,7 @@
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length" align="center" style="border-bottom: 10px solid #393939;">
           <v-row class="ma-3" justify="center">
-            <v-col cols="6">
+            <v-col cols="12" sm="12" md="6">
               <v-card
                 elevation="3"
                 class="px-6 pb-6 pt-2"
