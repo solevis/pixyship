@@ -222,7 +222,7 @@ class PixelStarshipsApi:
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f'https://{self.server}/UserService/SearchUsers'
-        response = self.call(endpoint, params=params, access=True)
+        response = self.call(endpoint, params=params)
         root = ElementTree.fromstring(response.text)
 
         users = []
