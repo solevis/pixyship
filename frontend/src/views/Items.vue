@@ -148,8 +148,10 @@
           <!-- Bonus -->
           <!-- <td class="text-xs-right">{{ formatBonus(item) }}</td> -->
           <td class="text-xs-left text-capitalize bonus">
-            {{ formatBonus(item) }}&nbsp;
-            {{ item.disp_enhancement == null ? "" : item.disp_enhancement }}
+            {{ formatBonus(item) }}
+            <template v-if="item.module_extra_disp_enhancement != null">
+              <br> {{ formatExtraBonus(item) }}
+            </template>
           </td>
 
           <!-- Recipe -->
@@ -368,15 +370,27 @@ export default {
     },
 
     formatBonus(item) {
+      let formatedBonus = ""
+
       if (item.disp_enhancement != null && item.bonus) {
-        return "+" + item.bonus;
+        formatedBonus = item.slot == 'Module' ? '' : '+'
+        formatedBonus += item.bonus + " " + item.disp_enhancement
+      } else if (item.hiddenBonus) {
+        formatedBonus = item.hiddenBonus
       }
 
-      if (item.hiddenBonus) {
-        return item.hiddenBonus;
+      return formatedBonus
+    },
+
+    formatExtraBonus(item) {
+      let formatedBonus = ""
+
+      if (item.module_extra_disp_enhancement != null && item.module_extra_enhancement_bonus) {
+        formatedBonus = item.slot == 'Module' ? '' : '+'
+        formatedBonus += item.module_extra_enhancement_bonus + " " + item.module_extra_disp_enhancement
       }
 
-      return "";
+      return formatedBonus
     },
 
     updateFilters() {

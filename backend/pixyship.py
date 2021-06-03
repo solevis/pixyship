@@ -153,6 +153,14 @@ class Pixyship(metaclass=Singleton):
         5: "Gray",
     }
 
+    MODULE_ENHANCEMENT_MAP = {
+        'Turret': 'Attack'
+    }
+
+    MODULE_BONUS_RATIO_MAP = {
+        'Turret': 100
+    }
+
     def __init__(self):
         self._changes = None
         self._characters = None
@@ -913,6 +921,7 @@ class Pixyship(metaclass=Singleton):
         for record in records:
             item_node = ElementTree.fromstring(record.data)
             item = self.pixel_starships_api.parse_item_node(item_node)
+            module_extra_enhancement = self._parse_module_extra_enhancement(item)
 
             items[record.type_id] = {
                 'name': item['ItemDesignName'],
@@ -923,6 +932,9 @@ class Pixyship(metaclass=Singleton):
                 'enhancement': item.get('EnhancementType').lower(),
                 'disp_enhancement': self.ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
                 'bonus': float(item.get('EnhancementValue')),
+                'module_extra_enhancement': module_extra_enhancement['enhancement'],
+                'module_extra_disp_enhancement': module_extra_enhancement['disp_enhancement'],
+                'module_extra_enhancement_bonus': module_extra_enhancement['bonus'],
                 'type': item.get('ItemType'),
                 'rarity': item.get('Rarity').lower(),
                 'ingredients': item['Ingredients'],
@@ -1603,3 +1615,19 @@ class Pixyship(metaclass=Singleton):
             ratio *= 100
 
         return round(ratio, 2)
+
+    def _parse_module_extra_enhancement(self, item):
+        """Parse module extra enhancement from a given item."""
+
+        enhancement = self.MODULE_ENHANCEMENT_MAP.get(item['ModuleType'], None)
+        disp_enhancement = self.ENHANCE_MAP.get(enhancement, enhancement)
+
+        bonus = None
+        if float(item['ModuleArgument']) != 0:
+            bonus = float(item['ModuleArgument']) / self.MODULE_BONUS_RATIO_MAP.get(item['ModuleType'], 1)
+
+        return {
+            'enhancement': enhancement,
+            'disp_enhancement': disp_enhancement,
+            'bonus': bonus
+        }
