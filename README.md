@@ -1,5 +1,6 @@
 ![Python 3.7](https://github.com/solevis/pixyship/actions/workflows/python.yml/badge.svg?branch=main) 
 ![Node.js 15.x](https://github.com/solevis/pixyship/actions/workflows/nodejs.yml/badge.svg?branch=main)
+[![CodeQL](https://github.com/solevis/pixyship/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/solevis/pixyship/actions/workflows/codeql-analysis.yml)
 
 # PixyShip
 
