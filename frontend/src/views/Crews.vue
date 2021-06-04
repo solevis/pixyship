@@ -248,7 +248,8 @@ export default {
           value: "rarity", 
           filter: value => { 
             return this.filterCombobox(value, this.searchRarity)
-          } 
+          },
+          sort: this.sortRarity,
         },
         { 
           text: "Special", 

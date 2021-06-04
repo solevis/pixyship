@@ -4,13 +4,13 @@ import moment from 'moment'
 const apiServer = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '/'
 const spriteServer = '//pixelstarships.s3.amazonaws.com/'
 const rarityOrder = {
-  "Common": 0,
-  "Elite": 1,
-  "Unique": 2,
-  "Epic": 3, 
-  "Hero": 4, 
-  "Special": 5, 
-  "Legendary": 6, 
+  "common": 0,
+  "elite": 1,
+  "unique": 2,
+  "epic": 3, 
+  "hero": 4, 
+  "special": 5, 
+  "legendary": 6, 
 } 
 
 export default {
@@ -314,8 +314,8 @@ export default {
     },
 
     sortRarity(a, b) {
-      let rarityAOrder = this.rarityOrder[a]
-      let rarityBOrder = this.rarityOrder[b]
+      let rarityAOrder = this.rarityOrder[a.toLowerCase()]
+      let rarityBOrder = this.rarityOrder[b.toLowerCase()]
 
       return this.sortAlphabeticallyExceptNone(rarityAOrder, rarityBOrder)
     },
