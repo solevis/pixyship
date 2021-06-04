@@ -204,7 +204,7 @@
                       </tr>
 
                       <tr v-show="item.manufacture_capacity">
-                        <td>Manufacture Capacity</td>
+                        <td>{{ item.manufacture_capacity_label == null ? 'Manufacture Capacity' : item.manufacture_capacity_label }}</td>
                         <td>{{ item.manufacture_capacity }}</td>
                       </tr>
 

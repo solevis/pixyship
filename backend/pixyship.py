@@ -161,6 +161,14 @@ class Pixyship(metaclass=Singleton):
         'Turret': 100
     }
 
+    MANUFACTURE_CAPACITY_MAP = {
+        'Shield': 'Restore'
+    }
+
+    MANUFACTURE_CAPACITY_RATIO_MAP = {
+        'Shield': 100
+    }
+
     def __init__(self):
         self._changes = None
         self._characters = None
@@ -743,7 +751,8 @@ class Pixyship(metaclass=Singleton):
                 'enhancement_type': room['EnhancementType'],
                 'manufacture_type': room['ManufactureType'],
                 'manufacture_rate': float(room['ManufactureRate']),
-                'manufacture_capacity': int(room['ManufactureCapacity']),
+                'manufacture_capacity': int(room['ManufactureCapacity']) / self.MANUFACTURE_CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
+                'manufacture_capacity_label': self.MANUFACTURE_CAPACITY_MAP.get(room['RoomType'], None),
                 'cooldown_time': int(room['CooldownTime']),
                 'requirement': self._parse_requirement(room['RequirementString']),
                 'extension_grids': int(room.get('SupportedGridTypes', '0')) & 2 != 0,
