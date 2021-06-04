@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import random
 import re
@@ -16,6 +17,15 @@ class PixelStarshipsApi:
     """Manage Pixel Starships API."""
 
     MIN_DEVICES = 10
+    PSS_START_DATE = datetime.date(year=2016, month=1, day=6)
+
+    IAP_OPTIONS_MASK_LOOKUP = [
+        500,
+        1200,
+        2500,
+        6500,
+        14000
+    ]
 
     def __init__(self):
         self.__api_settings = self.get_api_settings()
@@ -203,6 +213,44 @@ class PixelStarshipsApi:
 
         return inspect_ship
 
+    def search_users(self, user_name, exact_match = False):
+        """Get player ship data from API."""
+
+        params = {
+            'searchstring': user_name,
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/UserService/SearchUsers'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        users = []
+
+        if exact_match:
+            user_node = root.find('.//User[@Name="{}"]'.format(user_name))
+
+            user = self.parse_user_node(user_node)
+
+            user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
+            users.append(user)
+        else:
+            users_node = root.find('.//User')
+
+            for user_node in users_node:
+                user = self.parse_user_node(user_node)
+
+                user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
+                users.append(user)
+
+        return users
+
+    @staticmethod
+    def parse_user_node(user_node):
+        """Extract user data from XML node."""
+
+        return user_node.attrib
+
     def get_dailies(self):
         """Get dailies from settings service from API."""
 
@@ -251,6 +299,34 @@ class PixelStarshipsApi:
         """Extract character data from XML node."""
 
         return sprite_node.attrib
+
+    def get_rooms_sprites(self):
+        """Get rooms sprites from API."""
+
+        params = {
+            'version': self.__api_settings['RoomDesignSpriteVersion']
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/RoomDesignSpriteService/ListRoomDesignSprites'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        rooms_sprites = []
+        room_sprites_nodes = root.find('.//RoomDesignSprites')
+
+        for room_sprites_node in room_sprites_nodes:
+            room_sprites = self.parse_room_sprite_node(room_sprites_node)
+            room_sprites['pixyship_xml_element'] = room_sprites_node  # custom field, return raw XML data too
+            rooms_sprites.append(room_sprites)
+
+        return rooms_sprites
+
+    @staticmethod
+    def parse_room_sprite_node(room_sprite_node):
+        """Extract room sprite data from XML node."""
+
+        return room_sprite_node.attrib
 
     def get_ships(self):
         """Get ships designs from API."""
@@ -313,6 +389,9 @@ class PixelStarshipsApi:
     def get_rooms(self):
         """Get room designs from API."""
 
+        # get room purchase
+        rooms_purchase = self.get_rooms_purchase()
+
         params = {
             'version': self.__api_settings['RoomDesignSpriteVersion'],
             'languageKey': 'en'
@@ -327,7 +406,16 @@ class PixelStarshipsApi:
         room_nodes = root.find('.//RoomDesigns')
 
         for room_node in room_nodes:
+            # if room purchase, add node to room node
+            room_purchase = next(
+                (room_purchase for room_purchase in rooms_purchase if room_purchase['RoomDesignId'] == room_node.attrib['RootRoomDesignId']),
+                None
+            )
+            if room_purchase:
+                room_node.set('AvailabilityMask', room_purchase['AvailabilityMask'])
+
             room = self.parse_room_node(room_node)
+
             room['pixyship_xml_element'] = room_node  # custom field, return raw XML data too
             rooms.append(room)
 
@@ -346,6 +434,35 @@ class PixelStarshipsApi:
             room['MissileDesign'] = None
 
         return room
+
+    def get_rooms_purchase(self):
+        """Get room designs from API."""
+
+        params = {
+            'version': self.__api_settings['RoomDesignPurchaseVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/RoomService/ListRoomDesignPurchase'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        rooms_purchase = []
+        room_purchase_nodes = root.find('.//RoomDesignPurchases')
+
+        for room_purchase_node in room_purchase_nodes:
+            room_purchase = self.parse_room_node(room_purchase_node)
+            room_purchase['pixyship_xml_element'] = room_purchase_node  # custom field, return raw XML data too
+            rooms_purchase.append(room_purchase)
+
+        return rooms_purchase
+
+    @staticmethod
+    def parse_room_purchase_node(room_purchase_node):
+        """Extract room purchase data from XML node."""
+
+        return room_purchase_node.attrib.copy()
 
     def get_characters(self):
         """Get character designs from API."""
@@ -639,3 +756,22 @@ class PixelStarshipsApi:
         """Extract prestige data from XML node."""
 
         return prestige_node.attrib.copy()
+
+    def get_stardate(self):
+        """Compute Stardate."""
+
+        utc_now = datetime.datetime.utcnow()
+        today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
+        return (today - self.PSS_START_DATE).days
+
+    def parse_sale_item_mask(self, sale_item_mask):
+        """"From SaleItemMask determine Sale options."""
+
+        equipment_mask = int(sale_item_mask)
+        output = [int(x) for x in '{:05b}'.format(equipment_mask)]
+        options = [self.IAP_OPTIONS_MASK_LOOKUP[4 - i] for i, b in enumerate(output) if b]
+
+        # reverse order
+        options.reverse()
+
+        return options

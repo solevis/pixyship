@@ -43,6 +43,8 @@ def test_inspect_ship():
     ship = inspect_ship['Ship']
     assert 'ShipDesignId' in ship
     assert 'ImmunityDate' in ship
+    assert 'ShipStatus' in ship
+    assert 'OriginalRaceId' in ship
 
     # Room
     room = inspect_ship['Ship']['Rooms'][0]
@@ -194,6 +196,15 @@ def test_rooms():
     assert 'SystemDamage' in room_with_missile_design['MissileDesign']
     assert 'HullDamage' in room_with_missile_design['MissileDesign']
     assert 'CharacterDamage' in room_with_missile_design['MissileDesign']
+
+    room_with_purchase = None
+    for room in rooms:
+        if room['AvailabilityMask']:
+            room_with_purchase = room
+            break
+
+    assert room_with_purchase
+    assert 'AvailabilityMask' in room_with_purchase
 
 
 def test_characters():
@@ -363,3 +374,41 @@ def test_prestiges_character_from():
     prestige = prestiges[0]
     assert 'CharacterDesignId1' in prestige
     assert 'CharacterDesignId2' in prestige
+
+
+def test_rooms_purchase():
+    pixel_starships_api = PixelStarshipsApi()
+    rooms_purchase = pixel_starships_api.get_rooms_purchase()
+
+    assert len(rooms_purchase) > 0
+
+    room_purchase = rooms_purchase[0]
+    assert 'RoomDesignId' in room_purchase
+    assert 'AvailabilityMask' in room_purchase
+
+
+def test_search_users():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    user_name_to_search = 'Solevis'
+    users = pixel_starships_api.search_users(user_name_to_search, True)
+
+    assert len(users) == 1
+
+    user = users[0]
+    assert 'Name' in user
+    assert user['Name'] == user_name_to_search
+
+    assert 'PVPAttackWins' in user
+    assert 'PVPAttackLosses' in user
+    assert 'PVPAttackDraws' in user
+    assert 'PVPDefenceDraws' in user
+    assert 'PVPDefenceWins' in user
+    assert 'PVPDefenceLosses' in user
+    assert 'HighestTrophy' in user
+    assert 'CrewDonated' in user
+    assert 'CrewReceived' in user
+    assert 'AllianceJoinDate' in user
+    assert 'CreationDate' in user

@@ -1,324 +1,546 @@
 <template>
-  <div>
-    <v-app dark>
-      <ps-header/>
-      Players
-      <v-container>
-        <v-layout class="column">
-          <v-autocomplete
-            v-model="search"
-            :items="data"
-            :search-input.sync="searchText"
-            label="Search"
-            placeholder="search by name"
-            :no-filter="true"
-            :dense="true"
-            item-text="name">
-            <template slot-scope="p" slot="item">
-              <div class="text-xs-right lh-1 mr-2" style="width: 3em">{{ p.item.trophies}}</div>
-              <div class="text-xs-left lh-1 mr-5" style="width: 10em">{{ p.item.name }}</div>
-              <div class="block my-1 mr-1" :style="spriteStyle(p.item.alliance_sprite)"></div>
-              {{ p.item.alliance }}
+  <v-card :loading="isLoading">
+    <v-card-title class="overline">> Players </v-card-title>
+    <v-card-subtitle>Search top players and see their layout (click the gear icon for options)</v-card-subtitle>
+
+    <v-toolbar v-if="loaded" flat color="#1E1E1E">
+      <v-autocomplete
+        v-model="searchPlayer"
+        :search-input.sync="searchText"
+        :items="players"
+        clearable
+        placeholder="Search player by name"
+        item-text="name"
+        item-value="name"
+        hide-no-data
+        hide-details
+        outlined
+        class="mt-2"
+      >
+      
+        <template v-slot:item="data" v-if="$vuetify.breakpoint.xs">
+          <div style="width: 10em" class="ml-2">{{ data.item.name }}</div>
+        </template>
+        <template v-slot:item="data" v-else>
+          <div style="width: 5em" class="mr-2"><v-icon style="font-size: 16px" class="mr-2">mdi-trophy-outline</v-icon>{{ data.item.trophies}}</div>
+          <div style="width: 10em" class="ml-2">{{ data.item.name }}</div>
+          <div class="block my-1 mr-1" :style="spriteStyle(data.item.alliance_sprite)"></div>
+          {{ data.item.alliance }}
+        </template>
+      </v-autocomplete>
+
+      <v-menu 
+        v-model="menu"
+        :close-on-content-click="false"
+        offset-y
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="mt-2 mx-1"
+            v-bind="attrs"
+            v-on="on"
+            icon
+            large
+            aria-label="Options"
+          >
+            <v-icon>mdi-cog</v-icon>
+          </v-btn>
+        </template>
+        
+        <v-card>
+          <v-list>
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch
+                  v-model="showUpgrades"
+                ></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>Show upgrades</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch
+                  v-model="showTrueColor"
+                ></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>Show true color</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch
+                  v-model="showExterior"
+                ></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>Show exterior</v-list-item-title>
+            </v-list-item>
+          </v-list>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn
+              text
+              @click="menu = false"
+            >
+              Close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
+    </v-toolbar>
+
+    <v-row justify="center">
+      <v-col cols="6" class="text-center">
+        <v-progress-circular
+          class="mt-5"
+          :size="200"
+          color="blue-grey"
+          indeterminate
+          v-if="shipLoading"
+        ></v-progress-circular>
+      </v-col>
+    </v-row>
+
+    <v-row justify="center" v-if="showShip">
+      <v-col cols="6" class="text-center">
+        Level {{ ship.level }} / {{ ship.name }} <v-btn class="ml-4" elevation="1" outlined small @click="openShipInBuilder">Edit in Builder</v-btn>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="showShip">
+      <v-col cols="12" class="ship-panel">
+        <!-- ############################################################################### -->
+        <!-- Create 4 SVG, because conditional filter inside SVG is broken for some browsers -->
+        <!-- ############################################################################### -->
+
+          <svg v-show="!showExterior && showTrueColor" class="ship" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+            <!-- Ship color -->
+            <filter id="interior-color-filter">
+              <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
+              <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.interior_sprite.trueColorStyle.filter.saturate" />
+              <feComponentTransfer in="saturate-filter" result="contrast-filter">
+                <feFuncR type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncR>
+                <feFuncG type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncG>
+                <feFuncB type="linear" :slope="ship.interior_sprite.trueColorStyle.filter.brightness"></feFuncB>
+              </feComponentTransfer>
+            </filter>
+
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.interior_sprite)" 
+              x="0" y="0" 
+              :height="ship.interior_sprite.height" 
+              :width="ship.interior_sprite.width" 
+              filter="url(#interior-color-filter)"
+            />
+
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
+                :width="`${room.sprite.width}px`" 
+                :height="`${room.sprite.height}px`"
+                >
+
+                <!-- Room in upgrade -->
+                <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.construction_sprite)"></div>
+                  </body>
+                </foreignObject>
+
+                <!-- Room sprite -->
+                <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height" :filter="!room.show_frame ? 'url(#interior-color-filter)' : ''">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.sprite)"></div>
+                  </body>
+                </foreignObject>
+
+                <!-- Room name -->
+                <text class="room-name" x="2" y="9">{{ room.short_name }}</text>
+
+                <!-- Power used -->
+                <text class="power-use" v-if="room.power_use > 0" :x="room.width * 25 - 7" y="9">
+                  {{ room.power_use}}
+                </text>
+
+                <!-- Power generated -->
+                <text class="power-gen" v-if="room.power_gen > 0" :x="room.width * 25 - 9" y="9">
+                  {{ room.power_gen }}
+                </text>
+              </svg>
+            </g>
+          </svg>
+
+          <svg v-show="!showExterior && !showTrueColor" class="ship" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.interior_sprite)" 
+              x="0" y="0" 
+              :height="ship.interior_sprite.height" 
+              :width="ship.interior_sprite.width" 
+            />
+
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
+                :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
+
+                <!-- Room in upgrade -->
+                <foreignObject v-if="showUpgrades && room.construction" class="room" :width="room.sprite.width" :height="room.sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.construction_sprite)"></div>
+                  </body>
+                </foreignObject>
+
+                <!-- Room sprite -->
+                <foreignObject v-else class="room" :width="room.sprite.width" :height="room.sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.sprite)"></div>
+                  </body>
+                </foreignObject>
+
+                <!-- Room name -->
+                <text class="room-name" x="2" y="9">{{ room.short_name }}</text>
+
+                <!-- Power used -->
+                <text class="power-use" v-if="room.power_use > 0" :x="room.width * 25 - 7" y="9">
+                  {{ room.power_use}}
+                </text>
+
+                <!-- Power generated -->
+                <text class="power-gen" v-if="room.power_gen > 0" :x="room.width * 25 - 9" y="9">
+                  {{ room.power_gen }}
+                </text>
+              </svg>
+            </g>
+          </svg>
+
+          <svg v-show="showExterior && showTrueColor" class="ship" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+            <!-- Ship color -->
+            <filter id="exterior-color-filter">
+              <feColorMatrix in="SourceGraphic" result="hue-filter" type="matrix" color-interpolation-filters="sRGB" :values="hueRotate(ship.interior_sprite.trueColorStyle.filter.hue)" />
+              <feColorMatrix in="hue-filter" result="saturate-filter" type="saturate" :values="ship.exterior_sprite.trueColorStyle.filter.saturate" />
+              <feComponentTransfer in="saturate-filter" result="contrast-filter">
+                <feFuncR type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncR>
+                <feFuncG type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncG>
+                <feFuncB type="linear" :slope="ship.exterior_sprite.trueColorStyle.filter.brightness"></feFuncB>
+              </feComponentTransfer>
+            </filter>
+
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
+              x="0" y="0" 
+              :height="ship.exterior_sprite.height" 
+              :width="ship.exterior_sprite.width" 
+              filter="url(#exterior-color-filter)"
+            />
+
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                v-if="room.exterior_sprite"
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
+                :width="`${room.exterior_sprite.width}px`" 
+                :height="`${room.exterior_sprite.height}px`">
+
+                <!-- Room sprite -->
+                <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height" filter="url(#exterior-color-filter)">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.exterior_sprite)"></div>
+                  </body>
+                </foreignObject>
+              </svg>
+            </g>
+          </svg>
+
+          <svg v-show="showExterior && !showTrueColor" class="ship" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
+            <!-- Ship sprite -->
+            <image 
+              :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
+              x="0" y="0" 
+              :height="ship.exterior_sprite.height" 
+              :width="ship.exterior_sprite.width" 
+            />
+
+            <!-- Rooms -->
+            <g v-for="room in rooms" :key="room.id">
+              <svg 
+                v-if="room.exterior_sprite"
+                :x="`${room.column * 25}px`" 
+                :y="`${room.row * 25}px`"
+                :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
+                :width="`${room.exterior_sprite.width}px`" :height="`${room.exterior_sprite.height}px`">
+
+                <!-- Room sprite -->
+                <foreignObject class="room" :width="room.exterior_sprite.width" :height="room.exterior_sprite.height">
+                  <body xmlns="http://www.w3.org/1999/xhtml">
+                  <div :style="spriteStyle(room.exterior_sprite)"></div>
+                  </body>
+                </foreignObject>
+              </svg>
+            </g>
+          </svg>
+      </v-col>
+    </v-row>
+
+    <v-row justify="center">
+      <v-col cols="12" sm="12" md="6">
+        <v-card
+          v-if="showShip"
+          outlined
+          shaped
+        >
+
+          <v-card-title>
+            {{ user.name}}
+          </v-card-title>
+
+          <v-card-subtitle>
+            {{ ship.name }} (Level {{ ship.level }})
+          </v-card-subtitle>
+
+          <v-simple-table dense class="px-6 pb-6 pt-2">
+            <template v-slot:default>
+              <tbody>
+                <tr v-show="user.alliance_name">
+                  <td>Alliance (Rank)</td>
+                  <td>{{ user.alliance_name }} ({{ user.alliance_membership }})</td>
+                </tr>
+
+                <tr v-show="user.alliance_name">
+                  <td>Alliance Join Date</td>
+                  <td>{{ nowTime(user.alliance_join_date) }}</td>
+                </tr>
+
+                <tr v-show="user.alliance_name">
+                  <td>Crews Donated/Borrowed</td>
+                  <td>{{ user.crew_donated }} / {{ user.crew_received }}</td>
+                </tr>
+
+                <tr>
+                  <td>Trophies</td>
+                  <td>{{ user.trophies }} (highest: {{ user.highest_trophy }})</td>
+                </tr>
+
+                <tr>
+                  <td>Attacks Win/Loss/Draw</td>
+                  <td>{{ user.pvpattack_wins }} / {{ user.pvpattack_losses }} / {{ user.pvpattack_draws }} ({{ user.pvpattack_ratio }}%)</td>
+                </tr>
+
+                <tr>
+                  <td>Defenses Win/Loss/Draw</td>
+                  <td>{{ user.pvpdefence_wins }} / {{ user.pvpdefence_losses }} / {{ user.pvpdefence_draws }} ({{ user.pvpdefence_ratio }}%)</td>
+                </tr>
+
+                <tr>
+                  <td>Faction</td>
+                  <td>{{ user.race }}</td>
+                </tr>
+
+                <tr>
+                  <td>Last Login</td>
+                  <td>{{ nowTime(user.last_login_date) }}</td>
+                </tr>
+
+                <tr>
+                  <td>Account Creation</td>
+                  <td>{{ nowTime(user.creation_date) }}</td>
+                </tr>
+              </tbody>
             </template>
-          </v-autocomplete>
-          <br/>
-
-          <table class="main-table" v-if="showData">
-            <tr>
-              <td class="ps-left">
-                Level {{ ship.level }}
-<!--                <div :style="ship.logo_sprite.style" class="middle block"></div>-->
-                {{ ship.name }}
-<!--                <v-btn @click="copyUrl">Copy Link</v-btn>-->
-                <v-btn @click="openShipInBuilder">Edit in Builder</v-btn>
-                <br/>
-                <template v-if="ship.char_attack">
-                  <input v-model="showRoomUpgrades" type="checkbox" v-on:click="confirmOwnership"> Show Upgradable Rooms</input>
-                  <br/>
-                </template>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <svg :style="ship.interior_sprite.style">
-                  <g v-for="r in rooms">
-                    <svg :x="`${r.column * 25}px`" :y="`${r.row * 25}px`"
-                      :viewbox="`${r.sprite.x} ${r.sprite.y} ${r.sprite.width} ${r.sprite.height}`"
-                      :width="`${r.sprite.width}px`" :height="`${r.sprite.height}px`">
-<!--                      <foreignObject v-if="r.construction" class="room" width="125" height="75">-->
-<!--                        <body xmlns="http://www.w3.org/1999/xhtml">-->
-<!--                        <div :style="spriteStyle(r.construction_sprite)"></div>-->
-<!--                        </body>-->
-<!--                      </foreignObject>-->
-<!--v-else-->
-<!--                      <foreignObject v-if="r.show_frame" class="room" width="125" height="75" x="1" y="11"-->
-<!--                        :transform="`scale(1 ${r.height/2})`">-->
-<!--                        <body xmlns="http://www.w3.org/1999/xhtml">-->
-<!--                        <div class="door" :style="spriteStyle(ship.left_door_sprite)"></div>-->
-<!--                        </body>-->
-<!--                      </foreignObject>-->
-<!--                      <foreignObject v-if="r.show_frame" class="room" width="125" height="75" x="3" y="11"-->
-<!--                        :transform="`scale(1 ${r.height/2})`">-->
-<!--                        <body xmlns="http://www.w3.org/1999/xhtml">-->
-<!--                        <div class="door" :style="spriteStyle(ship.right_door_sprite)"></div>-->
-<!--                        </body>-->
-<!--                      </foreignObject>-->
-                      <foreignObject v-if="r.show_frame" class="room" width="125" height="75"
-                        :transform="`scale(${r.sprite.width/75} ${r.sprite.height/50})`">
-                        <body xmlns="http://www.w3.org/1999/xhtml">
-                        <div :style="spriteStyle(ship.frame_sprite)"></div>
-                        </body>
-                      </foreignObject>
-                      <foreignObject class="room" width="125" height="75">
-                        <body xmlns="http://www.w3.org/1999/xhtml">
-                        <div :style="spriteStyle(r.sprite)"></div>
-                        </body>
-                      </foreignObject>
-                      <rect v-if="r.upgradable && showRoomUpgrades" class="upgradable" x="1" y="1" :width="r.width * 25 - 2" :height="r.height * 25 - 2"></rect>
-                      <text class="room-name" x="2" y="9">{{ r.short_name }}</text>
-                      <text class="defense" v-if="r.armor && (r.power_use + r.power_gen > 0)" x="2" y="19">
-                        {{ (1 - 100 / (100 + r.defense + r.armor)).toLocaleString('en-US', {style: 'percent'}) }}
-                      </text>
-                      <text class="power-use" v-if="r.power_use > 0" :x="r.width * 25 - 7" y="9">
-                        {{ r.power_use}}
-                      </text>
-                      <text class="power-gen" v-if="r.power_gen > 0" :x="r.width * 25 - 9" y="9">
-                        {{ r.power_gen }}
-                      </text>
-                    </svg>
-                  </g>
-                </svg>
-              </td>
-            </tr>
-          </table>
-
-        </v-layout>
-      </v-container>
-      <div>
-        <a href="http://www.pixelstarships.com">Pixel Starships</a>
-      </div>
-    </v-app>
-  </div>
+          </v-simple-table>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
 
 <script>
-
-import axios from 'axios'
-import Vue from 'vue'
-import Crew from '@/components/Crew'
-import Header from '@/components/Header'
-import 'vuetify/dist/vuetify.min.css'
-import mixins from '@/mixins/Common.vue.js'
+import axios from "axios";
+import mixins from "@/mixins/PixyShip.vue.js";
 import _ from 'lodash'
-require('../assets/common.css')
-
-Vue.component('crew', Crew)
-Vue.component('ps-header', Header)
-
-function styleFromSprite (s, color = '', border = 0, ninepatch = 0) {
-  if (Object.keys(s).length === 0) {
-    return {}
-  }
-  return {
-    background: `${color} url('//pixelstarships.s3.amazonaws.com/${s.source}.png') -${s.x}px -${s.y}px`,
-    width: `${s.width}px`,
-    height: `${s.height}px`,
-    border: `${border}px solid lightgrey`,
-    imageRendering: 'pixelated'
-  }
-}
-
-function embedSpriteStyle (s, color = '', border = 0) {
-  s.style = styleFromSprite(s, color, border)
-}
 
 export default {
   mixins: [mixins],
 
-  data () {
-    return {
-      confirmDialog: false,
-      data: [],
-      errorMessage: '',
-      headers: [
-        {text: 'Trophies', value: 'trophies', align: 'right', sortable: false},
-        {text: 'Name', value: 'name', sortable: false},
-        {text: 'Alliance', value: 'alliance', sortable: false}
-      ],
-      message: '',
-      pagination: {sortBy: 'trophies', descending: true, rowsPerPage: 100},
-      search: '',
-      searchText: '',
-      showData: false,
-      tab: 0, // TODO Check/Remove
-      ship: {}
-    }
-  },
+  components: {},
 
-  created: function () {
-    this.getData()
+  data() {
+    return {
+      menu: false,
+      searchPlayer: "",
+      searchText: "",
+      showUpgrades: true,
+      showTrueColor: false,
+      showExterior: false,
+      loaded: false,
+      players: [],
+      showShip: false,
+      shipLoading: false,
+      ship: {},
+    };
   },
 
   watch: {
-    searchText(val) {
-        this.getData()
+    searchPlayer(val) {
+      this.showShip = !!val
+      this.getShip(val)
     },
 
-    search(val) {
-      // this.searchText(val)
-      this.showData = !!val
-      this.getChar(val)
-      // This is when we try to get the
-    }
+    searchText() {
+        this.getPlayers()
+    },
+  },
+
+  computed: {
+    isLoading: function () {
+      return !this.loaded;
+    },
+  },
+
+  created() {
+    document.title = 'PixyShip - ' + this.$route.name
+  },
+
+  beforeMount: function () {
+    this.getPlayers();
   },
 
   methods: {
-    getData: _.debounce(async function () {
-      const res = await axios.get(
+    getPlayers: _.debounce(async function () {
+      const response = await axios.get(
         this.playersEndpoint,
         {params: {search: this.searchText}}
       )
-      this.data = res.data
+      this.players = response.data
+      this.loaded = true
     }, 250),
 
-    copyUrl () {
-      this.$copyText(window.location.href)
+    getShip: async function(searchName) {
+      if (!searchName) {
+        return
+      }
+
+      this.shipLoading = true;
+      this.showShip = false;
+      const endpoint = this.shipEndpoint + encodeURIComponent(searchName);
+
+      const response = await axios.get(
+        endpoint,
+        {params: {key: this.searchName}}
+      )
+
+      if (response.data.data.status !== 'not found') {
+        this.rooms = response.data.data.rooms;
+        this.user = response.data.data.user;
+        this.ship = response.data.data.ship;
+
+        this.embedSpriteStyle(this.user.sprite, 'grey');
+        this.embedSpriteStyle(this.user.alliance_sprite, 'grey');
+        this.embedSpriteStyle(this.ship.exterior_sprite);
+        this.embedTrueColorSpriteStyle(this.ship.exterior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness);
+        this.embedSpriteStyle(this.ship.interior_sprite);
+        this.embedTrueColorSpriteStyle(this.ship.interior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness);
+        this.embedSpriteStyle(this.ship.logo_sprite, 'grey');
+
+        this.shipLoading = false;
+        this.showShip = true;
+      }
+    },
+
+    embedSpriteStyle (sprite, color = '', border = 0) {
+      sprite.style = this.styleFromSprite(sprite, color, border)
+    },
+
+    embedTrueColorSpriteStyle (sprite, hue, saturation, brightness) {
+      sprite.trueColorStyle = {
+        filter: {
+          hue: parseFloat(hue) * 360,
+          brightness: (parseFloat(brightness) * 5) + 1,
+          saturate: parseFloat(saturation) + 1
+        }
+      }
     },
 
     openShipInBuilder () {
-      if (!this.ship) return
+      if (!this.ship) {
+        return
+      }
 
       let path = '/builder?ship=' + this.ship.id
       if (this.rooms) {
         path += '&rooms=' + this.rooms.map(r => `${r.column},${r.row},${r.design_id}`).join('-')
       }
-      window.location.href = path
+
+      this.$router.push({ path: path })
     },
 
-    // getKeyFromName(name) {
-    //   const key = Object
-    //     .values(this.shipList)
-    //     .filter(x => x.name === name)
-    //     .map(x => x.key)
-    //   return key[0]
-    // },
+    hueRotate(rotation) {
+      rotation = (rotation || 0) / 180 * Math.PI;
+      let cosR = Math.cos(rotation),
+        sinR = Math.sin(rotation),
+        sqrt = Math.sqrt;
 
-    getChar(searchName) {
-      if (!searchName) {
-        return
-      }
-      this.spinner = 'display: inline-block';
-      this.showData = false;
-      this.errorMessage = '';
-      const endpoint = this.shipEndpoint + encodeURIComponent(searchName);
-      // const key = this.getKeyFromName(searchName);
-      axios.get(endpoint, {
-        withCredentials: true,
-        params: {key: searchName}
-      })
-        .then(r => {
-          // this.shipData = getShipData();
+      let w = 1 / 3, sqrW = sqrt(w);
+      let a00 = cosR + (1.0 - cosR) * w;
+      let a01 = w * (1.0 - cosR) - sqrW * sinR;
+      let a02 = w * (1.0 - cosR) + sqrW * sinR;
+      let a10 = w * (1.0 - cosR) + sqrW * sinR;
+      let a11 = cosR + w * (1.0 - cosR);
+      let a12 = w * (1.0 - cosR) - sqrW * sinR;
+      let a20 = w * (1.0 - cosR) - sqrW * sinR;
+      let a21 = w * (1.0 - cosR) + sqrW * sinR;
+      let a22 = cosR + w * (1.0 - cosR);
 
-          if (r.data.data.status === 'not found') {
-            this.errorMessage = "Can't find a ship for \"" + searchName + '"'
-          } else {
-            this.rooms = r.data.data.rooms;
-            this.user = r.data.data.user;
-            // this.upgrades = r.data.data.upgrades;
-            embedSpriteStyle(this.user.sprite, 'grey');
-            embedSpriteStyle(this.user.alliance_sprite, 'grey');
-            this.ship = r.data.data.ship;
-            embedSpriteStyle(this.ship.exterior_sprite);
-            embedSpriteStyle(this.ship.interior_sprite);
-            embedSpriteStyle(this.ship.logo_sprite, 'grey');
-            this.showData = true;
-            if (this.user.confirmed) {
-              this.columns = ['character_id', 'level', 'name', 'equipment', 'rarity_order', 'hp', 'attack', 'repair',
-                'special_ability', 'ability', 'pilot', 'science', 'engine', 'weapon', 'fire_resist', 'stamina',
-                'training', 'walk']
-            } else {
-              this.columns = ['character_id', 'level', 'name', 'special_ability'];
-              this.user.verified = false;
-              this.user.key = null;
-            }
+      let matrix = [
+        a00, a01, a02, 0, 0,
+        a10, a11, a12, 0, 0,
+        a20, a21, a22, 0, 0,
+        0, 0, 0, 1, 0,
+      ];
 
-            this.updateShipList(this.user.id, this.user)
-          }
-          this.spinner = 'display: none';
-          this.$router.replace('/?search=' + searchName)
-        })
-        .catch(_ => {
-          this.spinner = 'display: none';
-          this.errorMessage = 'In space, no one can hear you scream.'
-        })
+      return matrix.join(' ');
     },
-  }
-}
+  },
+};
 </script>
 
-<style>
-  /*.record-field {*/
-  /*  max-width: 250px;*/
-  /*}*/
+<style scoped src="@/assets/css/common.css"></style>
+<style scoped>
+.room-name {
+  fill: white;
+  font-size: 8px;
+}
 
-  .v-datatable, .v-datatable__actions {
-    background-color: inherit !important;
-  }
+.power-gen{
+  fill: lime;
+  font-weight: 700;
+  font-size: 8px;
+}
 
-  .v-datatable td {
-    height: unset !important;
-  }
+.power-use {
+  fill: yellow;
+  font-weight: 700;
+  font-size: 8px;
+}
 
-  .v-datatable td,
-  .v-datatable th {
-    padding: 0 5px !important;
-    color: white !important;
-  }
+.ship {
+  display: block;
+  margin: 0px auto;
+}
 
-  .v-datatable tr {
-    height: unset !important;
-  }
-
-  .application.theme--dark {
-    background-color: black;
-  }
-
-  .block {
-    display: inline-block;
-  }
-
-  :visited {
-    color: #24E3FF;
-  }
-
-  :link {
-    color: #FF5656;
-    text-decoration: none;
-  }
-
-  td > div {
-    text-align: left;
-    vertical-align: top;
-  }
-
-  .v-list--dense .v-list__tile:not(.v-list__tile--avatar) {
-    height: 24px;
-  }
-
-  .room-name {
-    fill: white;
-    font-size: 8px;
-  }
-
-  .power-gen{
-    fill: lime;
-    font-weight: 700;
-    font-size: 8px;
-  }
-
-  .power-use {
-    fill: yellow;
-    font-weight: 700;
-    font-size: 8px;
-  }
+.ship-panel {
+  overflow: auto;
+}
 </style>

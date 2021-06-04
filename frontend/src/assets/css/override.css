@@ -1,0 +1,11 @@
+.v-data-table-header th {
+    white-space: nowrap;
+}
+
+.v-data-table td {
+    padding: 0 5px !important;
+}
+
+.v-data-table th {
+    padding: 0 5px !important;
+}

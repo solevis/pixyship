@@ -1,5 +1,8 @@
 dist/
 sprites/
 .DS_Store
+*.old
+*.bak
+*.diff
 .vscode
 .idea
