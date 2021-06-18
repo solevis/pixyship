@@ -843,6 +843,7 @@ class Pixyship(metaclass=Singleton):
                 'collection': int(character['CollectionDesignId']),
                 'collection_sprite': None,
                 'collection_name': '',
+                'description': character['CharacterDesignDescription'],
             }
 
             # computed properties
