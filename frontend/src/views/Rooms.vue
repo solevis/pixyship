@@ -452,7 +452,7 @@ export default {
         volley = 1
       }
 
-      let volley_delay = room.volley_delay
+      let volley_delay = room.volley_delay / 40
       if (volley_delay == 0) {
         volley_delay = 1
       }
