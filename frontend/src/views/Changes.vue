@@ -78,7 +78,8 @@
           </td>
 
           <td style="min-width: 250px">
-            {{ item.name }}
+            <span v-if="item.type === 'item' || item.type === 'char'" :class="[item.attributes.Rarity.toLowerCase()]">{{ item.name }}</span>
+            <span v-else>{{ item.name }}</span>
           </td>
 
           <td style="min-width: 150px">{{ item.moment }}</td>
