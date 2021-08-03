@@ -645,6 +645,7 @@ class Pixyship(metaclass=Singleton):
                 'mask': ship['Mask'],
                 'mineral_cost': ship['MineralCost'],
                 'starbux_cost': ship['StarbuxCost'],
+                'item_cost': self._parse_ship_item_cost(ship['UnlockCost'], self.items),
                 'mineral_capacity': ship['MineralCapacity'],
                 'gas_capacity': ship['GasCapacity'],
                 'equipment_capacity': ship['EquipmentCapacity'],
@@ -912,6 +913,34 @@ class Pixyship(metaclass=Singleton):
                     recipe.append(line)
 
         return recipe
+
+    @staticmethod
+    def _parse_ship_item_cost(ship_cost_string, items):
+        """Parse recipe infos from API."""
+
+        ship_item_cost = []
+        if ship_cost_string:
+            costs = [i.split('x') for i in ship_cost_string.split('|')]
+            for cost in costs:
+                # replace hack, 2021 easter event come with additional 'item:' prefix
+                cost_item_id = cost[0].replace('item:', '')
+
+                # not an item, pass
+                if not cost_item_id.isnumeric():
+                    continue
+
+                item = items.get(int(cost_item_id))
+
+                if item:
+                    line = {
+                        'id': cost_item_id,
+                        'name': item['name'],
+                        'sprite': item['sprite'],
+                    }
+
+                    ship_item_cost.append(line)
+
+        return ship_item_cost
 
     def update_items(self):
         """Get items from API and save them in database."""

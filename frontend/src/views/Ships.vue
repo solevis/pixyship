@@ -99,6 +99,10 @@
                     </td>
                     <td>{{ item.starbux_cost }}</td>
                   </tr>
+                  <tr v-for="cost in item.item_cost" :key="item.id + '-' + cost.id" class="nobreak">
+                    <td><div :style="spriteStyle(cost.sprite)"></div></td>
+                    <td>{{ cost.name }}</td>
+                  </tr>
                 </table>
               </td>
 
