@@ -420,6 +420,7 @@ export default {
 };
 </script>
 
+<style scoped src="@/assets/css/common.css"></style>
 <style scoped>
 .expired {
   opacity: 0.5;
