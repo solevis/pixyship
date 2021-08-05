@@ -38,7 +38,7 @@
     </template>
 
     <div>
-      <span :class="[char.rarity, 'font-weight-bold']">{{ char.name }}</span>
+      <span :class="[char.rarity, 'font-weight-bold']">{{ char.name }} <span :class="[char.rarity]">({{char.rarity.charAt(0).toUpperCase() + char.rarity.slice(1) }})</span></span>
       <table style="min-width: 200px">
         <tr>
           <td class="text-xs-right">HP:</td>
