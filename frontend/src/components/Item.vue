@@ -1,46 +1,30 @@
 <template>
   <v-tooltip :disabled="!show" top color="grey darken-3">
     <template v-slot:activator="{ on, attrs }">
-      <div v-bind="attrs" v-on="on" :aria-label="item.name">
-        
-        <div v-if="name === 'top'" class="name">
-          {{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span>
+      <div v-bind="attrs" v-on="on">
+        <div v-if="!name" :aria-label="item.name">
+          <div class="item-sprite" :style="spriteStyle(item.sprite)"></div>
         </div>
 
-        <div
-          :class="[
-            name === 'left' ? 'pull-right' : null,
-            name === 'left' ? 'ml-1' : null,
-            name === 'right' ? 'pull-left' : null,
-            name === 'right' ? 'mr-2' : null,
-          ]"
-        >
-          <div :style="spriteStyle(item.sprite)"></div>
-        </div>
-
-        <div
-          v-if="name === 'left'"
-          class="pull-right name"
-        >
-          {{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span>
-        </div>
-
-        <div
-          v-if="name === 'right'"
-          class="pull-left name"
-        >
-          {{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span>
-        </div>
-
-        <div v-if="name === 'bottom'" class="name">
-          {{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span>
-        </div>
+        <table v-else :aria-label="item.name">
+          <tr v-if="name === 'top'" class="nobreak">
+            <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+          </tr>
+          <tr class="nobreak">
+            <td v-if="name === 'left'">{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+            <td><div class=" mr-2" :style="spriteStyle(item.sprite)"></div></td>
+            <td v-if="name === 'right'">{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+          </tr>
+          <tr v-if="name === 'bottom'" class="nobreak">
+            <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+          </tr>
+        </table>
       </div>
     </template>
 
     <div>
-      <span :class="[item.rarity, 'font-weight-bold']">{{ item.name }}</span><br>
-      <span :class="['font-weight-bold']">{{ item.type }} / {{ item.slot }} <span :class="[item.rarity]">({{item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1) }})</span></span><br>
+      <span :class="[item.rarity, 'font-weight-bold']">{{ item.name }}</span>&nbsp;<span :class="[item.rarity]">({{item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1) }})</span><br>
+      <span :class="['font-weight-bold']">{{ item.type }} / {{ item.slot }}</span><br>
       <table style="min-width: 200px">
         <tr v-if="formatBonus(item)">
           <td class="text-xs-right">Bonus:</td>
@@ -174,5 +158,9 @@ export default {
 
 a {
   text-decoration: none;
+}
+
+.item-sprite {
+  margin: 0px auto;
 }
 </style>
