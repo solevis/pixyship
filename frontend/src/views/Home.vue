@@ -45,6 +45,7 @@
     </v-row>
 
     <v-row v-if="loaded" justify="center">
+      <!-- Blue cargo -->
       <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.blueCargo.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
@@ -72,6 +73,7 @@
         </v-card>
       </v-col>
 
+      <!-- Daily reward -->
       <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.dailyRewards.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
@@ -83,20 +85,29 @@
               <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
 
               <div>
-                <template v-if="object.type === 'Item' ||object.type === 'Room'">
+                <template v-if="object.type === 'Item'">
+                  <item :item="object.object" :count="object.count" name="right"/>
+                </template>
+
+                <template v-else-if="object.type === 'Room'">
                   {{ 'x' + object.count }} <div class="block mr-2 middle" :style="spriteStyle(object.object.sprite)"></div>
                   <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{object.object.name }}</div>
                 </template>
+
                 <template v-else-if="object.type === 'Character'">
                   <crew :char="object.object" name="right"/>
                 </template>
+
                 <template v-else-if="object.type === 'Currency'">
                   {{ 'x' + object.count }} <div class="block middle" :style="currencySprite(object.object.currency)"></div>
                 </template>
+
                 <template v-else>
-                  <div>{{object.type }}</div>
+                  <div>{{ object.type }}</div>
                 </template>
               </div>
+
+              <div style="clear: both" class="pt-2"></div>
             </div>
           </v-card-text>
         </v-card>
@@ -129,28 +140,35 @@
     </v-row>
 
     <v-row v-if="loaded" justify="center">
+      <!-- Green cargo -->
       <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.greenCargo.expires) ? 'expired' : '', 'offers']">
           <v-card-title class="overline mb-2">
             <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.greenCargo.sprite, '', 0, 3)"></div>Merchant Ship
           </v-card-title>
           
-          
           <v-card-text>
             <div v-for="(offer, index) in this.offers.greenCargo.items" :key="'green-cargo-' + index">
               <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
 
               <div>
-                <template v-if="offer.objects[0].type === 'Item' ||offer.objects[0].type === 'Room'">
+                <template v-if="offer.objects[0].type === 'Item'">
+                  <item :item="offer.objects[0].object" :count="offer.objects[0].count" name="right"/>
+                </template>
+
+                <template v-else-if="offer.objects[0].type === 'Room'">
                   {{ 'x' + offer.objects[0].count }} <div class="block mr-2 middle" :style="spriteStyle(offer.objects[0].object.sprite)"></div>
                   <div :class="[offer.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{offer.objects[0].object.name }}</div>
                 </template>
+
                 <template v-else-if="offer.objects[0].type === 'Character'">
                   <crew :char="offer.objects[0].object" name="right"/>
                 </template>
+
                 <template v-else-if="offer.objects[0].type === 'Currency'">
                   {{ 'x' + offer.objects[0].count }} <div class="block middle" :style="currencySprite(offer.objects[0].object.currency)"></div>
                 </template>
+
                 <template v-else>
                   <div>{{offer.objects[0].type }}</div>
                 </template>
@@ -173,6 +191,7 @@
         </v-card>
       </v-col>
       
+      <!-- Shop -->
       <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
           <v-card-title  class="overline mb-2" >
@@ -181,16 +200,24 @@
 
           <v-card-text>
             <div>
-              <template v-if="this.offers.shop.objects[0].type === 'Item' ||this.offers.shop.objects[0].type === 'Room'">
+              
+              <template v-if="this.offers.shop.objects[0].type === 'Item'">
+                <item :item="this.offers.shop.objects[0].object" :count="this.offers.shop.objects[0].count" name="right"/>
+              </template>
+
+              <template v-else-if="this.offers.shop.objects[0].type === 'Room'">
                 {{this.offers.shop.objects[0].count > 1 ? 'x' + this.offers.shop.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.objects[0].object.sprite)"></div>
                 <div :class="[this.offers.shop.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.objects[0].object.name }}</div>
               </template>
+
               <template v-else-if="this.offers.shop.objects[0].type === 'Character'">
                 <crew :char="this.offers.shop.objects[0].object" name="right"/>
               </template>
+
               <template v-else-if="this.offers.shop.objects[0].type === 'Currency'">
                 {{this.offers.shop.objects[0].count }} <div class="block middle" :style="currencySprite(this.offers.shop.objects[0].object.currency)"></div>
               </template>
+
               <template v-else>
                 <div>{{this.offers.shop.objects[0].type }}</div>
               </template>
@@ -216,6 +243,7 @@
         </v-card>
       </v-col>
 
+      <!-- Bank -->
       <v-col cols="12" sm="6" md="3">
         <v-card outlined :class="[isExpired(this.offers.sale.expires) ? 'expired' : '', 'offers']">
           <v-card-title  class="overline mb-2" >
@@ -224,16 +252,23 @@
 
           <v-card-text>
             <div>
-              <template v-if="this.offers.sale.objects[0].type === 'Item' || this.offers.sale.objects[0].type === 'Room'">
+              <template v-if="this.offers.sale.objects[0].type === 'Item'">
+                <item :item="this.offers.sale.objects[0].object" :count="this.offers.sale.objects[0].count" name="right"/>
+              </template>
+
+              <template v-else-if="this.offers.sale.objects[0].type === 'Room'">
                 {{this.offers.sale.objects[0].count > 1 ? 'x' + this.offers.sale.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.objects[0].object.sprite)"></div>
                 <div :class="[this.offers.sale.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.objects[0].object.name }}</div>
               </template>
+              
               <template v-else-if="this.offers.sale.objects[0].type === 'Character'">
                 <crew :char="this.offers.sale.objects[0].object" name="right"/>
               </template>
+              
               <template v-else-if="this.offers.sale.objects[0].type === 'Currency'">
                 {{this.offers.sale.objects[0].count }} <div class="block middle" :style="currencySprite(this.offers.sale.objects[0].object.currency)"></div>
               </template>
+              
               <template v-else>
                 <div>{{this.offers.sale.objects[0].type }}</div>
               </template>
@@ -281,6 +316,7 @@ import axios from "axios";
 import moment from "moment";
 import mixins from "@/mixins/PixyShip.vue.js";
 import Crew from "@/components/Crew.vue";
+import Item from "@/components/Item.vue";
 const convert = require("xml-js");
 
 export default {
@@ -288,6 +324,7 @@ export default {
 
   components: {
     Crew,
+    Item,
   },
 
   data() {
@@ -415,6 +452,19 @@ export default {
       });
 
       return result
+    },
+
+    formatBonus(item) {
+      let formatedBonus = ""
+
+      if (item.disp_enhancement != null && item.bonus) {
+        formatedBonus = item.slot == 'Module' ? '' : '+'
+        formatedBonus += item.bonus + " " + item.disp_enhancement
+      } else if (item.hiddenBonus) {
+        formatedBonus = item.hiddenBonus
+      }
+
+      return formatedBonus
     },
   },
 };
