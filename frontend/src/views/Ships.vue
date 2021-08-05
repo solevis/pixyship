@@ -99,11 +99,9 @@
                     </td>
                     <td>{{ item.starbux_cost }}</td>
                   </tr>
-                  <tr v-for="cost in item.item_cost" :key="item.id + '-' + cost.id" class="nobreak">
-                    <td><div :style="spriteStyle(cost.sprite)"></div></td>
-                    <td>{{ cost.name }}</td>
-                  </tr>
                 </table>
+
+                <item v-for="cost in item.item_cost" :key="item.id + '-' + cost.id" :item="cost" name="right" />
               </td>
 
               <td style="min-width: 100px">
@@ -234,12 +232,15 @@
 <script>
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
+import Item from "@/components/Item.vue"
 import "@/assets/css/override.css";
 
 export default {
   mixins: [mixins],
 
-  components: {},
+  components: {
+    Item,
+  },
 
   data() {
     return {

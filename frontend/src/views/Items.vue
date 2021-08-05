@@ -94,7 +94,7 @@
         <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
           <!-- Image -->
           <td>
-            <div :style="spriteStyle(item.sprite)"></div>
+            <item :item="item" />
           </td>
 
           <!-- Name -->
@@ -163,17 +163,7 @@
                 class="nobreak"
               >
                 <td>
-                  <v-tooltip bottom color="blue-grey">
-                    <template v-slot:activator="{ on, attrs }">
-                      <div
-                        class="block"
-                        v-bind="attrs"
-                        v-on="on"
-                        :style="spriteStyle(ingredient.sprite)"
-                      ></div>
-                    </template>
-                    {{ ingredient.name }}
-                  </v-tooltip>
+                  <item :item="ingredient" />
                 </td>
                 <td>{{ ingredient.count }}</td>
               </tr>
@@ -230,11 +220,14 @@
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
 import plotly from "plotly.js-dist";
+import Item from "@/components/Item.vue";
 
 export default {
   mixins: [mixins],
 
-  components: {},
+  components: {
+    Item,
+  },
 
   data() {
     return {

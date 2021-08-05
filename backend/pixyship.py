@@ -908,6 +908,13 @@ class Pixyship(metaclass=Singleton):
                         'count': int(ingredient[1]),
                         'name': item['name'],
                         'sprite': item['sprite'],
+                        'rarity': item['rarity'],
+                        'slot': item['slot'],
+                        'type': item['type'],
+                        'disp_enhancement': item['disp_enhancement'],
+                        'bonus': item['bonus'],
+                        'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                        'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                     }
 
                     recipe.append(line)
@@ -936,6 +943,13 @@ class Pixyship(metaclass=Singleton):
                         'id': cost_item_id,
                         'name': item['name'],
                         'sprite': item['sprite'],
+                        'rarity': item['rarity'],
+                        'slot': item['slot'],
+                        'type': item['type'],
+                        'disp_enhancement': item['disp_enhancement'],
+                        'bonus': item['bonus'],
+                        'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                        'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                     }
 
                     ship_item_cost.append(line)
@@ -1141,7 +1155,7 @@ class Pixyship(metaclass=Singleton):
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
-            LIMIT 2000
+            LIMIT 500
         """
 
         result = db.session.execute(sql).fetchall()
@@ -1165,6 +1179,21 @@ class Pixyship(metaclass=Singleton):
             # if change's a Character, get all infos of the crew
             if record['type'] == 'char':
                 change['char'] = self.characters[record['type_id']]
+
+            # if change's a Character, get all infos of the crew
+            if record['type'] == 'item':
+                item = self.items[record['type_id']]
+                change['item'] = {
+                    'name': item['name'],
+                    'sprite': item['sprite'],
+                    'rarity': item['rarity'],
+                    'slot': item['slot'],
+                    'type': item['type'],
+                    'disp_enhancement': item['disp_enhancement'],
+                    'bonus': item['bonus'],
+                    'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                    'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                }
 
             changes.append(change)
 
