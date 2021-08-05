@@ -114,6 +114,17 @@ export default {
       return formatedBonus
     },
 
+    formatExtraBonus(item) {
+      let formatedBonus = ""
+
+      if (item.module_extra_disp_enhancement != null && item.module_extra_enhancement_bonus) {
+        formatedBonus = item.slot == 'Module' ? '' : '+'
+        formatedBonus += item.module_extra_enhancement_bonus + " " + item.module_extra_disp_enhancement
+      }
+
+      return formatedBonus
+    },
+
     priceFormat(price) {
       const formatFunc = function (x) {
         if (Math.max(price.p25, price.p50, price.p75) > 999999) {
