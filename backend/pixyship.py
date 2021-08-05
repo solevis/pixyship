@@ -943,6 +943,13 @@ class Pixyship(metaclass=Singleton):
                         'id': cost_item_id,
                         'name': item['name'],
                         'sprite': item['sprite'],
+                        'rarity': item['rarity'],
+                        'slot': item['slot'],
+                        'type': item['type'],
+                        'disp_enhancement': item['disp_enhancement'],
+                        'bonus': item['bonus'],
+                        'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                        'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                     }
 
                     ship_item_cost.append(line)
