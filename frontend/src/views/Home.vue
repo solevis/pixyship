@@ -180,7 +180,7 @@
                   <div class="block middle" :style="currencySprite(offer.cost.currency)"></div>
                 </template>
                 <template v-else-if="offer.cost && offer.cost.currency == 'item'">
-                  <div class="block middle mr-1">{{ offer.cost.count }}</div>
+                  <div class="block middle mr-1">Cost: {{ offer.cost.count }}</div>
                   <div class="block middle" :style="spriteStyle(offer.cost.object.sprite)" :title="offer.cost.object.name"
                   ></div>
                 </template>
