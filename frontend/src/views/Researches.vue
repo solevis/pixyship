@@ -78,8 +78,7 @@
           <template v-slot:activator="{ on, attrs }">
             <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
               <td>
-                <crew v-if="item.type === 'char'" :char="item.char"/>
-                <div v-else class="block my-1" :style="spriteStyle(item.sprite)"></div>
+                <div class="block my-1" :style="spriteStyle(item.sprite)"></div>
               </td>
               <td class="name">
                 {{ item.name }}

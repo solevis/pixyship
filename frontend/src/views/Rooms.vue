@@ -220,14 +220,16 @@
 
                       <tr v-if="item.requirement !== null">
                         <td>{{ item.requirement.type }} requirement</td>
-                        <td>
-                           
-                        <table>
-                          <tr>
-                            <td>x{{ item.requirement.count }} {{ item.requirement.object.name }}</td>
-                            <td><div :style="spriteStyle(item.requirement.object.sprite)" class="ml-1"></div></td>
-                          </tr>
-                        </table>
+                        <td v-if="item.requirement.type == 'Item'">
+                          <item :item="item.requirement.object" name="right" />
+                        </td>
+                        <td v-else>
+                          <table>
+                            <tr>
+                              <td>x{{ item.requirement.count }} {{ item.requirement.object.name }}</td>
+                              <td><div :style="spriteStyle(item.requirement.object.sprite)" class="ml-1"></div></td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
 
@@ -349,12 +351,15 @@
 <script>
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
+import Item from "@/components/Item.vue"
 import "@/assets/css/override.css";
 
 export default {
   mixins: [mixins],
 
-  components: {},
+  components: {
+    Item,
+  },
 
   data() {
     return {
