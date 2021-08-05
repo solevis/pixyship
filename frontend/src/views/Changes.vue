@@ -73,12 +73,14 @@
       <template v-slot:item="{ item }">
         <tr>
           <td>
-            <crew v-if="item.type === 'char'" :char="item.char" tipPosition="right"/>
+            <crew v-if="item.type === 'char'" :char="item.char" tipPosition="right" />
+            <item v-else-if="item.type === 'item'" :item="item.item" />
             <div v-else class="block my-1 ma-auto" :style="spriteStyle(item.sprite)"></div>
           </td>
 
           <td style="min-width: 250px">
-            <span v-if="item.type === 'item' || item.type === 'char'" :class="[item.attributes.Rarity.toLowerCase()]">{{ item.name }}</span>
+            <span v-if="item.type === 'char'" :class="[item.char.rarity]">{{ item.name }}</span>
+            <span v-else-if="item.type === 'item'" :class="[item.item.rarity]">{{ item.name }}</span>
             <span v-else>{{ item.name }}</span>
           </td>
 
@@ -121,6 +123,7 @@ import axios from "axios";
 import moment from 'moment';
 import mixins from "@/mixins/PixyShip.vue.js";
 import Crew from "@/components/Crew.vue";
+import Item from "@/components/Item.vue";
 import "@/assets/css/override.css";
 
 const convert = require('xml-js')
@@ -130,6 +133,7 @@ export default {
 
   components: {
     Crew,
+    Item,
   },
 
   data() {

@@ -1166,6 +1166,10 @@ class Pixyship(metaclass=Singleton):
             if record['type'] == 'char':
                 change['char'] = self.characters[record['type_id']]
 
+            # if change's a Character, get all infos of the crew
+            if record['type'] == 'item':
+                change['item'] = self.items[record['type_id']]
+
             changes.append(change)
 
         return changes
