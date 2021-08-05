@@ -1148,7 +1148,7 @@ class Pixyship(metaclass=Singleton):
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
-            LIMIT 2000
+            LIMIT 500
         """
 
         result = db.session.execute(sql).fetchall()
@@ -1175,7 +1175,18 @@ class Pixyship(metaclass=Singleton):
 
             # if change's a Character, get all infos of the crew
             if record['type'] == 'item':
-                change['item'] = self.items[record['type_id']]
+                item = self.items[record['type_id']]
+                change['item'] = {
+                    'name': item['name'],
+                    'sprite': item['sprite'],
+                    'rarity': item['rarity'],
+                    'slot': item['slot'],
+                    'type': item['type'],
+                    'disp_enhancement': item['disp_enhancement'],
+                    'bonus': item['bonus'],
+                    'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                    'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                }
 
             changes.append(change)
 
