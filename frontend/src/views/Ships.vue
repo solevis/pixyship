@@ -93,6 +93,7 @@
                     </td>
                     <td>{{ item.mineral_cost }}</td>
                   </tr>
+
                   <tr v-if="item.starbux_cost > 0" class="nobreak">
                     <td>
                       <div :style="buxSprite()" />
@@ -101,7 +102,7 @@
                   </tr>
                 </table>
 
-                <item v-for="cost in item.item_cost" :key="item.id + '-' + cost.id" :item="cost" name="right" />
+                <item v-for="cost in item.items_cost" :key="item.id + '-' + cost.id" :item="cost" name="right" />
               </td>
 
               <td style="min-width: 100px">
