@@ -255,7 +255,12 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
+        { 
+          text: "Order by ID", 
+          align: "start",
+          value: "id",           
+          filterable: false 
+        },
         { text: "Name", align: "center", value: "name", filterable: true },
         {
           text: "Rarity",
