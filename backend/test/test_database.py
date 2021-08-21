@@ -31,7 +31,7 @@ def test_rooms():
     push_context()
 
     pixyship = Pixyship()
-    rooms, _ = pixyship._get_rooms_from_db()
+    rooms, _, _ = pixyship._get_rooms_from_db()
 
     assert len(rooms) > 0
     assert rooms[10]['id'] == 10
@@ -44,7 +44,7 @@ def test_upgrades():
     push_context()
 
     pixyship = Pixyship()
-    _, upgrades = pixyship._get_rooms_from_db()
+    _, upgrades, _ = pixyship._get_rooms_from_db()
 
     assert len(upgrades) > 0
     assert upgrades[10] == 20
