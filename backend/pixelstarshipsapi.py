@@ -213,7 +213,7 @@ class PixelStarshipsApi:
 
         return inspect_ship
 
-    def search_users(self, user_name, exact_match = False):
+    def search_users(self, user_name, exact_match=False):
         """Get player ship data from API."""
 
         params = {
@@ -696,12 +696,6 @@ class PixelStarshipsApi:
             users.append(user)
 
         return users
-
-    @staticmethod
-    def parse_user_node(user_node):
-        """Extract user data from XML node."""
-
-        return user_node.attrib.copy()
 
     def get_prestiges_character_to(self, character_id):
         """Get prestiges recipe creating given character from API."""
