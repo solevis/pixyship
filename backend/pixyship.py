@@ -907,6 +907,7 @@ class Pixyship(metaclass=Singleton):
                 if item:
                     line = {
                         'count': int(ingredient[1]),
+                        'id': int(ingredient_item_id),
                         'name': item['name'],
                         'sprite': item['sprite'],
                         'rarity': item['rarity'],
@@ -916,6 +917,7 @@ class Pixyship(metaclass=Singleton):
                         'bonus': item['bonus'],
                         'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
                         'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                        'recipe': Pixyship._parse_item_recipe(item['ingredients'], items)
                     }
 
                     recipe.append(line)
@@ -957,6 +959,7 @@ class Pixyship(metaclass=Singleton):
                             'bonus': item['bonus'],
                             'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
                             'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                            'recipe': Pixyship._parse_item_recipe(item['ingredients'], self.items)
                         }
 
                         items_cost.append(item_cost)
@@ -1193,10 +1196,11 @@ class Pixyship(metaclass=Singleton):
             if record['type'] == 'char':
                 change['char'] = self.characters[record['type_id']]
 
-            # if change's a Character, get all infos of the crew
+            # if change's a Item, get all infos of the item
             if record['type'] == 'item':
                 item = self.items[record['type_id']]
                 change['item'] = {
+                    'id': record['type_id'],
                     'name': item['name'],
                     'sprite': item['sprite'],
                     'rarity': item['rarity'],
@@ -1206,6 +1210,7 @@ class Pixyship(metaclass=Singleton):
                     'bonus': item['bonus'],
                     'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
                     'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                    'recipe': Pixyship._parse_item_recipe(item['ingredients'], self.items)
                 }
 
             changes.append(change)
