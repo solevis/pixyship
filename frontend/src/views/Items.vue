@@ -122,7 +122,7 @@
 
           <!-- Market price 48h -->
           <td class="market">
-            <table>
+            <table v-if="item.prices">
               <thead>
                 <tr>
                   <td class="text-center"></td>
