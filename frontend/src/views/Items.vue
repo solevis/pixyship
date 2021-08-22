@@ -122,7 +122,7 @@
 
           <!-- Market price 48h -->
           <td class="market">
-            <table v-if="item.prices">
+            <table v-if="item.prices" class="market-table">
               <thead>
                 <tr>
                   <td class="text-center"></td>
@@ -637,6 +637,23 @@ a.name {
 
 .market {
   min-width: 250px;
+}
+
+
+.market-table {
+  border-spacing: 0;
+}
+
+.market-table thead th {
+  padding-right: 10px;
+  padding-left: 10px;
+  font-weight: bold;
+}
+
+.market-table tbody td {
+  padding-right: 10px;
+  padding-left: 10px;
+  text-align: center;
 }
 
 .bonus {
