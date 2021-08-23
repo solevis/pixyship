@@ -95,16 +95,11 @@ def after_request(response):
     # delete the session cookie, unneeded for Pixyship
     response.delete_cookie(app.session_cookie_name)
 
-    # security headers
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    # security headers for API
+    response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-    # response.headers['Content-Security-Policy'] = \
-    #    "default-src 'self';" \
-    #    "img-src 'self' data: pixelstarships.s3.amazonaws.com;" \
-    #    "style-src 'self' 'unsafe-inline' 'unsafe-eval';" \
-    #    "script-src 'self' 'unsafe-eval';" \
-    #    "report-uri /csp_report;"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
 
     return response
 

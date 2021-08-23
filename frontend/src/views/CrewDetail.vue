@@ -9,6 +9,14 @@
       </div>
     </v-card-title>
 
+    <v-row justify="center" v-if="loaded">
+        <v-col cols="8">
+          <div class="text-center">
+            <q class="font-italic">{{ character.description }}</q>
+          </div>
+        </v-col>
+    </v-row>
+
     <!-- Large screen (Table and prestiges side by side) -->
     <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
       <v-row justify="center">

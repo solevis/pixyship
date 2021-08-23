@@ -45,7 +45,7 @@ def import_players():
         db.session.query(Player).delete()
         db.session.query(Alliance).delete()
         db.session.commit()
-    except:
+    except Exception:
         db.session.rollback()
 
     # save new data

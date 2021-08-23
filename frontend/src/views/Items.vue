@@ -94,7 +94,7 @@
         <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
           <!-- Image -->
           <td>
-            <div :style="spriteStyle(item.sprite)"></div>
+            <item :item="item" :tip="false"/>
           </td>
 
           <!-- Name -->
@@ -122,16 +122,29 @@
 
           <!-- Market price 48h -->
           <td class="market">
-            <table>
-              <tr
-                v-for="(price, currency, ind) in item.prices"
-                :key="'item' + item.id + '-price-' + ind"
-                class="nobreak"
-              >
-                <td><div class="block" :style="currencySprite(currency)" /></td>
-                <td>{{ price.count }}</td>
-                <td class="text-xs-left" v-html="priceFormat(price)"></td>
-              </tr>
+            <table v-if="item.prices" class="market-table">
+              <thead>
+                <tr>
+                  <td class="text-center"></td>
+                  <td class="text-center">#</td>
+                  <td class="text-center">25%</td>
+                  <td class="text-center">50%</td>
+                  <td class="text-center">75%</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(prices, currency, ind) in item.prices"
+                  :key="'item' + item.id + '-price-' + ind"
+                  class="nobreak"
+                >
+                  <td><div class="block" :style="currencySprite(currency)" /></td>
+                  <td><div class="block" />{{ prices.count }}</td>
+                  <td class="text-xs-left" v-html="priceFormat(prices, prices.p25)"></td>
+                  <td class="text-xs-left" v-html="priceFormat(prices, prices.p50)"></td>
+                  <td class="text-xs-left" v-html="priceFormat(prices, prices.p75)"></td>
+                </tr>
+              </tbody>
             </table>
           </td>
 
@@ -156,26 +169,16 @@
 
           <!-- Recipe -->
           <td class="recipe">
-            <table>
+            <table v-if="item.recipe.length > 0">
               <tr
                 v-for="ingredient in item.recipe"
-                :key="'item' + item.id + '-recipe-' + ingredient.name"
+                :key="'item' + item.id + '-recipe-' + ingredient.id"
                 class="nobreak"
               >
                 <td>
-                  <v-tooltip bottom color="blue-grey">
-                    <template v-slot:activator="{ on, attrs }">
-                      <div
-                        class="block"
-                        v-bind="attrs"
-                        v-on="on"
-                        :style="spriteStyle(ingredient.sprite)"
-                      ></div>
-                    </template>
-                    {{ ingredient.name }}
-                  </v-tooltip>
+                  <item :item="ingredient" />
                 </td>
-                <td>{{ ingredient.count }}</td>
+                <td>x{{ ingredient.count }}</td>
               </tr>
             </table>
           </td>
@@ -230,11 +233,14 @@
 import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
 import plotly from "plotly.js-dist";
+import Item from "@/components/Item.vue";
 
 export default {
   mixins: [mixins],
 
-  components: {},
+  components: {
+    Item,
+  },
 
   data() {
     return {
@@ -249,7 +255,12 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
+        { 
+          text: "Order by ID", 
+          align: "start",
+          value: "id",           
+          filterable: false 
+        },
         { text: "Name", align: "center", value: "name", filterable: true },
         {
           text: "Rarity",
@@ -261,13 +272,13 @@ export default {
           sort: this.sortRarity,
         },
         {
-          text: "Savy $",
+          text: "Savy Price",
           align: "center",          
           value: "market_price",
           filterable: false,
         },
         {
-          text: "Market $ (48h) | # | 25 - 50 - 75%",
+          text: "Market Prices (48h)",
           align: "center",          
           value: "offers",
           filterable: false,
@@ -422,27 +433,18 @@ export default {
       ).sort(this.sortRarity)
     },
 
-    priceFormat(price) {
+    priceFormat(prices, price) {
       const formatFunc = function (x) {
-        if (Math.max(price.p25, price.p50, price.p75) > 999999) {
+        if (Math.max(prices.p25, prices.p50, prices.p75) > 999999) {
           return parseFloat((x / 1000000).toFixed(1)) + "M";
-        } else if (Math.max(price.p25, price.p50, price.p75) > 999) {
+        } else if (Math.max(prices.p25, prices.p50, prices.p75) > 999) {
           return parseFloat((x / 1000).toFixed(1)) + "K";
         } else {
           return x.toFixed(0);
         }
       };
 
-      let formatedPrice =
-        formatFunc(price.p25) +
-        " - " +
-        "<b>" +
-        formatFunc(price.p50) +
-        "</b>" +
-        " - " +
-        formatFunc(price.p75);
-
-      return formatedPrice;
+      return formatFunc(price);
     },
 
     rowExpanded: async function (row) {
@@ -635,6 +637,23 @@ a.name {
 
 .market {
   min-width: 250px;
+}
+
+
+.market-table {
+  border-spacing: 0;
+}
+
+.market-table thead th {
+  padding-right: 10px;
+  padding-left: 10px;
+  font-weight: bold;
+}
+
+.market-table tbody td {
+  padding-right: 10px;
+  padding-left: 10px;
+  text-align: center;
 }
 
 .bonus {

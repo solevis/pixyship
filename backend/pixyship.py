@@ -624,6 +624,7 @@ class Pixyship(metaclass=Singleton):
         ships = {}
         for record in records:
             ship = self.pixel_starships_api.parse_ship_node(ElementTree.fromstring(record.data))
+            starbux_cost, mineral_cost, items_cost = self._parse_ship_unlock_costs(ship['MineralCost'], ship['StarbuxCost'], ship['UnlockCost'])
 
             ships[record.type_id] = {
                 'id': record.type_id,
@@ -643,8 +644,9 @@ class Pixyship(metaclass=Singleton):
                 'columns': int(ship['Columns']),
                 'race': int(ship['RaceId']),
                 'mask': ship['Mask'],
-                'mineral_cost': ship['MineralCost'],
-                'starbux_cost': ship['StarbuxCost'],
+                'mineral_cost': mineral_cost,
+                'starbux_cost': starbux_cost,
+                'items_cost': items_cost,
                 'mineral_capacity': ship['MineralCapacity'],
                 'gas_capacity': ship['GasCapacity'],
                 'equipment_capacity': ship['EquipmentCapacity'],
@@ -843,6 +845,7 @@ class Pixyship(metaclass=Singleton):
                 'collection': int(character['CollectionDesignId']),
                 'collection_sprite': None,
                 'collection_name': '',
+                'description': character['CharacterDesignDescription'],
             }
 
             # computed properties
@@ -904,13 +907,70 @@ class Pixyship(metaclass=Singleton):
                 if item:
                     line = {
                         'count': int(ingredient[1]),
+                        'id': int(ingredient_item_id),
                         'name': item['name'],
                         'sprite': item['sprite'],
+                        'rarity': item['rarity'],
+                        'slot': item['slot'],
+                        'type': item['type'],
+                        'disp_enhancement': item['disp_enhancement'],
+                        'bonus': item['bonus'],
+                        'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                        'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                        'recipe': Pixyship._parse_item_recipe(item['ingredients'], items)
                     }
 
                     recipe.append(line)
 
         return recipe
+
+    def _parse_ship_unlock_costs(self, mineral_cost_string, starbux_cost_string, unlock_cost_string):
+        """Parse ship unlock cost infos from API."""
+
+        starbux_cost = 0
+        mineral_cost = 0
+        items_cost = []
+
+        if unlock_cost_string:
+            costs = unlock_cost_string.split('|')
+            for cost in costs:
+                cost_type, cost_value = cost.split(':')
+
+                if cost_type == 'starbux':
+                    starbux_cost = int(cost_value)
+                    continue
+
+                if cost_type == 'mineral':
+                    mineral_cost = int(cost_value)
+                    continue
+
+                if cost_type == 'item':
+                    item = self.items.get(int(cost_value))
+
+                    if item:
+                        item_cost = {
+                            'id': cost_value,
+                            'name': item['name'],
+                            'sprite': item['sprite'],
+                            'rarity': item['rarity'],
+                            'slot': item['slot'],
+                            'type': item['type'],
+                            'disp_enhancement': item['disp_enhancement'],
+                            'bonus': item['bonus'],
+                            'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                            'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                            'recipe': Pixyship._parse_item_recipe(item['ingredients'], self.items)
+                        }
+
+                        items_cost.append(item_cost)
+
+                    continue
+        else:
+            # no UnlockCost, use MineralCost and StarbuxCost
+            starbux_cost = int(starbux_cost_string)
+            mineral_cost = int(mineral_cost_string)
+
+        return starbux_cost, mineral_cost, items_cost
 
     def update_items(self):
         """Get items from API and save them in database."""
@@ -1111,7 +1171,7 @@ class Pixyship(metaclass=Singleton):
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
-            LIMIT 2000
+            LIMIT 500
         """
 
         result = db.session.execute(sql).fetchall()
@@ -1135,6 +1195,23 @@ class Pixyship(metaclass=Singleton):
             # if change's a Character, get all infos of the crew
             if record['type'] == 'char':
                 change['char'] = self.characters[record['type_id']]
+
+            # if change's a Item, get all infos of the item
+            if record['type'] == 'item':
+                item = self.items[record['type_id']]
+                change['item'] = {
+                    'id': record['type_id'],
+                    'name': item['name'],
+                    'sprite': item['sprite'],
+                    'rarity': item['rarity'],
+                    'slot': item['slot'],
+                    'type': item['type'],
+                    'disp_enhancement': item['disp_enhancement'],
+                    'bonus': item['bonus'],
+                    'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                    'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                    'recipe': Pixyship._parse_item_recipe(item['ingredients'], self.items)
+                }
 
             changes.append(change)
 
