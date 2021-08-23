@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2020-08-23
+
 ### Added
 
 - Add crew description
@@ -69,8 +71,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
-[2.0.3]: https://github.com/solevis/pixyship/compare/v2.0.2...v0.0.3
-[2.0.2]: https://github.com/solevis/pixyship/compare/v2.0.1...v0.0.2
+[2.1.0]: https://github.com/solevis/pixyship/compare/v2.0.3...v2.1.0
+[2.0.3]: https://github.com/solevis/pixyship/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/solevis/pixyship/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/solevis/pixyship/compare/v2.0....v2.0.1
 [2.0.0]: https://github.com/solevis/pixyship/compare/v1.1...v2.0
 [1.1.0]: https://github.com/solevis/pixyship/compare/v1.0...v1.1
