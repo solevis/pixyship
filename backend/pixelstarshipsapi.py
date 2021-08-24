@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import random
 import re
+import time
 from typing import Tuple
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
@@ -611,6 +612,11 @@ class PixelStarshipsApi:
             # retrieve data as XML from Pixel Starships API
             endpoint = f'https://{self.server}/MarketService/ListSalesByItemDesignId'
             response = self.call(endpoint, params=params)
+
+            if response.status_code == 400:
+                # too many request, skip this item for now
+                break
+
             root = ElementTree.fromstring(response.text)
 
             # parse HTTP body as XML and find sales nodes
@@ -641,6 +647,8 @@ class PixelStarshipsApi:
             # next page
             start += 20
             end += 20
+
+            time.sleep(3)
 
         return sales
 
