@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+import time
 from urllib import request
 
 from contexttimer import Timer
@@ -130,6 +131,8 @@ def import_market(first_item_only=False, item=None):
 
         if first_item_only:
             break
+
+        time.sleep(3)
 
     logger.info('Done')
 
