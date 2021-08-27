@@ -29,6 +29,7 @@ def import_players():
 
     logger.info('## top 100 players')
     top_users = list(pixyship.get_top100_users_from_api().items())
+    time.sleep(5)
 
     logger.info('## top 100 alliances')
     count = 0
@@ -38,6 +39,7 @@ def import_players():
             count += 1
             logger.info('[{}/100] {}...'.format(count, alliance['name']))
             top_users += list(pixyship.get_alliance_users_from_api(alliance_id).items())
+            time.sleep(5)
         except Exception as e:
             logger.error(e)
 
