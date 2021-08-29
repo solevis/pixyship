@@ -7,6 +7,9 @@ CONFIG = dict(
     SPRITES_DIRECTORY='../sprites',
     EMAIL='contact@example.com',
 
+    MAIN_PIXELSTARSHIPS_API_URL="https://api2.pixelstarships.com/",
+    BACKIP_PIXELSTARSHIPS_API_URL="https://api.pixelstarships.com/",
+
     # generated with `python -c 'import os; print(os.urandom(16))'`
     # it's just an example... change it!
     SECRET_KEY=b'b.\xadP\xfc\xc3V\xb7\x19\x9f\xf5T\xb5Cd\xe6'

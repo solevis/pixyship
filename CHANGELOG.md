@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.4] - 2020-08-29
+
+### Added
+
+- Add PSS Api URL in config.py (cannot trust ProductionServer from API for now) 
+
+### Fixed
+
+- Wrong PSS Api URL because ProductionServer don't return the one to use
+
 ## [2.1.3] - 2020-08-27
 
 ### Fixed
@@ -89,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[2.1.4]: https://github.com/solevis/pixyship/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/solevis/pixyship/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/solevis/pixyship/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/solevis/pixyship/compare/v2.1.0...v2.1.1

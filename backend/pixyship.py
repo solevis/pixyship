@@ -14,7 +14,6 @@ from utils import float_range, int_range, Singleton
 
 class Pixyship(metaclass=Singleton):
     PSS_SPRITES_URL = 'https://pixelstarships.s3.amazonaws.com/{}.png'
-    PSS_API_DEFAULT_URL = 'http://api.pixelstarships.com'
 
     # A map to find the correct interior for a given race's ship
     # This fails for some rock ship cause this isn't actually how it works
