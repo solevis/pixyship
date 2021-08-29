@@ -137,9 +137,9 @@
 
             <tbody>
               <tr v-for="sale in item.lastSales" :key="'sale-' + sale.id">
-                <td>{{ sale.date }}</td>
+                <td>{{ nowTime(sale.date) }}</td>
                 <td>x{{ sale.quantity }}</td>
-                <td>{{ sale.currency }}</td>
+                <td><div class="d-inline-block" :style="currencySprite(sale.currency)" /></td>
                 <td>{{ sale.price }}</td>
                 <td>{{ sale.buyer }}</td>
                 <td>{{ sale.seller }}</td>
