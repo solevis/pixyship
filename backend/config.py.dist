@@ -8,7 +8,7 @@ CONFIG = dict(
     EMAIL='contact@example.com',
 
     MAIN_PIXELSTARSHIPS_API_URL="https://api2.pixelstarships.com/",
-    BACKIP_PIXELSTARSHIPS_API_URL="https://api.pixelstarships.com/",
+    BACKUP_PIXELSTARSHIPS_API_URL="https://api.pixelstarships.com/",
 
     # generated with `python -c 'import os; print(os.urandom(16))'`
     # it's just an example... change it!

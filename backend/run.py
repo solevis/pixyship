@@ -202,6 +202,20 @@ def api_item_prices(item_id):
     })
 
 
+@app.route('/api/item/<int:item_id>/detail')
+@enforce_source
+def api_item_detail(item_id):
+    item = pixyship.items[item_id];
+    prices = pixyship.get_item_prices_from_db(item_id)
+    last_sales = pixyship.get_item_last_sales_from_db(item_id, 10)
+    return jsonify({
+        'data': item,
+        'lastSales': last_sales,
+        'priceHistory': prices,
+        'status': 'success',
+    })
+
+
 @app.route('/api/tournament')
 @enforce_source
 def api_tournament():
