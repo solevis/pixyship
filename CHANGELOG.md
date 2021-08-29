@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.5] - 2020-08-29
+
+### Fixes
+
+- Ignore changes of 2021-08-29 (old changes retrieved due to API url issue)
+
 ## [2.1.4] - 2020-08-29
 
 ### Added
@@ -99,6 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[2.1.5]: https://github.com/solevis/pixyship/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/solevis/pixyship/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/solevis/pixyship/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/solevis/pixyship/compare/v2.1.1...v2.1.2
