@@ -8,8 +8,10 @@ from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
 import requests
+from urllib.parse import urljoin
 
 from api_errors import TOKEN_EXPIRED_REGEX
+from config import CONFIG
 from db import db
 from models import Device
 
@@ -29,8 +31,12 @@ class PixelStarshipsApi:
     ]
 
     def __init__(self):
+        self._main_pixelstarships_api_url = CONFIG.get('MAIN_PIXELSTARSHIPS_API_URL')
+        self._backup_pixelstarships_api_url = CONFIG.get('BACKUP_PIXELSTARSHIPS_API_URL')
+
         self.__api_settings = self.get_api_settings()
         self.server = self.__api_settings['ProductionServer']
+
         self._device_next_index = 0
         self._devices = None
 
@@ -66,17 +72,17 @@ class PixelStarshipsApi:
 
         try:
             # call API with classic URL, in case of error, try with alternative
-            endpoint = 'https://api.pixelstarships.com/SettingService/getlatestversion3'
+            endpoint = urljoin(self._main_pixelstarships_api_url, 'SettingService/getlatestversion3')
             response = self.call(endpoint, params=params)
             root = ElementTree.fromstring(response.text)
         except ParseError:
             # servers are always supposed to return something valid, but don't always
-            endpoint = 'https://api2.pixelstarships.com/SettingService/getlatestversion3'
+            endpoint = urljoin(self._backup_pixelstarships_api_url, 'SettingService/getlatestversion3')
             response = self.call(endpoint, params=params)
             root = ElementTree.fromstring(response.text)
 
         settings = root.find(".//Setting").attrib
-        fixed_endpoint = f'https://{settings["ProductionServer"]}/SettingService/getlatestversion3'
+        fixed_endpoint = urljoin(f'https://{settings["ProductionServer"]}', 'SettingService/getlatestversion3')
 
         if fixed_endpoint != endpoint:
             response = self.call(fixed_endpoint, params=params)
