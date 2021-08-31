@@ -11,6 +11,7 @@ import Changes from '../views/Changes.vue'
 import Players from '../views/Players.vue'
 import Builder from '../views/Builder.vue'
 import CrewDetail from '../views/CrewDetail.vue'
+import ItemDetail from '../views/ItemDetail.vue'
 
 Vue.use(VueRouter)
 
@@ -34,6 +35,11 @@ const routes = [
     path: '/items',
     name: 'Items',
     component: Items
+  },
+  {
+    path: '/item/:id',
+    name: 'ItemDetail',
+    component: ItemDetail
   },
   {
     path: '/rooms',

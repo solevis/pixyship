@@ -20,6 +20,7 @@ export default {
       collectionsEndpoint: apiServer + 'api/collections',
       crewEndpoint: apiServer + 'api/crew',
       itemPricesEndpoint: (id) => apiServer + `api/item/${id}/prices`,
+      itemDetailEndpoint: (id) => apiServer + `api/item/${id}/detail`,
       itemsEndpoint: apiServer + 'api/items',
       prestigeEndpoint: apiServer + 'api/prestige/',
       roomsEndpoint: apiServer + 'api/rooms',
