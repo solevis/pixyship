@@ -1196,7 +1196,6 @@ class Pixyship(metaclass=Singleton):
                         AND (o.id IS NOT NULL
                             OR c.created_at > '2018-10-8 4:00')
                         AND c.type IN ('item', 'ship', 'char', 'room')
-                        AND DATE(c.created_at) <> '2021-08-29'
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
