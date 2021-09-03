@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title v-if="!loaded"> Loading... </v-card-title>
 
     <!-- Crew sprite -->

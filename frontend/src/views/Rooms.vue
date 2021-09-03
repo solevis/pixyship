@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Rooms </v-card-title>
     <v-card-subtitle>All Pixel Starships rooms (click on a row to display more infos)</v-card-subtitle>
 

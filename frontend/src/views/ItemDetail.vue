@@ -1,11 +1,11 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title v-if="!loaded"> Loading... </v-card-title>
 
     <!-- Item sprite -->
     <v-card-title v-if="loaded">
       <div class="mx-auto">
-        <item :item="item" :tip="false" name="bottom" />
+        <item :item="item" :tip="false" name="bottom" :disableLink="true"/>
       </div>
     </v-card-title>
 
@@ -17,172 +17,213 @@
         </v-col>
     </v-row>
 
-    <v-row v-if="loaded" justify="center">
-      <v-col cols="8">
-        <v-simple-table v-if="loaded" class="px-3">
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-left">Rarity</th>
-                <th class="text-left">Type</th>
-                <th class="text-left">Subtype</th>
-                <th class="text-left">Bonus</th>
-                <th class="text-left">Recipe</th>
-                <th class="text-left">Savy Price</th>
-                <th class="text-left">Market Prices (48h)</th>
-              </tr>
-            </thead>
+    <v-tabs v-if="loaded" fixed-tabs v-model="model" class="mt-4">
+      <v-tab href="#tab-detail"><v-icon left>mdi-information-outline</v-icon>Detail</v-tab>
+      <v-tab href="#tab-market"><v-icon left>mdi-chart-histogram</v-icon>Market History</v-tab>
+      <v-tab href="#tab-sales"><v-icon left>mdi-sale</v-icon>Last Sales</v-tab>
+      <v-tab href="#tab-craft"><v-icon left>mdi-sitemap</v-icon>Craft</v-tab>
+    </v-tabs>
 
-            <tbody>
-              <tr>
-                <!-- Rarity -->
-                <td>
-                  <div :class="['rarity', item.rarity]">
-                    {{ item.rarity }}
-                  </div>
-                </td>
-
-                <!-- Type -->
-                <td>{{ item.type }}</td>
-
-                <!-- Subtype -->
-                <td>{{ item.slot }}</td>
-
-                <!-- Bonus -->
-                <td>
-                  {{ formatBonus(item) }}
-                  <template v-if="item.module_extra_disp_enhancement != null">
-                    <br> {{ formatExtraBonus(item) }}
-                  </template>
-                </td>
-
-                <!-- Recipe -->
-                <td>
-                  <table v-if="item.recipe.length > 0">
-                    <tr
-                      v-for="ingredient in item.recipe"
-                      :key="'item' + item.id + '-recipe-' + ingredient.id"
-                      class="nobreak"
-                    >
-                      <td>
-                        <item :item="ingredient" />
-                      </td>
-                      <td>x{{ ingredient.count }}</td>
-                    </tr>
-                  </table>
-                </td>
-
-                <!-- Savy Price -->
-                <td>
-                  <table v-show="item.market_price">
-                    <tr>
-                      <td>
-                        <div class="block" :style="currencySprite('Starbux')" />
-                      </td>
-                      <td class="text-xs-left">{{ item.market_price }}</td>
-                    </tr>
-                  </table>
-                </td>
-
-                <!-- Market Prices -->
-                <td>
-                  <table v-if="item.prices" class="market-table">
+    <v-tabs-items v-model="model">
+      <v-tab-item value="tab-detail">
+        <v-card flat>
+          <v-row v-if="loaded" justify="center" class="pt-4">
+            <v-col cols="8">
+              <v-simple-table v-if="loaded" class="px-3">
+                <template v-slot:default>
                   <thead>
                     <tr>
-                      <td class="text-center"></td>
-                      <td class="text-center">#</td>
-                      <td class="text-center">25%</td>
-                      <td class="text-center">50%</td>
-                      <td class="text-center">75%</td>
+                      <th class="text-left">Rarity</th>
+                      <th class="text-left">Type</th>
+                      <th class="text-left">Subtype</th>
+                      <th class="text-left">Bonus</th>
+                      <th class="text-left">Recipe</th>
+                      <th class="text-left">Savy Price</th>
+                      <th class="text-left">Market Prices (48h)</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    <tr
-                      v-for="(prices, currency, ind) in item.prices"
-                      :key="'item' + item.id + '-price-' + ind"
-                      class="nobreak"
-                    >
-                      <td><div class="block" :style="currencySprite(currency)" /></td>
-                      <td><div class="block" />{{ prices.count }}</td>
-                      <td class="text-xs-left" v-html="priceFormat(prices, prices.p25)"></td>
-                      <td class="text-xs-left" v-html="priceFormat(prices, prices.p50)"></td>
-                      <td class="text-xs-left" v-html="priceFormat(prices, prices.p75)"></td>
+                    <tr>
+                      <!-- Rarity -->
+                      <td>
+                        <div :class="['rarity', item.rarity]">
+                          {{ item.rarity }}
+                        </div>
+                      </td>
+
+                      <!-- Type -->
+                      <td>{{ item.type }}</td>
+
+                      <!-- Subtype -->
+                      <td>{{ item.slot }}</td>
+
+                      <!-- Bonus -->
+                      <td>
+                        {{ formatBonus(item) }}
+                        <template v-if="item.module_extra_disp_enhancement != null">
+                          <br> {{ formatExtraBonus(item) }}
+                        </template>
+                      </td>
+
+                      <!-- Recipe -->
+                      <td>
+                        <table v-if="item.recipe.length > 0">
+                          <tr
+                            v-for="ingredient in item.recipe"
+                            :key="'item' + item.id + '-recipe-' + ingredient.id"
+                            class="nobreak"
+                          >
+                            <td>
+                              <item :item="ingredient" />
+                            </td>
+                            <td>x{{ ingredient.count }}</td>
+                          </tr>
+                        </table>
+                      </td>
+
+                      <!-- Savy Price -->
+                      <td>
+                        <table v-show="item.market_price">
+                          <tr>
+                            <td>
+                              <div class="block" :style="currencySprite('Starbux')" />
+                            </td>
+                            <td class="text-xs-left">{{ item.market_price }}</td>
+                          </tr>
+                        </table>
+                      </td>
+
+                      <!-- Market Prices -->
+                      <td>
+                        <table v-if="item.prices" class="market-table">
+                        <thead>
+                          <tr>
+                            <td class="text-center"></td>
+                            <td class="text-center">#</td>
+                            <td class="text-center">25%</td>
+                            <td class="text-center">50%</td>
+                            <td class="text-center">75%</td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="(prices, currency, ind) in item.prices"
+                            :key="'item' + item.id + '-price-' + ind"
+                            class="nobreak"
+                          >
+                            <td><div class="block" :style="currencySprite(currency)" /></td>
+                            <td><div class="block" />{{ prices.count }}</td>
+                            <td class="text-xs-left" v-html="priceFormat(prices, prices.p25)"></td>
+                            <td class="text-xs-left" v-html="priceFormat(prices, prices.p50)"></td>
+                            <td class="text-xs-left" v-html="priceFormat(prices, prices.p75)"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      </td>
                     </tr>
                   </tbody>
-                </table>
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </v-col>
-    </v-row>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-tab-item>
 
-    <v-row v-if="loaded && item.lastSales.length > 0" class="pt-4" justify="center">
-        <v-col class="text-center" cols="8">
-        <span class="text-h6">Last 10 sales</span>
+      <v-tab-item value="tab-sales">
+        <v-card flat>
+          <v-row v-if="loaded && lastSales.length > 0" justify="center" class="pt-4">
+              <v-switch
+                class="px-3"
+                v-model="showLastSalesGas"
+                label="Gas"
+                color="purple lighten-2"
+              ></v-switch>
+              <v-switch
+                class="px-3"
+                v-model="showLastSalesMineral"
+                label="Mineral"
+                color="blue lighten-2"
+                hide-details
+              ></v-switch>
+              <v-switch
+                class="px-3"
+                v-model="showLastSalesStarbux"
+                label="Starbux"
+                color="green lighten-2"
+                hide-details
+              ></v-switch>
+          </v-row>
 
-        <v-simple-table class="px-3" dense>
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-center">Date</th>
-                <th class="text-center">Quantity</th>
-                <th class="text-center">Currency</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Buyer</th>
-                <th class="text-center">Seller</th>
-              </tr>
-            </thead>
+          <v-row v-if="loaded && lastSales.length > 0" justify="center">
+            <v-col class="text-center" cols="8">
+              <v-data-table
+                mobile-breakpoint="0"
+                :headers="lastSalesHeaders"
+                :items="lastSales"
+                :items-per-page="20"
+                :sortDesc="true"
+                :footer-props="{
+                  itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
+                }"
+                multi-sort
+                class="elevation-1 px-3"
+              >
+                <template v-slot:item="{ item }">
+                  <tr>
+                      <td>{{ nowTime(item.date) }}</td>
+                      <td>x{{ item.quantity }}</td>
+                      <td><div class="d-inline-block" :style="currencySprite(item.currency)" /></td>
+                      <td>{{ item.price }}</td>
+                      <td>{{ item.buyer }}</td>
+                      <td>{{ item.seller }}</td>
+                  </tr>
+                </template>
+              </v-data-table>
+            </v-col>
+          </v-row>
 
-            <tbody>
-              <tr v-for="sale in item.lastSales" :key="'sale-' + sale.id">
-                <td>{{ nowTime(sale.date) }}</td>
-                <td>x{{ sale.quantity }}</td>
-                <td><div class="d-inline-block" :style="currencySprite(sale.currency)" /></td>
-                <td>{{ sale.price }}</td>
-                <td>{{ sale.buyer }}</td>
-                <td>{{ sale.seller }}</td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </v-col>
-    </v-row>
+          <v-row v-else class="pt-4">
+            <v-col>
+              <div class="text-center">No data</div>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-tab-item>
 
-    <v-row v-if="loaded && Object.keys(item.priceHistory).length > 0" class="pt-4" justify="center">
-      <v-col class="text-center">
-        <span class="text-h6">Market history</span>
-      </v-col>
-    </v-row>
+      <v-tab-item value="tab-market">
+        <item-market :item="item" :showTitle="false" class="mt-4"/>
+      </v-tab-item>
 
-    <v-row v-if="loaded && Object.keys(item.priceHistory).length > 0" justify="center">
-        <v-switch
-          class="px-3"
-          v-model="showGas"
-          label="Gas"
-          color="purple lighten-2"
-          @click.native="updatePlot('item-chart', false)"
-        ></v-switch>
-        <v-switch
-          class="px-3"
-          v-model="showMineral"
-          label="Mineral"
-          color="blue lighten-2"
-          hide-details
-          @click.native="updatePlot('item-chart', false)"
-        ></v-switch>
-        <v-switch
-          class="px-3"
-          v-model="showStarbux"
-          label="Starbux"
-          color="green lighten-2"
-          hide-details
-          @click.native="updatePlot('item-chart', false)"
-        ></v-switch>
-    </v-row>
+      <v-tab-item value="tab-craft">
+        <v-card flat>
+          <v-col>
+            <v-row v-if="loaded && item.recipe.length > 0" justify="center" class="pt-4">
+              <v-treeview
+                v-model="tree"
+                hoverable
+                activatable
+                item-key="name"
+                item-children="recipe"
+                open-on-click
+                class="px-5"
+                :items="item.recipe"
+              >
+                <template v-slot:label="{ item }">
+                  <item :item="item" name="right" :disableLink="true" :count="item.count"/>
+                </template>
+              </v-treeview>
+            </v-row>
 
-    <div id="item-chart"></div>
+            <v-row v-else class="pt-4">
+              <v-col>
+                <div class="text-center">This item cannot be crafted.</div>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-card>
+      </v-tab-item>
+    </v-tabs-items>
   </v-card>
 </template>
 
@@ -191,19 +232,72 @@ import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
 import itemMixins from "@/mixins/Item.vue.js";
 import Item from "@/components/Item.vue";
+import ItemMarket from "@/components/ItemMarket.vue";
 
 export default {
   mixins: [mixins, itemMixins],
 
   components: {
     Item,
+    ItemMarket,
   },
 
   data() {
     return {
+      model: 'tab-detail',
       loaded: false,
       itemId: this.$route.params.id,
       item: {},
+      lastSales: [],
+      showLastSalesStarbux: true,
+      showLastSalesGas: true,
+      showLastSalesMineral: true,
+      lastSalesHeaders: [
+        { 
+          text: "Date", 
+          align: "center",
+          value: "date",           
+          filterable: false 
+        },
+        { 
+          text: "Quantity", 
+          align: "center", 
+          value: "quantity", 
+          filterable: true 
+        },
+        {
+          text: "Currency",
+          align: "center",          
+          value: "currency",
+          filter: (value) => {
+            if (this.searchLastSalesCurrency.length > 0) {
+              return this.searchLastSalesCurrency.includes(value)
+            }
+
+            return false
+          }
+        },
+        { 
+          text: "Price", 
+          align: "center", 
+          value: "price", 
+          filterable: false 
+        },
+        { 
+          text: "Buyer", 
+          align: "center", 
+          value: "buyer", 
+          filterable: false 
+        },
+        { 
+          text: "Seller", 
+          align: "center", 
+          value: "saller", 
+          filterable: false 
+        },
+      ],
+      tree: [],
+      recipes: []
     };
   },
 
@@ -211,6 +305,24 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+
+    searchLastSalesCurrency: function () {
+      let currencies = []
+
+      if (this.showLastSalesGas) {
+        currencies.push('Gas')
+      }
+
+      if (this.showLastSalesMineral) {
+        currencies.push('Mineral')
+      }
+
+      if (this.showLastSalesStarbux) {
+        currencies.push('Starbux')
+      }
+
+      return currencies
+    }
   },
 
   beforeMount: function () {
@@ -222,14 +334,9 @@ export default {
       const response = await axios.get(this.itemDetailEndpoint(this.itemId));
 
       this.item = response.data.data;
-      this.item.priceHistory = response.data.priceHistory.prices
-      this.item.lastSales = response.data.lastSales
+      this.lastSales = response.data.lastSales
       document.title = 'PixyShip - ' + this.item.name
-
       this.loaded = true;
-
-      this.charts.push(this.item)
-      this.plotData(this.item, "item-chart", false)
     },
   }
 }
@@ -239,10 +346,6 @@ export default {
 <style scoped>
 .rarity {
   text-transform: capitalize;
-}
-
-.item-chart {
-  width: 100%;
 }
 
 .market-table {

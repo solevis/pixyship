@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Items </v-card-title>
     <v-card-subtitle>All Pixel Starships items and market history (click on a row to display more market data)</v-card-subtitle>
 
@@ -86,7 +86,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      @item-expanded="rowExpanded"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded || !item.market_price">
@@ -199,34 +198,7 @@
 
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length" v-show="item.market_price" style="border-bottom: 10px solid #393939;">
-          <v-container class="my-0 py-0">
-            <v-layout justify-center>
-              <v-switch
-                class="px-3"
-                v-model="showGas"
-                label="Gas"
-                color="purple lighten-2"
-                @click.native="updatePlot"
-              ></v-switch>
-              <v-switch
-                class="px-3"
-                v-model="showMineral"
-                label="Mineral"
-                color="blue lighten-2"
-                hide-details
-                @click.native="updatePlot"
-              ></v-switch>
-              <v-switch
-                class="px-3"
-                v-model="showStarbux"
-                label="Starbux"
-                color="green lighten-2"
-                hide-details
-                @click.native="updatePlot"
-              ></v-switch>
-            </v-layout>
-          </v-container>
-          <div :id="'chart-' + item.id" class="center"></div>
+          <item-market :item="item" :showTitle="true" class="ma-3"/>
         </td>
       </template>
     </v-data-table>
@@ -238,12 +210,14 @@ import axios from "axios";
 import mixins from "@/mixins/PixyShip.vue.js";
 import itemMixins from "@/mixins/Item.vue.js";
 import Item from "@/components/Item.vue";
+import ItemMarket from '../components/ItemMarket.vue';
 
 export default {
   mixins: [mixins, itemMixins],
 
   components: {
     Item,
+    ItemMarket,
   },
 
   data() {
@@ -329,7 +303,6 @@ export default {
         },
       ],
       items: [],
-      openRow: null,
     };
   },
 
@@ -407,21 +380,6 @@ export default {
           )
         )
       ).sort(this.sortRarity)
-    },
-
-    rowExpanded: async function (row) {
-      let item = row.item;
-
-      // fetch data if needed
-      if ("priceHistory" in item) {
-        await new Promise((resolve) => setTimeout(resolve, 1));
-      } else {
-        const response = await axios.get(this.itemPricesEndpoint(item.id));
-        item.priceHistory = response.data.data.prices;
-      }
-
-      this.openRow = item;
-      this.plotData(item);
     },
   },
 };

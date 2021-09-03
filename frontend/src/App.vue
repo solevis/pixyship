@@ -71,7 +71,7 @@
       </v-navigation-drawer>
 
     <v-main>
-      <v-container fluid>
+      <v-container fluid class="full-height">
         <router-view></router-view>
       </v-container>
     </v-main>
@@ -115,5 +115,9 @@ export default {
  <style>
   html {
     overflow-y: auto !important;
-  } 
+  }
+
+  .full-height {
+    height: 100%;
+  }
 </style>

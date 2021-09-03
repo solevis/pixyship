@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Researches </v-card-title>
     <v-card-subtitle>All Pixel Starships researches</v-card-subtitle>
 
