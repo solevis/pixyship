@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.6] - 2020-09-18
+
+### Fixes
+
+- Fix sorting of crew walk & run speed by splitting the column in two
+
 ## [2.1.5] - 2020-08-29
 
 ### Fixes
@@ -105,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[2.1.6]: https://github.com/solevis/pixyship/compare/v2.1.5...v2.1.6
 [2.1.5]: https://github.com/solevis/pixyship/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/solevis/pixyship/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/solevis/pixyship/compare/v2.1.2...v2.1.3
