@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Item page
 
+## [2.1.6] - 2020-09-18
+
+### Fixes
+
+- Fix sorting of crew walk & run speed by splitting the column in two
+
 ## [2.1.5] - 2020-08-29
 
 ### Fixes

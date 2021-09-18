@@ -188,9 +188,8 @@
           <td>{{ item.training_limit }}</td>
 
           <!-- Speed -->
-          <td>
-            <div>{{ `${item.walk}:${item.run}` }}</div>
-          </td>
+          <td> {{ item.walk }} </td>
+          <td> {{ item.run }} </td>
         </tr>
       </template>
     </v-data-table>
@@ -328,10 +327,16 @@ export default {
           filterable: false,
         },
         { 
-          text: "Speed", 
+          text: "Walk",
+          align: "start",          
+          value: "walk", 
+          filterable: false
+        },
+        { 
+          text: "Run",
           align: "start",          
           value: "run", 
-          filterable: false 
+          filterable: false
         },
       ],
       crews: [],
