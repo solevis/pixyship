@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Item page
 
+## [2.1.7] - 2020-09-25
+
+### Added
+
+- Add sorting to the "Recipe" column to group items that can be crafted or not
+
 ## [2.1.6] - 2020-09-18
 
 ### Fixes
@@ -115,6 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[2.1.7]: https://github.com/solevis/pixyship/compare/v2.1.6...v2.1.7
+[2.1.6]: https://github.com/solevis/pixyship/compare/v2.1.5...v2.1.6
 [2.1.5]: https://github.com/solevis/pixyship/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/solevis/pixyship/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/solevis/pixyship/compare/v2.1.2...v2.1.3
