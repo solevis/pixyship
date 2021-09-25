@@ -313,8 +313,19 @@ export default {
         {
           text: "Recipe",
           align: "center",          
-          sortable: false,
+          value: "recipe",
           filterable: false,
+          sort: (a, b) => {
+            if (a.length > 0 && b.length > 0) {
+              return 0
+            }
+
+            if (a.length > 0 && b.length === 0) {
+              return 1
+            }
+
+            return -1
+          },
         },
         {
           text: "Description",
