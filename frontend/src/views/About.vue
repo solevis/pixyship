@@ -1,5 +1,5 @@
 <template>
-  <v-card class="px-5 pb-1">
+  <v-card class="px-5 pb-1 full-height">
     <v-card-title class="overline right"></v-card-title>
     
     <v-card class="mb-4" elevation="2" outlined>
