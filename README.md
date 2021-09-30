@@ -28,7 +28,7 @@ cd frontend/
 # Install npm dependencies
 npm install
 
-# Build for production/Flask with minification
+# Build with minification
 npm run build
 ```
 
@@ -36,7 +36,7 @@ Run :
 
 ```bash
 # Serve with hot reload
-npm run dev
+npm run serve
 ```
 
 Access the web server at [http://localhost:8080](http://localhost:8080).
