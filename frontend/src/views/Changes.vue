@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Changes </v-card-title>
     <v-card-subtitle>API changes for common assets of Pixel Starships</v-card-subtitle>
 

@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Players </v-card-title>
     <v-card-subtitle>Search top players and see their layout (click the gear icon for options)</v-card-subtitle>
 

@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-subtitle v-if="!loaded"> Loading... </v-card-subtitle>
 
     <v-row v-if="loaded" justify="center">

@@ -610,14 +610,17 @@ class Pixyship(metaclass=Singleton):
     def get_item_last_sales_from_db(item_id, limit):
         """Get last sales from database."""
 
-        sql = f"""
+        sql = """
                     SELECT sale_at, amount, currency, price, user_name as buyer_name, seller_name, id
                     FROM listing
-                    WHERE item_id = :item_id AND amount > 0
+                    WHERE item_id = :item_id 
+                        AND amount > 0 
+                        AND user_name IS NOT NULL 
+                        AND seller_name IS NOT NULL
                     ORDER BY sale_at::DATE DESC
-                    LIMIT {limit}
+                    LIMIT :limit
                     """
-        result = db.session.execute(sql, {'item_id': item_id}).fetchall()
+        result = db.session.execute(sql, {'item_id': item_id, 'limit': limit}).fetchall()
         last_sales = []
 
         for row in result:

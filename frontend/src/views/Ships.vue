@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Ships </v-card-title>
     <v-card-subtitle>All Pixel Starships ships infos and sprites (click on a row to see interior and exterior)</v-card-subtitle>
 

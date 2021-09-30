@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Builder </v-card-title>
     <v-card-subtitle>Build your ship directly from PixyShip</v-card-subtitle>
 

@@ -1,7 +1,7 @@
 <template>
   <v-tooltip :disabled="!show" top color="grey darken-3">
     <template v-slot:activator="{ on, attrs }">
-      <a :href="`/item/${item.id}`" v-bind="attrs" v-on="on" :aria-label="item.name" class="item-link">
+      <component :is="disableLink ? 'span' : 'a'" :href="`/item/${item.id}`" v-bind="attrs" v-on="on" :aria-label="item.name" class="item-link">
         <div>
           <div v-if="!name" :aria-label="item.name">
               <div class="item-sprite" :style="spriteStyle(item.sprite)"></div>
@@ -21,7 +21,7 @@
             </tr>
           </table>
         </div>
-      </a>
+      </component>
     </template>
 
     <div>
@@ -105,6 +105,10 @@ export default {
     name: null,
     tipPosition: null,
     tip: { default: true },
+    disableLink: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data: function () {

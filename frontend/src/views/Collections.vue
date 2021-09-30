@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Collections </v-card-title>
     <v-card-subtitle>All crew collections infos (crews, bonus, skill, ...) of Pixel Starships</v-card-subtitle>
 
