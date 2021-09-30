@@ -17,7 +17,8 @@
       </v-col>
     </v-row>
 
-    <template v-if="loaded">
+    <!-- Large screen (Table and prestiges side by side) -->
+    <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
       <v-row justify="center">
         <v-col cols="8">
           <v-simple-table v-if="loaded" class="px-3">
@@ -141,38 +142,105 @@
       </v-row>
     </template>
 
+    <!-- Small screen (infos as card and expandable prestiges) -->
+    <v-row v-else-if="loaded" justify="center">
+      <v-col>
+        <v-card v-if="loaded" outlined class="mx-3">
+          <v-card-title>Details</v-card-title>
+          <v-card-text>
+            <span>Rarity: <span :class="['rarity', item.rarity]">{{ item.rarity }}</span></span><br>
+            <span>Type: {{ item.type }}</span><br>
+            <span>Subtype: {{ item.slot }}</span><br>
+            <span v-if="formatBonus(item)">Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template></span><br>
+            <div v-if="item.recipe.length > 0">Recipe: 
+              <ul>
+              <li v-for="(ingredient) in item.recipe"
+                  :key="'item-cmp-' + item.id + '-recipe-' + ingredient.id"
+                >
+                  
+                  <div class="d-inline-block middle mr-1">{{ ingredient.name }}</div>
+                  <div class="d-inline-block middle mr-1" :style="spriteStyle(ingredient.sprite)"></div>
+                  <div class="d-inline-block middle">x{{ ingredient.count }}</div>
+
+              </li>
+            </ul>
+            </div>
+            <div v-if="item.market_price">
+              <div class="d-inline-block middle mr-1">Savy Price: {{ item.market_price }}</div>
+              <div class="d-inline-block middle" :style="currencySprite('Starbux')"></div>
+            </div>
+            <div class="mb-2" v-if="item.prices">Market Prices (48h):</div>
+            <table v-if="item.prices" class="market-table market-table-center">
+              <thead>
+                <tr>
+                  <td class="text-center"></td>
+                  <td class="text-center">#</td>
+                  <td class="text-center">25%</td>
+                  <td class="text-center">50%</td>
+                  <td class="text-center">75%</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(prices, currency, ind) in item.prices"
+                  :key="'item' + item.id + '-price-' + ind"
+                  class="nobreak"
+                >
+                  <td>
+                    <div
+                      class="block"
+                      :style="currencySprite(currency)"
+                    />
+                  </td>
+                  <td>
+                    <div class="block" />
+                    {{ prices.count }}
+                  </td>
+                  <td
+                    class="text-xs-left"
+                    v-html="priceFormat(prices, prices.p25)"
+                  ></td>
+                  <td
+                    class="text-xs-left"
+                    v-html="priceFormat(prices, prices.p50)"
+                  ></td>
+                  <td
+                    class="text-xs-left"
+                    v-html="priceFormat(prices, prices.p75)"
+                  ></td>
+                </tr>
+              </tbody>
+            </table>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <v-row justify="center">
-      <v-col cols="8">
+      <v-col cols="12" sm="8">
         <v-tabs v-if="loaded" grow v-model="model" class="mt-4">
-          <v-tab href="#tab-market"
+          <v-tab v-if="$vuetify.breakpoint.mdAndUp" href="#tab-market"
             ><v-icon left>mdi-chart-histogram</v-icon>Market History</v-tab
           >
           <v-tab href="#tab-sales"
-            ><v-icon left>mdi-sale</v-icon>Last Sales</v-tab
+            ><v-icon left>mdi-sale</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last Sales</span></v-tab
           >
           <v-tab href="#tab-craft"
-            ><v-icon left>mdi-sitemap</v-icon>Craft</v-tab
+            ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Craft</span></v-tab
           >
         </v-tabs>
       </v-col>
     </v-row>
+    
     <v-row justify="center">
       <v-col cols="10">
         <v-tabs-items v-model="model">
-          <v-tab-item value="tab-detail">
-            <v-card flat>
-              <v-row v-if="loaded" justify="center" class="pt-4">
-                <v-col cols="8"> </v-col>
-              </v-row>
-            </v-card>
-          </v-tab-item>
-
           <v-tab-item value="tab-sales">
             <v-card flat>
               <v-row
                 v-if="loaded && lastSales.length > 0"
                 justify="center"
-                class="pt-4"
+                :class="$vuetify.breakpoint.mdAndUp ? 'pt-4' : ''"
               >
                 <v-switch
                   class="px-3"
@@ -183,24 +251,24 @@
                 <v-switch
                   class="px-3"
                   v-model="showLastSalesMineral"
-                  label="Mineral"
+                  :label="$vuetify.breakpoint.mdAndUp ? 'Mineral' : 'Min'"
                   color="blue lighten-2"
                   hide-details
                 ></v-switch>
                 <v-switch
                   class="px-3"
                   v-model="showLastSalesStarbux"
-                  label="Starbux"
+                  :label="$vuetify.breakpoint.mdAndUp ? 'Starbux' : 'Bux'"
                   color="green lighten-2"
                   hide-details
                 ></v-switch>
               </v-row>
 
               <v-row v-if="loaded && lastSales.length > 0" justify="center">
-                <v-col class="text-center" cols="8">
+                <v-col class="text-center" cols="12" md="8" >
                   <v-data-table
                     mobile-breakpoint="0"
-                    :headers="lastSalesHeaders"
+                    :headers="$vuetify.breakpoint.mdAndUp ? lastSalesHeaders : lastSalesMobileHeaders"
                     :items="lastSales"
                     :items-per-page="20"
                     :sortDesc="true"
@@ -208,11 +276,11 @@
                       itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
                     }"
                     multi-sort
-                    class="elevation-1 px-3"
+                    class="elevation-1"
                   >
                     <template v-slot:item="{ item }">
                       <tr>
-                        <td>{{ nowTime(item.date) }}</td>
+                        <td v-if="$vuetify.breakpoint.mdAndUp">{{ nowTime(item.date) }}</td>
                         <td>x{{ item.quantity }}</td>
                         <td>
                           <div
@@ -237,7 +305,7 @@
             </v-card>
           </v-tab-item>
 
-          <v-tab-item value="tab-market">
+          <v-tab-item value="tab-market" v-if="$vuetify.breakpoint.mdAndUp">
             <item-market :item="item" :showTitle="false" class="mt-4" />
           </v-tab-item>
 
@@ -353,6 +421,44 @@ export default {
           filterable: false,
         },
       ],
+      lastSalesMobileHeaders: [
+        {
+          text: "Quantity",
+          align: "center",
+          value: "quantity",
+          filterable: true,
+        },
+        {
+          text: "Currency",
+          align: "center",
+          value: "currency",
+          filter: (value) => {
+            if (this.searchLastSalesCurrency.length > 0) {
+              return this.searchLastSalesCurrency.includes(value);
+            }
+
+            return false;
+          },
+        },
+        {
+          text: "Price",
+          align: "center",
+          value: "price",
+          filterable: false,
+        },
+        {
+          text: "Buyer",
+          align: "center",
+          value: "buyer",
+          filterable: false,
+        },
+        {
+          text: "Seller",
+          align: "center",
+          value: "saller",
+          filterable: false,
+        },
+      ],
       tree: [],
       recipes: [],
     };
@@ -419,5 +525,13 @@ export default {
   padding-right: 10px;
   padding-left: 10px;
   text-align: center;
+}
+
+.market-table-center {
+  margin: 0 auto;
+}
+
+.middle {
+  vertical-align: middle;
 }
 </style>
