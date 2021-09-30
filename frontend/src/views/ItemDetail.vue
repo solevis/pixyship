@@ -5,225 +5,282 @@
     <!-- Item sprite -->
     <v-card-title v-if="loaded">
       <div class="mx-auto">
-        <item :item="item" :tip="false" name="bottom" :disableLink="true"/>
+        <item :item="item" :tip="false" name="bottom" :disableLink="true" />
       </div>
     </v-card-title>
 
     <v-row justify="center" v-if="loaded">
-        <v-col cols="8">
-          <div class="text-center">
-            <q class="font-italic">{{ item.description }}</q>
-          </div>
-        </v-col>
+      <v-col cols="8">
+        <div class="text-center">
+          <q class="font-italic">{{ item.description }}</q>
+        </div>
+      </v-col>
     </v-row>
 
-    <v-tabs v-if="loaded" fixed-tabs v-model="model" class="mt-4">
-      <v-tab href="#tab-detail"><v-icon left>mdi-information-outline</v-icon>Detail</v-tab>
-      <v-tab href="#tab-market"><v-icon left>mdi-chart-histogram</v-icon>Market History</v-tab>
-      <v-tab href="#tab-sales"><v-icon left>mdi-sale</v-icon>Last Sales</v-tab>
-      <v-tab href="#tab-craft"><v-icon left>mdi-sitemap</v-icon>Craft</v-tab>
-    </v-tabs>
+    <template v-if="loaded">
+      <v-row justify="center">
+        <v-col cols="8">
+          <v-simple-table v-if="loaded" class="px-3">
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">Rarity</th>
+                  <th class="text-left">Type</th>
+                  <th class="text-left">Subtype</th>
+                  <th class="text-left">Bonus</th>
+                  <th class="text-left">Recipe</th>
+                  <th class="text-left">Savy Price</th>
+                  <th class="text-left">Market Prices (48h)</th>
+                </tr>
+              </thead>
 
-    <v-tabs-items v-model="model">
-      <v-tab-item value="tab-detail">
-        <v-card flat>
-          <v-row v-if="loaded" justify="center" class="pt-4">
-            <v-col cols="8">
-              <v-simple-table v-if="loaded" class="px-3">
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th class="text-left">Rarity</th>
-                      <th class="text-left">Type</th>
-                      <th class="text-left">Subtype</th>
-                      <th class="text-left">Bonus</th>
-                      <th class="text-left">Recipe</th>
-                      <th class="text-left">Savy Price</th>
-                      <th class="text-left">Market Prices (48h)</th>
-                    </tr>
-                  </thead>
+              <tbody>
+                <tr>
+                  <!-- Rarity -->
+                  <td>
+                    <div :class="['rarity', item.rarity]">
+                      {{ item.rarity }}
+                    </div>
+                  </td>
 
-                  <tbody>
-                    <tr>
-                      <!-- Rarity -->
-                      <td>
-                        <div :class="['rarity', item.rarity]">
-                          {{ item.rarity }}
-                        </div>
-                      </td>
+                  <!-- Type -->
+                  <td>{{ item.type }}</td>
 
-                      <!-- Type -->
-                      <td>{{ item.type }}</td>
+                  <!-- Subtype -->
+                  <td>{{ item.slot }}</td>
 
-                      <!-- Subtype -->
-                      <td>{{ item.slot }}</td>
+                  <!-- Bonus -->
+                  <td>
+                    {{ formatBonus(item) }}
+                    <template v-if="item.module_extra_disp_enhancement != null">
+                      <br />
+                      {{ formatExtraBonus(item) }}
+                    </template>
+                  </td>
 
-                      <!-- Bonus -->
-                      <td>
-                        {{ formatBonus(item) }}
-                        <template v-if="item.module_extra_disp_enhancement != null">
-                          <br> {{ formatExtraBonus(item) }}
-                        </template>
-                      </td>
+                  <!-- Recipe -->
+                  <td>
+                    <table v-if="item.recipe.length > 0">
+                      <tr
+                        v-for="ingredient in item.recipe"
+                        :key="'item' + item.id + '-recipe-' + ingredient.id"
+                        class="nobreak"
+                      >
+                        <td>
+                          <item :item="ingredient" />
+                        </td>
+                        <td>x{{ ingredient.count }}</td>
+                      </tr>
+                    </table>
+                  </td>
 
-                      <!-- Recipe -->
-                      <td>
-                        <table v-if="item.recipe.length > 0">
-                          <tr
-                            v-for="ingredient in item.recipe"
-                            :key="'item' + item.id + '-recipe-' + ingredient.id"
-                            class="nobreak"
-                          >
-                            <td>
-                              <item :item="ingredient" />
-                            </td>
-                            <td>x{{ ingredient.count }}</td>
-                          </tr>
-                        </table>
-                      </td>
+                  <!-- Savy Price -->
+                  <td>
+                    <table v-show="item.market_price">
+                      <tr>
+                        <td>
+                          <div
+                            class="block"
+                            :style="currencySprite('Starbux')"
+                          />
+                        </td>
+                        <td class="text-xs-left">{{ item.market_price }}</td>
+                      </tr>
+                    </table>
+                  </td>
 
-                      <!-- Savy Price -->
-                      <td>
-                        <table v-show="item.market_price">
-                          <tr>
-                            <td>
-                              <div class="block" :style="currencySprite('Starbux')" />
-                            </td>
-                            <td class="text-xs-left">{{ item.market_price }}</td>
-                          </tr>
-                        </table>
-                      </td>
+                  <!-- Market Prices -->
+                  <td>
+                    <table v-if="item.prices" class="market-table">
+                      <thead>
+                        <tr>
+                          <td class="text-center"></td>
+                          <td class="text-center">#</td>
+                          <td class="text-center">25%</td>
+                          <td class="text-center">50%</td>
+                          <td class="text-center">75%</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="(prices, currency, ind) in item.prices"
+                          :key="'item' + item.id + '-price-' + ind"
+                          class="nobreak"
+                        >
+                          <td>
+                            <div
+                              class="block"
+                              :style="currencySprite(currency)"
+                            />
+                          </td>
+                          <td>
+                            <div class="block" />
+                            {{ prices.count }}
+                          </td>
+                          <td
+                            class="text-xs-left"
+                            v-html="priceFormat(prices, prices.p25)"
+                          ></td>
+                          <td
+                            class="text-xs-left"
+                            v-html="priceFormat(prices, prices.p50)"
+                          ></td>
+                          <td
+                            class="text-xs-left"
+                            v-html="priceFormat(prices, prices.p75)"
+                          ></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
+      </v-row>
+    </template>
 
-                      <!-- Market Prices -->
-                      <td>
-                        <table v-if="item.prices" class="market-table">
-                        <thead>
-                          <tr>
-                            <td class="text-center"></td>
-                            <td class="text-center">#</td>
-                            <td class="text-center">25%</td>
-                            <td class="text-center">50%</td>
-                            <td class="text-center">75%</td>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr
-                            v-for="(prices, currency, ind) in item.prices"
-                            :key="'item' + item.id + '-price-' + ind"
-                            class="nobreak"
-                          >
-                            <td><div class="block" :style="currencySprite(currency)" /></td>
-                            <td><div class="block" />{{ prices.count }}</td>
-                            <td class="text-xs-left" v-html="priceFormat(prices, prices.p25)"></td>
-                            <td class="text-xs-left" v-html="priceFormat(prices, prices.p50)"></td>
-                            <td class="text-xs-left" v-html="priceFormat(prices, prices.p75)"></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      </td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-tab-item>
+    <v-row justify="center">
+      <v-col cols="8">
+        <v-tabs v-if="loaded" grow v-model="model" class="mt-4">
+          <v-tab href="#tab-market"
+            ><v-icon left>mdi-chart-histogram</v-icon>Market History</v-tab
+          >
+          <v-tab href="#tab-sales"
+            ><v-icon left>mdi-sale</v-icon>Last Sales</v-tab
+          >
+          <v-tab href="#tab-craft"
+            ><v-icon left>mdi-sitemap</v-icon>Craft</v-tab
+          >
+        </v-tabs>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="10">
+        <v-tabs-items v-model="model">
+          <v-tab-item value="tab-detail">
+            <v-card flat>
+              <v-row v-if="loaded" justify="center" class="pt-4">
+                <v-col cols="8"> </v-col>
+              </v-row>
+            </v-card>
+          </v-tab-item>
 
-      <v-tab-item value="tab-sales">
-        <v-card flat>
-          <v-row v-if="loaded && lastSales.length > 0" justify="center" class="pt-4">
-              <v-switch
-                class="px-3"
-                v-model="showLastSalesGas"
-                label="Gas"
-                color="purple lighten-2"
-              ></v-switch>
-              <v-switch
-                class="px-3"
-                v-model="showLastSalesMineral"
-                label="Mineral"
-                color="blue lighten-2"
-                hide-details
-              ></v-switch>
-              <v-switch
-                class="px-3"
-                v-model="showLastSalesStarbux"
-                label="Starbux"
-                color="green lighten-2"
-                hide-details
-              ></v-switch>
-          </v-row>
-
-          <v-row v-if="loaded && lastSales.length > 0" justify="center">
-            <v-col class="text-center" cols="8">
-              <v-data-table
-                mobile-breakpoint="0"
-                :headers="lastSalesHeaders"
-                :items="lastSales"
-                :items-per-page="20"
-                :sortDesc="true"
-                :footer-props="{
-                  itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
-                }"
-                multi-sort
-                class="elevation-1 px-3"
+          <v-tab-item value="tab-sales">
+            <v-card flat>
+              <v-row
+                v-if="loaded && lastSales.length > 0"
+                justify="center"
+                class="pt-4"
               >
-                <template v-slot:item="{ item }">
-                  <tr>
-                      <td>{{ nowTime(item.date) }}</td>
-                      <td>x{{ item.quantity }}</td>
-                      <td><div class="d-inline-block" :style="currencySprite(item.currency)" /></td>
-                      <td>{{ item.price }}</td>
-                      <td>{{ item.buyer }}</td>
-                      <td>{{ item.seller }}</td>
-                  </tr>
-                </template>
-              </v-data-table>
-            </v-col>
-          </v-row>
+                <v-switch
+                  class="px-3"
+                  v-model="showLastSalesGas"
+                  label="Gas"
+                  color="purple lighten-2"
+                ></v-switch>
+                <v-switch
+                  class="px-3"
+                  v-model="showLastSalesMineral"
+                  label="Mineral"
+                  color="blue lighten-2"
+                  hide-details
+                ></v-switch>
+                <v-switch
+                  class="px-3"
+                  v-model="showLastSalesStarbux"
+                  label="Starbux"
+                  color="green lighten-2"
+                  hide-details
+                ></v-switch>
+              </v-row>
 
-          <v-row v-else class="pt-4">
-            <v-col>
-              <div class="text-center">No data</div>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-tab-item>
+              <v-row v-if="loaded && lastSales.length > 0" justify="center">
+                <v-col class="text-center" cols="8">
+                  <v-data-table
+                    mobile-breakpoint="0"
+                    :headers="lastSalesHeaders"
+                    :items="lastSales"
+                    :items-per-page="20"
+                    :sortDesc="true"
+                    :footer-props="{
+                      itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
+                    }"
+                    multi-sort
+                    class="elevation-1 px-3"
+                  >
+                    <template v-slot:item="{ item }">
+                      <tr>
+                        <td>{{ nowTime(item.date) }}</td>
+                        <td>x{{ item.quantity }}</td>
+                        <td>
+                          <div
+                            class="d-inline-block"
+                            :style="currencySprite(item.currency)"
+                          />
+                        </td>
+                        <td>{{ item.price }}</td>
+                        <td>{{ item.buyer }}</td>
+                        <td>{{ item.seller }}</td>
+                      </tr>
+                    </template>
+                  </v-data-table>
+                </v-col>
+              </v-row>
 
-      <v-tab-item value="tab-market">
-        <item-market :item="item" :showTitle="false" class="mt-4"/>
-      </v-tab-item>
+              <v-row v-else class="pt-4">
+                <v-col>
+                  <div class="text-center">No data</div>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-tab-item>
 
-      <v-tab-item value="tab-craft">
-        <v-card flat>
-          <v-col>
-            <v-row v-if="loaded && item.recipe.length > 0" justify="center" class="pt-4">
-              <v-treeview
-                v-model="tree"
-                hoverable
-                activatable
-                item-key="name"
-                item-children="recipe"
-                open-on-click
-                class="px-5"
-                :items="item.recipe"
-              >
-                <template v-slot:label="{ item }">
-                  <item :item="item" name="right" :disableLink="true" :count="item.count"/>
-                </template>
-              </v-treeview>
-            </v-row>
+          <v-tab-item value="tab-market">
+            <item-market :item="item" :showTitle="false" class="mt-4" />
+          </v-tab-item>
 
-            <v-row v-else class="pt-4">
+          <v-tab-item value="tab-craft">
+            <v-card flat>
               <v-col>
-                <div class="text-center">This item cannot be crafted.</div>
+                <v-row
+                  v-if="loaded && item.recipe.length > 0"
+                  justify="center"
+                  class="pt-4"
+                >
+                  <v-treeview
+                    v-model="tree"
+                    hoverable
+                    activatable
+                    item-key="name"
+                    item-children="recipe"
+                    open-on-click
+                    class="px-5"
+                    :items="item.recipe"
+                  >
+                    <template v-slot:label="{ item }">
+                      <item
+                        :item="item"
+                        name="right"
+                        :disableLink="true"
+                        :count="item.count"
+                      />
+                    </template>
+                  </v-treeview>
+                </v-row>
+
+                <v-row v-else class="pt-4">
+                  <v-col>
+                    <div class="text-center">This item cannot be crafted.</div>
+                  </v-col>
+                </v-row>
               </v-col>
-            </v-row>
-          </v-col>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
+            </v-card>
+          </v-tab-item>
+        </v-tabs-items>
+      </v-col>
+    </v-row>
   </v-card>
 </template>
 
@@ -244,7 +301,7 @@ export default {
 
   data() {
     return {
-      model: 'tab-detail',
+      model: "tab-detail",
       loaded: false,
       itemId: this.$route.params.id,
       item: {},
@@ -253,51 +310,51 @@ export default {
       showLastSalesGas: true,
       showLastSalesMineral: true,
       lastSalesHeaders: [
-        { 
-          text: "Date", 
+        {
+          text: "Date",
           align: "center",
-          value: "date",           
-          filterable: false 
+          value: "date",
+          filterable: false,
         },
-        { 
-          text: "Quantity", 
-          align: "center", 
-          value: "quantity", 
-          filterable: true 
+        {
+          text: "Quantity",
+          align: "center",
+          value: "quantity",
+          filterable: true,
         },
         {
           text: "Currency",
-          align: "center",          
+          align: "center",
           value: "currency",
           filter: (value) => {
             if (this.searchLastSalesCurrency.length > 0) {
-              return this.searchLastSalesCurrency.includes(value)
+              return this.searchLastSalesCurrency.includes(value);
             }
 
-            return false
-          }
+            return false;
+          },
         },
-        { 
-          text: "Price", 
-          align: "center", 
-          value: "price", 
-          filterable: false 
+        {
+          text: "Price",
+          align: "center",
+          value: "price",
+          filterable: false,
         },
-        { 
-          text: "Buyer", 
-          align: "center", 
-          value: "buyer", 
-          filterable: false 
+        {
+          text: "Buyer",
+          align: "center",
+          value: "buyer",
+          filterable: false,
         },
-        { 
-          text: "Seller", 
-          align: "center", 
-          value: "saller", 
-          filterable: false 
+        {
+          text: "Seller",
+          align: "center",
+          value: "saller",
+          filterable: false,
         },
       ],
       tree: [],
-      recipes: []
+      recipes: [],
     };
   },
 
@@ -307,22 +364,22 @@ export default {
     },
 
     searchLastSalesCurrency: function () {
-      let currencies = []
+      let currencies = [];
 
       if (this.showLastSalesGas) {
-        currencies.push('Gas')
+        currencies.push("Gas");
       }
 
       if (this.showLastSalesMineral) {
-        currencies.push('Mineral')
+        currencies.push("Mineral");
       }
 
       if (this.showLastSalesStarbux) {
-        currencies.push('Starbux')
+        currencies.push("Starbux");
       }
 
-      return currencies
-    }
+      return currencies;
+    },
   },
 
   beforeMount: function () {
@@ -334,12 +391,12 @@ export default {
       const response = await axios.get(this.itemDetailEndpoint(this.itemId));
 
       this.item = response.data.data;
-      this.lastSales = response.data.lastSales
-      document.title = 'PixyShip - ' + this.item.name
+      this.lastSales = response.data.lastSales;
+      document.title = "PixyShip - " + this.item.name;
       this.loaded = true;
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
