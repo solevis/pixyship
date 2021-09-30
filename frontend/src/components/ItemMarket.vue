@@ -9,7 +9,7 @@
         v-model="showGas"
         label="Gas"
         color="purple lighten-2"
-        @click.native="updatePlot('item-chart', showTitle)"
+        @click.native="updatePlot('chart-' + item.id, showTitle)"
       ></v-switch>
       <v-switch
         class="px-3"
@@ -17,7 +17,7 @@
         label="Mineral"
         color="blue lighten-2"
         hide-details
-        @click.native="updatePlot('item-chart', showTitle)"
+        @click.native="updatePlot('chart-' + item.id, showTitle)"
       ></v-switch>
       <v-switch
         class="px-3"
@@ -25,7 +25,7 @@
         label="Starbux"
         color="green lighten-2"
         hide-details
-        @click.native="updatePlot('item-chart', showTitle)"
+        @click.native="updatePlot('chart-' + item.id, showTitle)"
       ></v-switch>
     </v-row>
 
@@ -35,7 +35,7 @@
       </v-col>
     </v-row>
 
-    <div id="item-chart" key="item-chart"></div>
+    <div :id="'chart-' + this.item.id" :key="'chart-' + this.item.id"></div>
   </v-card>
 </template>
 
@@ -87,7 +87,7 @@ export default {
       }
 
       this.charts.push(this.item)
-      this.plotData(this.item, "item-chart", this.showTitle)
+      this.plotData(this.item, null, this.showTitle)
     }
   }
 }
