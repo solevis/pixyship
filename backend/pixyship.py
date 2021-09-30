@@ -80,7 +80,7 @@ class Pixyship(metaclass=Singleton):
         'collection': 'CollectionDesignId',
     }
 
-    DEFAULT_EXPIRATION_DURATION = 60 * 60 * 6  # 6 hours
+    DEFAULT_EXPIRATION_DURATION = 60 * 60 * 1  # 1 hours
 
     EQUIPMENT_SLOTS = ['Head', 'Body', 'Leg', 'Weapon', 'Accessory', 'Pet']
 
