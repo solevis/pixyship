@@ -1,7 +1,12 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Items </v-card-title>
-    <v-card-subtitle>All Pixel Starships items and market history (click on a row to display more market data)</v-card-subtitle>
+    <v-card-subtitle>All Pixel Starships items and market history:
+      <ul>
+        <li>click on item name to see more infos</li>
+        <li>click on a row to display market history</li>
+      </ul>
+    </v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -396,7 +401,7 @@ export default {
 }
 
 a.name {
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .market {
