@@ -1545,13 +1545,13 @@ class Pixyship(metaclass=Singleton):
         user_id = self.find_user_id(player_name)
 
         if not user_id:
-            return None, None, None, None
+            return None, None, None, None, None
 
         inspect_ship = self.pixel_starships_api.inspect_ship(user_id)
 
         # only seen on admin players so far
         if not inspect_ship:
-            return None, None, None, None
+            return None, None, None, None, None
 
         upgrades = []
         user_data = inspect_ship['User']

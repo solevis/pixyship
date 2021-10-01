@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - market history
   - last sales
   - craft tree
-- Add "ids" query parameters to the pages to filter assets by ID
+- Add "ids" query parameter to the pages to filter assets by ID
+- Add "player" query parameter to the Players page
 
 ## [2.1.8] - 2020-09-30
 

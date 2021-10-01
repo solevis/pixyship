@@ -395,11 +395,6 @@ export default {
   },
 
   watch: {
-    searchPlayer(val) {
-      this.showShip = !!val
-      this.getShip(val)
-    },
-
     searchText() {
         this.getPlayers()
     },
@@ -416,17 +411,42 @@ export default {
   },
 
   beforeMount: function () {
-    this.getPlayers();
+    this.initPlayers();
   },
 
   methods: {
+    searchPlayerWatcher: function (val) {
+      this.showShip = !!val
+      this.getShip(val)
+    },
+
+    initPlayers: async function() {
+      const response = await axios.get(
+        this.playersEndpoint,
+        {params: {search: this.searchText}}
+      )
+
+      this.players = response.data
+      this.loaded = true
+
+      const query = this.$route.query
+      if (query.player) {
+        if (this.players.filter(player => player.name === query.player).length > 0) {
+          this.searchPlayer = query.player
+          this.searchPlayerWatcher(this.searchPlayer)
+        }
+      }
+
+      this.$watch('searchPlayer', this.searchPlayerWatcher);
+    },
+
     getPlayers: _.debounce(async function () {
       const response = await axios.get(
         this.playersEndpoint,
         {params: {search: this.searchText}}
       )
+
       this.players = response.data
-      this.loaded = true
     }, 250),
 
     getShip: async function(searchName) {
@@ -458,6 +478,8 @@ export default {
 
         this.shipLoading = false;
         this.showShip = true;
+
+        window.history.pushState('', '', '/players?player=' + searchName);
       }
     },
 
