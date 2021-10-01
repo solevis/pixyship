@@ -252,7 +252,25 @@ export default {
       types: [],
       loaded: false,
       headers: [
-        { text: "", align: "center", sortable: false, filterable: false },
+        { 
+          text: "Order by ID", 
+          align: "center", 
+          value: "id",
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters
+            if (!query.ids || this.pendingFilter) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim());
+            });
+            
+            return ids.includes(value)
+          }
+        },
         { text: "Name", align: "center", value: "name", filterable: true },
         { text: "Level", align: "right", value: "level", filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchLevel);
@@ -278,6 +296,11 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchLevel.length > 0
+        || this.searchType.length > 0
+    }
   },
 
   created() {

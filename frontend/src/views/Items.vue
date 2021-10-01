@@ -241,7 +241,20 @@ export default {
           text: "Order by ID", 
           align: "start",
           value: "id",           
-          filterable: false 
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters
+            if (!query.ids || this.pendingFilter) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim());
+            });
+            
+            return ids.includes(value)
+          } 
         },
         { text: "Name", align: "center", value: "name", filterable: true },
         {
@@ -326,6 +339,13 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchRarity.length > 0
+        || this.searchSlot.length > 0
+        || this.searchType.length > 0
+        || this.searchStat.length > 0
+    }
   },
 
   created() {

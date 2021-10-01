@@ -374,7 +374,25 @@ export default {
       sizes: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
+        { 
+          text: "Order by ID", 
+          align: "center", 
+          value: "id", 
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters
+            if (!query.ids || this.pendingFilter) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim());
+            });
+            
+            return ids.includes(value)
+          }
+        },
         { text: "Name", align: "left", value: "name", width: 200 },
         { text: "Short", align: "left", value: "short_name" },
         {
@@ -440,6 +458,13 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchLevel.length > 0
+        || this.searchShipLevel.length > 0
+        || this.searchSize.length > 0
+        || this.searchType.length > 0
+    }
   },
 
   created() {

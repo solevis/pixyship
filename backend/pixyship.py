@@ -906,6 +906,7 @@ class Pixyship(metaclass=Singleton):
             collection = self.pixel_starships_api.parse_collection_node(collection_node)
 
             collection.update({
+                'id': int(collection['CollectionDesignId']),
                 'name': collection['CollectionName'],
                 'min': int(collection['MinCombo']),
                 'max': int(collection['MaxCombo']),

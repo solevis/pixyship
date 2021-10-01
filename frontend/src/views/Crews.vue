@@ -226,7 +226,20 @@ export default {
           text: "Order by ID", 
           align: "start",
           value: "id",           
-          filterable: false 
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters
+            if (!query.ids || this.pendingFilter) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim());
+            });
+            
+            return ids.includes(value)
+          }
         },
         { 
           text: "Name", 
@@ -348,6 +361,13 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchSpecial.length > 0
+        || this.searchRarity.length > 0
+        || this.searchCollection.length > 0
+        || this.searchEquipment.length > 0
+    }
   },
 
   created() {
