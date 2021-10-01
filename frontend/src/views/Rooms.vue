@@ -382,7 +382,7 @@ export default {
             const query = this.$route.query
 
             // no parameters
-            if (!query.ids) {
+            if (!query.ids || this.pendingFilter) {
               return true
             }
 
@@ -458,6 +458,13 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchLevel.length > 0
+        || this.searchShipLevel.length > 0
+        || this.searchSize.length > 0
+        || this.searchType.length > 0
+    }
   },
 
   created() {

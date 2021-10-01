@@ -183,8 +183,8 @@ export default {
           filter: value => {
             const query = this.$route.query
 
-            // no parameters
-            if (!query.ids) {
+            // no parameters or another filter on page, return everything
+            if (!query.ids || this.pendingFilter) {
               return true
             }
 
@@ -229,6 +229,12 @@ export default {
     isLoading: function () {
       return !this.loaded;
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchType.length > 0
+        || this.searchLabLevel.length > 0
+        || this.searchMinShipLevel.length > 0
+    }
   },
 
   created() {
