@@ -176,7 +176,25 @@ export default {
       minShipLevels: [],
       loaded: false,
       headers: [
-        {text: 'Image', sortable: false},
+        {
+          text: "Order by ID", 
+          align: "center", 
+          value: "id", 
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters
+            if (!query.ids) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim());
+            });
+            
+            return ids.includes(value)
+          }
+        },
         {text: 'Name', value: 'name'},
         {
           text: 'Lab Level', 

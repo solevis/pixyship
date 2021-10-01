@@ -374,7 +374,25 @@ export default {
       sizes: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
+        { 
+          text: "Order by ID", 
+          align: "center", 
+          value: "id", 
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters
+            if (!query.ids) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim());
+            });
+            
+            return ids.includes(value)
+          }
+        },
         { text: "Name", align: "left", value: "name", width: 200 },
         { text: "Short", align: "left", value: "short_name" },
         {
