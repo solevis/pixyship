@@ -41,6 +41,10 @@ class PixelStarshipsApi:
         self._devices = None
 
     @property
+    def maintenance_message(self):
+        return self.__api_settings['MaintenanceMessage']
+
+    @property
     def devices(self):
         if not self._devices:
             self._devices = self.get_devices()
@@ -267,11 +271,11 @@ class PixelStarshipsApi:
         }
 
         # retrieve data as XML from Pixel Starships API
-        endpoint = f'https://{self.server}/SettingService/getlatestversion3'
+        endpoint = f'https://{self.server}/LiveOpsService/GetTodayLiveOps'
         response = self.call(endpoint, params=params)
         root = ElementTree.fromstring(response.text)
 
-        dailies_node = root.find('.//Setting')
+        dailies_node = root.find('.//LiveOps')
 
         dailies = dailies_node.attrib.copy()
         dailies['pixyship_xml_element'] = dailies_node  # custom field, return raw XML data too
