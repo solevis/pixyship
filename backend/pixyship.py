@@ -1399,7 +1399,7 @@ class Pixyship(metaclass=Singleton):
             'news': {
                 'news': data['News'],
                 'news_date': data['NewsUpdateDate'],
-                'maintenance': data['MaintenanceMessage'],
+                'maintenance': self.pixel_starships_api.maintenance_message,  # not anymore available with the new API endpoint
                 'tournament_news': data['TournamentNews'],
                 'sprite': self.get_sprite_infos(data['NewsSpriteId']),
             },

@@ -18,6 +18,7 @@ def test_settings():
     settings = pixel_starships_api.get_api_settings()
 
     assert 'ProductionServer' in settings
+    assert 'MaintenanceMessage' in settings
 
 
 def test_inspect_ship():
@@ -82,11 +83,16 @@ def test_dailies():
     assert 'DailyRewardType' in dailies
     assert 'DailyItemRewards' in dailies
 
+    # Sale
+    assert 'SaleType' in dailies
+    assert 'SaleArgument' in dailies
+    assert 'SaleItemMask' in dailies
+
     # News messages
     assert 'News' in dailies
     assert 'NewsUpdateDate' in dailies
-    assert 'MaintenanceMessage' in dailies
     assert 'TournamentNews' in dailies
+    assert 'NewsSpriteId' in dailies
 
 
 def test_sprites():
