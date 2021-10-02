@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.10] - 2020-10-02
+
+### Changes
+
+- Increase number of displayed changes
+
 ## [2.1.9] - 2020-10-02
 
 ### Fixes
@@ -127,6 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[2.1.10]: https://github.com/solevis/pixyship/compare/v2.1.9...v2.1.10
 [2.1.9]: https://github.com/solevis/pixyship/compare/v2.1.8...v2.1.9
 [2.1.8]: https://github.com/solevis/pixyship/compare/v2.1.7...v2.1.8
 [2.1.7]: https://github.com/solevis/pixyship/compare/v2.1.6...v2.1.7
