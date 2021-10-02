@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.9] - 2020-10-02
+
+### Fixes
+
+- Fix dailies infos (Savy moved data to another API endpoint)
+
 ## [2.1.8] - 2020-09-30
 
 ### Changed
 
 - Reduce default cache expiration from 6 hours to 1 hour
-
 
 ## [2.1.7] - 2020-09-25
 
@@ -122,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[2.1.9]: https://github.com/solevis/pixyship/compare/v2.1.8...v2.1.9
 [2.1.8]: https://github.com/solevis/pixyship/compare/v2.1.7...v2.1.8
 [2.1.7]: https://github.com/solevis/pixyship/compare/v2.1.6...v2.1.7
 [2.1.6]: https://github.com/solevis/pixyship/compare/v2.1.5...v2.1.6
