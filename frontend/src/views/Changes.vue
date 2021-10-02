@@ -6,7 +6,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="12" sm="6" md="9">
+        <v-col cols="12" sm="4" md="6">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -16,8 +16,21 @@
           ></v-text-field>
         </v-col>
 
+        <v-col cols="12" sm="4" md="3">
+          <v-autocomplete
+            v-model="searchType"
+            :items="types"
+            label="Type"
+            clearable
+            outlined
+            multiple
+            small-chips
+            hide-details
+          ></v-autocomplete>
+        </v-col>
+
         <v-col
-          cols="12" sm="6" md="3"
+          cols="12" sm="4" md="3"
         >
           <v-menu
             v-model="menu"
@@ -82,6 +95,10 @@
             <span v-if="item.type === 'char'" :class="[item.char.rarity]">{{ item.name }}</span>
             <span v-else-if="item.type === 'item'" :class="[item.item.rarity]">{{ item.name }}</span>
             <span v-else>{{ item.name }}</span>
+          </td>
+
+          <td>
+            {{ formatType(item.type) }}
           </td>
 
           <td style="min-width: 150px">{{ item.moment }}</td>
@@ -150,6 +167,14 @@ export default {
       headers: [
         {text: 'Image', align: 'left', sortable: false, filterable: false},
         {text: 'Name', value: 'name', align: 'left'},
+        {
+          text: 'Type', 
+          value: 'type', 
+          align: 'left', 
+          filter: value => { 
+            return this.filterCombobox(this.formatType(value), this.searchType, true)
+          }
+        },
         {text: 'Date', value: 'moment', align: 'left', filter: value => { 
             if (this.searchDate) {
               return value <= this.searchDate
@@ -193,9 +218,23 @@ export default {
       })
 
       this.changes = changes;
+      this.updateFilters()
+
       this.loaded = true;
 
       return this.changes;
+    },
+
+    formatType: function (type) {
+      if (type === 'char') {
+        return 'Crew'
+      }
+
+      return type.charAt(0).toUpperCase() + type.slice(1);
+    },
+
+    updateFilters() {
+      this.types = Array.from(new Set(this.changes.map((change) => this.formatType(change.type)))).sort(this.sortAlphabeticallyExceptNone)
     },
   },
 };

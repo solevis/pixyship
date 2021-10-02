@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - craft tree
 - Add "ids" query parameter to the pages to filter assets by ID
 - Add "player" query parameter to the Players page
+- Filter changes by Type
 
 ## [2.1.10] - 2020-10-02
 
