@@ -3,6 +3,8 @@ import hashlib
 import random
 import re
 import time
+import logging
+import sys
 from typing import Tuple
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
@@ -14,6 +16,9 @@ from api_errors import TOKEN_EXPIRED_REGEX
 from config import CONFIG
 from db import db
 from models import Device
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class PixelStarshipsApi:
@@ -609,6 +614,7 @@ class PixelStarshipsApi:
         end = 20
 
         count = 0
+        errors = 0
         max_sale_id_reached = False
         while "sale_id from API not equal to given max_sale_id":
 
@@ -624,13 +630,33 @@ class PixelStarshipsApi:
             response = self.call(endpoint, params=params)
 
             if response.status_code == 400:
-                # too many request, skip this item for now
-                break
+                logger.error('response in error: {}'.format(response.text))
+                errors += 1
+
+                if errors == 3:
+                    # three times the call is in errors, skip this item
+                    break
+
+                # too many request, wait a little, and try again
+                time.sleep(10)
+                continue
 
             root = ElementTree.fromstring(response.text)
 
             # parse HTTP body as XML and find sales nodes
             sale_nodes = root.find('.//Sales')
+
+            if not sale_nodes:
+                logger.error('response in error: {}'.format(response.text))
+                errors += 1
+
+                if errors == 3:
+                    # three times the call is in errors, skip this item
+                    break
+
+                # XML not well formatted, wait a little, and try again
+                time.sleep(10)
+                continue
 
             # no more sales available
             if len(sale_nodes) == 0:
