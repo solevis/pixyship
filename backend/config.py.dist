@@ -1,14 +1,25 @@
 CONFIG = dict(
+    # database settings (see https://docs.sqlalchemy.org/en/14/core/engines.html#postgresql)
     DSN='postgresql://postgres:password@localhost:5432/postgres',
+
+    # enable features specific to development
     DEV_MODE=True,
-    MAINTENANCE=False,
+
+    # frontend domain
     DOMAIN='localhost:8080',
-    CSP_REPORT_LOG=None,
+
+    # directory that will contains downloaded sprites, must be served by the web server as static content
     SPRITES_DIRECTORY='../sprites',
+
+    # used by scheduled.py to send e-mail on error, set to None if you want to use cron files to import data
     EMAIL='contact@example.com',
 
+    # Savy PSS API urls
     MAIN_PIXELSTARSHIPS_API_URL="https://api.pixelstarships.com/",
     BACKUP_PIXELSTARSHIPS_API_URL="https://api2.pixelstarships.com/",
+
+    # maximum of changes to be returned by PixyShip API and displayed in front
+    CHANGES_MAX_ASSETS=5000,
 
     # generated with `python -c 'import os; print(os.urandom(16))'`
     # it's just an example... change it!

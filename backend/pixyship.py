@@ -1284,8 +1284,8 @@ class Pixyship(metaclass=Singleton):
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
-            LIMIT 5000
-        """.format(' OR '.join(min_changes_dates_conditions))
+            LIMIT {}
+        """.format(' OR '.join(min_changes_dates_conditions), CONFIG.get('CHANGES_MAX_ASSETS', 5000))
 
         result = db.session.execute(sql).fetchall()
         changes = []

@@ -247,15 +247,6 @@ def bad_api(path):
     return flask.abort(404)
 
 
-@app.route('/csp_report', methods=['POST'])
-def csp_report():
-    if CONFIG['CSP_REPORT_LOG']:
-        with open(CONFIG['CSP_REPORT_LOG'], "a") as fh:
-            fh.write(request.data.decode() + "\n")
-
-    return 'done'
-
-
 if __name__ == '__main__':
     """Launch the built-in server.
     Do not use in production.
