@@ -94,7 +94,8 @@
           <td style="min-width: 250px">
             <span v-if="item.type === 'char'" :class="[item.char.rarity]"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
             <span v-else-if="item.type === 'item'" :class="[item.item.rarity]"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
-            <span v-else><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
+            <span v-else-if="item.type !== 'sprite'"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
+            <span v-else>{{ item.name }}</span>
           </td>
 
           <td>

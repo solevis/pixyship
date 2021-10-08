@@ -78,6 +78,7 @@ class Pixyship(metaclass=Singleton):
         'char': 'CharacterDesignName',
         'item': 'ItemDesignName',
         'collection': 'CollectionDesignId',
+        'sprite': 'SpriteKey',
     }
 
     DEFAULT_EXPIRATION_DURATION = 60 * 60 * 1  # 1 hours
@@ -1240,6 +1241,31 @@ class Pixyship(metaclass=Singleton):
     def get_changes_from_db(self):
         """Get changes from database."""
 
+        # retrieve minimum dates of each types
+        min_changes_dates_sql = """
+            SELECT type, MIN(created_at) + INTERVAL '1 day' AS min 
+            FROM record 
+            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite') 
+            GROUP BY type; 
+        """
+
+        min_changes_dates_result = db.session.execute(min_changes_dates_sql).fetchall()
+
+        min_changes_dates_conditions = []
+        for min_changes_dates_record in min_changes_dates_result:
+            if min_changes_dates_record['type'] == 'sprite':
+                # only new
+                condition = "(c.type = '{}' AND o.data IS NULL AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
+                    min_changes_dates_record['type'],
+                    min_changes_dates_record['min']
+                )
+            else:
+                condition = "(c.type = '{}' AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
+                    min_changes_dates_record['type'],
+                    min_changes_dates_record['min']
+                )
+            min_changes_dates_conditions.append(condition)
+
         sql = """
             SELECT *
             FROM (
@@ -1252,15 +1278,14 @@ class Pixyship(metaclass=Singleton):
                         o.data as old_data
                     FROM record c
                         LEFT JOIN record o ON o.type = c.type AND o.type_id = c.type_id AND o.current = FALSE
-                    WHERE c.current = TRUE
-                        AND (o.id IS NOT NULL
-                            OR c.created_at > '2018-10-8 4:00')
-                        AND c.type IN ('item', 'ship', 'char', 'room')
+                    WHERE 
+                        c.current = TRUE 
+                        AND ({})
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
             LIMIT 5000
-        """
+        """.format(' OR '.join(min_changes_dates_conditions))
 
         result = db.session.execute(sql).fetchall()
         changes = []
@@ -1506,6 +1531,8 @@ class Pixyship(metaclass=Singleton):
                 return self.rooms[record_id]['sprite']
             if record_type == 'ship':
                 return self.ships[record_id]['mini_ship_sprite']
+            if record_type == 'sprite':
+                return self.get_sprite_infos(record_id)
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
