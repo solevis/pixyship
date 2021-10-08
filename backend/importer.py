@@ -63,16 +63,31 @@ def import_assets():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    logger.info('Importing assets')
-
     pixyship = Pixyship()
 
+    logger.info('Importing items...')
     pixyship.update_items()
+
+    logger.info('Importing characters...')
     pixyship.update_characters()
+
+    logger.info('Importing rooms...')
     pixyship.update_rooms()
+
+    logger.info('Importing ships...')
     pixyship.update_ships()
+
+    logger.info('Importing collections...')
     pixyship.update_collections()
+
+    logger.info('Importing researches...')
     pixyship.update_researches()
+
+    logger.info('Importing sprites...')
+    pixyship.update_sprites()
+
+    logger.info('Importing rooms sprites')
+    pixyship.update_room_sprites()
 
     logger.info('Done')
 

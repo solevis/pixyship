@@ -314,7 +314,7 @@ class PixelStarshipsApi:
     def parse_sprite_node(sprite_node):
         """Extract character data from XML node."""
 
-        return sprite_node.attrib
+        return sprite_node.attrib.copy()
 
     def get_rooms_sprites(self):
         """Get rooms sprites from API."""
@@ -342,7 +342,7 @@ class PixelStarshipsApi:
     def parse_room_sprite_node(room_sprite_node):
         """Extract room sprite data from XML node."""
 
-        return room_sprite_node.attrib
+        return room_sprite_node.attrib.copy()
 
     def get_ships(self):
         """Get ships designs from API."""

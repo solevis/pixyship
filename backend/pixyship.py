@@ -197,7 +197,7 @@ class Pixyship(metaclass=Singleton):
     @property
     def sprites(self):
         if not self._sprites or self.expired('sprite'):
-            self._sprites = self._get_sprites_from_api()
+            self._sprites = self._get_sprites_from_db()
             self.expire_at('sprite', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._sprites
@@ -205,7 +205,7 @@ class Pixyship(metaclass=Singleton):
     @property
     def rooms_sprites(self):
         if not self._rooms_sprites or self.expired('room_sprite'):
-            self._rooms_sprites = self._get_room_sprites_from_api()
+            self._rooms_sprites = self._get_room_sprites_from_db()
             self.expire_at('room_sprite', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms_sprites
@@ -520,6 +520,35 @@ class Pixyship(metaclass=Singleton):
             for sprite in sprites
         }
 
+    def _get_sprites_from_db(self):
+        """Load sprites from database."""
+
+        records = Record.query.filter_by(type='sprite', current=True).all()
+
+        sprites = {}
+        for record in records:
+            sprite = self.pixel_starships_api.parse_sprite_node(ElementTree.fromstring(record.data))
+
+            sprites[record.type_id] = {
+                'image_file': int(sprite['ImageFileId']),
+                'x': int(sprite['X']),
+                'y': int(sprite['Y']),
+                'width': int(sprite['Width']),
+                'height': int(sprite['Height']),
+                'sprite_key': sprite['SpriteKey'],
+            }
+
+        return sprites
+
+    def update_sprites(self):
+        """Update data and save records."""
+
+        sprites = self.pixel_starships_api.get_sprites()
+
+        for sprite in sprites:
+            record_id = sprite['SpriteId']
+            Record.update_data('sprite', record_id, sprite['pixyship_xml_element'])
+
     def _get_room_sprites_from_api(self):
         """Get room sprites from API."""
 
@@ -534,6 +563,33 @@ class Pixyship(metaclass=Singleton):
             }
             for room_sprite in rooms_sprites
         }
+
+    def _get_room_sprites_from_db(self):
+        """Load sprites from database."""
+
+        records = Record.query.filter_by(type='room_sprite', current=True).all()
+
+        room_sprites = {}
+        for record in records:
+            room_sprite = self.pixel_starships_api.parse_room_sprite_node(ElementTree.fromstring(record.data))
+
+            room_sprites[record.type_id] = {
+                'room_id': int(room_sprite['RoomDesignId']),
+                'race': int(room_sprite['RaceId']),
+                'sprite_id': int(room_sprite['SpriteId']),
+                'type': room_sprite['RoomSpriteType'],
+            }
+
+        return room_sprites
+
+    def update_room_sprites(self):
+        """Update data and save records."""
+
+        room_sprites = self.pixel_starships_api.get_rooms_sprites()
+
+        for room_sprite in room_sprites:
+            record_id = room_sprite['RoomDesignSpriteId']
+            Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'])
 
     @staticmethod
     def _get_prices_from_db():
