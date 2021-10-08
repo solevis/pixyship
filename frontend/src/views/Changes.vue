@@ -172,7 +172,7 @@ export default {
           value: 'type', 
           align: 'left', 
           filter: value => { 
-            return this.filterCombobox(this.formatType(value), this.searchType, true)
+            return this.filterCombobox(this.formatType(value), this.searchType, false)
           }
         },
         {text: 'Date', value: 'moment', align: 'left', filter: value => { 
