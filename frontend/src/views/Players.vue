@@ -421,6 +421,11 @@ export default {
     },
 
     initPlayers: async function() {
+      const query = this.$route.query
+      if (query.player) {
+        this.searchText = query.player
+      }
+
       const response = await axios.get(
         this.playersEndpoint,
         {params: {search: this.searchText}}
@@ -429,12 +434,9 @@ export default {
       this.players = response.data
       this.loaded = true
 
-      const query = this.$route.query
-      if (query.player) {
-        if (this.players.filter(player => player.name === query.player).length > 0) {
-          this.searchPlayer = query.player
-          this.searchPlayerWatcher(this.searchPlayer)
-        }
+      if (query.player && this.players.filter(player => player.name === query.player).length > 0) {
+        this.searchPlayer = query.player
+        this.searchPlayerWatcher(this.searchPlayer)
       }
 
       this.$watch('searchPlayer', this.searchPlayerWatcher);
