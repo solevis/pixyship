@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - market history
   - last sales
   - craft tree
-- Add "ids" query parameter to the pages to filter assets by ID
+- Changes page will now show Savy new sprites
+- Add "ids" query parameter to all pages to filter assets (items, crews, etc) by IDs
 - Add "player" query parameter to the Players page
 - Add "Type" filter on Changes page
 
