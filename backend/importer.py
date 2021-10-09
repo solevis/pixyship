@@ -157,6 +157,9 @@ def import_market(first_item_only=False, item=None):
 def dowload_sprites():
     """Download sprites from PSS."""
 
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
     if not os.path.exists(CONFIG['SPRITES_DIRECTORY']):
         os.mkdir(CONFIG['SPRITES_DIRECTORY'])
 
