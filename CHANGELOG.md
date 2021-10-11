@@ -12,12 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dedicated item page with:
   - basic infos
   - market history
-  - last sales
+  - last players sales
   - craft tree
-- Changes page will now show Savy new sprites
-- Add "ids" query parameter to all pages to filter assets (items, crews, etc) by IDs
-- Add "player" query parameter to the Players page
+- "Changes" page will now show new Savy uploaded sprites (beta feature)
 - Add "Type" filter on Changes page
+- Add query parameter to all pages to filter assets (items, crews, etc) by IDs
+- Add "player" query parameter to the Players page
 
 ## [2.1.10] - 2020-10-02
 
