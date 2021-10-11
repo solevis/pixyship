@@ -223,10 +223,10 @@
             ><v-icon left>mdi-chart-histogram</v-icon>Market History</v-tab
           >
           <v-tab href="#tab-sales"
-            ><v-icon left>mdi-sale</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last Sales</span></v-tab
+            ><v-icon left>mdi-sale</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last players sales</span></v-tab
           >
           <v-tab href="#tab-craft"
-            ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Craft</span></v-tab
+            ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Craft tree</span></v-tab
           >
         </v-tabs>
       </v-col>
