@@ -1,14 +1,34 @@
 <template>
   <v-card class="px-5 pb-1 full-height">
     <v-card-title class="overline right"></v-card-title>
-    
+
     <v-card class="mb-4" elevation="2" outlined>
       <v-card-title>Donators</v-card-title>
 
       <v-card-text>
-        <p class="font-weight-bold">A special thanks to all of the <a href="https://www.okpal.com/pixyship/#/" target="_blank">crowfunding campaign</a> crontributors, and especially to:</p>
-        <p>Admiral Col, Albathoor, Alisrassa, Baradum, GudegLezat, Harmony, hex1337, Human Fly, Jean, JustcallmeDr, Maccinae, Matthew-II, Muinmacar, Phinie, Ruthless Rhino, Sahara Fleet, Scorpio99, ShadowfireAngel, Solphaen, Spaceman Spiff, The Flying Brick, The worst. and YankeeDood</p>
-        <div class="mt-5" @click="buyMeACoffee" style="cursor: pointer; width: 300px;">
+        <!-- Backers -->
+        <p class="font-weight-bold">
+          A special thanks to all of the
+          <a href="https://www.okpal.com/pixyship/#/" target="_blank"
+            >crowfunding campaign</a
+          >
+          crontributors, and especially to:
+        </p>
+        <p>
+          Admiral Col, Albathoor, Alisrassa, Baradum, GudegLezat, Harmony,
+          hex1337, Human Fly, Jean, JustcallmeDr, Maccinae, Matthew-II,
+          Muinmacar, Phinie, Ruthless Rhino, Sahara Fleet, Scorpio99,
+          ShadowfireAngel, Solphaen, Spaceman Spiff, The Flying Brick, The
+          worst. and YankeeDood
+        </p>
+
+        <!-- Donation -->
+        <div
+          v-if="donationUrl"
+          class="mt-5"
+          @click="buyMeACoffee"
+          style="cursor: pointer; width: 300px"
+        >
           <v-img
             :src="require('../assets/img/Solevis.png')"
             max-height="78"
@@ -17,25 +37,40 @@
             class="d-inline-block"
             style="vertical-align: middle"
           ></v-img>
-          <p class="ml-2 font-weight-bold d-inline-block" style="vertical-align: middle">
+          <p
+            class="ml-2 font-weight-bold d-inline-block"
+            style="vertical-align: middle"
+          >
             You like PixyShip?
-            <br>
+            <br />
             <a href="javascript:void(0);">Why not buy my captain a coffee?</a>
-            <br>
+            <br />
             <v-icon>mdi-coffee</v-icon>
           </p>
         </div>
       </v-card-text>
     </v-card>
-    
+
+    <!-- Dev Team -->
     <v-card class="mb-4" elevation="2" outlined>
       <v-card-title>Developpers</v-card-title>
       <v-card-text>
-        <p>Main Developper: Solevis <a href="mailto:contact@pixyship.com">&lt;contact@pixyship.com&gt;</a></p>
-        <p>Contributor: Bril</p>
-        <p>First version by Sokitume </p>
-        <p><v-icon class="mr-1">mdi-discord</v-icon><a href="https://discord.gg/R49rqhzYrh">Discord</a></p>
-        <p><v-icon class="mr-1">mdi-github</v-icon><a href="https://github.com/solevis/pixyship/">GitHub</a></p>
+        <p>
+          Main Developper: {{ mainDevelopper }}
+          <a :href="`mailto:${mainDevelopperEmail}`"
+            >&lt;{{ mainDevelopperEmail }}&gt;</a
+          >
+        </p>
+        <p>Contributor: {{ contributors }}</p>
+        <p>First version by Sokitume</p>
+        <p v-if="discordUrl">
+          <v-icon class="mr-1">mdi-discord</v-icon
+          ><a :href="discordUrl">Discord</a>
+        </p>
+        <p v-if="githubUrl">
+          <v-icon class="mr-1">mdi-github</v-icon
+          ><a :href="githubUrl">GitHub</a>
+        </p>
       </v-card-text>
     </v-card>
   </v-card>
@@ -44,13 +79,24 @@
 <script>
 export default {
   created() {
-    document.title = 'PixyShip - ' + this.$route.name
+    document.title = "PixyShip - " + this.$route.name;
+  },
+
+  data() {
+    return {
+      mainDevelopper: "Solevis",
+      mainDevelopperEmail: "contact@pixyship.com",
+      contributors: "Bril",
+      donationUrl: process.env.VUE_APP_DONATION_URL,
+      discordUrl: process.env.VUE_APP_PIXYSHIP_DISCORD_URL,
+      githubUrl: process.env.VUE_APP_PIXYSHIP_GITHUB_URL,
+    };
   },
 
   methods: {
-    buyMeACoffee () {
-      window.open('https://www.buymeacoffee.com/solevis');
-    }
-  }
-}
+    buyMeACoffee() {
+      window.open(this.donationUrl);
+    },
+  },
+};
 </script>

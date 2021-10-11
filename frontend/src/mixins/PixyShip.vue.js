@@ -1,8 +1,8 @@
 // Common mixins for PixyShip vue controls
 import moment from 'moment'
 
-const apiServer = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : '/'
-const spriteServer = '//pixelstarships.s3.amazonaws.com/'
+const apiServer = process.env.VUE_APP_PIXYSHIP_API_URL
+const spriteServer = process.env.VUE_APP_SPRITES_URL
 const rarityOrder = {
   "common": 0,
   "elite": 1,
