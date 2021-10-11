@@ -668,15 +668,15 @@ class Pixyship(metaclass=Singleton):
         """Get last sales from database."""
 
         sql = """
-                    SELECT sale_at, amount, currency, price, user_name as buyer_name, seller_name, id
-                    FROM listing
-                    WHERE item_id = :item_id 
-                        AND amount > 0 
-                        AND user_name IS NOT NULL 
-                        AND seller_name IS NOT NULL
-                    ORDER BY sale_at::DATE DESC
-                    LIMIT :limit
-                    """
+            SELECT sale_at, amount, currency, price, user_name as buyer_name, seller_name, id
+            FROM listing
+            WHERE item_id = :item_id
+                AND amount > 0
+                AND user_name IS NOT NULL
+                AND seller_name IS NOT NULL
+            ORDER BY sale_at::DATE DESC
+            LIMIT :limit
+        """
         result = db.session.execute(sql, {'item_id': item_id, 'limit': limit}).fetchall()
         last_sales = []
 
@@ -1243,10 +1243,10 @@ class Pixyship(metaclass=Singleton):
 
         # retrieve minimum dates of each types
         min_changes_dates_sql = """
-            SELECT type, MIN(created_at) + INTERVAL '1 day' AS min 
-            FROM record 
-            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite') 
-            GROUP BY type; 
+            SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
+            FROM record
+            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite')
+            GROUP BY type
         """
 
         min_changes_dates_result = db.session.execute(min_changes_dates_sql).fetchall()
@@ -1278,8 +1278,8 @@ class Pixyship(metaclass=Singleton):
                         o.data as old_data
                     FROM record c
                         LEFT JOIN record o ON o.type = c.type AND o.type_id = c.type_id AND o.current = FALSE
-                    WHERE 
-                        c.current = TRUE 
+                    WHERE
+                        c.current = TRUE
                         AND ({})
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
