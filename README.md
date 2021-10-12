@@ -25,6 +25,9 @@ Install :
 ```bash
 cd frontend/
 
+# Configure frontend (defaults options should work)
+${EDITOR} .env.development
+
 # Install npm dependencies
 npm install
 
