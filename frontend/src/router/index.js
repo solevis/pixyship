@@ -12,8 +12,11 @@ const routes = [
   {
     path: '/crews',
     name: 'Crews',
-    alias: '/crew',
     component: () => import('../views/Crews.vue')
+  },
+  { 
+    path: '/crew', 
+    redirect: '/crews' 
   },
   {
     path: '/crew/:id',
@@ -48,8 +51,11 @@ const routes = [
   {
     path: '/researches',
     name: 'Researches',
-    alias: '/research',
     component: () => import('../views/Researches.vue')
+  },
+  {
+    path: '/research',
+    redirect: '/researches'
   },
   {
     path: '/changes',
