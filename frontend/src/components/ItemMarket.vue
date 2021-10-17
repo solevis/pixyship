@@ -41,8 +41,8 @@
 
 <script>
 import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import itemMixins from "@/mixins/Item.vue.js";
+import mixins from "@/mixins/PixyShip.vue.js"
+import itemMixins from "@/mixins/Item.vue.js"
 
 export default {
   mixins: [mixins, itemMixins],
@@ -64,20 +64,20 @@ export default {
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
   },
 
   beforeMount: function () {
-    this.getItemMarket();
+    this.getItemMarket()
   },
 
   methods: {
     getItemMarket: async function () {
-      const response = await axios.get(this.itemPricesEndpoint(this.item.id));
-      this.item.priceHistory = response.data.data.prices;
+      const response = await axios.get(this.itemPricesEndpoint(this.item.id))
+      this.item.priceHistory = response.data.data.prices
 
-      this.loaded = true;
+      this.loaded = true
       this.initMarketChart()
     },
 

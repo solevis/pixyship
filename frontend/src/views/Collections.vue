@@ -78,8 +78,8 @@
 
 <script>
 import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import Crew from "@/components/Crew.vue";
+import mixins from "@/mixins/PixyShip.vue.js"
+import Crew from "@/components/Crew.vue"
 
 export default {
   mixins: [mixins],
@@ -90,7 +90,7 @@ export default {
 
   data() {
     return {
-      searchName: "",
+      searchName: this.name,
       searchSkill: [],
       skills: [],
       loaded: false,
@@ -108,19 +108,24 @@ export default {
             }
 
             const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim());
-            });
+              return parseInt(id.trim())
+            })
             
             return ids.includes(value)
           } 
         },
-        { text: "Name", align: "left", value: "name" },
+        { 
+          text: "Name", 
+          align: "left", 
+          value: "name",
+          filterable: true
+        },
         {
           text: "Skill",
           align: "left",
           value: "ability_name",
           filter: (value) => {
-            return this.filterCombobox(value, this.searchSkill);
+            return this.filterCombobox(value, this.searchSkill)
           },
         },
         { text: "Chars", align: "left", sortable: false, filterable: false },
@@ -150,12 +155,12 @@ export default {
         },
       ],
       collections: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
     pendingFilter: function () {
       return this.searchName 
@@ -168,32 +173,53 @@ export default {
   },
 
   beforeMount: function () {
-    this.getCollections();
+    this.initFilters()
+    this.getCollections()
+  },
+
+  watch: {
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchSkill(value) {
+      this.updateQueryFromFilter('skill', value)
+    },
   },
   
   methods: {
+    initFilters() {
+      this.searchName = this.$route.query.name
+
+      if (this.$route.query.skill) {
+        this.searchSkill = this.$route.query.skill.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+    },
+
     getCollections: async function () {
-      const response = await axios.get(this.collectionsEndpoint);
+      const response = await axios.get(this.collectionsEndpoint)
 
       let collections = Object.entries(response.data.data).map(
         (collection) => collection[1]
-      );
-      collections.sort((a, b) => b.name - a.name);
+      )
+      collections.sort((a, b) => b.name - a.name)
 
-      this.collections = collections;
-      this.updateFilters();
+      this.collections = collections
+      this.updateFilters()
 
-      this.loaded = true;
-      return this.collections;
+      this.loaded = true
+      return this.collections
     },
 
     updateFilters() {
       this.skills = Array.from(
         new Set(this.collections.map((collection) => collection.ability_name))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

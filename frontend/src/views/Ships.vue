@@ -231,10 +231,10 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
 import Item from "@/components/Item.vue"
-import "@/assets/css/override.css";
+import "@/assets/css/override.css"
 
 export default {
   mixins: [mixins],
@@ -251,6 +251,7 @@ export default {
       levels: [],
       types: [],
       loaded: false,
+      rooms: [],
       headers: [
         { 
           text: "Order by ID", 
@@ -265,36 +266,88 @@ export default {
             }
 
             const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim());
-            });
+              return parseInt(id.trim())
+            })
             
             return ids.includes(value)
           }
         },
-        { text: "Name", align: "center", value: "name", filterable: true },
-        { text: "Level", align: "right", value: "level", filter: (value) => {
-            return this.filterCombobox(value.toString(), this.searchLevel);
+        { 
+          text: "Name", 
+          align: "center", 
+          value: "name", 
+          filterable: true 
+        },
+        { 
+          text: "Level", 
+          align: "right", 
+          value: "level", 
+          filter: (value) => {
+            return this.filterCombobox(value.toString(), this.searchLevel)
           },
         },
-        { text: "Space", align: "right", value: "space", filterable: false },
-        { text: "T1", align: "right", value: "spaceT1", filterable: false },
-        { text: "T2", align: "right", value: "spaceT2", filterable: false },
-        { text: "Health", align: "right", value: "hp", filterable: false },
-        { text: "Secs/Repair", align: "right", value: "repair_time", filterable: false },
-        { text: "Cost", align: "center", value: "starbux_cost", filterable: false },
-        { text: "Capacity", align: "center", value: "defense", filterable: false },
-        { text: "Type", align: "left", value: "ship_type", filter: (value) => {
-            return this.filterCombobox(value.toString(), this.searchType);
-          }, },
-        { text: "Description", align: "left", value: "description", filterable: false },
+        { 
+          text: "Space", 
+          align: "right", 
+          value: "space", 
+          filterable: false
+        },
+        { 
+          text: "T1", 
+          align: "right", 
+          value: "spaceT1", 
+          filterable: false 
+        },
+        { 
+          text: "T2", 
+          align: "right", 
+          value: "spaceT2", 
+          filterable: false 
+        },
+        { 
+          text: "Health", 
+          align: "right", 
+          value: "hp", 
+          filterable: false 
+        },
+        { 
+          text: "Secs/Repair", 
+          align: "right", 
+          value: "repair_time", 
+          filterable: false 
+        },
+        { 
+          text: "Cost", 
+          align: "center", 
+          value: "starbux_cost", 
+          filterable: false
+        },
+        { 
+          text: "Capacity", 
+          align: "center", 
+          value: "defense", 
+          filterable: false
+        },
+        { 
+          text: "Type", 
+          align: "left", 
+          value: "ship_type", filter: (value) => {
+            return this.filterCombobox(value.toString(), this.searchType)
+          }, 
+        },
+        { 
+          text: "Description", 
+          align: "left", 
+          value: "description", 
+          filterable: false
+        },
       ],
-      rooms: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
     pendingFilter: function () {
       return this.searchName 
@@ -308,50 +361,81 @@ export default {
   },
 
   beforeMount: function () {
+    this.initFilters()
     this.getShips()
   },
 
+  watch: {
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchType(value) {
+      this.updateQueryFromFilter('type', value)
+    },
+
+    searchLevel(value) {
+      this.updateQueryFromFilter('level', value)
+    },
+  },
+
   methods: {
-    getShips: async function () {
-      const response = await axios.get(this.shipsEndpoint);
+    initFilters() {
+      this.searchName = this.$route.query.name
 
-      let ships = [];
-      for (const itemId in response.data.data) {
-        const ship = response.data.data[itemId];
-        let spaceT1 = 0;
-        let spaceT2 = 0;
-
-        for (let c of ship.mask) {
-          if (c === "1") spaceT1++;
-          if (c === "2") spaceT2++;
-        }
-
-        ship.space = spaceT1 + spaceT2;
-        ship.spaceT1 = spaceT1;
-        ship.spaceT2 = spaceT2;
-        ships.push(ship);
+      if (this.$route.query.level) {
+        this.searchLevel = this.$route.query.level.split(',').map(function(value) {
+          return parseInt(value.trim())
+        })
       }
 
-      ships.sort((a, b) => b.name - a.name);
+      if (this.$route.query.type) {
+        this.searchType = this.$route.query.type.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+    },
 
-      this.ships = ships;
-      this.updateFilters();
+    getShips: async function () {
+      const response = await axios.get(this.shipsEndpoint)
 
-      this.loaded = true;
+      let ships = []
+      for (const itemId in response.data.data) {
+        const ship = response.data.data[itemId]
+        let spaceT1 = 0
+        let spaceT2 = 0
 
-      return this.ships;
+        for (let c of ship.mask) {
+          if (c === "1") spaceT1++
+          if (c === "2") spaceT2++
+        }
+
+        ship.space = spaceT1 + spaceT2
+        ship.spaceT1 = spaceT1
+        ship.spaceT2 = spaceT2
+        ships.push(ship)
+      }
+
+      ships.sort((a, b) => b.name - a.name)
+
+      this.ships = ships
+      this.updateFilters()
+
+      this.loaded = true
+
+      return this.ships
     },
 
     updateFilters() {
       this.levels = Array.from(
         new Set(this.ships.map((ship) => (!ship.level ? 0 : ship.level)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
 
       this.types = Array.from(
         new Set(
           this.ships.map((ship) => (!ship.ship_type ? "None" : ship.ship_type))
         )
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
     },
 
     openShipInBuilder(shipId) {
@@ -366,7 +450,7 @@ export default {
       return scale
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

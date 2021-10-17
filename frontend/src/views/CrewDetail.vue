@@ -329,9 +329,9 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import Crew from "@/components/Crew.vue";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
+import Crew from "@/components/Crew.vue"
 
 export default {
   mixins: [mixins],
@@ -350,22 +350,22 @@ export default {
       from: [],
       to: [],
       level: 40,
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
   },
 
   beforeMount: function () {
-    this.getCrew();
+    this.getCrew()
   },
 
   watch: {
     level() {
-      this.updateCurrentLevel();
+      this.updateCurrentLevel()
     },
   },
 
@@ -373,78 +373,84 @@ export default {
     statFormat(value, maxDigits = 1) {
       return value.toLocaleString("en-US", {
         maximumFractionDigits: maxDigits,
-      });
+      })
     },
   },
 
   methods: {
     getCrew: async function () {
-      const response = await axios.get(this.prestigeEndpoint + this.crewId);
+      const response = await axios.get(this.prestigeEndpoint + this.crewId)
 
       // TODO: This is ugly, fix it
-      let characters = {};
+      let characters = {}
       for (let character of response.data.data.chars) {
-        characters[character.id] = character;
+        characters[character.id] = character
       }
 
-      this.characters = characters;
-      this.data = response.data.data;
+      this.characters = characters
+      this.data = response.data.data
 
-      this.from = this.data.from;
-      this.to = this.data.to;
+      this.from = this.data.from
+      this.to = this.data.to
 
-      this.character = this.characters[this.crewId];
+      this.character = this.characters[this.crewId]
       document.title = 'PixyShip - ' + this.character.name
 
-      this.loaded = true;
-      this.updateCurrentLevel();
+      this.loaded = true
+      this.updateCurrentLevel()
     },
 
     updateCurrentLevel() {
-      this.interpolateStat(this.character.progression_type, this.character.hp);
+      this.interpolateStat(this.character.progression_type, this.character.hp)
       this.interpolateStat(
         this.character.progression_type,
         this.character.attack
-      );
+      )
+
       this.interpolateStat(
         this.character.progression_type,
         this.character.repair
-      );
+      )
+
       this.interpolateStat(
         this.character.progression_type,
         this.character.ability
-      );
+      )
+
       this.interpolateStat(
         this.character.progression_type,
         this.character.pilot
-      );
+      )
+
       this.interpolateStat(
         this.character.progression_type,
         this.character.science
-      );
+      )
+
       this.interpolateStat(
         this.character.progression_type,
         this.character.engine
-      );
+      )
+      
       this.interpolateStat(
         this.character.progression_type,
         this.character.weapon
-      );
+      )
     },
 
     interpolateStat(type, stat) {
-      let p = 1; // Linear
+      let p = 1 // Linear
 
       if (type === "EaseIn") {
-        p = 2;
+        p = 2
       } else if (type === "EaseOut") {
-        p = 0.5;
+        p = 0.5
       }
 
-      stat[2] = stat[0] + (stat[1] - stat[0]) * ((this.level - 1) / 39) ** p;
+      stat[2] = stat[0] + (stat[1] - stat[0]) * ((this.level - 1) / 39) ** p
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

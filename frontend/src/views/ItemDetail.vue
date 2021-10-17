@@ -353,11 +353,11 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import itemMixins from "@/mixins/Item.vue.js";
-import Item from "@/components/Item.vue";
-import ItemMarket from "@/components/ItemMarket.vue";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
+import itemMixins from "@/mixins/Item.vue.js"
+import Item from "@/components/Item.vue"
+import ItemMarket from "@/components/ItemMarket.vue"
 
 export default {
   mixins: [mixins, itemMixins],
@@ -396,10 +396,10 @@ export default {
           value: "currency",
           filter: (value) => {
             if (this.searchLastSalesCurrency.length > 0) {
-              return this.searchLastSalesCurrency.includes(value);
+              return this.searchLastSalesCurrency.includes(value)
             }
 
-            return false;
+            return false
           },
         },
         {
@@ -434,10 +434,10 @@ export default {
           value: "currency",
           filter: (value) => {
             if (this.searchLastSalesCurrency.length > 0) {
-              return this.searchLastSalesCurrency.includes(value);
+              return this.searchLastSalesCurrency.includes(value)
             }
 
-            return false;
+            return false
           },
         },
         {
@@ -461,48 +461,48 @@ export default {
       ],
       tree: [],
       recipes: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
 
     searchLastSalesCurrency: function () {
-      let currencies = [];
+      let currencies = []
 
       if (this.showLastSalesGas) {
-        currencies.push("Gas");
+        currencies.push("Gas")
       }
 
       if (this.showLastSalesMineral) {
-        currencies.push("Mineral");
+        currencies.push("Mineral")
       }
 
       if (this.showLastSalesStarbux) {
-        currencies.push("Starbux");
+        currencies.push("Starbux")
       }
 
-      return currencies;
+      return currencies
     },
   },
 
   beforeMount: function () {
-    this.getItem();
+    this.getItem()
   },
 
   methods: {
     getItem: async function () {
-      const response = await axios.get(this.itemDetailEndpoint(this.itemId));
+      const response = await axios.get(this.itemDetailEndpoint(this.itemId))
 
-      this.item = response.data.data;
-      this.lastSales = response.data.lastSales;
-      document.title = "PixyShip - " + this.item.name;
-      this.loaded = true;
+      this.item = response.data.data
+      this.lastSales = response.data.lastSales
+      document.title = "PixyShip - " + this.item.name
+      this.loaded = true
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

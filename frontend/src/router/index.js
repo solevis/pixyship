@@ -14,9 +14,9 @@ const routes = [
     name: 'Crews',
     component: () => import('../views/Crews.vue')
   },
-  { 
-    path: '/crew', 
-    redirect: '/crews' 
+  {
+    path: '/crew',
+    redirect: '/crews'
   },
   {
     path: '/crew/:id',
@@ -77,8 +77,8 @@ const routes = [
     name: 'About',
     component: () => import('../views/About.vue')
   },
-  { 
-    path: '*', 
+  {
+    path: '*',
     component: () => import('../views/Home.vue')
   }
 ]

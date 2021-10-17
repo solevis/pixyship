@@ -79,7 +79,7 @@
 <script>
 export default {
   created() {
-    document.title = "PixyShip - " + this.$route.name;
+    document.title = "PixyShip - " + this.$route.name
   },
 
   data() {
@@ -90,13 +90,13 @@ export default {
       donationUrl: process.env.VUE_APP_DONATION_URL,
       discordUrl: process.env.VUE_APP_PIXYSHIP_DISCORD_URL,
       githubUrl: process.env.VUE_APP_PIXYSHIP_GITHUB_URL,
-    };
+    }
   },
 
   methods: {
     buyMeACoffee() {
-      window.open(this.donationUrl);
+      window.open(this.donationUrl)
     },
   },
-};
+}
 </script>

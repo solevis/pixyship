@@ -137,12 +137,12 @@
 </template>
 
 <script>
-import axios from "axios";
-import moment from 'moment';
-import mixins from "@/mixins/PixyShip.vue.js";
-import Crew from "@/components/Crew.vue";
-import Item from "@/components/Item.vue";
-import "@/assets/css/override.css";
+import axios from "axios"
+import moment from 'moment'
+import mixins from "@/mixins/PixyShip.vue.js"
+import Crew from "@/components/Crew.vue"
+import Item from "@/components/Item.vue"
+import "@/assets/css/override.css"
 
 const convert = require('xml-js')
 
@@ -157,8 +157,9 @@ export default {
   data() {
     return {
       itemsPerPage: 20,
-      searchName: "",
-      searchDate: new Date().toISOString().substr(0, 10),
+      searchName: '',
+      defaultSearchDate: new Date().toISOString().substr(0, 10),
+      searchDate: '',
       menu: false,
       searchType: [],
       searchLabLevel: [],
@@ -187,12 +188,12 @@ export default {
         {text: 'Change', value: 'change_type', align: 'center', filterable: false}
       ],
       changes: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
   },
 
@@ -201,12 +202,42 @@ export default {
   },
 
   beforeMount: function () {
-    this.getChanges();
+    this.initFilters()
+    this.getChanges()
+  },
+
+  watch: {
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchDate(value) {
+      if (value === this.defaultSearchDate) {
+        value = null
+      }
+
+      this.updateQueryFromFilter('date', value)
+    },
+
+    searchType(value) {
+      this.updateQueryFromFilter('type', value)
+    },
   },
 
   methods: {
+    initFilters() {
+      this.searchName = this.$route.query.name
+      this.searchDate = this.$route.query.date ? this.$route.query.date : this.defaultSearchDate
+
+      if (this.$route.query.type) {
+        this.searchType = this.$route.query.type.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+    },
+
     getChanges: async function () {
-      const response = await axios.get(this.changesEndpoint);
+      const response = await axios.get(this.changesEndpoint)
 
       let changes = response.data.data.map(change => {
         change.attributes = this.getAllAttributes(convert.xml2js(change.data).elements[0])
@@ -218,12 +249,12 @@ export default {
         return change
       })
 
-      this.changes = changes;
+      this.changes = changes
       this.updateFilters()
 
-      this.loaded = true;
+      this.loaded = true
 
-      return this.changes;
+      return this.changes
     },
 
     formatType: function (type) {
@@ -231,7 +262,7 @@ export default {
         return 'Crew'
       }
 
-      return type.charAt(0).toUpperCase() + type.slice(1);
+      return type.charAt(0).toUpperCase() + type.slice(1)
     },
 
     updateFilters() {
@@ -264,7 +295,7 @@ export default {
       }
     }
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

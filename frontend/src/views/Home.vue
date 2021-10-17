@@ -314,12 +314,12 @@
 </template>
 
 <script>
-import axios from "axios";
-import moment from "moment";
-import mixins from "@/mixins/PixyShip.vue.js";
-import Crew from "@/components/Crew.vue";
-import Item from "@/components/Item.vue";
-const convert = require("xml-js");
+import axios from "axios"
+import moment from "moment"
+import mixins from "@/mixins/PixyShip.vue.js"
+import Crew from "@/components/Crew.vue"
+import Item from "@/components/Item.vue"
+const convert = require("xml-js")
 
 export default {
   mixins: [mixins],
@@ -344,20 +344,20 @@ export default {
       changesThisWeek: 0,
       news: {},
       stardate: 0,
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
 
     isTournamentLoading: function () {
-      return !this.tournamentLoaded;
+      return !this.tournamentLoaded
     },
 
     isChangesLoading: function () {
-      return !this.changesLoaded;
+      return !this.changesLoaded
     },
   },
 
@@ -366,75 +366,75 @@ export default {
   },
 
   beforeMount: function () {
-    this.getDaily();
+    this.getDaily()
   },
 
   mounted: function () {
-    this.getTournament();
-    this.getChanges();
+    this.getTournament()
+    this.getChanges()
   },
 
   methods: {
     getDaily: async function () {
-      const response = await axios.get(this.dailyEndpoint);
+      const response = await axios.get(this.dailyEndpoint)
 
-      this.offers = response.data.data.offers;
+      this.offers = response.data.data.offers
       this.stardate = response.data.data.stardate
 
-      this.news = response.data.data.news;
-      this.news.news_moment = moment.utc(this.news.news_date).local();
+      this.news = response.data.data.news
+      this.news.news_moment = moment.utc(this.news.news_date).local()
 
-      this.loaded = true;
+      this.loaded = true
     },
 
     getChanges: async function () {
-      const changes = await axios.get(this.changesEndpoint);
+      const changes = await axios.get(this.changesEndpoint)
       this.changes = changes.data.data.map((change) => {
         change.attributes = this.getAllAttributes(
           convert.xml2js(change.data).elements[0]
-        );
+        )
         change.oldAttributes = change.old_data
           ? this.getAllAttributes(convert.xml2js(change.old_data).elements[0])
-          : null;
-        change.moment = moment.utc(change.changed_at);
+          : null
+        change.moment = moment.utc(change.changed_at)
         change.changes = this.diffAttributes(
           change.attributes,
           change.oldAttributes
-        );
-        return change;
-      });
+        )
+        return change
+      })
 
-      const oneDay = moment().add(-1, "days");
-      const twoDay = moment().add(-2, "days");
-      const oneWeek = moment().add(-7, "days");
+      const oneDay = moment().add(-1, "days")
+      const twoDay = moment().add(-2, "days")
+      const oneWeek = moment().add(-7, "days")
 
       this.changesToday = this.changes.filter(
         (change) => change.moment > oneDay
-      ).length;
+      ).length
       this.changesYesterday = this.changes.filter(
         (change) => change.moment > twoDay
-      ).length;
+      ).length
       this.changesThisWeek = this.changes.filter(
         (change) => change.moment > oneWeek
-      ).length;
+      ).length
       this.changeLatest = Math.max(
         ...this.changes.map((change) => change.moment)
-      );
+      )
 
       this.changesLoaded = true
     },
 
     getTournament: async function () {
-      const tournamentResponse = await axios.get(this.tournamentEndpoint);
+      const tournamentResponse = await axios.get(this.tournamentEndpoint)
       this.tournament = tournamentResponse.data.data
 
       this.tournamentLoaded = true
     },
 
     isExpired(time) {
-      if (!time) return false;
-      const res = moment.utc(time) < moment();
-      return res;
+      if (!time) return false
+      const res = moment.utc(time) < moment()
+      return res
     },
 
     formatSaleOptions(options) {
@@ -451,7 +451,7 @@ export default {
         result += option.name + ' (' + option.value + ')'
 
         
-      });
+      })
 
       return result
     },
@@ -469,7 +469,7 @@ export default {
       return formatedBonus
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

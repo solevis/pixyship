@@ -93,8 +93,8 @@
 </template>
 
 <script>
-import mixins from "@/mixins/PixyShip.vue.js";
-import itemMixins from "@/mixins/Item.vue.js";
+import mixins from "@/mixins/PixyShip.vue.js"
+import itemMixins from "@/mixins/Item.vue.js"
 
 export default {
   mixins: [mixins, itemMixins],
@@ -114,19 +114,19 @@ export default {
   data: function () {
     return {
       show: this.tip,
-    };
+    }
   },
 
   computed: {
     right: function () {
-      return this.tipPosition === 'right' || (this.tipPosition == null && this.name == "right");
+      return this.tipPosition === 'right' || (this.tipPosition == null && this.name == "right")
     },
 
     left: function () {
-      return this.tipPosition === 'left' || (this.tipPosition == null && this.name == "left");
+      return this.tipPosition === 'left' || (this.tipPosition == null && this.name == "left")
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

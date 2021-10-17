@@ -369,8 +369,8 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
 import _ from 'lodash'
 
 export default {
@@ -391,7 +391,7 @@ export default {
       showShip: false,
       shipLoading: false,
       ship: {},
-    };
+    }
   },
 
   watch: {
@@ -402,7 +402,7 @@ export default {
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
   },
 
@@ -411,7 +411,7 @@ export default {
   },
 
   beforeMount: function () {
-    this.initPlayers();
+    this.initPlayers()
   },
 
   methods: {
@@ -439,7 +439,7 @@ export default {
         this.searchPlayerWatcher(this.searchPlayer)
       }
 
-      this.$watch('searchPlayer', this.searchPlayerWatcher);
+      this.$watch('searchPlayer', this.searchPlayerWatcher)
     },
 
     getPlayers: _.debounce(async function () {
@@ -456,9 +456,9 @@ export default {
         return
       }
 
-      this.shipLoading = true;
-      this.showShip = false;
-      const endpoint = this.shipEndpoint + encodeURIComponent(searchName);
+      this.shipLoading = true
+      this.showShip = false
+      const endpoint = this.shipEndpoint + encodeURIComponent(searchName)
 
       const response = await axios.get(
         endpoint,
@@ -466,22 +466,22 @@ export default {
       )
 
       if (response.data.data.status !== 'not found') {
-        this.rooms = response.data.data.rooms;
-        this.user = response.data.data.user;
-        this.ship = response.data.data.ship;
+        this.rooms = response.data.data.rooms
+        this.user = response.data.data.user
+        this.ship = response.data.data.ship
 
-        this.embedSpriteStyle(this.user.sprite, 'grey');
-        this.embedSpriteStyle(this.user.alliance_sprite, 'grey');
-        this.embedSpriteStyle(this.ship.exterior_sprite);
-        this.embedTrueColorSpriteStyle(this.ship.exterior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness);
-        this.embedSpriteStyle(this.ship.interior_sprite);
-        this.embedTrueColorSpriteStyle(this.ship.interior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness);
-        this.embedSpriteStyle(this.ship.logo_sprite, 'grey');
+        this.embedSpriteStyle(this.user.sprite, 'grey')
+        this.embedSpriteStyle(this.user.alliance_sprite, 'grey')
+        this.embedSpriteStyle(this.ship.exterior_sprite)
+        this.embedTrueColorSpriteStyle(this.ship.exterior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness)
+        this.embedSpriteStyle(this.ship.interior_sprite)
+        this.embedTrueColorSpriteStyle(this.ship.interior_sprite, this.ship.hue, this.ship.saturation, this.ship.brightness)
+        this.embedSpriteStyle(this.ship.logo_sprite, 'grey')
 
-        this.shipLoading = false;
-        this.showShip = true;
+        this.shipLoading = false
+        this.showShip = true
 
-        window.history.pushState('', '', '/players?player=' + searchName);
+        window.history.pushState('', '', '/players?player=' + searchName)
       }
     },
 
@@ -513,33 +513,33 @@ export default {
     },
 
     hueRotate(rotation) {
-      rotation = (rotation || 0) / 180 * Math.PI;
+      rotation = (rotation || 0) / 180 * Math.PI
       let cosR = Math.cos(rotation),
         sinR = Math.sin(rotation),
-        sqrt = Math.sqrt;
+        sqrt = Math.sqrt
 
-      let w = 1 / 3, sqrW = sqrt(w);
-      let a00 = cosR + (1.0 - cosR) * w;
-      let a01 = w * (1.0 - cosR) - sqrW * sinR;
-      let a02 = w * (1.0 - cosR) + sqrW * sinR;
-      let a10 = w * (1.0 - cosR) + sqrW * sinR;
-      let a11 = cosR + w * (1.0 - cosR);
-      let a12 = w * (1.0 - cosR) - sqrW * sinR;
-      let a20 = w * (1.0 - cosR) - sqrW * sinR;
-      let a21 = w * (1.0 - cosR) + sqrW * sinR;
-      let a22 = cosR + w * (1.0 - cosR);
+      let w = 1 / 3, sqrW = sqrt(w)
+      let a00 = cosR + (1.0 - cosR) * w
+      let a01 = w * (1.0 - cosR) - sqrW * sinR
+      let a02 = w * (1.0 - cosR) + sqrW * sinR
+      let a10 = w * (1.0 - cosR) + sqrW * sinR
+      let a11 = cosR + w * (1.0 - cosR)
+      let a12 = w * (1.0 - cosR) - sqrW * sinR
+      let a20 = w * (1.0 - cosR) - sqrW * sinR
+      let a21 = w * (1.0 - cosR) + sqrW * sinR
+      let a22 = cosR + w * (1.0 - cosR)
 
       let matrix = [
         a00, a01, a02, 0, 0,
         a10, a11, a12, 0, 0,
         a20, a21, a22, 0, 0,
         0, 0, 0, 1, 0,
-      ];
+      ]
 
-      return matrix.join(' ');
+      return matrix.join(' ')
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

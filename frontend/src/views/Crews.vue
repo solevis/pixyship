@@ -197,10 +197,11 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import Crew from "@/components/Crew.vue";
-import "@/assets/css/override.css";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
+import Crew from "@/components/Crew.vue"
+import "@/assets/css/override.css"
+import _ from 'lodash'
 
 export default {
   mixins: [mixins],
@@ -221,6 +222,9 @@ export default {
       collections: [],
       equipments: [],
       loaded: false,
+      crews: [],
+      defaultLevel: 40,
+      level: null,
       headers: [
         { 
           text: "Order by ID", 
@@ -235,8 +239,8 @@ export default {
             }
 
             const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim());
-            });
+              return parseInt(id.trim())
+            })
             
             return ids.includes(value)
           }
@@ -245,6 +249,7 @@ export default {
           text: "Name", 
           align: "start",          
           value: "name",
+          filterable: true
         },
         {
           text: "Equip",
@@ -352,14 +357,12 @@ export default {
           filterable: false
         },
       ],
-      crews: [],
-      level: 40,
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
     pendingFilter: function () {
       return this.searchName 
@@ -375,12 +378,39 @@ export default {
   },
 
   beforeMount: function () {
-    this.getCrews();
+    this.initFilters()
+    this.getCrews()
   },
 
   watch: {
-    level() {
-      this.updateCurrentLevel();
+    level(value) {
+      this.updateCurrentLevel()
+
+      if (value == this.defaultLevel) {
+        value = null
+      }
+
+      this.updateQueryFromFilter('level', value)
+    },
+
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchSpecial(value) {
+      this.updateQueryFromFilter('special', value)
+    },
+
+    searchEquipment(value) {
+      this.updateQueryFromFilter('equipment', value)
+    },
+
+    searchRarity(value) {
+      this.updateQueryFromFilter('rarity', value)
+    },
+
+    searchCollection(value) {
+      this.updateQueryFromFilter('collection', value)
     },
   },
 
@@ -388,54 +418,94 @@ export default {
     statFormat(value, maxDigits = 1) {
       return value.toLocaleString("en-US", {
         maximumFractionDigits: maxDigits,
-      });
+      })
     },
   },
 
   methods: {
-    getCrews: async function () {
-      const response = await axios.get(this.crewEndpoint);
+    initFilters() {
+      this.level = this.$route.query.level ? this.$route.query.level : this.defaultLevel
+      this.searchName = this.$route.query.name
 
-      let crews = [];
-      for (const k in response.data.data) {
-        const crew = response.data.data[k];
-        crews.push(crew);
+      if (this.$route.query.special) {
+        this.searchSpecial = this.$route.query.special.split(',').map(function(value) {
+          return value.trim()
+        })
       }
 
-      crews.sort((a, b) => b.rarity_order - a.rarity_order);
+      if (this.$route.query.equipment) {
+        this.searchEquipment = this.$route.query.equipment.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
 
-      this.crews = crews;
+      if (this.$route.query.rarity) {
+        this.searchRarity = this.$route.query.rarity.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
 
-      this.updateCurrentLevel();
-      this.updateFilters();
+      if (this.$route.query.special) {
+        this.searchSpecial = this.$route.query.special.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
 
-      this.loaded = true;
-      return this.crew;
+      if (this.$route.query.collection) {
+        this.searchCollection = this.$route.query.collection.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+    },
+
+    getCrews: async function () {
+      const response = await axios.get(this.crewEndpoint)
+
+      let crews = []
+      for (const k in response.data.data) {
+        const crew = response.data.data[k]
+        crews.push(crew)
+      }
+
+      crews.sort((a, b) => b.rarity_order - a.rarity_order)
+
+      this.crews = crews
+
+      this.updateCurrentLevel()
+      this.updateFilters()
+
+      this.loaded = true
+      return this.crew
     },
 
     updateCurrentLevel() {
       this.crews.map((crew) => {
-        this.interpolateStat(crew.progression_type, crew.hp);
-        this.interpolateStat(crew.progression_type, crew.attack);
-        this.interpolateStat(crew.progression_type, crew.repair);
-        this.interpolateStat(crew.progression_type, crew.ability);
-        this.interpolateStat(crew.progression_type, crew.pilot);
-        this.interpolateStat(crew.progression_type, crew.science);
-        this.interpolateStat(crew.progression_type, crew.engine);
-        this.interpolateStat(crew.progression_type, crew.weapon);
-      });
+        this.interpolateStat(crew.progression_type, crew.hp)
+        this.interpolateStat(crew.progression_type, crew.attack)
+        this.interpolateStat(crew.progression_type, crew.repair)
+        this.interpolateStat(crew.progression_type, crew.ability)
+        this.interpolateStat(crew.progression_type, crew.pilot)
+        this.interpolateStat(crew.progression_type, crew.science)
+        this.interpolateStat(crew.progression_type, crew.engine)
+        this.interpolateStat(crew.progression_type, crew.weapon)
+      })
     },
 
     interpolateStat(type, stat) {
-      let p = 1; // Linear
-
-      if (type === "EaseIn") {
-        p = 2;
-      } else if (type === "EaseOut") {
-        p = 0.5;
+      let level = this.level
+      if (_.isEmpty(level)) {
+        level = this.defaultLevel
       }
 
-      stat[2] = stat[0] + (stat[1] - stat[0]) * ((this.level - 1) / 39) ** p;
+      let p = 1 // Linear
+
+      if (type === "EaseIn") {
+        p = 2
+      } else if (type === "EaseOut") {
+        p = 0.5
+      }
+
+      stat[2] = stat[0] + (stat[1] - stat[0]) * ((level - 1) / 39) ** p
     },
 
     updateFilters() {
@@ -447,7 +517,7 @@ export default {
       this.equipments =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

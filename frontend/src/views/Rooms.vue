@@ -349,10 +349,10 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
 import Item from "@/components/Item.vue"
-import "@/assets/css/override.css";
+import "@/assets/css/override.css"
 
 export default {
   mixins: [mixins],
@@ -373,6 +373,7 @@ export default {
       types: [],
       sizes: [],
       loaded: false,
+      rooms: [],
       headers: [
         { 
           text: "Order by ID", 
@@ -387,20 +388,31 @@ export default {
             }
 
             const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim());
-            });
+              return parseInt(id.trim())
+            })
             
             return ids.includes(value)
           }
         },
-        { text: "Name", align: "left", value: "name", width: 200 },
-        { text: "Short", align: "left", value: "short_name" },
+        { 
+          text: "Name", 
+          align: "left", 
+          value: "name",
+          filterable: true,
+          width: 200 
+        },
+        { 
+          text: "Short", 
+          align: "left", 
+          value: "short_name",
+          filterable: true
+        },
         {
           text: "Type",
           align: "left",          
           value: "type",
           filter: (value) => {
-            return this.filterCombobox(value, this.searchType);
+            return this.filterCombobox(value, this.searchType)
           },
         },
         {
@@ -408,8 +420,8 @@ export default {
           align: "center",          
           sortable: false,
           filter: (value, search, item) => {
-            value = `${item.width}x${item.height}`;
-            return this.filterCombobox(value, this.searchSize);
+            value = `${item.width}x${item.height}`
+            return this.filterCombobox(value, this.searchSize)
           },
         },
         {
@@ -417,7 +429,7 @@ export default {
           align: "center",          
           value: "level",
           filter: (value) => {
-            return this.filterCombobox(value.toString(), this.searchLevel);
+            return this.filterCombobox(value.toString(), this.searchLevel)
           },
         },
         {
@@ -425,10 +437,15 @@ export default {
           align: "center",          
           value: "min_ship_level",
           filter: (value) => {
-            return this.filterCombobox(value.toString(), this.searchShipLevel);
+            return this.filterCombobox(value.toString(), this.searchShipLevel)
           },
         },
-        { text: "Power", align: "center", sortable: false, filterable: false },
+        { 
+          text: "Power", 
+          align: "center", 
+          sortable: false, 
+          filterable: false 
+        },
         {
           text: "Cost",
           align: "center",          
@@ -450,14 +467,14 @@ export default {
           sortable: false,
         },
       ],
-      rooms: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
+    
     pendingFilter: function () {
       return this.searchName 
         || this.searchLevel.length > 0
@@ -472,10 +489,61 @@ export default {
   },
 
   beforeMount: function () {
-    this.getRooms();
+    this.initFilters()
+    this.getRooms()
+  },
+
+  watch: {
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchType(value) {
+      this.updateQueryFromFilter('type', value)
+    },
+
+    searchLevel(value) {
+      this.updateQueryFromFilter('level', value)
+    },
+
+    searchShipLevel(value) {
+      this.updateQueryFromFilter('shiplevel', value)
+    },
+
+    searchSize(value) {
+      this.updateQueryFromFilter('size', value)
+    },
   },
 
   methods: {
+    initFilters() {
+      this.searchName = this.$route.query.name
+
+      if (this.$route.query.level) {
+        this.searchLevel = this.$route.query.level.split(',').map(function(value) {
+          return parseInt(value.trim())
+        })
+      }
+
+      if (this.$route.query.shiplevel) {
+        this.searchShipLevel = this.$route.query.shiplevel.split(',').map(function(value) {
+          return parseInt(value.trim())
+        })
+      }
+
+      if (this.$route.query.size) {
+        this.searchSize = this.$route.query.size.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+
+      if (this.$route.query.type) {
+        this.searchType = this.$route.query.type.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+    },
+
     computeDps(damage, room) {
       let volley = room.volley
       if (volley == 0) {
@@ -495,27 +563,27 @@ export default {
     },
 
     getRooms: async function () {
-      const response = await axios.get(this.roomsEndpoint);
+      const response = await axios.get(this.roomsEndpoint)
 
-      let rooms = [];
+      let rooms = []
       for (const itemId in response.data.data) {
-        const room = response.data.data[itemId];
+        const room = response.data.data[itemId]
         
         if (!room.purchasable) {
           room.upgrade_cost = 0
         }
 
-        rooms.push(room);
+        rooms.push(room)
       }
 
-      rooms.sort((a, b) => b.name - a.name);
+      rooms.sort((a, b) => b.name - a.name)
 
-      this.rooms = rooms;
-      this.updateFilters();
+      this.rooms = rooms
+      this.updateFilters()
 
-      this.loaded = true;
+      this.loaded = true
 
-      return this.rooms;
+      return this.rooms
     },
 
     updateFilters() {
@@ -525,19 +593,19 @@ export default {
             !room.min_ship_level ? 0 : room.min_ship_level
           )
         )
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
 
       this.levels = Array.from(
         new Set(this.rooms.map((room) => (!room.level ? 0 : room.level)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
 
       this.sizes = Array.from(
         new Set(this.rooms.map((room) => `${room.width}x${room.height}`))
-      ).sort();
+      ).sort()
 
       this.types = Array.from(
         new Set(this.rooms.map((room) => (!room.type ? "None" : room.type)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
     },
 
     formatPower(item) {
@@ -549,7 +617,7 @@ export default {
       return sign + Math.abs(comsumption)
     }
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

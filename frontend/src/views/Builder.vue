@@ -348,9 +348,9 @@
 <script>
 import Vue from 'vue'
 import axios from 'axios'
-import mixins from "@/mixins/PixyShip.vue.js";
+import mixins from "@/mixins/PixyShip.vue.js"
 import VueClipboard from 'vue-clipboard2'
-import "@/assets/css/override.css";
+import "@/assets/css/override.css"
 
 require('../js/DragDropTouch')
 
@@ -361,7 +361,7 @@ export default {
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
   },
 
@@ -406,7 +406,7 @@ export default {
       storageCapacity: 0,
       armor: 0,
       effectiveArmor: 0,
-    };
+    }
   },
 
   beforeMount: function () {
@@ -842,7 +842,7 @@ export default {
       this.$copyText(window.location.href)
     },
   }
-};
+}
 </script>
 
 <style scoped>

@@ -105,7 +105,7 @@ export default {
   data: () => ({
     drawer: false,
   }),
-};
+}
 </script>
 
 <style lang="sass">

@@ -211,11 +211,11 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import itemMixins from "@/mixins/Item.vue.js";
-import Item from "@/components/Item.vue";
-import ItemMarket from '../components/ItemMarket.vue';
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
+import itemMixins from "@/mixins/Item.vue.js"
+import Item from "@/components/Item.vue"
+import ItemMarket from '../components/ItemMarket.vue'
 
 export default {
   mixins: [mixins, itemMixins],
@@ -236,6 +236,7 @@ export default {
       slots: [],
       types: [],
       loaded: false,
+      items: [],
       headers: [
         { 
           text: "Order by ID", 
@@ -250,19 +251,24 @@ export default {
             }
 
             const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim());
-            });
+              return parseInt(id.trim())
+            })
             
             return ids.includes(value)
           } 
         },
-        { text: "Name", align: "center", value: "name", filterable: true },
+        { 
+          text: "Name", 
+          align: "center", 
+          value: "name", 
+          filterable: true 
+        },
         {
           text: "Rarity",
           align: "center",          
           value: "rarity",
           filter: (value) => {
-            return this.filterCombobox(value, this.searchRarity);
+            return this.filterCombobox(value, this.searchRarity)
           },
           sort: this.sortRarity,
         },
@@ -285,7 +291,7 @@ export default {
           value: "type",
           sortable: false,
           filter: (value) => {
-            return this.filterCombobox(value, this.searchType);
+            return this.filterCombobox(value, this.searchType)
           },
         },
         {
@@ -294,7 +300,7 @@ export default {
           value: "slot",
           sortable: false,
           filter: (value) => {
-            return this.filterCombobox(value, this.searchSlot);
+            return this.filterCombobox(value, this.searchSlot)
           },
         },
         {
@@ -302,7 +308,7 @@ export default {
           align: "center",          
           value: "bonus",
           filter: (value, search, item) => {
-            return this.filterCombobox(item.disp_enhancement, this.searchStat);
+            return this.filterCombobox(item.disp_enhancement, this.searchStat)
           },
         },
         {
@@ -331,13 +337,12 @@ export default {
           width: "300px",
         },
       ],
-      items: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
     pendingFilter: function () {
       return this.searchName 
@@ -353,18 +358,69 @@ export default {
   },
 
   beforeMount: function () {
-    this.getItems();
+    this.initFilters()
+    this.getItems()
+  },
+
+  watch: {
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchType(value) {
+      this.updateQueryFromFilter('type', value)
+    },
+
+    searchSlot(value) {
+      this.updateQueryFromFilter('subtype', value)
+    },
+
+    searchRarity(value) {
+      this.updateQueryFromFilter('rarity', value)
+    },
+
+    searchStat(value) {
+      this.updateQueryFromFilter('bonus', value)
+    },
   },
 
   methods: {
-    getItems: async function () {
-      const response = await axios.get(this.itemsEndpoint);
+    initFilters() {
+      this.searchName = this.$route.query.name
 
-      let items = [];
+      if (this.$route.query.rarity) {
+        this.searchRarity = this.$route.query.rarity.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+
+      if (this.$route.query.type) {
+        this.searchType = this.$route.query.type.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+
+      if (this.$route.query.subtype) {
+        this.searchSlot = this.$route.query.subtype.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+
+      if (this.$route.query.bonus) {
+        this.searchStat = this.$route.query.bonus.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+    },
+
+    getItems: async function () {
+      const response = await axios.get(this.itemsEndpoint)
+
+      let items = []
       for (const itemId in response.data.data) {
-        const item = response.data.data[itemId];
-        item.id = Number(itemId);
-        items.push(item);
+        const item = response.data.data[itemId]
+        item.id = Number(itemId)
+        items.push(item)
       }
 
       items.forEach((item) => {
@@ -372,22 +428,22 @@ export default {
           ? Object.keys(item.prices)
               .map((k) => item.prices[k].count)
               .reduce((c, s) => c + s)
-          : 0;
+          : 0
 
         if (item.disp_enhancement == null) {
-          item.hiddenBonus = item.bonus;
-          item.bonus = 0;
+          item.hiddenBonus = item.bonus
+          item.bonus = 0
         }
-      });
+      })
 
-      items.sort((a, b) => b.offers - a.offers);
+      items.sort((a, b) => b.offers - a.offers)
 
-      this.items = items;
-      this.updateFilters();
+      this.items = items
+      this.updateFilters()
 
-      this.loaded = true;
+      this.loaded = true
 
-      return this.items;
+      return this.items
     },
 
     updateFilters() {
@@ -399,15 +455,15 @@ export default {
               : item.disp_enhancement[0].toUpperCase() + item.disp_enhancement.slice(1)
           )
         )
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
 
       this.slots = Array.from(
         new Set(this.items.map((item) => (!item.slot ? "None" : item.slot)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
 
       this.types = Array.from(
         new Set(this.items.map((item) => (!item.type ? "None" : item.type)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
       
       this.rarities = Array.from(
         new Set(
@@ -418,7 +474,7 @@ export default {
       ).sort(this.sortRarity)
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

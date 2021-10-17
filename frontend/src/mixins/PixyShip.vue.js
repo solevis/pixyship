@@ -1,5 +1,6 @@
 // Common mixins for PixyShip vue controls
 import moment from 'moment'
+import _ from 'lodash'
 
 const apiServer = process.env.VUE_APP_PIXYSHIP_API_URL
 const spriteServer = process.env.VUE_APP_SPRITES_URL
@@ -7,11 +8,11 @@ const rarityOrder = {
   "common": 0,
   "elite": 1,
   "unique": 2,
-  "epic": 3, 
-  "hero": 4, 
-  "special": 5, 
-  "legendary": 6, 
-} 
+  "epic": 3,
+  "hero": 4,
+  "special": 5,
+  "legendary": 6,
+}
 
 export default {
   data() {
@@ -38,7 +39,7 @@ export default {
   },
 
   methods: {
-    currencySprite (currency) {
+    currencySprite(currency) {
       if (currency == null) {
         return ''
       }
@@ -69,10 +70,10 @@ export default {
       }
 
       if (value == null || value == '') {
-          value = 'None'
+        value = 'None'
       }
 
-      let result = false;
+      let result = false
 
       if (andSearch) {
         result = searchArray.every(search => {
@@ -93,7 +94,7 @@ export default {
 
         })
       }
-      
+
 
       return result
     },
@@ -121,7 +122,7 @@ export default {
         }
 
         if (computedTerm.length >= 2
-          && (computedTerm[0] === "'" || computedTerm[0] === '"') 
+          && (computedTerm[0] === "'" || computedTerm[0] === '"')
           && computedTerm[0] === computedTerm[computedTerm.length - 1]
         ) {
           return value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
@@ -148,8 +149,8 @@ export default {
         return false
       }
 
-      const negativeTerms = terms.filter(term => term.length >= 2 && term[0] === '-');
-      const positiveTerms = terms.filter(term => term.length >= 2 && term[0] !== '-');
+      const negativeTerms = terms.filter(term => term.length >= 2 && term[0] === '-')
+      const positiveTerms = terms.filter(term => term.length >= 2 && term[0] !== '-')
 
       let positiveResult = true
       let negativeResult = false
@@ -157,7 +158,7 @@ export default {
       if (positiveTerms.length > 0) {
         positiveResult = positiveTerms.some(term => {
           if (term.length >= 2
-            && (term[0] === "'" || term[0] === '"') 
+            && (term[0] === "'" || term[0] === '"')
             && term[0] === term[term.length - 1]
           ) {
             return value.toString().toLowerCase() === term.substring(1, term.length - 1)
@@ -169,7 +170,7 @@ export default {
 
       if (negativeTerms.length > 0) {
         negativeResult = negativeTerms.some(term => {
-          let computedTerm = term.substring(1, term.length);
+          let computedTerm = term.substring(1, term.length)
 
           if (computedTerm.length >= 2
             && (computedTerm[0] === "'" || computedTerm[0] === '"')
@@ -184,7 +185,7 @@ export default {
 
       return positiveResult && !negativeResult
     },
-    
+
     spriteStyle(sprite, color = '', border = 0) {
       if (Object.keys(sprite).length === 0) {
         return {}
@@ -263,12 +264,12 @@ export default {
 
       return dateStr
     },
-    
-    notEmptyObject(someObject){
+
+    notEmptyObject(someObject) {
       return Object.keys(someObject).length
     },
 
-    getAllAttributes (element) {
+    getAllAttributes(element) {
       let attributes = element.attributes
 
       if (element.elements) {
@@ -284,7 +285,7 @@ export default {
       return attributes
     },
 
-    diffAttributes (newAttributes, oldAttributes) {
+    diffAttributes(newAttributes, oldAttributes) {
       let changes = {
         new: [],
         changed: [],
@@ -323,27 +324,43 @@ export default {
 
     sortAlphabeticallyExceptNone(a, b) {
       if (a == b) {
-        return 0;
+        return 0
       }
 
       if (a == 'None') {
-        return -1;
+        return -1
       }
 
       if (b == 'None') {
-        return 1;
+        return 1
       }
 
       if (a < b) {
-        return -1;
+        return -1
       }
-       
+
       if (a > b) {
-        return 1;
+        return 1
       }
-        
-      return 0;
+
+      return 0
+    },
+
+    updateQueryFromFilter(filterName, filterValue) {
+      let searchParams = new URLSearchParams(window.location.search)
+
+      if (_.isEmpty(filterValue)) {
+        searchParams.delete(filterName)
+      } else {
+        searchParams.set(filterName, filterValue)
+      }
+
+      let queryString = searchParams.toString()
+      if (queryString) {
+        queryString = '?' + queryString
+      }
+
+      window.history.pushState('', '', this.$route.path + queryString)
     }
-    
   }
 }
