@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Builder </v-card-title>
-    <v-card-subtitle>Build your ship directly from PixyShip</v-card-subtitle>
+    <v-card-subtitle>Design and optimize your ship without breaking it in the game</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
