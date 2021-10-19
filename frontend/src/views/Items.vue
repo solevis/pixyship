@@ -92,6 +92,7 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
+      sort-by="offers"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -423,8 +424,6 @@ export default {
           item.bonus = 0
         }
       })
-
-      items.sort((a, b) => b.offers - a.offers)
 
       this.items = items
       this.updateFilters()

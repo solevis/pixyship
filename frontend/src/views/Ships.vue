@@ -55,13 +55,13 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
-      :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
+      sort-by="name"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
@@ -417,8 +417,6 @@ export default {
         ship.spaceT2 = spaceT2
         ships.push(ship)
       }
-
-      ships.sort((a, b) => b.name - a.name)
 
       this.ships = ships
       this.updateFilters()

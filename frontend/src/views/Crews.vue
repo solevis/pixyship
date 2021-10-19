@@ -98,6 +98,8 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
+      sort-by="rarity"
+      :sort-desc="true"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -470,8 +472,6 @@ export default {
         const crew = response.data.data[k]
         crews.push(crew)
       }
-
-      crews.sort((a, b) => b.rarity_order - a.rarity_order)
 
       this.crews = crews
 
