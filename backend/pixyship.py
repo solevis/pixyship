@@ -448,7 +448,7 @@ class Pixyship(metaclass=Singleton):
             return 0
 
         room = [r for r in rooms if r['id'] == neighbor][0]
-        if room['type'] == 'Wall':
+        if room['type'] == 'Armor':
             return room['capacity']
 
         return 0
@@ -812,12 +812,13 @@ class Pixyship(metaclass=Singleton):
             missile_design = room['MissileDesign']
 
             room_price, room_price_currency = self._parse_price_from_pricestring(room['PriceString'])
+            room_type = self.ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType'])
 
             rooms[record.type_id] = {
                 'id': record.type_id,
                 'name': room['RoomName'],
                 'short_name': room['RoomShortName'],
-                'type': self.ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType']),
+                'type': room_type,
                 'level': int(room['Level']),
                 'capacity': int(room['Capacity']),
                 'height': int(room['Rows']),
@@ -831,7 +832,7 @@ class Pixyship(metaclass=Singleton):
                 'defense': int(room['DefaultDefenceBonus']),
                 'reload': int(room['ReloadTime']),
                 'refill_cost': int(room['RefillUnitCost']),
-                'show_frame': room['RoomType'] not in ('Lift', 'Wall', 'Corridor'),
+                'show_frame': room_type not in ('Lift', 'Armor', 'Corridor'),
                 'upgrade_cost': room_price,
                 'upgrade_currency': room_price_currency,
                 'upgrade_seconds': int(room['ConstructionTime']),

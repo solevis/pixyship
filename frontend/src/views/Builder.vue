@@ -611,7 +611,7 @@ export default {
         .map(location => location.room.type === 'Android' ? location.room.capacity : 0)
         .reduce((a, s) => a + s, 0)
       this.armor = this.shipRooms
-        .map(location => location.room.type === 'Wall' ? location.room.capacity : 0)
+        .map(location => location.room.type === 'Armor' ? location.room.capacity : 0)
         .reduce((a, s) => a + s, 0)
       
       if (this.selectedShip) {
@@ -677,7 +677,7 @@ export default {
       const location = this.shipRooms.filter(location => location.x === x && location.y === y)
       
       if (location.length > 0) {
-        if (location[0].room.type === 'Wall') {
+        if (location[0].room.type === 'Armor') {
           return location[0].room.capacity
         }
       }
