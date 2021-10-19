@@ -3,8 +3,7 @@
     <v-card-title class="overline">> Items </v-card-title>
     <v-card-subtitle>All Pixel Starships items and market history:
       <ul>
-        <li>click on item name to see more infos</li>
-        <li>click on a row to display market history</li>
+        <li>click on item name to see market history, last players sales and craft tree</li>
       </ul>
     </v-card-subtitle>
 
@@ -82,8 +81,6 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
-      :single-expand="false"
-      :expanded.sync="charts"
       :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
@@ -92,10 +89,8 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
     >
-      <template v-slot:item="{ item, expand, isExpanded }">
-        <v-tooltip bottom color="blue-grey" :disabled="isExpanded || !item.market_price">
-          <template v-slot:activator="{ on, attrs }">
-        <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
+      <template v-slot:item="{ item }">
+        <tr>
           <!-- Image -->
           <td>
             <item :item="item" :tip="false"/>
@@ -196,15 +191,6 @@
             {{ item.description }}
           </td>
         </tr>
-        </template>
-          <span>Click to display item market history</span>
-        </v-tooltip>
-      </template>
-
-      <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" v-show="item.market_price" style="border-bottom: 10px solid #393939;">
-          <item-market :item="item" :showTitle="true" class="ma-3"/>
-        </td>
       </template>
     </v-data-table>
   </v-card>
@@ -215,14 +201,12 @@ import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
 import itemMixins from "@/mixins/Item.vue.js"
 import Item from "@/components/Item.vue"
-import ItemMarket from '../components/ItemMarket.vue'
 
 export default {
   mixins: [mixins, itemMixins],
 
   components: {
     Item,
-    ItemMarket,
   },
 
   data() {
