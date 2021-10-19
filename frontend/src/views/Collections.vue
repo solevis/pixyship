@@ -26,6 +26,7 @@
             small-chips
             hide-details
             outlined
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
       </v-row>

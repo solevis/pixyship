@@ -361,6 +361,10 @@ export default {
       }
 
       window.history.pushState('', '', this.$route.path + queryString)
+    },
+
+    filterValueComparator(a, b) {
+      return a.toLowerCase() == b.toLowerCase()
     }
   }
 }

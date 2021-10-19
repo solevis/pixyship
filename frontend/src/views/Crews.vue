@@ -37,6 +37,7 @@
             multiple
             small-chips
             hide-details
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
@@ -49,6 +50,7 @@
             multiple
             small-chips
             hide-details
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
@@ -61,6 +63,7 @@
             multiple
             small-chips
             hide-details
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
@@ -73,6 +76,7 @@
             multiple
             small-chips
             hide-details
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
       </v-row>
