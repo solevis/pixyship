@@ -875,4 +875,16 @@ export default {
   .disallowed {
     border: 1px solid red !important;
   }
+
+  .power-gen {
+    fill: lime;
+    font-weight: 700;
+    font-size: 8px;
+  }
+
+  .power-use {
+    fill: yellow;
+    font-weight: 700;
+    font-size: 8px;
+  }
 </style>

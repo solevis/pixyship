@@ -549,7 +549,7 @@ export default {
   font-size: 8px;
 }
 
-.power-gen{
+.power-gen {
   fill: lime;
   font-weight: 700;
   font-size: 8px;
