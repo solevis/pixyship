@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 
 - Market chart is no longer displayed by expanding a row in Items page, it's now in item page by clicking item name or logo
+- Serve sprites from PixyShip instead of Savy for better cache control
 
 ### Fixed
 
