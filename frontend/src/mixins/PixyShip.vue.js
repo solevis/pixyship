@@ -1,6 +1,6 @@
 // Common mixins for PixyShip vue controls
 import moment from 'moment'
-import _ from 'lodash'
+import isEmpty from 'lodash'
 
 const apiServer = process.env.VUE_APP_PIXYSHIP_API_URL
 const spriteServer = process.env.VUE_APP_SPRITES_URL
@@ -388,7 +388,7 @@ export default {
     updateQueryFromFilter(filterName, filterValue) {
       let searchParams = new URLSearchParams(window.location.search)
 
-      if (_.isEmpty(filterValue)) {
+      if (isEmpty(filterValue)) {
         searchParams.delete(filterName)
       } else {
         searchParams.set(filterName, filterValue)

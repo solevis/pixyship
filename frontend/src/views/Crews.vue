@@ -207,7 +207,7 @@ import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
 import Crew from "@/components/Crew.vue"
 import "@/assets/css/override.css"
-import _ from 'lodash'
+import isEmpty from 'lodash'
 
 export default {
   mixins: [mixins],
@@ -497,7 +497,7 @@ export default {
 
     interpolateStat(type, stat) {
       let level = this.level
-      if (_.isEmpty(level)) {
+      if (isEmpty(level)) {
         level = this.defaultLevel
       }
 

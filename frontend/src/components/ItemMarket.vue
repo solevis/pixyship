@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
 import itemMixins from "@/mixins/Item.vue.js"
 

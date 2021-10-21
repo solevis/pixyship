@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "lodash": "^4.17.21",
     "typeface-roboto": "^1.1.13",
     "vue": "^2.6.11",
     "vue-clipboard2": "^0.3.1",

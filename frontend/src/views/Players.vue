@@ -371,7 +371,7 @@
 <script>
 import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
-import _ from 'lodash'
+import debounce from 'lodash'
 
 export default {
   mixins: [mixins],
@@ -442,7 +442,7 @@ export default {
       this.$watch('searchPlayer', this.searchPlayerWatcher)
     },
 
-    getPlayers: _.debounce(async function () {
+    getPlayers: debounce(async function () {
       const response = await axios.get(
         this.playersEndpoint,
         {params: {search: this.searchText}}

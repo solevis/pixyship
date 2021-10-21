@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
 import Crew from "@/components/Crew.vue"
 
