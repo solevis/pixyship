@@ -202,6 +202,45 @@ export default {
       return obj
     },
 
+    spriteStyleScaled(sprite, maxSize, color = '', border = 0) {
+      if (Object.keys(sprite).length === 0) {
+        return {}
+      }
+
+      let scale = maxSize / Math.max(sprite.width, sprite.height)
+      scale = scale > 1 ? 1 : scale
+
+      let obj = {
+        background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
+        width: `${sprite.width}px`,
+        height: `${sprite.height}px`,
+        border: `${border}px solid lightgrey`,
+        imageRendering: 'pixelated',
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left'
+      }
+
+      return obj
+    },
+
+    spriteStyleScaledWrapper(sprite, maxSize) {
+      if (Object.keys(sprite).length === 0) {
+        return {}
+      }
+
+      let scale = maxSize / Math.max(sprite.width, sprite.height)
+      scale = scale > 1 ? 1 : scale
+
+      let obj = {
+        width: `calc(${sprite.width}px * ${scale})`,
+        height: `calc(${sprite.height}px * ${scale})`,
+        overflow: 'hidden',
+        display: 'block',
+      }
+
+      return obj
+    },
+
     styleFromSprite(sprite, color = '', border = 0, scale = 1, portScale = 1) {
       if (Object.keys(sprite).length === 0) {
         return {}
