@@ -86,7 +86,7 @@ export default {
     return {
       mainDevelopper: "Solevis",
       mainDevelopperEmail: "contact@pixyship.com",
-      contributors: "Bril",
+      contributors: "Bril, The worst.",
       donationUrl: process.env.VUE_APP_DONATION_URL,
       discordUrl: process.env.VUE_APP_PIXYSHIP_DISCORD_URL,
       githubUrl: process.env.VUE_APP_PIXYSHIP_GITHUB_URL,
