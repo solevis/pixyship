@@ -29,6 +29,12 @@
       ></v-switch>
     </v-row>
 
+    <v-row v-else-if="!item.saleable" class="pt-4">
+      <v-col>
+        <div class="text-center">This item cannot be sold.</div>
+      </v-col>
+    </v-row>
+
     <v-row v-else>
       <v-col>
         <div class="text-center">No data</div>

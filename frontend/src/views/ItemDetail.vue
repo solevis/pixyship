@@ -142,7 +142,7 @@
       </v-row>
     </template>
 
-    <!-- Small screen (infos as card and expandable prestiges) -->
+    <!-- Small screen (infos as card) -->
     <v-row v-else-if="loaded" justify="center">
       <v-col>
         <v-card v-if="loaded" outlined class="mx-3">
@@ -219,8 +219,8 @@
     <v-row justify="center">
       <v-col cols="12" sm="8">
         <v-tabs v-if="loaded" grow v-model="model" class="mt-4">
-          <v-tab v-if="$vuetify.breakpoint.mdAndUp" href="#tab-market"
-            ><v-icon left>mdi-chart-histogram</v-icon>Market History</v-tab
+          <v-tab href="#tab-market"
+            ><v-icon left>mdi-chart-histogram</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Market History</span></v-tab
           >
           <v-tab href="#tab-sales"
             ><v-icon left>mdi-sale</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last players sales</span></v-tab
@@ -297,6 +297,12 @@
                 </v-col>
               </v-row>
 
+              <v-row v-else-if="!item.saleable" class="pt-4">
+                <v-col>
+                  <div class="text-center">This item cannot be sold.</div>
+                </v-col>
+              </v-row>
+
               <v-row v-else class="pt-4">
                 <v-col>
                   <div class="text-center">No data</div>
@@ -305,7 +311,7 @@
             </v-card>
           </v-tab-item>
 
-          <v-tab-item value="tab-market" v-if="$vuetify.breakpoint.mdAndUp">
+          <v-tab-item value="tab-market">
             <item-market :item="item" :showTitle="false" class="mt-4" />
           </v-tab-item>
 
