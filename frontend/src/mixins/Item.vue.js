@@ -159,7 +159,10 @@ export default {
 
         let layout = {
           autosize: true,
-          legend: { traceorder: "reversed" },
+          legend: {
+            traceorder: "reversed",
+            orientation: "h"
+          },
           yaxis2: {
             domain: [0, 0.3],
             title: "Volume",
