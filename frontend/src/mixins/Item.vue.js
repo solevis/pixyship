@@ -158,6 +158,7 @@ export default {
         })
 
         let layout = {
+          autosize: true,
           legend: { traceorder: "reversed" },
           yaxis2: {
             domain: [0, 0.3],
@@ -196,7 +197,19 @@ export default {
           }
         }
 
-        const options = { displayModeBar: false }
+        const options = {
+          responsive: true,
+          displaylogo: false,
+          displayModeBar: true,
+          modeBarButtonsToRemove: [
+            'hoverClosestCartesian',
+            'hoverCompareCartesian',
+            'toggleSpikelines',
+            'resetScale2d',
+            'zoomIn2d',
+            'zoomOut2d'
+          ]
+        }
 
         if (chartElementId === null) {
           chartElementId = "chart-" + item.id
@@ -210,5 +223,16 @@ export default {
         )
       }
     },
+
+    resizePlot(item, chartElementId = null) {
+      if (chartElementId === null) {
+        chartElementId = "chart-" + item.id
+      }
+
+      plotly.relayout(chartElementId, {
+        'xaxis.autorange': true,
+        'yaxis.autorange': true
+      })
+    }
   }
 }

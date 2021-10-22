@@ -49,6 +49,7 @@
 import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
 import itemMixins from "@/mixins/Item.vue.js"
+import _ from 'lodash'
 
 export default {
   mixins: [mixins, itemMixins],
@@ -78,7 +79,19 @@ export default {
     this.getItemMarket()
   },
 
+  beforeDestroy: function () {
+    window.removeEventListener('resize', this.triggerResize)
+  },
+
+  mounted() {
+    window.addEventListener('resize', this.triggerResize);
+  },
+
   methods: {
+    triggerResize: _.debounce(async function () {
+      this.resizePlot(this.item)
+    }, 250),
+
     getItemMarket: async function () {
       const response = await axios.get(this.itemPricesEndpoint(this.item.id))
       this.item.priceHistory = response.data.data.prices
@@ -100,8 +113,3 @@ export default {
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
-<style scoped>
-.item-chart {
-  width: 100%;
-}
-</style>

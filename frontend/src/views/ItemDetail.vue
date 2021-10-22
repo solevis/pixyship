@@ -233,8 +233,8 @@
     </v-row>
     
     <v-row justify="center">
-      <v-col cols="10">
-        <v-tabs-items v-model="model">
+      <v-col cols="12">
+        <v-tabs-items v-model="model" touchless>
           <v-tab-item value="tab-sales">
             <v-card flat>
               <v-row
