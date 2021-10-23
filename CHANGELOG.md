@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.2.0] - 2021-10-23
 
 ### Added
 
@@ -33,43 +33,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Old "/crew" and "/research" pages now redirect respectively to "/crews" and "/researches"
 - Unknown pages redirect to homepage
 
-## [2.1.10] - 2020-10-02
+## [2.1.10] - 2021-10-02
 
 ### Changes
 
 - Increase number of displayed changes
 
-## [2.1.9] - 2020-10-02
+## [2.1.9] - 2021-10-02
 
 ### Fixes
 
 - Fix dailies infos (Savy moved data to another API endpoint)
 
-## [2.1.8] - 2020-09-30
+## [2.1.8] - 2021-09-30
 
 ### Changed
 
 - Reduce default cache expiration from 6 hours to 1 hour
 
-## [2.1.7] - 2020-09-25
+## [2.1.7] - 2021-09-25
 
 ### Added
 
 - Add sorting to the "Recipe" column to group items that can be crafted or not
 
-## [2.1.6] - 2020-09-18
+## [2.1.6] - 2021-09-18
 
 ### Fixes
 
 - Fix sorting of crew walk & run speed by splitting the column in two
 
-## [2.1.5] - 2020-08-29
+## [2.1.5] - 2021-08-29
 
 ### Fixes
 
 - Ignore changes of 2021-08-29 (old changes retrieved due to API url issue)
 
-## [2.1.4] - 2020-08-29
+## [2.1.4] - 2021-08-29
 
 ### Added
 
@@ -79,25 +79,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Wrong PSS Api URL because ProductionServer don't return the one to use
 
-## [2.1.3] - 2020-08-27
+## [2.1.3] - 2021-08-27
 
 ### Fixed
 
 - Slowdown players importation due to new Savy API limitations 
 
-## [2.1.2] - 2020-08-24
+## [2.1.2] - 2021-08-24
 
 ### Fixed
 
 - Slowdown market history importation due to new Savy API limitations 
 
-## [2.1.1] - 2020-08-23
+## [2.1.1] - 2021-08-23
 
 ### Fixed
 
 - Fix missing market history of items in Changes and Ships pages
 
-## [2.1.0] - 2020-08-23
+## [2.1.0] - 2021-08-23
 
 ### Added
 
@@ -120,19 +120,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove Material icons CDN, use self hosted files (no more dependent of Google servers)
 
-## [2.0.3] - 2020-07-07
+## [2.0.3] - 2021-07-07
 
 ### Fixed
 
 - Fix DPS value in Rooms page
 
-## [2.0.2] - 2020-06-20
+## [2.0.2] - 2021-06-20
 
 ### Security
 
 - Security fix
 
-## [2.0.1] - 2020-06-05
+## [2.0.1] - 2021-06-05
 
 ### Security
 
@@ -144,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New more modern UI
 
-## [1.1.0] - 2020-05-28
+## [1.1.0] - 2021-05-28
 
 ### Changed
 
@@ -161,6 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[2.2.0]: https://github.com/solevis/pixyship/compare/v2.1.10...v2.2.0
 [2.1.10]: https://github.com/solevis/pixyship/compare/v2.1.9...v2.1.10
 [2.1.9]: https://github.com/solevis/pixyship/compare/v2.1.8...v2.1.9
 [2.1.8]: https://github.com/solevis/pixyship/compare/v2.1.7...v2.1.8
