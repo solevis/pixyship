@@ -78,6 +78,11 @@ const routes = [
     component: () => import('../views/About.vue')
   },
   {
+    path: '/changelog',
+    name: 'Changelog',
+    component: () => import('../views/Changelog.vue')
+  },
+  {
     path: '*',
     component: () => import('../views/Home.vue')
   }
