@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2021-10-23
+
+### Fixes
+
+- Fix github version link in footer
+
 ## [2.2.0] - 2021-10-23
 
 ### Added
@@ -161,21 +167,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
-[2.2.0]: https://github.com/solevis/pixyship/compare/v2.1.10...v2.2.0
-[2.1.10]: https://github.com/solevis/pixyship/compare/v2.1.9...v2.1.10
-[2.1.9]: https://github.com/solevis/pixyship/compare/v2.1.8...v2.1.9
-[2.1.8]: https://github.com/solevis/pixyship/compare/v2.1.7...v2.1.8
-[2.1.7]: https://github.com/solevis/pixyship/compare/v2.1.6...v2.1.7
-[2.1.6]: https://github.com/solevis/pixyship/compare/v2.1.5...v2.1.6
-[2.1.5]: https://github.com/solevis/pixyship/compare/v2.1.4...v2.1.5
-[2.1.4]: https://github.com/solevis/pixyship/compare/v2.1.3...v2.1.4
-[2.1.3]: https://github.com/solevis/pixyship/compare/v2.1.2...v2.1.3
-[2.1.2]: https://github.com/solevis/pixyship/compare/v2.1.1...v2.1.2
-[2.1.1]: https://github.com/solevis/pixyship/compare/v2.1.0...v2.1.1
-[2.1.0]: https://github.com/solevis/pixyship/compare/v2.0.3...v2.1.0
-[2.0.3]: https://github.com/solevis/pixyship/compare/v2.0.2...v2.0.3
-[2.0.2]: https://github.com/solevis/pixyship/compare/v2.0.1...v2.0.2
-[2.0.1]: https://github.com/solevis/pixyship/compare/v2.0....v2.0.1
-[2.0.0]: https://github.com/solevis/pixyship/compare/v1.1...v2.0
-[1.1.0]: https://github.com/solevis/pixyship/compare/v1.0...v1.1
-[1.0.0]: https://github.com/solevis/pixyship/releases/tag/v1.0
+[2.2.1]: https://github.com/solevis/pixyship/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/solevis/pixyship/compare/2.1.10...2.2.0
+[2.1.10]: https://github.com/solevis/pixyship/compare/2.1.9...2.1.10
+[2.1.9]: https://github.com/solevis/pixyship/compare/2.1.8...2.1.9
+[2.1.8]: https://github.com/solevis/pixyship/compare/2.1.7...2.1.8
+[2.1.7]: https://github.com/solevis/pixyship/compare/2.1.6...2.1.7
+[2.1.6]: https://github.com/solevis/pixyship/compare/2.1.5...2.1.6
+[2.1.5]: https://github.com/solevis/pixyship/compare/2.1.4...2.1.5
+[2.1.4]: https://github.com/solevis/pixyship/compare/2.1.3...2.1.4
+[2.1.3]: https://github.com/solevis/pixyship/compare/2.1.2...2.1.3
+[2.1.2]: https://github.com/solevis/pixyship/compare/2.1.1...2.1.2
+[2.1.1]: https://github.com/solevis/pixyship/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/solevis/pixyship/compare/2.0.3...2.1.0
+[2.0.3]: https://github.com/solevis/pixyship/compare/2.0.2...2.0.3
+[2.0.2]: https://github.com/solevis/pixyship/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/solevis/pixyship/compare/2.0...2.0.1
+[2.0.0]: https://github.com/solevis/pixyship/compare/1.1...2.0
+[1.1.0]: https://github.com/solevis/pixyship/compare/1.0...1.1
+[1.0.0]: https://github.com/solevis/pixyship/releases/tag/1.0
