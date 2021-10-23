@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.1] - 2021-10-23
 
-### Fixes
+### Added
 
-- Fix github version link in footer
+- Changelog page "/changelog"
+- Changelog in about page
+
+### Fixed
+
+- Fix changelog link in footer
 
 ## [2.2.0] - 2021-10-23
 
@@ -26,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add "player=" query parameter to the "Players" page URL
 - [BETA] "Changes" page will now show new Pixel Starships sprites listed in API
 
-### Changes
+### Changed
 
 - Market chart is no longer displayed by expanding a row in Items page, it's now in item page by clicking item name or logo
 - Serve sprites from PixyShip instead of Savy for better cache control
@@ -41,13 +46,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.10] - 2021-10-02
 
-### Changes
+### Changed
 
 - Increase number of displayed changes
 
 ## [2.1.9] - 2021-10-02
 
-### Fixes
+### Fixed
 
 - Fix dailies infos (Savy moved data to another API endpoint)
 
@@ -65,13 +70,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.6] - 2021-09-18
 
-### Fixes
+### Fixed
 
 - Fix sorting of crew walk & run speed by splitting the column in two
 
 ## [2.1.5] - 2021-08-29
 
-### Fixes
+### Fixed
 
 - Ignore changes of 2021-08-29 (old changes retrieved due to API url issue)
 
@@ -89,13 +94,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Slowdown players importation due to new Savy API limitations 
+- Slowdown players importation due to new Savy API limitations
 
 ## [2.1.2] - 2021-08-24
 
 ### Fixed
 
-- Slowdown market history importation due to new Savy API limitations 
+- Slowdown market history importation due to new Savy API limitations
 
 ## [2.1.1] - 2021-08-23
 
