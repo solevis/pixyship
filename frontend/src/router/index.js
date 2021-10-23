@@ -1,16 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Crews from '../views/Crews.vue'
-import Items from '../views/Items.vue'
-import Rooms from '../views/Rooms.vue'
-import Ships from '../views/Ships.vue'
-import Collections from '../views/Collections.vue'
-import Researches from '../views/Researches.vue'
-import Changes from '../views/Changes.vue'
-import Players from '../views/Players.vue'
-import Builder from '../views/Builder.vue'
-import CrewDetail from '../views/CrewDetail.vue'
 
 Vue.use(VueRouter)
 
@@ -18,65 +7,79 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: () => import('../views/Home.vue')
   },
   {
     path: '/crews',
     name: 'Crews',
-    component: Crews
+    component: () => import('../views/Crews.vue')
+  },
+  {
+    path: '/crew',
+    redirect: '/crews'
   },
   {
     path: '/crew/:id',
     name: 'CrewDetail',
-    component: CrewDetail
+    component: () => import('../views/CrewDetail.vue')
   },
   {
     path: '/items',
     name: 'Items',
-    component: Items
+    component: () => import('../views/Items.vue')
+  },
+  {
+    path: '/item/:id',
+    name: 'ItemDetail',
+    component: () => import('../views/ItemDetail.vue')
   },
   {
     path: '/rooms',
     name: 'Rooms',
-    component: Rooms
+    component: () => import('../views/Rooms.vue')
   },
   {
     path: '/ships',
     name: 'Ships',
-    component: Ships
+    component: () => import('../views/Ships.vue')
   },
   {
     path: '/collections',
     name: 'Collections',
-    component: Collections
+    component: () => import('../views/Collections.vue')
   },
   {
     path: '/researches',
     name: 'Researches',
-    component: Researches
+    component: () => import('../views/Researches.vue')
+  },
+  {
+    path: '/research',
+    redirect: '/researches'
   },
   {
     path: '/changes',
     name: 'Changes',
-    component: Changes
+    component: () => import('../views/Changes.vue')
   },
   {
     path: '/players',
     name: 'Players',
-    component: Players
+    component: () => import('../views/Players.vue')
   },
   {
     path: '/builder',
     name: 'Builder',
-    component: Builder
+    component: () => import('../views/Builder.vue')
   },
   {
     path: '/about',
     name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: () => import('../views/About.vue')
+  },
+  {
+    path: '*',
+    component: () => import('../views/Home.vue')
   }
 ]
 

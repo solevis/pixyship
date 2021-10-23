@@ -202,6 +202,18 @@ def api_item_prices(item_id):
     })
 
 
+@app.route('/api/item/<int:item_id>/detail')
+@enforce_source
+def api_item_detail(item_id):
+    item = pixyship.items[item_id]
+    last_sales = pixyship.get_item_last_sales_from_db(item_id, 50)
+    return jsonify({
+        'data': item,
+        'lastSales': last_sales,
+        'status': 'success',
+    })
+
+
 @app.route('/api/tournament')
 @enforce_source
 def api_tournament():
@@ -233,15 +245,6 @@ def api_ships():
 def bad_api(path):
     """Places you shouldn't go"""
     return flask.abort(404)
-
-
-@app.route('/csp_report', methods=['POST'])
-def csp_report():
-    if CONFIG['CSP_REPORT_LOG']:
-        with open(CONFIG['CSP_REPORT_LOG'], "a") as fh:
-            fh.write(request.data.decode() + "\n")
-
-    return 'done'
 
 
 if __name__ == '__main__':

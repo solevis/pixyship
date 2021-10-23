@@ -71,14 +71,26 @@
       </v-navigation-drawer>
 
     <v-main>
-      <v-container fluid>
+      <v-container fluid class="full-height">
         <router-view></router-view>
       </v-container>
     </v-main>
 
-    <v-footer app padless>
-      <!--  -->
-    </v-footer>
+    <v-footer
+    padless
+  >
+    <v-row
+      justify="center"
+      no-gutters
+    >
+      <v-col
+        class="py-1 text-center white--text"
+        cols="12"
+      >
+        <strong>PixyShip</strong> — <a class="white--text" href="https://github.com/solevis/pixyship/releases/tag/2.2.0">v2.2.0</a>
+      </v-col>
+    </v-row>
+  </v-footer>
   </v-app>
 </template>
 
@@ -105,7 +117,7 @@ export default {
   data: () => ({
     drawer: false,
   }),
-};
+}
 </script>
 
 <style lang="sass">
@@ -115,5 +127,9 @@ export default {
  <style>
   html {
     overflow-y: auto !important;
-  } 
+  }
+
+  .full-height {
+    height: 100%;
+  }
 </style>

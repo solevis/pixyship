@@ -1,7 +1,7 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Builder </v-card-title>
-    <v-card-subtitle>Build your ship directly from PixyShip</v-card-subtitle>
+    <v-card-subtitle>Design and optimize your ship without breaking it in the game</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -346,11 +346,11 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import axios from 'axios'
-import mixins from "@/mixins/PixyShip.vue.js";
+import mixins from "@/mixins/PixyShip.vue.js"
+import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
-import "@/assets/css/override.css";
+import "@/assets/css/override.css"
 
 require('../js/DragDropTouch')
 
@@ -361,7 +361,7 @@ export default {
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
   },
 
@@ -406,7 +406,7 @@ export default {
       storageCapacity: 0,
       armor: 0,
       effectiveArmor: 0,
-    };
+    }
   },
 
   beforeMount: function () {
@@ -611,7 +611,7 @@ export default {
         .map(location => location.room.type === 'Android' ? location.room.capacity : 0)
         .reduce((a, s) => a + s, 0)
       this.armor = this.shipRooms
-        .map(location => location.room.type === 'Wall' ? location.room.capacity : 0)
+        .map(location => location.room.type === 'Armor' ? location.room.capacity : 0)
         .reduce((a, s) => a + s, 0)
       
       if (this.selectedShip) {
@@ -677,7 +677,7 @@ export default {
       const location = this.shipRooms.filter(location => location.x === x && location.y === y)
       
       if (location.length > 0) {
-        if (location[0].room.type === 'Wall') {
+        if (location[0].room.type === 'Armor') {
           return location[0].room.capacity
         }
       }
@@ -842,7 +842,7 @@ export default {
       this.$copyText(window.location.href)
     },
   }
-};
+}
 </script>
 
 <style scoped>
@@ -874,5 +874,17 @@ export default {
 
   .disallowed {
     border: 1px solid red !important;
+  }
+
+  .power-gen {
+    fill: lime;
+    font-weight: 700;
+    font-size: 8px;
+  }
+
+  .power-use {
+    fill: yellow;
+    font-weight: 700;
+    font-size: 8px;
   }
 </style>

@@ -78,6 +78,7 @@ class Pixyship(metaclass=Singleton):
         'char': 'CharacterDesignName',
         'item': 'ItemDesignName',
         'collection': 'CollectionDesignId',
+        'sprite': 'SpriteKey',
     }
 
     DEFAULT_EXPIRATION_DURATION = 60 * 60 * 1  # 1 hours
@@ -197,7 +198,7 @@ class Pixyship(metaclass=Singleton):
     @property
     def sprites(self):
         if not self._sprites or self.expired('sprite'):
-            self._sprites = self._get_sprites_from_api()
+            self._sprites = self._get_sprites_from_db()
             self.expire_at('sprite', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._sprites
@@ -205,7 +206,7 @@ class Pixyship(metaclass=Singleton):
     @property
     def rooms_sprites(self):
         if not self._rooms_sprites or self.expired('room_sprite'):
-            self._rooms_sprites = self._get_room_sprites_from_api()
+            self._rooms_sprites = self._get_room_sprites_from_db()
             self.expire_at('room_sprite', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms_sprites
@@ -447,7 +448,7 @@ class Pixyship(metaclass=Singleton):
             return 0
 
         room = [r for r in rooms if r['id'] == neighbor][0]
-        if room['type'] == 'Wall':
+        if room['type'] == 'Armor':
             return room['capacity']
 
         return 0
@@ -520,6 +521,35 @@ class Pixyship(metaclass=Singleton):
             for sprite in sprites
         }
 
+    def _get_sprites_from_db(self):
+        """Load sprites from database."""
+
+        records = Record.query.filter_by(type='sprite', current=True).all()
+
+        sprites = {}
+        for record in records:
+            sprite = self.pixel_starships_api.parse_sprite_node(ElementTree.fromstring(record.data))
+
+            sprites[record.type_id] = {
+                'image_file': int(sprite['ImageFileId']),
+                'x': int(sprite['X']),
+                'y': int(sprite['Y']),
+                'width': int(sprite['Width']),
+                'height': int(sprite['Height']),
+                'sprite_key': sprite['SpriteKey'],
+            }
+
+        return sprites
+
+    def update_sprites(self):
+        """Update data and save records."""
+
+        sprites = self.pixel_starships_api.get_sprites()
+
+        for sprite in sprites:
+            record_id = sprite['SpriteId']
+            Record.update_data('sprite', record_id, sprite['pixyship_xml_element'])
+
     def _get_room_sprites_from_api(self):
         """Get room sprites from API."""
 
@@ -534,6 +564,33 @@ class Pixyship(metaclass=Singleton):
             }
             for room_sprite in rooms_sprites
         }
+
+    def _get_room_sprites_from_db(self):
+        """Load sprites from database."""
+
+        records = Record.query.filter_by(type='room_sprite', current=True).all()
+
+        room_sprites = {}
+        for record in records:
+            room_sprite = self.pixel_starships_api.parse_room_sprite_node(ElementTree.fromstring(record.data))
+
+            room_sprites[record.type_id] = {
+                'room_id': int(room_sprite['RoomDesignId']),
+                'race': int(room_sprite['RaceId']),
+                'sprite_id': int(room_sprite['SpriteId']),
+                'type': room_sprite['RoomSpriteType'],
+            }
+
+        return room_sprites
+
+    def update_room_sprites(self):
+        """Update data and save records."""
+
+        room_sprites = self.pixel_starships_api.get_rooms_sprites()
+
+        for room_sprite in room_sprites:
+            record_id = room_sprite['RoomDesignSpriteId']
+            Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'])
 
     @staticmethod
     def _get_prices_from_db():
@@ -605,6 +662,36 @@ class Pixyship(metaclass=Singleton):
         }
 
         return data
+
+    @staticmethod
+    def get_item_last_sales_from_db(item_id, limit):
+        """Get last sales from database."""
+
+        sql = """
+            SELECT sale_at, amount, currency, price, user_name as buyer_name, seller_name, id
+            FROM listing
+            WHERE item_id = :item_id
+                AND amount > 0
+                AND user_name IS NOT NULL
+                AND seller_name IS NOT NULL
+            ORDER BY sale_at::DATE DESC
+            LIMIT :limit
+        """
+        result = db.session.execute(sql, {'item_id': item_id, 'limit': limit}).fetchall()
+        last_sales = []
+
+        for row in result:
+            last_sales.append({
+                'id': int(row[6]),
+                'date': str(row[0]),
+                'quantity': row[1],
+                'currency': row[2],
+                'price': row[3],
+                'buyer': row[4],
+                'seller': row[5],
+            })
+
+        return last_sales
 
     def update_ships(self):
         """Get ships from API and save them in database."""
@@ -725,12 +812,13 @@ class Pixyship(metaclass=Singleton):
             missile_design = room['MissileDesign']
 
             room_price, room_price_currency = self._parse_price_from_pricestring(room['PriceString'])
+            room_type = self.ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType'])
 
             rooms[record.type_id] = {
                 'id': record.type_id,
                 'name': room['RoomName'],
                 'short_name': room['RoomShortName'],
-                'type': self.ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType']),
+                'type': room_type,
                 'level': int(room['Level']),
                 'capacity': int(room['Capacity']),
                 'height': int(room['Rows']),
@@ -744,7 +832,7 @@ class Pixyship(metaclass=Singleton):
                 'defense': int(room['DefaultDefenceBonus']),
                 'reload': int(room['ReloadTime']),
                 'refill_cost': int(room['RefillUnitCost']),
-                'show_frame': room['RoomType'] not in ('Lift', 'Wall', 'Corridor'),
+                'show_frame': room_type not in ('Lift', 'Armor', 'Corridor'),
                 'upgrade_cost': room_price,
                 'upgrade_currency': room_price_currency,
                 'upgrade_seconds': int(room['ConstructionTime']),
@@ -876,6 +964,7 @@ class Pixyship(metaclass=Singleton):
             collection = self.pixel_starships_api.parse_collection_node(collection_node)
 
             collection.update({
+                'id': int(collection['CollectionDesignId']),
                 'name': collection['CollectionName'],
                 'min': int(collection['MinCombo']),
                 'max': int(collection['MaxCombo']),
@@ -1153,6 +1242,31 @@ class Pixyship(metaclass=Singleton):
     def get_changes_from_db(self):
         """Get changes from database."""
 
+        # retrieve minimum dates of each types
+        min_changes_dates_sql = """
+            SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
+            FROM record
+            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite')
+            GROUP BY type
+        """
+
+        min_changes_dates_result = db.session.execute(min_changes_dates_sql).fetchall()
+
+        min_changes_dates_conditions = []
+        for min_changes_dates_record in min_changes_dates_result:
+            if min_changes_dates_record['type'] == 'sprite':
+                # only new
+                condition = "(c.type = '{}' AND o.data IS NULL AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
+                    min_changes_dates_record['type'],
+                    min_changes_dates_record['min']
+                )
+            else:
+                condition = "(c.type = '{}' AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
+                    min_changes_dates_record['type'],
+                    min_changes_dates_record['min']
+                )
+            min_changes_dates_conditions.append(condition)
+
         sql = """
             SELECT *
             FROM (
@@ -1165,16 +1279,14 @@ class Pixyship(metaclass=Singleton):
                         o.data as old_data
                     FROM record c
                         LEFT JOIN record o ON o.type = c.type AND o.type_id = c.type_id AND o.current = FALSE
-                    WHERE c.current = TRUE
-                        AND (o.id IS NOT NULL
-                            OR c.created_at > '2018-10-8 4:00')
-                        AND c.type IN ('item', 'ship', 'char', 'room')
-                        AND DATE(c.created_at) <> '2021-08-29'
+                    WHERE
+                        c.current = TRUE
+                        AND ({})
                     ORDER BY c.id, o.created_at DESC
                 ) AS sub
             ORDER BY created_at DESC
-            LIMIT 5000
-        """
+            LIMIT {}
+        """.format(' OR '.join(min_changes_dates_conditions), CONFIG.get('CHANGES_MAX_ASSETS', 5000))
 
         result = db.session.execute(sql).fetchall()
         changes = []
@@ -1420,6 +1532,8 @@ class Pixyship(metaclass=Singleton):
                 return self.rooms[record_id]['sprite']
             if record_type == 'ship':
                 return self.ships[record_id]['mini_ship_sprite']
+            if record_type == 'sprite':
+                return self.get_sprite_infos(record_id)
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -1515,13 +1629,13 @@ class Pixyship(metaclass=Singleton):
         user_id = self.find_user_id(player_name)
 
         if not user_id:
-            return None, None, None, None
+            return None, None, None, None, None
 
         inspect_ship = self.pixel_starships_api.inspect_ship(user_id)
 
         # only seen on admin players so far
         if not inspect_ship:
-            return None, None, None, None
+            return None, None, None, None, None
 
         upgrades = []
         user_data = inspect_ship['User']

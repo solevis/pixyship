@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Researches </v-card-title>
     <v-card-subtitle>All Pixel Starships researches</v-card-subtitle>
 
@@ -26,6 +26,7 @@
             multiple
             small-chips
             hide-details
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
@@ -38,6 +39,7 @@
             multiple
             small-chips
             hide-details
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
@@ -50,6 +52,7 @@
             multiple
             small-chips
             hide-details
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
       </v-row>
@@ -65,7 +68,6 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
-      :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
@@ -157,8 +159,8 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
 
 export default {
   mixins: [mixins],
@@ -175,42 +177,81 @@ export default {
       labLevels: [],
       minShipLevels: [],
       loaded: false,
+      researches: [],
       headers: [
-        {text: 'Image', sortable: false},
-        {text: 'Name', value: 'name'},
+        {
+          text: "Order by ID", 
+          align: "center", 
+          value: "id", 
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters or another filter on page, return everything
+            if (!query.ids || this.pendingFilter) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim())
+            })
+            
+            return ids.includes(value)
+          }
+        },
+        {
+          text: 'Name', 
+          value: 'name'
+        },
         {
           text: 'Lab Level', 
           value: 'lab_level', 
           filter: (value) => {
-            return this.filterCombobox(value, this.searchLabLevel);
+            return this.filterCombobox(value, this.searchLabLevel)
           },
         },
         {
           text: 'Ship Level', 
           value: 'min_ship_level', 
           filter: (value) => {
-            return this.filterCombobox(value, this.searchMinShipLevel);
+            return this.filterCombobox(value, this.searchMinShipLevel)
           },
         },
-        {text: 'Requirement', value: 'required_research_name'},
+        {
+          text: 'Requirement', 
+          value: 'required_research_name', 
+          filterable: false
+        },
         {
           text: 'Type', 
           value: 'research_type',
           filter: (value) => {
-            return this.filterCombobox(value, this.searchType);
+            return this.filterCombobox(value, this.searchType)
           },
         },
-        {text: 'Cost', value: 'cost'},
-        {text: 'Research Time', value: 'research_seconds'}
+        {
+          text: 'Cost', 
+          value: 'cost', 
+          filterable: false
+        },
+        {
+          text: 'Research Time', 
+          value: 'research_seconds', 
+          filterable: false
+        }
       ],
-      researches: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchType.length > 0
+        || this.searchLabLevel.length > 0
+        || this.searchMinShipLevel.length > 0
+    }
   },
 
   created() {
@@ -218,42 +259,82 @@ export default {
   },
 
   beforeMount: function () {
-    this.getResearches();
+    this.initFilters()
+    this.getResearches()
+  },
+
+  watch: {
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchType(value) {
+      this.updateQueryFromFilter('type', value)
+    },
+
+    searchLabLevel(value) {
+      this.updateQueryFromFilter('lablevel', value)
+    },
+
+    searchMinShipLevel(value) {
+      this.updateQueryFromFilter('minshiplevel', value)
+    },
   },
 
   methods: {
+    initFilters() {
+      this.searchName = this.$route.query.name
+
+      if (this.$route.query.type) {
+        this.searchType = this.$route.query.type.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+
+      if (this.$route.query.lablevel) {
+        this.searchLabLevel = this.$route.query.lablevel.split(',').map(function(value) {
+          return parseInt(value.trim())
+        })
+      }
+
+      if (this.$route.query.minshiplevel) {
+        this.searchMinShipLevel = this.$route.query.minshiplevel.split(',').map(function(value) {
+          return parseInt(value.trim())
+        })
+      }
+    },
+
     getResearches: async function () {
-      const response = await axios.get(this.researchesEndpoint);
+      const response = await axios.get(this.researchesEndpoint)
 
       let researches = Object.values(response.data.data)
       researches.forEach(research => {
         research.cost = research.gas_cost + research.starbux_cost
       })
 
-      researches.sort((a, b) => b.name - a.name);
+      researches.sort((a, b) => b.id - a.id)
+      this.researches = researches
+      this.updateFilters()
 
-      this.researches = researches;
-      this.updateFilters();
-
-      this.loaded = true;
-      return this.researches;
+      this.loaded = true
+      return this.researches
     },
 
     updateFilters() {
       this.types = Array.from(
         new Set(this.researches.map((research) => (!research.research_type ? "None" : research.research_type)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
 
       this.labLevels = Array.from(
         new Set(this.researches.map((research) => (!research.lab_level ? "None" : research.lab_level)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
 
       this.minShipLevels = Array.from(
         new Set(this.researches.map((research) => (!research.min_ship_level ? "None" : research.min_ship_level)))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

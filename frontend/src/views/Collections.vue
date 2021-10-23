@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="isLoading">
+  <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Collections </v-card-title>
     <v-card-subtitle>All crew collections infos (crews, bonus, skill, ...) of Pixel Starships</v-card-subtitle>
 
@@ -26,6 +26,7 @@
             small-chips
             hide-details
             outlined
+            :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
       </v-row>
@@ -77,9 +78,9 @@
 </template>
 
 <script>
-import axios from "axios";
-import mixins from "@/mixins/PixyShip.vue.js";
-import Crew from "@/components/Crew.vue";
+import axios from "axios"
+import mixins from "@/mixins/PixyShip.vue.js"
+import Crew from "@/components/Crew.vue"
 
 export default {
   mixins: [mixins],
@@ -90,22 +91,50 @@ export default {
 
   data() {
     return {
-      searchName: "",
+      searchName: this.name,
       searchSkill: [],
       skills: [],
       loaded: false,
       headers: [
-        { text: "Image", align: "center", sortable: false, filterable: false },
-        { text: "Name", align: "left", value: "name" },
+        { 
+          text: "Order by ID", 
+          align: "center", 
+          value: "id", 
+          filter: value => {
+            const query = this.$route.query
+
+            // no parameters
+            if (!query.ids || this.pendingFilter) {
+              return true
+            }
+
+            const ids = query.ids.split(',').map(function(id) {
+              return parseInt(id.trim())
+            })
+            
+            return ids.includes(value)
+          } 
+        },
+        { 
+          text: "Name", 
+          align: "left", 
+          value: "name",
+          filterable: true
+        },
         {
           text: "Skill",
           align: "left",
           value: "ability_name",
           filter: (value) => {
-            return this.filterCombobox(value, this.searchSkill);
+            return this.filterCombobox(value, this.searchSkill)
           },
         },
-        { text: "Chars", align: "left", sortable: false, filterable: false },
+        {
+          text: "Chars",
+          align: "left",
+          sortable: false,
+          filterable: false
+        },
         {
           text: "Required (Min - Max)",
           align: "center",
@@ -132,13 +161,17 @@ export default {
         },
       ],
       collections: [],
-    };
+    }
   },
 
   computed: {
     isLoading: function () {
-      return !this.loaded;
+      return !this.loaded
     },
+    pendingFilter: function () {
+      return this.searchName 
+        || this.searchSkill.length > 0
+    }
   },
 
   created() {
@@ -146,32 +179,54 @@ export default {
   },
 
   beforeMount: function () {
-    this.getCollections();
+    this.initFilters()
+    this.getCollections()
+  },
+
+  watch: {
+    searchName(value) {
+      this.updateQueryFromFilter('name', value)
+    },
+
+    searchSkill(value) {
+      this.updateQueryFromFilter('skill', value)
+    },
   },
   
   methods: {
+    initFilters() {
+      this.searchName = this.$route.query.name
+
+      if (this.$route.query.skill) {
+        this.searchSkill = this.$route.query.skill.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+    },
+
     getCollections: async function () {
-      const response = await axios.get(this.collectionsEndpoint);
+      const response = await axios.get(this.collectionsEndpoint)
 
       let collections = Object.entries(response.data.data).map(
         (collection) => collection[1]
-      );
-      collections.sort((a, b) => b.name - a.name);
+      )
 
-      this.collections = collections;
-      this.updateFilters();
+      collections.sort((a, b) => b.id - a.id)
 
-      this.loaded = true;
-      return this.collections;
+      this.collections = collections
+      this.updateFilters()
+
+      this.loaded = true
+      return this.collections
     },
 
     updateFilters() {
       this.skills = Array.from(
         new Set(this.collections.map((collection) => collection.ability_name))
-      ).sort(this.sortAlphabeticallyExceptNone);
+      ).sort(this.sortAlphabeticallyExceptNone)
     },
   },
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>

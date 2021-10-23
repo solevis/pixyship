@@ -1,25 +1,27 @@
 <template>
   <v-tooltip :disabled="!show" top color="grey darken-3">
     <template v-slot:activator="{ on, attrs }">
-      <div v-bind="attrs" v-on="on">
-        <div v-if="!name" :aria-label="item.name">
-          <div class="item-sprite" :style="spriteStyle(item.sprite)"></div>
-        </div>
+      <component :is="disableLink ? 'span' : 'a'" :href="`/item/${item.id}`" v-bind="attrs" v-on="on" :aria-label="item.name" class="item-link">
+        <div>
+          <div v-if="!name" :aria-label="item.name">
+              <div class="item-sprite" :style="spriteStyle(item.sprite)"></div>
+          </div>
 
-        <table v-else :aria-label="item.name">
-          <tr v-if="name === 'top'" class="nobreak">
-            <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
-          </tr>
-          <tr class="nobreak">
-            <td v-if="name === 'left'">{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
-            <td><div class=" mr-2" :style="spriteStyle(item.sprite)"></div></td>
-            <td v-if="name === 'right'">{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
-          </tr>
-          <tr v-if="name === 'bottom'" class="nobreak">
-            <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
-          </tr>
-        </table>
-      </div>
+          <table v-else :aria-label="item.name">
+            <tr v-if="name === 'top'" class="nobreak">
+              <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+            </tr>
+            <tr class="nobreak">
+              <td v-if="name === 'left'">{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+              <td><div :class="name === 'left' || name === 'right' ? 'mr-2' : 'item-sprite'" :style="spriteStyle(item.sprite)"></div></td>
+              <td v-if="name === 'right'">{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+            </tr>
+            <tr v-if="name === 'bottom'" class="nobreak">
+              <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
+            </tr>
+          </table>
+        </div>
+      </component>
     </template>
 
     <div>
@@ -91,10 +93,11 @@
 </template>
 
 <script>
-import mixins from "@/mixins/PixyShip.vue.js";
+import mixins from "@/mixins/PixyShip.vue.js"
+import itemMixins from "@/mixins/Item.vue.js"
 
 export default {
-  mixins: [mixins],
+  mixins: [mixins, itemMixins],
 
   props: {
     item: null,
@@ -102,64 +105,28 @@ export default {
     name: null,
     tipPosition: null,
     tip: { default: true },
+    disableLink: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data: function () {
     return {
       show: this.tip,
-    };
+    }
   },
 
   computed: {
     right: function () {
-      return this.tipPosition === 'right' || (this.tipPosition == null && this.name == "right");
+      return this.tipPosition === 'right' || (this.tipPosition == null && this.name == "right")
     },
 
     left: function () {
-      return this.tipPosition === 'left' || (this.tipPosition == null && this.name == "left");
+      return this.tipPosition === 'left' || (this.tipPosition == null && this.name == "left")
     },
   },
-
-  methods: {
-    formatBonus(item) {
-      let formatedBonus = ""
-
-      if (item.disp_enhancement != null && item.bonus) {
-        formatedBonus = item.slot == 'Module' ? '' : '+'
-        formatedBonus += item.bonus + " " + item.disp_enhancement
-      } else if (item.hiddenBonus) {
-        formatedBonus = item.hiddenBonus
-      }
-
-      return formatedBonus
-    },
-
-    formatExtraBonus(item) {
-      let formatedBonus = ""
-
-      if (item.module_extra_disp_enhancement != null && item.module_extra_enhancement_bonus) {
-        formatedBonus = item.slot == 'Module' ? '' : '+'
-        formatedBonus += item.module_extra_enhancement_bonus + " " + item.module_extra_disp_enhancement
-      }
-
-      return formatedBonus
-    },
-
-    priceFormat(prices, price) {
-      const formatFunc = function (x) {
-        if (Math.max(prices.p25, prices.p50, prices.p75) > 999999) {
-          return parseFloat((x / 1000000).toFixed(1)) + "M";
-        } else if (Math.max(prices.p25, prices.p50, prices.p75) > 999) {
-          return parseFloat((x / 1000).toFixed(1)) + "K";
-        } else {
-          return x.toFixed(0);
-        }
-      };
-
-      return formatFunc(price);
-    },
-  }
-};
+}
 </script>
 
 <style scoped src="@/assets/css/common.css"></style>
@@ -205,5 +172,9 @@ a {
 
 .middle {
   vertical-align: middle;
+}
+
+.item-link {
+  color: white;
 }
 </style>
