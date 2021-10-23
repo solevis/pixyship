@@ -48,7 +48,6 @@
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
-      sort-by="name"
     >
       <template v-slot:item="{ item }">
         <tr>
@@ -211,6 +210,8 @@ export default {
       let collections = Object.entries(response.data.data).map(
         (collection) => collection[1]
       )
+
+      collections.sort((a, b) => b.id - a.id)
 
       this.collections = collections
       this.updateFilters()

@@ -88,7 +88,6 @@
       loading-text="Loading..."
       class="elevation-1 px-3"
       dense
-      sort-by="name"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
@@ -580,6 +579,7 @@ export default {
         rooms.push(room)
       }
 
+      rooms.sort((a, b) => b.id - a.id)
       this.rooms = rooms
       this.updateFilters()
 
