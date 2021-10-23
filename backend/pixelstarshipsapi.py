@@ -646,18 +646,6 @@ class PixelStarshipsApi:
             # parse HTTP body as XML and find sales nodes
             sale_nodes = root.find('.//Sales')
 
-            if not sale_nodes:
-                logger.error('response in error: {}'.format(response.text))
-                errors += 1
-
-                if errors == 3:
-                    # three times the call is in errors, skip this item
-                    break
-
-                # XML not well formatted, wait a little, and try again
-                time.sleep(10)
-                continue
-
             # no more sales available
             if len(sale_nodes) == 0:
                 break
