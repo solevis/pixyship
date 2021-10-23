@@ -2,6 +2,7 @@
   <v-card class="px-5 pb-1 full-height">
     <v-card-title class="overline right"></v-card-title>
 
+    <!-- Backers -->
     <v-card class="mb-4" elevation="2" outlined>
       <v-card-title>Donators</v-card-title>
 
@@ -73,11 +74,16 @@
         </p>
       </v-card-text>
     </v-card>
+
+    <!-- Changelog -->
+    <changelog></changelog>
   </v-card>
 </template>
 
 <script>
+import Changelog from "@/components/Changelog";
 export default {
+  components: {Changelog},
   created() {
     document.title = "PixyShip - " + this.$route.name
   },
