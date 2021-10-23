@@ -15,16 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - last players sales
   - crafting tree
 - Add "Type" filter on Changes page
-- Display default sort icon for each data table (little arrow next to the column name)
 - Add query parameter to all URL to filter assets (items, crews, etc.) by IDs (ids=X) or filters (ex: rarity=Common)
 - Filtering data on pages will automatically update the URL, so going back in history will prevent losing your filters
 - Add "player=" query parameter to the "Players" page URL
-- [BETA] "Changes" page will now show new Savy uploaded sprites
+- [BETA] "Changes" page will now show new Pixel Starships sprites listed in API
 
 ### Changes
 
 - Market chart is no longer displayed by expanding a row in Items page, it's now in item page by clicking item name or logo
 - Serve sprites from PixyShip instead of Savy for better cache control
+- Sort data by ID, most recent first (except Items, sorted by volume of sales)
 
 ### Fixed
 
