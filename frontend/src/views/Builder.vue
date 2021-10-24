@@ -213,6 +213,62 @@
       </svg>
     </div>
 
+    <div id="ship-canva-wrapper" v-if="loaded && selectedShip" :style="`width: ${this.selectedShip.interior_sprite.width + 25 * 2}px; height: ${this.selectedShip.interior_sprite.height + 25 * 2}px;`">
+      <v-stage v-if="loaded && selectedShip" :config="configKonva">
+
+        <v-layer>
+          <v-rect
+              :config="konvaBackgroundConfig"
+          ></v-rect>
+        </v-layer>
+
+        <v-layer>
+          <template v-for="r in ((selectedShip.interior_sprite.height + 25 * 2) / 25)">
+            <template v-for="c in ((selectedShip.interior_sprite.width + 25 * 2) / 25)">
+              <v-rect
+                  :key="'grid-1-' + r + '-' + c"
+                  :config="getDefaultGridKonvaConfig(r, c)"
+              >
+              </v-rect>
+            </template>
+          </template>
+        </v-layer>
+
+        <v-layer :config="{x:25, y:25}">
+          <v-image :config="konvaShipBackgroundConfig" :key="konvaShipBackgroundKey"></v-image>
+        </v-layer>
+
+        <v-layer :config="{x:25, y:25}">
+          <template v-for="r in selectedShip.rows">
+            <template v-for="c in selectedShip.columns">
+              <v-rect
+                  :key="'grid-2-' + r + '-' + c"
+                  v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '1' || selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '2'"
+                  :config="getGridKonvaConfig(r, c)"
+              >
+              </v-rect>
+            </template>
+          </template>
+        </v-layer>
+
+        <v-layer>
+          <v-rect
+              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white'}"
+              v-on:dragstart="moveRoomStart"
+              v-on:dragend="moveRoomEnd"
+              v-on:dragmove="moveRoom"
+          ></v-rect>
+
+          <v-rect
+              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white'}"
+              v-on:dragstart="moveRoomStart"
+              v-on:dragend="moveRoomEnd"
+              v-on:dragmove="moveRoom"
+          ></v-rect>
+        </v-layer>
+      </v-stage>
+    </div>
+
     <v-row justify="center" v-if="loaded">
       <v-col cols="1">
         <v-btn v-if="selectedShip" @click="copyUrl">Copy Link</v-btn>
@@ -351,9 +407,10 @@ import mixins from "@/mixins/PixyShip.vue.js"
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import "@/assets/css/override.css"
-
+import VueKonva from 'vue-konva'
 require('../js/DragDropTouch')
 
+Vue.use(VueKonva)
 Vue.use(VueClipboard)
 
 export default {
@@ -363,6 +420,33 @@ export default {
     isLoading: function () {
       return !this.loaded
     },
+
+    configKonva: function () {
+      return {
+        width: this.selectedShip.interior_sprite.width + 25 * 2,
+        height: this.selectedShip.interior_sprite.height + 25 * 2
+      }
+    },
+
+    konvaShipBackgroundConfig() {
+      return {
+        x: 0,
+        y: 0,
+        width: this.selectedShip.interior_sprite.width,
+        height: this.selectedShip.interior_sprite.height,
+        image: this.konvaShipBackground
+      }
+    },
+
+    konvaBackgroundConfig() {
+      return {
+        x: 0,
+        y: 0,
+        width: this.selectedShip.interior_sprite.width + 25 * 2,
+        height: this.selectedShip.interior_sprite.height + 25 * 2,
+        fill: '#3057E1',
+      }
+    }
   },
 
   data() {
@@ -406,6 +490,9 @@ export default {
       storageCapacity: 0,
       armor: 0,
       effectiveArmor: 0,
+      konvaStageKey: 0,
+      konvaShipBackground: new Image(),
+      konvaShipBackgroundKey: 0
     }
   },
 
@@ -624,6 +711,9 @@ export default {
         this.storageCapacity = Number(this.selectedShip.equipment_capacity) + this.shipRooms
           .map(location => location.room.type === 'Storage' && location.room.manufacture_type === 'Equipment' ? location.room.capacity : 0)
           .reduce((a, s) => a + s, 0)
+
+        this.konvaShipBackground.src = this.getSpriteUrl(this.selectedShip.interior_sprite)
+        this.konvaShipBackgroundKey += 1
       }
 
       this.effectiveArmor = this.calcRoomArmor()
@@ -841,6 +931,45 @@ export default {
     copyUrl () {
       this.$copyText(window.location.href)
     },
+
+    getDefaultGridKonvaConfig(row, column) {
+      return {
+        x: 25 * column - 25,
+        y: 25 * row - 25,
+        width: 25,
+        height: 25,
+        stroke: "#4A6DE5",
+        fill: "#0004",
+      }
+    },
+
+    getGridKonvaConfig(row, column) {
+      let insideShip = this.selectedShip.mask[this.selectedShip.columns * (row - 1) + (column - 1)] === '1'
+      return {
+        x: 25 * column - 25,
+        y: 25 * row - 25,
+        width: 25,
+        height: 25,
+        stroke: insideShip ? "rgba(180,180,180,0.51)" : "#b94848",
+        fill: "#0004",
+      }
+    },
+
+    moveRoomStart(event) {
+      event.target.moveToTop()
+    },
+
+    moveRoomEnd(event) {
+      event.target.fill('white')
+      event.target.position({
+        x: Math.round(event.target.x() / 25) * 25,
+        y: Math.round(event.target.y() / 25) * 25
+      })
+    },
+
+    moveRoom(event) {
+      event.target.fill('green')
+    }
   }
 }
 </script>
@@ -886,5 +1015,9 @@ export default {
     fill: yellow;
     font-weight: 700;
     font-size: 8px;
+  }
+
+  #ship-canva-wrapper {
+    margin: 0 auto;
   }
 </style>
