@@ -4,6 +4,20 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
+        <v-expansion-panel-header>2.2.2 &mdash; 2021-10-29</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Fixed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Fix Speed unit for weapons rooms</li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header>2.2.1 &mdash; 2021-10-23</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>
