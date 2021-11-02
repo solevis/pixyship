@@ -30,6 +30,7 @@
                   <th class="text-left">Subtype</th>
                   <th class="text-left">Bonus</th>
                   <th class="text-left">Recipe</th>
+                  <th class="text-left">Content</th>
                   <th class="text-left">Savy Price</th>
                   <th class="text-left">Market Prices (48h)</th>
                 </tr>
@@ -73,6 +74,25 @@
                         <td>x{{ ingredient.count }}</td>
                       </tr>
                     </table>
+                  </td>
+
+                  <!-- Content -->
+                  <td>
+                    <template v-if="item.content.length > 0">
+                      {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
+                      <table v-if="item.content.length > 0">
+                        <tr
+                          v-for="content_item in item.content"
+                          :key="'item' + item.id + '-content-' + content_item.id"
+                          class="nobreak"
+                        >
+                          <td>
+                            <item :item="content_item" />
+                          </td>
+                          <td>x{{ content_item.count }}</td>
+                        </tr>
+                      </table>
+                    </template>
                   </td>
 
                   <!-- Savy Price -->
@@ -152,18 +172,31 @@
             <span>Type: {{ item.type }}</span><br>
             <span>Subtype: {{ item.slot }}</span><br>
             <span v-if="formatBonus(item)">Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template></span><br>
-            <div v-if="item.recipe.length > 0">Recipe: 
+            <div v-if="item.recipe.length > 0">Recipe:
               <ul>
-              <li v-for="(ingredient) in item.recipe"
-                  :key="'item-cmp-' + item.id + '-recipe-' + ingredient.id"
+                <li v-for="(ingredient) in item.recipe"
+                    :key="'item-cmp-' + item.id + '-recipe-' + ingredient.id"
                 >
-                  
+
                   <div class="d-inline-block middle mr-1">{{ ingredient.name }}</div>
                   <div class="d-inline-block middle mr-1" :style="spriteStyle(ingredient.sprite)"></div>
                   <div class="d-inline-block middle">x{{ ingredient.count }}</div>
 
-              </li>
-            </ul>
+                </li>
+              </ul>
+            </div>
+            <div v-if="item.content.length > 0">Content:
+              <ul>
+                <li v-for="(content_item) in item.content"
+                    :key="'item-cmp-' + item.id + '-content-' + content_item.id"
+                >
+
+                  <div class="d-inline-block middle mr-1">{{ content_item.name }}</div>
+                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.sprite)"></div>
+                  <div class="d-inline-block middle">x{{ content_item.count }}</div>
+
+                </li>
+              </ul>
             </div>
             <div v-if="item.market_price">
               <div class="d-inline-block middle mr-1">Savy Price: {{ item.market_price }}</div>
