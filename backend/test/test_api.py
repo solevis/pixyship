@@ -285,6 +285,7 @@ def test_items():
     assert 'ItemSubType' in item
     assert 'EnhancementType' in item
     assert 'Ingredients' in item
+    assert 'Content' in item
     assert 'MarketPrice' in item
     assert 'FairPrice' in item
     assert 'ItemDesignId' in item
