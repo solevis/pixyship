@@ -53,6 +53,23 @@
           </td>
         </tr>
 
+        <tr v-if="item.content && item.content.length > 0">
+          <td class="text-xs" style="vertical-align: top;">
+            Content, {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
+            <ul>
+              <li v-for="(content_item) in item.content"
+                  :key="'item-cmp-' + item.id + '-content-' + content_item.id"
+                >
+
+                  <div class="d-inline-block middle mr-1">{{ content_item.name }}</div>
+                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.sprite)"></div>
+                  <div class="d-inline-block middle">x{{ content_item.count }}</div>
+
+              </li>
+            </ul>
+          </td>
+        </tr>
+
         <tr v-if="item.market_price">
           <td colspan="2">
             <div class="d-inline-block middle mr-1">Savy $: {{ item.market_price }}</div>
