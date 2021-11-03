@@ -61,10 +61,17 @@
                   :key="'item-cmp-' + item.id + '-content-' + content_item.id"
                 >
 
-                  <div class="d-inline-block middle mr-1">{{ content_item.name }}</div>
-                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.sprite)"></div>
-                  <div class="d-inline-block middle">x{{ content_item.count }}</div>
+                <template v-if="content_item.type === 'character'">
+                  <div class="d-inline-block middle mr-1">{{ content_item.char.name }}</div>
+                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.char.sprite)"></div>
+                </template>
 
+                <template v-else-if="content_item.type === 'item'">
+                  <div class="d-inline-block middle mr-1">{{ content_item.item.name }}</div>
+                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.item.sprite)"></div>
+                </template>
+
+                <div class="d-inline-block middle">x{{ content_item.count }}</div>
               </li>
             </ul>
           </td>
