@@ -1036,7 +1036,7 @@ class Pixyship(metaclass=Singleton):
 
                 item = items.get(int(content_item_id))
 
-                content_item_count = 0
+                content_item_count = 1
                 if len(content_item_id_count_unpacked) > 1:
                     content_item_count = int(content_item_id_count_unpacked[1])
 

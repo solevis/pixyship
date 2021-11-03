@@ -195,7 +195,7 @@
               <td class="content">
                 <template v-if="item.content.length > 0">
                   {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
-                  <table>
+                  <table style="margin: 0 auto;" class="mt-1">
                     <tr
                       v-for="content_item in item.content"
                       :key="'item' + item.id + '-content-' + content_item.id"
