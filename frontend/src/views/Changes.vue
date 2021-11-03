@@ -322,21 +322,6 @@ export default {
         return `/researches?ids=${id}`
       }
     },
-
-    getSpriteScalingRatio(sprite) {
-      console.log(sprite)
-      return 1
-
-      // if (Math.max(sprite.width, sprite.height) > 300) {
-      //   return 300 / Math.max(sprite.width, sprite.height)
-      // }
-      //
-      // let baseRatio = this.$vuetify.breakpoint.xsOnly ? 1.1 : 2.5
-      // let scale = (window.innerWidth / baseRatio) / Math.max(sprite.width, sprite.height)
-      // console.log(scale)
-      // scale = scale > 1 ? 1 : scale
-      // return scale
-    },
   },
 }
 </script>

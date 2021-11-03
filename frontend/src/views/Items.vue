@@ -197,12 +197,13 @@
                   {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
                   <table style="margin: 0 auto;" class="mt-1">
                     <tr
-                      v-for="content_item in item.content"
-                      :key="'item' + item.id + '-content-' + content_item.id"
+                      v-for="(content_item, index) in item.content"
+                      :key="'item' + item.id + '-content-' + content_item.id + '-' + index"
                       class="nobreak"
                     >
                       <td>
-                        <item :item="content_item" />
+                        <crew v-if="content_item.type === 'character'" :char="content_item.char" />
+                        <item v-else-if="content_item.type === 'item'" :item="content_item.item"/>
                       </td>
                       <td>x{{ content_item.count }}</td>
                     </tr>
@@ -223,12 +224,14 @@ import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
 import itemMixins from "@/mixins/Item.vue.js"
 import Item from "@/components/Item.vue"
+import Crew from "@/components/Crew.vue"
 
 export default {
   mixins: [mixins, itemMixins],
 
   components: {
     Item,
+    Crew,
   },
 
   data() {
