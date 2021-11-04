@@ -403,7 +403,11 @@ export default {
     },
 
     filterValueComparator(a, b) {
-      return a.toLowerCase() == b.toLowerCase()
+      if (typeof a === 'string' && typeof b === 'string') {
+        return a.toLowerCase() === b.toLowerCase()
+      }
+
+      return a === b
     }
   }
 }

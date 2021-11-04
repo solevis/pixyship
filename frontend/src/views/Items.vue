@@ -94,107 +94,126 @@
       class="elevation-1 px-3"
     >
       <template v-slot:item="{ item }">
-        <tr>
-          <!-- Image -->
-          <td>
-            <item :item="item" :tip="false"/>
-          </td>
+        <v-tooltip bottom color="grey darken-3">
+          <template v-slot:activator="{ on, attrs }">
+            <tr v-bind="attrs" v-on="on">
+              <!-- Image -->
+              <td>
+                <item :item="item" :tip="false"/>
+              </td>
 
-          <!-- Name -->
-          <td>
-            <div class="text-xs-left">
-              <a
-                :class="[item.rarity, 'lh-9', 'name']"
-                :href="`/item/${item.id}`"
-                >{{ item.name }}
-              </a>
-            </div>
-          </td>
+              <!-- Name -->
+              <td>
+                <div class="text-xs-left">
+                  <a
+                    :class="[item.rarity, 'lh-9', 'name']"
+                    :href="`/item/${item.id}`"
+                    >{{ item.name }}
+                  </a>
+                </div>
+              </td>
 
-          <td>
-            <div :class="['rarity', item.rarity]">{{ item.rarity }}</div>
-          </td>
+              <td>
+                <div :class="['rarity', item.rarity]">{{ item.rarity }}</div>
+              </td>
 
-          <!-- Savy price -->
-          <td>
-            <table v-show="item.market_price">
-              <tr>
-                <td>
-                  <div class="block" :style="currencySprite('Starbux')" />
-                </td>
-                <td class="text-xs-left">{{ item.market_price }}</td>
-              </tr>
-            </table>
-          </td>
+              <!-- Savy price -->
+              <td>
+                <table v-show="item.market_price">
+                  <tr>
+                    <td>
+                      <div class="block" :style="currencySprite('Starbux')" />
+                    </td>
+                    <td class="text-xs-left">{{ item.market_price }}</td>
+                  </tr>
+                </table>
+              </td>
 
-          <!-- Market price 48h -->
-          <td class="market">
-            <table v-if="item.prices" class="market-table">
-              <thead>
-                <tr>
-                  <td class="text-center"></td>
-                  <td class="text-center">#</td>
-                  <td class="text-center">25%</td>
-                  <td class="text-center">50%</td>
-                  <td class="text-center">75%</td>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(prices, currency, ind) in item.prices"
-                  :key="'item' + item.id + '-price-' + ind"
-                  class="nobreak"
-                >
-                  <td><div class="block" :style="currencySprite(currency)" /></td>
-                  <td><div class="block" />{{ prices.count }}</td>
-                  <td class="text-xs-left" v-html="priceFormat(prices, prices.p25)"></td>
-                  <td class="text-xs-left" v-html="priceFormat(prices, prices.p50)"></td>
-                  <td class="text-xs-left" v-html="priceFormat(prices, prices.p75)"></td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
+              <!-- Market price 48h -->
+              <td class="market">
+                <table v-if="item.prices" class="market-table">
+                  <thead>
+                    <tr>
+                      <td class="text-center"></td>
+                      <td class="text-center">#</td>
+                      <td class="text-center">25%</td>
+                      <td class="text-center">50%</td>
+                      <td class="text-center">75%</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(prices, currency, ind) in item.prices"
+                      :key="'item' + item.id + '-price-' + ind"
+                      class="nobreak"
+                    >
+                      <td><div class="block" :style="currencySprite(currency)" /></td>
+                      <td><div class="block" />{{ prices.count }}</td>
+                      <td class="text-xs-left" v-html="priceFormat(prices, prices.p25)"></td>
+                      <td class="text-xs-left" v-html="priceFormat(prices, prices.p50)"></td>
+                      <td class="text-xs-left" v-html="priceFormat(prices, prices.p75)"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
 
-          <!-- Type -->
-          <td class="stat">
-            {{ item.type }}
-          </td>
+              <!-- Type -->
+              <td class="stat">
+                {{ item.type }}
+              </td>
 
-          <!-- SubType -->
-          <td class="stat">
-            {{ item.slot }}
-          </td>
+              <!-- SubType -->
+              <td class="stat">
+                {{ item.slot }}
+              </td>
 
-          <!-- Bonus -->
-          <!-- <td class="text-xs-right">{{ formatBonus(item) }}</td> -->
-          <td class="text-xs-left text-capitalize bonus">
-            {{ formatBonus(item) }}
-            <template v-if="item.module_extra_disp_enhancement != null">
-              <br> {{ formatExtraBonus(item) }}
-            </template>
-          </td>
+              <!-- Bonus -->
+              <td class="text-xs-left text-capitalize bonus">
+                {{ formatBonus(item) }}
+                <template v-if="item.module_extra_disp_enhancement != null">
+                  <br> {{ formatExtraBonus(item) }}
+                </template>
+              </td>
 
-          <!-- Recipe -->
-          <td class="recipe">
-            <table v-if="item.recipe.length > 0">
-              <tr
-                v-for="ingredient in item.recipe"
-                :key="'item' + item.id + '-recipe-' + ingredient.id"
-                class="nobreak"
-              >
-                <td>
-                  <item :item="ingredient" />
-                </td>
-                <td>x{{ ingredient.count }}</td>
-              </tr>
-            </table>
-          </td>
+              <!-- Recipe -->
+              <td class="recipe">
+                <table v-if="item.recipe.length > 0">
+                  <tr
+                    v-for="ingredient in item.recipe"
+                    :key="'item' + item.id + '-recipe-' + ingredient.id"
+                    class="nobreak"
+                  >
+                    <td>
+                      <item :item="ingredient" />
+                    </td>
+                    <td>x{{ ingredient.count }}</td>
+                  </tr>
+                </table>
+              </td>
 
-          <!-- Description -->
-          <td>
-            {{ item.description }}
-          </td>
-        </tr>
+              <!-- Content -->
+              <td class="content">
+                <template v-if="item.content.length > 0">
+                  {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
+                  <table style="margin: 0 auto;" class="mt-1">
+                    <tr
+                      v-for="(content_item, index) in item.content"
+                      :key="'item' + item.id + '-content-' + content_item.id + '-' + index"
+                      class="nobreak"
+                    >
+                      <td>
+                        <crew v-if="content_item.type === 'character'" :char="content_item.char" />
+                        <item v-else-if="content_item.type === 'item'" :item="content_item.item"/>
+                      </td>
+                      <td>x{{ content_item.count }}</td>
+                    </tr>
+                  </table>
+                </template>
+              </td>
+            </tr>
+          </template>
+          <span>{{ item.description }}</span>
+        </v-tooltip>
       </template>
     </v-data-table>
   </v-card>
@@ -205,12 +224,14 @@ import axios from "axios"
 import mixins from "@/mixins/PixyShip.vue.js"
 import itemMixins from "@/mixins/Item.vue.js"
 import Item from "@/components/Item.vue"
+import Crew from "@/components/Crew.vue"
 
 export default {
   mixins: [mixins, itemMixins],
 
   components: {
     Item,
+    Crew,
   },
 
   data() {
@@ -317,12 +338,21 @@ export default {
           },
         },
         {
-          text: "Description",
-          align: "center",          
-          value: "description",
+          text: "Content",
+          align: "center",
+          value: "content",
           filterable: false,
-          sortable: false,
-          width: "300px",
+          sort: (a, b) => {
+            if (a.length > 0 && b.length > 0) {
+              return 0
+            }
+
+            if (a.length > 0 && b.length === 0) {
+              return 1
+            }
+
+            return -1
+          },
         },
       ],
     }
@@ -503,6 +533,10 @@ a.name {
 }
 
 .recipe {
+  min-width: 55px;
+}
+
+.content {
   min-width: 55px;
 }
 </style>

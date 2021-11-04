@@ -980,7 +980,7 @@ class Pixyship(metaclass=Singleton):
         return collections
 
     @staticmethod
-    def _parse_item_recipe(item_list_string, items, prices):
+    def _parse_item_recipe(item_list_string, items):
         """Parse recipe infos from API."""
 
         recipe = []
@@ -1005,13 +1005,79 @@ class Pixyship(metaclass=Singleton):
                         'bonus': item['bonus'],
                         'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
                         'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
-                        'recipe': Pixyship._parse_item_recipe(item['ingredients'], items, prices),
-                        'prices': prices.get(item['id']),
+                        'prices': item['prices'],
+                        'recipe': Pixyship._parse_item_recipe(item['ingredients'], items),
                     }
 
                     recipe.append(line)
 
         return recipe
+
+    def _parse_item_content(self, item_content_string, last_item, items):
+        """Parse content infos from API."""
+
+        content = []
+        if item_content_string:
+            content_items = item_content_string.split('|')
+            for content_item in content_items:
+                content_item_unpacked = content_item.split(':')
+                content_item_type = content_item_unpacked[0]
+
+                content_item_id_count_unpacked = content_item_unpacked[1].split('x')
+                content_item_id = content_item_id_count_unpacked[0]
+
+                line = {}
+
+                # if change's a Character, get all infos of the crew
+                if content_item_type == 'character':
+                    try:
+                        line['char'] = self.characters[content_item_id]
+                    except KeyError:
+                        continue
+
+                # if change's a Item, get all infos of the item
+                elif content_item_type == 'item':
+                    try:
+                        item = items.get(int(content_item_id))
+                    except KeyError:
+                        continue
+
+                    line['item'] = {
+                        'id': item['id'],
+                        'name': item['name'],
+                        'sprite': item['sprite'],
+                        'rarity': item['rarity'],
+                        'slot': item['slot'],
+                        'type': item['type'],
+                        'disp_enhancement': item['disp_enhancement'],
+                        'bonus': item['bonus'],
+                        'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                        'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+                        'recipe': item['recipe'],
+                        'prices': item['prices'],
+                    }
+
+                    # avoid infinite recursion when item reward can be the item itself
+                    if last_item['id'] != item['id']:
+                        line['item']['content'] = self._parse_item_content(item['content_string'], item, items)
+
+                # Unknown type
+                else:
+                    continue
+
+                content_item_count = 1
+                if len(content_item_id_count_unpacked) > 1:
+                    content_item_count = int(content_item_id_count_unpacked[1])
+
+                line.update({
+                    'count': content_item_count,
+                    'id': content_item_id,
+                    'type': content_item_type,
+                })
+
+                content.append(line)
+
+        return content
 
     def _parse_ship_unlock_costs(self, mineral_cost_string, starbux_cost_string, unlock_cost_string):
         """Parse ship unlock cost infos from API."""
@@ -1048,8 +1114,9 @@ class Pixyship(metaclass=Singleton):
                             'bonus': item['bonus'],
                             'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
                             'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
-                            'recipe': Pixyship._parse_item_recipe(item['ingredients'], self.items, self.prices),
-                            'prices': self.prices.get(item['id']),
+                            'recipe': item['recipe'],
+                            'content': item['content'],
+                            'prices': item['prices'],
                         }
 
                         items_cost.append(item_cost)
@@ -1080,6 +1147,11 @@ class Pixyship(metaclass=Singleton):
         for record in records:
             item_node = ElementTree.fromstring(record.data)
             item = self.pixel_starships_api.parse_item_node(item_node)
+
+            number_of_rewards = 0
+            if item['Content'] and float(item['ModuleArgument']) != 0:
+                number_of_rewards = item['ModuleArgument']
+
             module_extra_enhancement = self._parse_module_extra_enhancement(item)
 
             items[record.type_id] = {
@@ -1097,6 +1169,8 @@ class Pixyship(metaclass=Singleton):
                 'type': item.get('ItemType'),
                 'rarity': item.get('Rarity').lower(),
                 'ingredients': item['Ingredients'],
+                'content_string': item['Content'],
+                'number_of_rewards': number_of_rewards,
                 'market_price': int(item['MarketPrice']),
                 'fair_price': int(item['FairPrice']),
                 'prices': self.prices.get(int(item['ItemDesignId'])),
@@ -1106,7 +1180,11 @@ class Pixyship(metaclass=Singleton):
 
         # Second pass required for self references
         for item in items.values():
-            item['recipe'] = self._parse_item_recipe(item['ingredients'], items, self.prices)
+            item['recipe'] = self._parse_item_recipe(item['ingredients'], items)
+
+        # Third pass required for self references
+        for item in items.values():
+            item['content'] = self._parse_item_content(item['content_string'], item, items)
 
         return items
 
@@ -1324,8 +1402,9 @@ class Pixyship(metaclass=Singleton):
                     'bonus': item['bonus'],
                     'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
                     'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
-                    'recipe': Pixyship._parse_item_recipe(item['ingredients'], self.items, self.prices),
-                    'prices': self.prices.get(item['id']),
+                    'recipe': item['recipe'],
+                    'content': item['content'],
+                    'prices': item['prices'],
                 }
 
             changes.append(change)
