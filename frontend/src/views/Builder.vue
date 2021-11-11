@@ -213,7 +213,10 @@
       </svg>
     </div>
 
-    <div id="ship-canva-wrapper" v-if="loaded && selectedShip" :style="`width: ${this.selectedShip.interior_sprite.width + 25 * 2}px; height: ${this.selectedShip.interior_sprite.height + 25 * 2}px;`">
+    <div id="ship-canva-wrapper"
+         v-if="loaded && selectedShip"
+         :style="`width: ${selectedShipColumns * 25}px; height: ${selectedShip.selectedShipRows * 25}px;`"
+    >
       <v-stage v-if="loaded && selectedShip" :config="configKonva">
 
         <v-layer>
@@ -223,8 +226,8 @@
         </v-layer>
 
         <v-layer>
-          <template v-for="r in ((selectedShip.interior_sprite.height + 25 * 2) / 25)">
-            <template v-for="c in ((selectedShip.interior_sprite.width + 25 * 2) / 25)">
+          <template v-for="r in selectedShipRows">
+            <template v-for="c in selectedShipColumns">
               <v-rect
                   :key="'grid-1-' + r + '-' + c"
                   :config="getDefaultGridKonvaConfig(r, c)"
@@ -251,19 +254,21 @@
           </template>
         </v-layer>
 
-        <v-layer>
+        <v-layer ref="roomlayer">
           <v-rect
-              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white'}"
+              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white', stroke: '#ddd'}"
               v-on:dragstart="moveRoomStart"
               v-on:dragend="moveRoomEnd"
               v-on:dragmove="moveRoom"
+              roomid="45"
           ></v-rect>
 
           <v-rect
-              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white'}"
+              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white', stroke: '#ddd'}"
               v-on:dragstart="moveRoomStart"
               v-on:dragend="moveRoomEnd"
               v-on:dragmove="moveRoom"
+              roomid="56"
           ></v-rect>
         </v-layer>
       </v-stage>
@@ -423,8 +428,8 @@ export default {
 
     configKonva: function () {
       return {
-        width: this.selectedShip.interior_sprite.width + 25 * 2,
-        height: this.selectedShip.interior_sprite.height + 25 * 2
+        width: this.selectedShipColumns * 25,
+        height: this.selectedShipRows * 25
       }
     },
 
@@ -442,10 +447,18 @@ export default {
       return {
         x: 0,
         y: 0,
-        width: this.selectedShip.interior_sprite.width + 25 * 2,
-        height: this.selectedShip.interior_sprite.height + 25 * 2,
+        width: this.selectedShipColumns * 25,
+        height: this.selectedShipRows * 25,
         fill: '#3057E1',
       }
+    },
+
+    selectedShipColumns() {
+      return this.selectedShip.columns + 3
+    },
+
+    selectedShipRows() {
+      return this.selectedShip.rows + 3
     }
   },
 
@@ -462,7 +475,9 @@ export default {
       selectedRoomType: null,
       selectedRoom: null,
       loaded: false,
-      occupied: [0],
+      occupied: null,
+      shipMask: null,
+      roomStartLocation: null,
       shipRooms: [],
       dropLoc: null,
       undropLoc: null,
@@ -586,6 +601,9 @@ export default {
       // by default, select the first type of room
       this.selectedRoomType = this.roomTypeList[0]
 
+      // remove all rooms
+      this.clearOccupied()
+
       // if there's a rooms param, now we process it
       const query = this.$route.query
       if (query && query.rooms) {
@@ -601,9 +619,6 @@ export default {
           }
         })
       }
-
-      // remove all rooms
-      this.clearOccupied()
 
       // add rooms on ship
       for (let room = 0; room < this.shipRooms.length; room++) {
@@ -623,9 +638,29 @@ export default {
 
     clearOccupied () {
       if (this.selectedShip) {
-        for (let row = 0; row < this.selectedShip.rows; row++) {
-          for (let column = 0; column < this.selectedShip.columns; column++) {
-            this.occupied[this.selectedShip.columns * row + column] = 0
+        this.occupied = new Array(this.selectedShipRows);
+        this.shipMask = new Array(this.selectedShipRows);
+
+        for (let i = 0; i < this.occupied.length; i++) {
+          this.occupied[i] = new Array(this.selectedShipColumns).fill(0);
+          this.shipMask[i] = new Array(this.selectedShipColumns).fill(0);
+
+          for (let j = 0; j < this.shipMask[i].length; j++) {
+            // outside ship
+            if (i < 1 || j < 1) {
+              this.shipMask[i][j] = 0
+              continue
+            }
+
+            const serialInd = this.selectedShip.columns * (i - 1) + (j - 1)
+
+            // outside ship too
+            if (serialInd >= this.selectedShip.mask.length) {
+              this.shipMask[i][j] = 0
+              continue
+            }
+
+            this.shipMask[i][j] = parseInt(this.selectedShip.mask[serialInd])
           }
         }
       }
@@ -634,7 +669,7 @@ export default {
     setOccupied (x, y, room, occupied) {
       for (let row = 0; row < room.height; row++) {
         for (let column = 0; column < room.width; column++) {
-          this.occupied[this.selectedShip.columns * (row + y) + (column + x)] = occupied
+          this.occupied[row + y][column + x] = occupied
         }
       }
     },
@@ -642,7 +677,7 @@ export default {
     isOccupied (x, y, room) {
       for (let row = 0; row < room.height; row++) {
         for (let column = 0; column < room.width; column++) {
-          if  (this.occupied[this.selectedShip.columns * (row + y) + (column + x)] == 1) {
+          if  (this.occupied[row + y][column + x] !== 0) {
             return true
           }
         }
@@ -652,7 +687,14 @@ export default {
     },
 
     update () {
-      this.usedSpace = this.occupied.reduce((a, s) => a + s, 0)
+      this.usedSpace = 0
+      if (this.selectedShip) {
+        for (var i = 0; i < this.selectedShipRows.length; i++) {
+          for (var j = 0; j < this.selectedShipColumns; j++) {
+            this.usedSpace += this.occupied[i][j] === 2 ? 1 : 0
+          }
+        }
+      }
       this.powerGen = this.shipRooms.map(location => location.room.power_gen).reduce((a, s) => a + s, 0)
       this.powerUsed = this.shipRooms.map(location => location.room.power_use).reduce((a, s) => a + s, 0)
       this.shieldCapacity = this.shipRooms
@@ -862,19 +904,19 @@ export default {
     },
 
     removeRoom () {
-      if (!this.toRemove) {
+      if (!this.roomStartLocation) {
         return
-      } 
+      }
 
-      const x = this.toRemove.dataset.x
-      const y = this.toRemove.dataset.y
-      this.toRemove = null
+      let x = this.roomStartLocation.x
+      let y = this.roomStartLocation.y
+      this.roomStartLocation = null
 
       // look for room coord in list and remove it
       if (x != null && y != null) {
         // find the room with the given coord in the list and remove it
         const ind = this.shipRooms.findIndex(location => {
-          return location.x == x && location.y == y
+          return location.x === x && location.y === y
         })
 
         if (ind >= 0) {
@@ -892,8 +934,7 @@ export default {
     doesRoomFit (x, y, room) {
       for (let row = 0; row < room.height; row++) {
         for (let column = 0; column < room.width; column++) {
-          const serialInd = this.selectedShip.columns * (row + y) + (column + x)
-          if (this.selectedShip.mask[serialInd] === '0' || this.occupied[serialInd]) {
+          if  (this.shipMask[row + y][column + x] !== 1) {
             return false
           }
         }
@@ -957,19 +998,78 @@ export default {
 
     moveRoomStart(event) {
       event.target.moveToTop()
+
+      const id = parseInt(event.target.attrs.roomid)
+      this.draggedRoom = this.rooms[id]
+
+      let canvasX = Math.round(event.target.x() / 25) * 25;
+      let canvasY = Math.round(event.target.y() / 25) * 25;
+
+      let x = Math.abs(canvasX) / 25
+      let y = Math.abs(canvasY) / 25
+
+      this.roomStartLocation = {
+        x: x,
+        y: y
+      }
     },
 
     moveRoomEnd(event) {
-      event.target.fill('white')
+      let canvasX = Math.round(event.target.x() / 25) * 25;
+      let canvasY = Math.round(event.target.y() / 25) * 25;
+
       event.target.position({
-        x: Math.round(event.target.x() / 25) * 25,
-        y: Math.round(event.target.y() / 25) * 25
+        x: canvasX,
+        y: canvasY
       })
+
+      let x = Math.abs(canvasX) / 25
+      let y = Math.abs(canvasY) / 25
+
+      if (!this.doesRoomFit(x, y, this.draggedRoom)) {
+        event.target.fill('red')
+      } else if (this.isOccupied(x, y, this.draggedRoom)) {
+        event.target.fill('orange')
+      } else {
+        event.target.fill('white')
+      }
+
+      const roomId = this.draggedRoom.id
+      const room = this.rooms[roomId]
+
+      // place the new room
+      const location = {
+        room: room,
+        x: x,
+        y: y,
+        roomId: roomId,
+        allowed: this.doesRoomFit(x, y, room)
+      }
+
+      this.removeRoom()
+      this.addRoomToShip(location)
     },
 
     moveRoom(event) {
-      event.target.fill('green')
-    }
+      let canvasX = Math.round(event.target.x() / 25) * 25;
+      let canvasY = Math.round(event.target.y() / 25) * 25;
+
+      event.target.position({
+        x: canvasX,
+        y: canvasY
+      })
+
+      let x = Math.abs(canvasX) / 25
+      let y = Math.abs(canvasY) / 25
+
+      if (!this.doesRoomFit(x, y, this.draggedRoom)) {
+        event.target.fill('red')
+      } else if (this.isOccupied(x, y, this.draggedRoom)) {
+        event.target.fill('orange')
+      } else {
+        event.target.fill('green')
+      }
+    },
   }
 }
 </script>
