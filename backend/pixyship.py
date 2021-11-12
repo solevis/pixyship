@@ -1,8 +1,9 @@
 import datetime
+import math
+
 from collections import defaultdict, Counter
 from operator import itemgetter
 from xml.etree import ElementTree
-
 from sqlalchemy import desc
 
 from config import CONFIG
@@ -162,11 +163,45 @@ class Pixyship(metaclass=Singleton):
     }
 
     MANUFACTURE_CAPACITY_MAP = {
-        'Shield': 'Restore'
+        'Shield': 'Restore',
+        'Recycling': 'Max Blend',
+        'Council': 'Max Donations',
+    }
+
+    MANUFACTURE_RATE_MAP = {
+        'Recycling': 'Harvest',
+    }
+
+    MANUFACTURE_RATE_PER_HOUR_MAP = {
+        'Laser': True,
+        'Mineral': True,
+        'Gas': True,
+        'Supply': True,
     }
 
     MANUFACTURE_CAPACITY_RATIO_MAP = {
-        'Shield': 100
+        'Shield': 100,
+        'Recycling': 1,
+    }
+
+    LABEL_CAPACITY_MAP = {
+        'Medical': 'Healing',
+        'Shield': 'Shield',
+        'Stealth': 'Cloak',
+        'Engine': 'Evasion',
+        'Trap': 'Crew Dmg',
+        'Radar': 'Detection',
+        'Training': 'Training Lvl',
+        'Recycling': 'DNA Capacity',
+        'Gas': 'Salvage',
+        'Mineral': 'Salvage',
+        'Council': 'Garrison',
+        'Command': 'Max AI',
+        'Bridge': 'Escape',
+    }
+
+    CAPACITY_RATIO_MAP = {
+        'Medical': 100,
     }
 
     def __init__(self):
@@ -820,7 +855,9 @@ class Pixyship(metaclass=Singleton):
                 'short_name': room['RoomShortName'],
                 'type': room_type,
                 'level': int(room['Level']),
-                'capacity': int(room['Capacity']),
+                'capacity': int(room['Capacity']) / self.CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
+                'capacity_label': self.LABEL_CAPACITY_MAP.get(room['RoomType'], 'Capacity'),
+                'range': int(room['Range']),
                 'height': int(room['Rows']),
                 'width': int(room['Columns']),
                 'sprite': self.get_sprite_infos(int(room['ImageSpriteId'])),
@@ -840,6 +877,8 @@ class Pixyship(metaclass=Singleton):
                 'enhancement_type': room['EnhancementType'],
                 'manufacture_type': room['ManufactureType'],
                 'manufacture_rate': float(room['ManufactureRate']),
+                'manufacture_rate_label': self.MANUFACTURE_RATE_MAP.get(room['RoomType'], 'Manufacture Rate'),
+                'manufacture_rate_per_hour': math.ceil(float(room['ManufactureRate']) * 3600) if self.MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
                 'manufacture_capacity': int(room['ManufactureCapacity']) / self.MANUFACTURE_CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
                 'manufacture_capacity_label': self.MANUFACTURE_CAPACITY_MAP.get(room['RoomType'], None),
                 'cooldown_time': int(room['CooldownTime']),
