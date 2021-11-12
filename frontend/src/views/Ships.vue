@@ -84,7 +84,7 @@
               <td class="text-xs-right">{{ item.spaceT2 }}</td>
               <td class="text-xs-right">{{ item.hp }}</td>
 
-              <td class="text-xs-right">{{ item.repair_time }}</td>
+              <td class="text-xs-right">{{ item.full_repair_time }}</td>
 
               <td style="min-width: 100px">
                 <table>
@@ -312,9 +312,9 @@ export default {
           filterable: false 
         },
         { 
-          text: "Secs/Repair", 
+          text: "Repair Time",
           align: "right", 
-          value: "repair_time", 
+          value: "full_repair_time",
           filterable: false 
         },
         { 

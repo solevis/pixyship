@@ -1,4 +1,5 @@
 import datetime
+import time
 import math
 
 from collections import defaultdict, Counter
@@ -754,6 +755,7 @@ class Pixyship(metaclass=Singleton):
                 'level': int(ship['ShipLevel']),
                 'hp': int(ship['Hp']),
                 'repair_time': int(ship['RepairTime']),
+                'full_repair_time': time.strftime('%H:%M:%S', time.gmtime(int(ship['RepairTime']) * int(ship['Hp']))),
                 'exterior_sprite': self.get_sprite_infos(int(ship['ExteriorSpriteId'])),
                 'interior_sprite': self.get_sprite_infos(int(ship['InteriorSpriteId'])),
                 'logo_sprite': self.get_sprite_infos(int(ship['LogoSpriteId'])),
