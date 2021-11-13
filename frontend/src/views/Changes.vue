@@ -296,32 +296,6 @@ export default {
     updateFilters() {
       this.types = Array.from(new Set(this.changes.map((change) => this.formatType(change.type)))).sort(this.sortAlphabeticallyExceptNone)
     },
-
-    makeLink(type, id) {
-      if (type === 'char') {
-        return `/crew/${id}`
-      }
-
-      if (type === 'item') {
-        return `/item/${id}`
-      }
-
-      if (type === 'room') {
-        return `/rooms?ids=${id}`
-      }
-
-      if (type === 'ship') {
-        return `/ships?ids=${id}`
-      }
-
-      if (type === 'collection') {
-        return `/collections?ids=${id}`
-      }
-
-      if (type === 'research') {
-        return `/researches?ids=${id}`
-      }
-    },
   },
 }
 </script>
