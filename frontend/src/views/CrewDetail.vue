@@ -330,11 +330,11 @@
 
 <script>
 import axios from "axios"
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
 import Crew from "@/components/Crew.vue"
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin],
 
   components: {
     Crew,
@@ -448,6 +448,10 @@ export default {
       }
 
       stat[2] = stat[0] + (stat[1] - stat[0]) * ((this.level - 1) / 39) ** p
+    },
+
+    notEmptyObject(someObject) {
+      return Object.keys(someObject).length
     },
   },
 }

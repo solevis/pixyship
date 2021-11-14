@@ -317,7 +317,6 @@
                     :headers="$vuetify.breakpoint.mdAndUp ? lastSalesHeaders : lastSalesMobileHeaders"
                     :items="lastSales"
                     :items-per-page="20"
-                    :sortDesc="true"
                     :footer-props="{
                       itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
                     }"
@@ -406,14 +405,14 @@
 
 <script>
 import axios from "axios"
-import mixins from "@/mixins/PixyShip.vue.js"
-import itemMixins from "@/mixins/Item.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import ItemMixin from "@/mixins/Item.vue.js"
 import Item from "@/components/Item.vue"
 import Crew from "@/components/Crew.vue"
 import ItemMarket from "@/components/ItemMarket.vue"
 
 export default {
-  mixins: [mixins, itemMixins],
+  mixins: [PixyShipMixin, ItemMixin],
 
   components: {
     Item,

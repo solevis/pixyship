@@ -11,6 +11,7 @@
             <v-card-text>
               <ul>
                 <li>Ships page: extended filter</li>
+                <li>Save sorting in URL</li>
               </ul>
             </v-card-text>
           </v-card>

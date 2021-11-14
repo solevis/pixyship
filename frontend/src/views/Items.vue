@@ -85,10 +85,11 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
-      :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
+      :sort-by.sync="globalSortBy"
+      :sort-desc.sync="globalSortDesc"
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
@@ -221,13 +222,14 @@
 
 <script>
 import axios from "axios"
-import mixins from "@/mixins/PixyShip.vue.js"
-import itemMixins from "@/mixins/Item.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import DataTableMixin from "@/mixins/DataTable.vue.js"
+import ItemMixin from "@/mixins/Item.vue.js"
 import Item from "@/components/Item.vue"
 import Crew from "@/components/Crew.vue"
 
 export default {
-  mixins: [mixins, itemMixins],
+  mixins: [PixyShipMixin, ItemMixin, DataTableMixin],
 
   components: {
     Item,

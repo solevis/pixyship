@@ -117,11 +117,11 @@
 </template>
 
 <script>
-import mixins from "@/mixins/PixyShip.vue.js"
-import itemMixins from "@/mixins/Item.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import ItemMixin from "@/mixins/Item.vue.js"
 
 export default {
-  mixins: [mixins, itemMixins],
+  mixins: [PixyShipMixin, ItemMixin],
 
   props: {
     item: null,
