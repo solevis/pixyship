@@ -176,24 +176,76 @@
           </td>
 
           <!-- Stats -->
-          <td>{{ item.hp[2] | statFormat(0) }}</td>
-          <td>{{ item.attack[2] | statFormat() }}</td>
-          <td>{{ item.repair[2] | statFormat() }}</td>
-          <td>{{ item.ability[2] | statFormat() }}</td>
-          <td>{{ item.pilot[2] | statFormat() }}</td>
-          <td>{{ item.science[2] | statFormat() }}</td>
-          <td>{{ item.engine[2] | statFormat() }}</td>
-          <td>{{ item.weapon[2] | statFormat() }}</td>
+          <td>
+            <v-progress-linear
+              :value="item.scoreHP"
+              :color="getScoreColor(item.scoreHP)"
+              height="25"
+            >
+              {{ item.hp[2] | statFormat(0) }}
+            </v-progress-linear>
+          </td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreAtk"
+              :color="getScoreColor(item.scoreAtk)"
+            >{{ item.attack[2] | statFormat() }}</v-progress-linear></td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreRpr"
+              :color="getScoreColor(item.scoreRpr)"
+            >{{ item.repair[2] | statFormat() }}</v-progress-linear></td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreAbl"
+              :color="getScoreColor(item.scoreAbl)"
+            >{{ item.ability[2] | statFormat() }}</v-progress-linear></td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scorePlt"
+              :color="getScoreColor(item.scorePlt)"
+            >{{ item.pilot[2] | statFormat() }}</v-progress-linear></td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreSci"
+              :color="getScoreColor(item.scoreSci)"
+            >{{ item.science[2] | statFormat() }}</v-progress-linear></td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreEng"
+              :color="getScoreColor(item.scoreEng)"
+            >{{ item.engine[2] | statFormat() }}</v-progress-linear></td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreWpn"
+              :color="getScoreColor(item.scoreWpn)"
+            >{{ item.weapon[2] | statFormat() }}</v-progress-linear></td>
 
           <!-- Fire -->
-          <td>{{ item.fire_resist }}</td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreFire"
+              :color="getScoreColor(item.scoreFire)"
+            >{{ item.fire_resist }}</v-progress-linear></td>
 
           <!-- Training -->
-          <td>{{ item.training_limit }}</td>
+           <td> <v-progress-linear
+              height="25"
+              :value="item.scoreTraining"
+              :color="getScoreColor(item.scoreTraining)"
+            >{{ item.training_limit }}</v-progress-linear></td>
 
           <!-- Speed -->
-          <td> {{ item.walk }} </td>
-          <td> {{ item.run }} </td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreWalk"
+              :color="getScoreColor(item.scoreWalk)"
+            >{{ item.walk }}</v-progress-linear></td>
+          <td> <v-progress-linear
+              height="25"
+              :value="item.scoreRun"
+              :color="getScoreColor(item.scoreRun)"
+            >{{ item.run }}</v-progress-linear></td>
         </tr>
       </template>
     </v-data-table>
@@ -492,6 +544,55 @@ export default {
         this.interpolateStat(crew.progression_type, crew.engine)
         this.interpolateStat(crew.progression_type, crew.weapon)
       })
+
+      let maxHP = 0
+      let maxAtk = 0
+      let maxRpr = 0
+      let maxAbl = []
+      let maxPlt = 0
+      let maxSci = 0
+      let maxEng = 0
+      let maxWpn = 0
+      let maxFire = 0
+      let maxTraining = 0
+      let maxWalk = 0
+      let maxRun = 0
+      this.crews.map((crew) => {
+        maxHP = Math.max(maxHP, crew.hp[2])
+        maxAtk = Math.max(maxAtk, crew.attack[2])
+        maxRpr = Math.max(maxRpr, crew.repair[2])
+
+        if (!maxAbl[crew.special_ability]) {
+          maxAbl[crew.special_ability] = crew.ability[2]
+        } else {
+          maxAbl[crew.special_ability] = Math.max(maxAbl[crew.special_ability], crew.ability[2])
+        }
+
+        maxPlt = Math.max(maxPlt, crew.pilot[2])
+        maxSci = Math.max(maxSci, crew.science[2])
+        maxEng = Math.max(maxEng, crew.engine[2])
+        maxWpn = Math.max(maxWpn, crew.weapon[2])
+        maxFire = Math.max(maxFire, crew.fire_resist)
+        maxTraining = Math.max(maxTraining, crew.training_limit)
+        maxWalk = Math.max(maxWalk, crew.walk)
+        maxRun = Math.max(maxRun, crew.run)
+      })
+
+
+      this.crews.map((crew) => {
+        crew.scoreHP = crew.hp[2] / maxHP * 100
+        crew.scoreAtk = crew.attack[2] / maxAtk * 100
+        crew.scoreRpr = crew.repair[2] / maxRpr * 100
+        crew.scoreAbl = crew.ability[2] / maxAbl[crew.special_ability] * 100
+        crew.scorePlt = crew.pilot[2] / maxPlt * 100
+        crew.scoreSci = crew.science[2] / maxSci * 100
+        crew.scoreEng = crew.engine[2] / maxEng * 100
+        crew.scoreWpn = crew.weapon[2] / maxWpn * 100
+        crew.scoreFire = crew.fire_resist / maxFire * 100
+        crew.scoreTraining = crew.training_limit / maxTraining * 100
+        crew.scoreWalk = crew.walk / maxWalk * 100
+        crew.scoreRun = crew.run / maxRun * 100
+      })
     },
 
     interpolateStat(type, stat) {
@@ -519,6 +620,22 @@ export default {
       let values = this.crews.map((crew) => Object.keys(crew.equipment).length === 0 ? ['None'] : Object.keys(crew.equipment))
       this.equipments =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
     },
+
+    getScoreColor(scoreValue) {
+      if (scoreValue < 25) {
+        return 'red darken-4'
+      }
+
+      if (scoreValue < 50) {
+        return 'lime darken-4'
+      }
+
+      if (scoreValue < 75) {
+        return 'green darken-4'
+      }
+
+      return 'blue darken-4'
+    }
   },
 }
 </script>
