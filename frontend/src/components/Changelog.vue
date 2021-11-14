@@ -4,6 +4,20 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
+        <v-expansion-panel-header>2.2.5 &mdash; 2021-11-14</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Ships page: extended filter</li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header>2.2.4 &mdash; 2021-11-12</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>
@@ -405,7 +419,7 @@ export default {
   name: "Changelog",
   data() {
     return {
-      panel: [0, 1, 2, 3, 4],
+      panel: [0, 1, 2, 3, 4, 5],
     }
   },
 
