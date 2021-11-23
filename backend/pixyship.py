@@ -214,6 +214,7 @@ class Pixyship(metaclass=Singleton):
         self._prestiges = {}
         self._researches = None
         self._prices = {}
+        self._trainings = {}
         self._rooms = None
         self._ships = None
         self._sprites = None
@@ -254,6 +255,14 @@ class Pixyship(metaclass=Singleton):
             self.expire_at('prices', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._prices
+
+    @property
+    def trainings(self):
+        if not self._trainings or self.expired('trainings'):
+            self._trainings = self._get_trainings_from_db()
+            self.expire_at('trainings', self.DEFAULT_EXPIRATION_DURATION)
+
+        return self._trainings
 
     @property
     def ships(self):
@@ -540,23 +549,6 @@ class Pixyship(metaclass=Singleton):
 
         return None
 
-    def _get_sprites_from_api(self):
-        """Get sprites from API."""
-
-        sprites = self.pixel_starships_api.get_sprites()
-
-        return {
-            int(sprite['SpriteId']): {
-                'image_file': int(sprite['ImageFileId']),
-                'x': int(sprite['X']),
-                'y': int(sprite['Y']),
-                'width': int(sprite['Width']),
-                'height': int(sprite['Height']),
-                'sprite_key': sprite['SpriteKey'],
-            }
-            for sprite in sprites
-        }
-
     def _get_sprites_from_db(self):
         """Load sprites from database."""
 
@@ -627,6 +619,43 @@ class Pixyship(metaclass=Singleton):
         for room_sprite in room_sprites:
             record_id = room_sprite['RoomDesignSpriteId']
             Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'])
+
+    def _get_trainings_from_db(self):
+        """Load trainings from database."""
+
+        records = Record.query.filter_by(type='training', current=True).all()
+
+        trainings = {}
+        for record in records:
+            training = self.pixel_starships_api.parse_training_node(ElementTree.fromstring(record.data))
+
+            trainings[record.type_id] = {
+                'id': int(training['TrainingDesignId']),
+                'sprite': self.get_sprite_infos(int(training['TrainingSpriteId'])),
+                'hp': int(training['HpChance']),
+                'attack': int(training['AttackChance']),
+                'pilot': int(training['PilotChance']),
+                'repair': int(training['RepairChance']),
+                'weapon': int(training['WeaponChance']),
+                'science': int(training['ScienceChance']),
+                'engine': int(training['EngineChance']),
+                'stamina': int(training['StaminaChance']),
+                'ability': int(training['AbilityChance']),
+                'xp': int(training['XpChance']),
+                'fatigue': int(training['Fatigue']),
+                'minimum_guarantee': int(training['MinimumGuarantee'])
+            }
+
+        return trainings
+
+    def update_trainings(self):
+        """Update data and save records."""
+
+        trainings = self.pixel_starships_api.get_trainings()
+
+        for training in trainings:
+            record_id = int(training['TrainingDesignId'])
+            Record.update_data('training', record_id, training['pixyship_xml_element'])
 
     @staticmethod
     def _get_prices_from_db():
@@ -1215,6 +1244,7 @@ class Pixyship(metaclass=Singleton):
                 'market_price': int(item['MarketPrice']),
                 'fair_price': int(item['FairPrice']),
                 'prices': self.prices.get(int(item['ItemDesignId'])),
+                'training': self.trainings.get(int(item['TrainingDesignId'])),
                 'id': record.type_id,
                 'saleable': (int(item['Flags']) & 1) != 0
             }

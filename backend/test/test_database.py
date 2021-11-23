@@ -102,7 +102,7 @@ def test_sprites():
     push_context()
 
     pixyship = Pixyship()
-    sprites = pixyship._get_sprites_from_api()
+    sprites = pixyship._get_sprites_from_db()
 
     assert len(sprites) > 0
 

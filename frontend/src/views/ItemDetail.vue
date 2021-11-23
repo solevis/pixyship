@@ -29,6 +29,7 @@
                   <th class="text-left">Type</th>
                   <th class="text-left">Subtype</th>
                   <th class="text-left">Bonus</th>
+                  <th class="text-left">Training</th>
                   <th class="text-left">Recipe</th>
                   <th class="text-left">Content</th>
                   <th class="text-left">Savy Price</th>
@@ -52,12 +53,29 @@
                   <td>{{ item.slot }}</td>
 
                   <!-- Bonus -->
-                  <td>
-                    {{ formatBonus(item) }}
-                    <template v-if="item.module_extra_disp_enhancement != null">
-                      <br />
-                      {{ formatExtraBonus(item) }}
-                    </template>
+                  <td class="text-xs-left text-capitalize bonus">
+                      {{ formatBonus(item) }}
+                      <template v-if="item.module_extra_disp_enhancement != null">
+                        <br> {{ formatExtraBonus(item) }}
+                      </template>
+                  </td>
+
+                  <!-- Training -->
+                  <td class="text-xs-left text-capitalize bonus" style="width: 175px">
+                    <table v-if="item.training" class="pa-1">
+                      <tr v-if="item.training.xp != 0"><td :class="item.training.xp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">XP:&nbsp;{{ item.training.xp }}</td></tr>
+                      <tr v-if="item.training.fatigue"><td :class="item.training.fatigue === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Fatigue:&nbsp;{{ item.training.fatigue }}</td></tr>
+                      <tr v-if="item.training.minimum_guarantee != 0"><td :class="item.training.minimum_guarantee === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Min. guarantee:&nbsp;{{ item.training.minimum_guarantee }}%</td></tr>
+                      <tr v-if="item.training.hp != 0"><td :class="item.training.hp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;{{ item.training.hp }}%</td></tr>
+                      <tr v-if="item.training.ability != 0"><td :class="item.training.ability === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;{{ item.training.ability }}%</td></tr>
+                      <tr v-if="item.training.attack != 0"><td :class="item.training.attack === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;{{ item.training.attack }}%</td></tr>
+                      <tr v-if="item.training.engine != 0"><td :class="item.training.engine === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;{{ item.training.engine }}%</td></tr>
+                      <tr v-if="item.training.pilot != 0"><td :class="item.training.pilot === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;{{ item.training.pilot }}%</td></tr>
+                      <tr v-if="item.training.repair != 0"><td :class="item.training.repair === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;{{ item.training.repair }}%</td></tr>
+                      <tr v-if="item.training.stamina != 0"><td :class="item.training.stamina === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;{{ item.training.stamina }}%</td></tr>
+                      <tr v-if="item.training.weapon != 0"><td :class="item.training.weapon === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;{{ item.training.weapon }}%</td></tr>
+                      <tr v-if="item.training.science != 0"><td :class="item.training.science === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;{{ item.training.science }}%</td></tr>
+                    </table>
                   </td>
 
                   <!-- Recipe -->
@@ -550,6 +568,26 @@ export default {
       const response = await axios.get(this.itemDetailEndpoint(this.itemId))
 
       this.item = response.data.data
+
+      this.item.mainTrainingStat = null
+      this.item.mainTrainingStatValue = 0
+
+      if(this.item.training != null) {
+        let max = 0
+        for (const trainingKey in this.item.training) {
+          // ignore special fields
+          if (["xp", 'fatigue', 'minimum_guarantee', 'id', 'sprite'].includes(trainingKey)) {
+            continue
+          }
+
+          if (this.item.training[trainingKey] > max) {
+            this.item.mainTrainingStat = trainingKey
+            this.item.mainTrainingStatValue = this.item.training[trainingKey]
+            max = this.item.training[trainingKey]
+          }
+        }
+      }
+
       this.lastSales = response.data.lastSales
       document.title = "PixyShip - " + this.item.name
       this.loaded = true
