@@ -335,7 +335,7 @@ export default {
           text: "Type",
           align: "center",          
           value: "type",
-          sortable: false,
+          sortable: true,
           filter: (value) => {
             return this.filterCombobox(value, this.searchType)
           },
@@ -344,7 +344,7 @@ export default {
           text: "Subtype",
           align: "center",          
           value: "slot",
-          sortable: false,
+          sortable: true,
           filter: (value) => {
             return this.filterCombobox(value, this.searchSlot)
           },
