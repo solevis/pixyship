@@ -36,6 +36,28 @@
           </td>
         </tr>
 
+        <tr v-if="item.training">
+          <td class="text-xs-right" colspan="2">
+            Training:
+            <ul>
+            <li v-if="item.training.xp != 0"><span :class="item.training.xp === mainTrainingStatValue ? 'font-weight-bold' : ''">XP:&nbsp;{{ item.training.xp }}</span></li>
+            <li v-if="item.training.fatigue"><span :class="item.training.fatigue === mainTrainingStatValue ? 'font-weight-bold' : ''">Fatigue:&nbsp;{{ item.training.fatigue }}</span></li>
+            <li v-if="item.training.minimum_guarantee != 0"><span :class="item.training.minimum_guarantee === mainTrainingStatValue ? 'font-weight-bold' : ''">Min. guarantee:&nbsp;{{ item.training.minimum_guarantee }}%</span></li>
+            
+            <li v-if="item.training.hp != 0"><span :class="item.training.hp === mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;&le;&nbsp;{{ item.training.hp }}%</span></li>
+            <li v-if="item.training.attack != 0"><span :class="item.training.attack === mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;&le;&nbsp;{{ item.training.attack }}%</span></li>
+            <li v-if="item.training.repair != 0"><span :class="item.training.repair === mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;&le;&nbsp;{{ item.training.repair }}%</span></li>
+            <li v-if="item.training.ability != 0"><span :class="item.training.ability === mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;&le;&nbsp;{{ item.training.ability }}%</span></li>
+            <li v-if="item.training.stamina != 0"><span :class="item.training.stamina === mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;&le;&nbsp;{{ item.training.stamina }}%</span></li>
+            
+            <li v-if="item.training.pilot != 0"><span :class="item.training.pilot === mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;&le;&nbsp;{{ item.training.pilot }}%</span></li>
+            <li v-if="item.training.science != 0"><span :class="item.training.science === mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;&le;&nbsp;{{ item.training.science }}%</span></li>
+            <li v-if="item.training.engine != 0"><span :class="item.training.engine === mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;&le;&nbsp;{{ item.training.engine }}%</span></li>
+            <li v-if="item.training.weapon != 0"><span :class="item.training.weapon === mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;&le;&nbsp;{{ item.training.weapon }}%</span></li>
+            </ul>
+          </td>
+        </tr>
+
         <tr v-if="item.recipe.length > 0">
           <td class="text-xs" style="vertical-align: top;">
             Recipe:
@@ -149,6 +171,27 @@ export default {
     left: function () {
       return this.tipPosition === 'left' || (this.tipPosition == null && this.name == "left")
     },
+
+    mainTrainingStatValue: function () {
+      let mainTrainingStatValue = null
+
+      if(this.item.training != null) {
+        let max = 0
+        for (const trainingKey in this.item.training) {
+          // ignore special fields
+          if (["xp", 'fatigue', 'minimum_guarantee', 'id', 'sprite'].includes(trainingKey)) {
+            continue
+          }
+
+          if (this.item.training[trainingKey] > max) {
+            mainTrainingStatValue = this.item.training[trainingKey]
+            max = this.item.training[trainingKey]
+          }
+        }
+      }
+
+      return mainTrainingStatValue
+    }
   },
 }
 </script>
