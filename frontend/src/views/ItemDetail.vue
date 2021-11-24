@@ -61,7 +61,7 @@
                   </td>
 
                   <!-- Training -->
-                  <td class="text-xs-left">
+                  <td class="text-xs-left" style="width: 175px">
                     <table v-if="item.training" class="pa-1">
                       <tr v-if="item.training.xp != 0"><td :class="item.training.xp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">XP:&nbsp;{{ item.training.xp }}</td></tr>
                       <tr v-if="item.training.fatigue"><td :class="item.training.fatigue === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Fatigue:&nbsp;{{ item.training.fatigue }}</td></tr>
