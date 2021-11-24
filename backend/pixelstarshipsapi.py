@@ -800,7 +800,7 @@ class PixelStarshipsApi:
         # reverse order
         options.reverse()
 
-        return
+        return options
 
     def get_trainings(self):
         """Get trainings data from API."""
