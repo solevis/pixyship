@@ -91,7 +91,7 @@ class Record(db.Model):
             element.attrib.pop(i, None)
 
         # hash
-        md5_str = ElementTree.tostring(element).decode()
+        md5_str = ElementTree.tostring(element).decode().replace("\n", " ")
         md5_hash = hashlib.md5(md5_str.encode('utf-8')).hexdigest()
 
         # check if this is already in the db as the current
