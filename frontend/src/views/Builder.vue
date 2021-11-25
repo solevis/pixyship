@@ -347,7 +347,7 @@
 
 <script>
 import axios from 'axios'
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import "@/assets/css/override.css"
@@ -357,7 +357,7 @@ require('../js/DragDropTouch')
 Vue.use(VueClipboard)
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin],
 
   computed: {
     isLoading: function () {

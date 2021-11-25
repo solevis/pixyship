@@ -10,7 +10,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="12" sm="12" md="4">
+        <v-col cols="12" sm="12" md="2">
           <v-text-field
             outlined
             v-model="searchName"
@@ -72,6 +72,19 @@
             :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
+        <v-col cols="12" sm="3" md="2">
+          <v-autocomplete
+            outlined
+            v-model="searchTraining"
+            :items="trainings"
+            label="Main % Training"
+            clearable
+            multiple
+            small-chips
+            hide-details
+            :value-comparator="filterValueComparator"
+          ></v-autocomplete>
+        </v-col>
       </v-row>
     </v-card-subtitle>
 
@@ -85,10 +98,11 @@
       :custom-filter="multipleFilterWithNegative"
       :items-per-page="20"
       :loading="isLoading"
-      :sortDesc="true"
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
+      :sort-by.sync="globalSortBy"
+      :sort-desc.sync="globalSortDesc"
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
@@ -169,10 +183,30 @@
 
               <!-- Bonus -->
               <td class="text-xs-left text-capitalize bonus">
-                {{ formatBonus(item) }}
-                <template v-if="item.module_extra_disp_enhancement != null">
-                  <br> {{ formatExtraBonus(item) }}
-                </template>
+                  {{ formatBonus(item) }}
+                  <template v-if="item.module_extra_disp_enhancement != null">
+                    <br> {{ formatExtraBonus(item) }}
+                  </template>
+              </td>
+
+              <!-- Training -->
+              <td class="text-xs-left">
+                <table v-if="item.training" class="pa-1">
+                  <tr v-if="item.training.xp != 0"><td :class="item.training.xp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">XP:&nbsp;{{ item.training.xp }}</td></tr>
+                  <tr v-if="item.training.fatigue"><td :class="item.training.fatigue === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Fatigue:&nbsp;{{ item.training.fatigue }}</td></tr>
+                  <tr v-if="item.training.minimum_guarantee != 0"><td :class="item.training.minimum_guarantee === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Min. guarantee:&nbsp;{{ item.training.minimum_guarantee }}%</td></tr>
+                  
+                  <tr v-if="item.training.hp != 0"><td :class="item.training.hp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;&le;&nbsp;{{ item.training.hp }}%</td></tr>
+                  <tr v-if="item.training.attack != 0"><td :class="item.training.attack === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;&le;&nbsp;{{ item.training.attack }}%</td></tr>
+                  <tr v-if="item.training.repair != 0"><td :class="item.training.repair === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;&le;&nbsp;{{ item.training.repair }}%</td></tr>
+                  <tr v-if="item.training.ability != 0"><td :class="item.training.ability === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;&le;&nbsp;{{ item.training.ability }}%</td></tr>
+                  <tr v-if="item.training.stamina != 0"><td :class="item.training.stamina === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;&le;&nbsp;{{ item.training.stamina }}%</td></tr>
+                  
+                  <tr v-if="item.training.pilot != 0"><td :class="item.training.pilot === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;&le;&nbsp;{{ item.training.pilot }}%</td></tr>
+                  <tr v-if="item.training.science != 0"><td :class="item.training.science === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;&le;&nbsp;{{ item.training.science }}%</td></tr>
+                  <tr v-if="item.training.engine != 0"><td :class="item.training.engine === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;&le;&nbsp;{{ item.training.engine }}%</td></tr>
+                  <tr v-if="item.training.weapon != 0"><td :class="item.training.weapon === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;&le;&nbsp;{{ item.training.weapon }}%</td></tr>
+                </table>
               </td>
 
               <!-- Recipe -->
@@ -221,13 +255,14 @@
 
 <script>
 import axios from "axios"
-import mixins from "@/mixins/PixyShip.vue.js"
-import itemMixins from "@/mixins/Item.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import DataTableMixin from "@/mixins/DataTable.vue.js"
+import ItemMixin from "@/mixins/Item.vue.js"
 import Item from "@/components/Item.vue"
 import Crew from "@/components/Crew.vue"
 
 export default {
-  mixins: [mixins, itemMixins],
+  mixins: [PixyShipMixin, ItemMixin, DataTableMixin],
 
   components: {
     Item,
@@ -241,7 +276,9 @@ export default {
       searchSlot: [],
       searchType: [],
       searchStat: [],
+      searchTraining: [],
       stats: [],
+      trainings: [],
       slots: [],
       types: [],
       loaded: false,
@@ -298,7 +335,7 @@ export default {
           text: "Type",
           align: "center",          
           value: "type",
-          sortable: false,
+          sortable: true,
           filter: (value) => {
             return this.filterCombobox(value, this.searchType)
           },
@@ -307,7 +344,7 @@ export default {
           text: "Subtype",
           align: "center",          
           value: "slot",
-          sortable: false,
+          sortable: true,
           filter: (value) => {
             return this.filterCombobox(value, this.searchSlot)
           },
@@ -318,6 +355,26 @@ export default {
           value: "bonus",
           filter: (value, search, item) => {
             return this.filterCombobox(item.disp_enhancement, this.searchStat)
+          },
+        },
+        {
+          text: "Training",
+          align: "center",          
+          value: "mainTrainingStatValue",
+          width: 175,
+          filter: (value, search, item) => {
+            // in all stats
+            // let keys = Object.keys(item.training)
+            // let filtered = keys.filter(function(key) {
+            //   return item.training[key] != 0 ? key : null
+            // });
+
+            let filtered = []
+            if (item.mainTrainingStat !== null) {
+              filtered = [item.mainTrainingStat]
+            }
+
+            return this.filterCombobox(filtered, this.searchTraining)
           },
         },
         {
@@ -368,6 +425,7 @@ export default {
         || this.searchSlot.length > 0
         || this.searchType.length > 0
         || this.searchStat.length > 0
+        || this.searchTraining.length > 0
     }
   },
 
@@ -400,6 +458,10 @@ export default {
     searchStat(value) {
       this.updateQueryFromFilter('bonus', value)
     },
+
+    searchTraining(value) {
+      this.updateQueryFromFilter('training', value)
+    }
   },
 
   methods: {
@@ -429,6 +491,12 @@ export default {
           return value.trim()
         })
       }
+
+      if (this.$route.query.training) {
+        this.searchTraining = this.$route.query.training.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
     },
 
     getItems: async function () {
@@ -452,6 +520,25 @@ export default {
           item.hiddenBonus = item.bonus
           item.bonus = 0
         }
+
+        item.mainTrainingStat = null
+        item.mainTrainingStatValue = 0
+
+        if(item.training != null) {
+          let max = 0
+          for (const trainingKey in item.training) {
+            // ignore special fields
+            if (["xp", 'fatigue', 'minimum_guarantee', 'id', 'sprite'].includes(trainingKey)) {
+              continue
+            }
+
+            if (item.training[trainingKey] > max) {
+              item.mainTrainingStat = trainingKey
+              item.mainTrainingStatValue = item.training[trainingKey]
+              max = item.training[trainingKey]
+            }
+          }
+        }
       })
 
       items.sort((a, b) => b.offers - a.offers)
@@ -473,6 +560,8 @@ export default {
           )
         )
       ).sort(this.sortAlphabeticallyExceptNone)
+
+      this.trainings = ["Ability", "Attack", "Engine", "HP", "Pilot", "Repair", "Science", "Stamina", "Weapon"].sort(this.sortAlphabeticallyExceptNone)
 
       this.slots = Array.from(
         new Set(this.items.map((item) => (!item.slot ? "None" : item.slot)))
