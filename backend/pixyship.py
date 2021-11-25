@@ -1,8 +1,10 @@
 import datetime
+import time
+import math
+
 from collections import defaultdict, Counter
 from operator import itemgetter
 from xml.etree import ElementTree
-
 from sqlalchemy import desc
 
 from config import CONFIG
@@ -162,11 +164,45 @@ class Pixyship(metaclass=Singleton):
     }
 
     MANUFACTURE_CAPACITY_MAP = {
-        'Shield': 'Restore'
+        'Shield': 'Restore',
+        'Recycling': 'Max Blend',
+        'Council': 'Max Donations',
+    }
+
+    MANUFACTURE_RATE_MAP = {
+        'Recycling': 'Harvest',
+    }
+
+    MANUFACTURE_RATE_PER_HOUR_MAP = {
+        'Laser': True,
+        'Mineral': True,
+        'Gas': True,
+        'Supply': True,
     }
 
     MANUFACTURE_CAPACITY_RATIO_MAP = {
-        'Shield': 100
+        'Shield': 100,
+        'Recycling': 1,
+    }
+
+    LABEL_CAPACITY_MAP = {
+        'Medical': 'Healing',
+        'Shield': 'Shield',
+        'Stealth': 'Cloak',
+        'Engine': 'Evasion',
+        'Trap': 'Crew Dmg',
+        'Radar': 'Detection',
+        'Training': 'Training Lvl',
+        'Recycling': 'DNA Capacity',
+        'Gas': 'Salvage',
+        'Mineral': 'Salvage',
+        'Council': 'Garrison',
+        'Command': 'Max AI',
+        'Bridge': 'Escape',
+    }
+
+    CAPACITY_RATIO_MAP = {
+        'Medical': 100,
     }
 
     def __init__(self):
@@ -178,6 +214,7 @@ class Pixyship(metaclass=Singleton):
         self._prestiges = {}
         self._researches = None
         self._prices = {}
+        self._trainings = {}
         self._rooms = None
         self._ships = None
         self._sprites = None
@@ -218,6 +255,14 @@ class Pixyship(metaclass=Singleton):
             self.expire_at('prices', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._prices
+
+    @property
+    def trainings(self):
+        if not self._trainings or self.expired('trainings'):
+            self._trainings = self._get_trainings_from_db()
+            self.expire_at('trainings', self.DEFAULT_EXPIRATION_DURATION)
+
+        return self._trainings
 
     @property
     def ships(self):
@@ -504,23 +549,6 @@ class Pixyship(metaclass=Singleton):
 
         return None
 
-    def _get_sprites_from_api(self):
-        """Get sprites from API."""
-
-        sprites = self.pixel_starships_api.get_sprites()
-
-        return {
-            int(sprite['SpriteId']): {
-                'image_file': int(sprite['ImageFileId']),
-                'x': int(sprite['X']),
-                'y': int(sprite['Y']),
-                'width': int(sprite['Width']),
-                'height': int(sprite['Height']),
-                'sprite_key': sprite['SpriteKey'],
-            }
-            for sprite in sprites
-        }
-
     def _get_sprites_from_db(self):
         """Load sprites from database."""
 
@@ -591,6 +619,43 @@ class Pixyship(metaclass=Singleton):
         for room_sprite in room_sprites:
             record_id = room_sprite['RoomDesignSpriteId']
             Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'])
+
+    def _get_trainings_from_db(self):
+        """Load trainings from database."""
+
+        records = Record.query.filter_by(type='training', current=True).all()
+
+        trainings = {}
+        for record in records:
+            training = self.pixel_starships_api.parse_training_node(ElementTree.fromstring(record.data))
+
+            trainings[record.type_id] = {
+                'id': int(training['TrainingDesignId']),
+                'sprite': self.get_sprite_infos(int(training['TrainingSpriteId'])),
+                'hp': int(training['HpChance']),
+                'attack': int(training['AttackChance']),
+                'pilot': int(training['PilotChance']),
+                'repair': int(training['RepairChance']),
+                'weapon': int(training['WeaponChance']),
+                'science': int(training['ScienceChance']),
+                'engine': int(training['EngineChance']),
+                'stamina': int(training['StaminaChance']),
+                'ability': int(training['AbilityChance']),
+                'xp': int(training['XpChance']),
+                'fatigue': int(training['Fatigue']),
+                'minimum_guarantee': int(training['MinimumGuarantee'])
+            }
+
+        return trainings
+
+    def update_trainings(self):
+        """Update data and save records."""
+
+        trainings = self.pixel_starships_api.get_trainings()
+
+        for training in trainings:
+            record_id = int(training['TrainingDesignId'])
+            Record.update_data('training', record_id, training['pixyship_xml_element'])
 
     @staticmethod
     def _get_prices_from_db():
@@ -719,6 +784,7 @@ class Pixyship(metaclass=Singleton):
                 'level': int(ship['ShipLevel']),
                 'hp': int(ship['Hp']),
                 'repair_time': int(ship['RepairTime']),
+                'full_repair_time': time.strftime('%H:%M:%S', time.gmtime(int(ship['RepairTime']) * int(ship['Hp']))),
                 'exterior_sprite': self.get_sprite_infos(int(ship['ExteriorSpriteId'])),
                 'interior_sprite': self.get_sprite_infos(int(ship['InteriorSpriteId'])),
                 'logo_sprite': self.get_sprite_infos(int(ship['LogoSpriteId'])),
@@ -820,7 +886,9 @@ class Pixyship(metaclass=Singleton):
                 'short_name': room['RoomShortName'],
                 'type': room_type,
                 'level': int(room['Level']),
-                'capacity': int(room['Capacity']),
+                'capacity': int(room['Capacity']) / self.CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
+                'capacity_label': self.LABEL_CAPACITY_MAP.get(room['RoomType'], 'Capacity'),
+                'range': int(room['Range']),
                 'height': int(room['Rows']),
                 'width': int(room['Columns']),
                 'sprite': self.get_sprite_infos(int(room['ImageSpriteId'])),
@@ -840,6 +908,8 @@ class Pixyship(metaclass=Singleton):
                 'enhancement_type': room['EnhancementType'],
                 'manufacture_type': room['ManufactureType'],
                 'manufacture_rate': float(room['ManufactureRate']),
+                'manufacture_rate_label': self.MANUFACTURE_RATE_MAP.get(room['RoomType'], 'Manufacture Rate'),
+                'manufacture_rate_per_hour': math.ceil(float(room['ManufactureRate']) * 3600) if self.MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
                 'manufacture_capacity': int(room['ManufactureCapacity']) / self.MANUFACTURE_CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
                 'manufacture_capacity_label': self.MANUFACTURE_CAPACITY_MAP.get(room['RoomType'], None),
                 'cooldown_time': int(room['CooldownTime']),
@@ -1174,6 +1244,7 @@ class Pixyship(metaclass=Singleton):
                 'market_price': int(item['MarketPrice']),
                 'fair_price': int(item['FairPrice']),
                 'prices': self.prices.get(int(item['ItemDesignId'])),
+                'training': self.trainings.get(int(item['TrainingDesignId'])),
                 'id': record.type_id,
                 'saleable': (int(item['Flags']) & 1) != 0
             }

@@ -4,6 +4,57 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
+        <v-expansion-panel-header>2.2.6 &mdash; 2021-11-24</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Items page: Type and Subtype columns sortable</li>
+                <li>Items page: Display training % for instant training item</li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
+        <v-expansion-panel-header>2.2.5 &mdash; 2021-11-14</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Ships page: extended filter</li>
+                <li>Save sorting in URL</li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
+        <v-expansion-panel-header>2.2.4 &mdash; 2021-11-12</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Changed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Ships page: display full repair time</li>
+              </ul>
+            </v-card-text>
+
+            <v-card-subtitle>Fixed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Rooms page: wrong capacity label and value</li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header>2.2.3 &mdash; 2021-11-02</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>
@@ -384,7 +435,7 @@ export default {
   name: "Changelog",
   data() {
     return {
-      panel: [0, 1, 2, 3],
+      panel: [0, 1, 2, 3, 4, 5, 6],
     }
   },
 

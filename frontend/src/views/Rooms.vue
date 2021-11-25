@@ -84,6 +84,8 @@
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
+      :sort-by.sync="globalSortBy"
+      :sort-desc.sync="globalSortDesc"
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
@@ -187,8 +189,13 @@
                       </tr>
 
                       <tr v-show="item.capacity">
-                        <td>Capacity</td>
+                        <td>{{ item.capacity_label }}</td>
                         <td>{{ item.capacity }}</td>
+                      </tr>
+
+                      <tr v-show="item.range">
+                        <td>Range</td>
+                        <td>{{ item.range }}</td>
                       </tr>
 
                       <tr v-show="item.refill_cost">
@@ -202,8 +209,8 @@
                       </tr>
 
                       <tr v-show="item.manufacture_rate">
-                        <td>Manufacture Rate</td>
-                        <td>{{ `${Math.ceil(item.manufacture_rate * 3600)}/hour` }}</td>
+                        <td>{{ item.manufacture_rate_label }}</td>
+                        <td>{{ item.manufacture_rate_per_hour ? item.manufacture_rate_per_hour + '/hour' : item.manufacture_rate }}</td>
                       </tr>
 
                       <tr v-show="item.manufacture_capacity">
@@ -353,12 +360,13 @@
 
 <script>
 import axios from "axios"
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import DataTableMixin from "@/mixins/DataTable.vue.js"
 import Item from "@/components/Item.vue"
 import "@/assets/css/override.css"
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin, DataTableMixin],
 
   components: {
     Item,

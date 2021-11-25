@@ -1,18 +1,8 @@
 // Common mixins for PixyShip vue controls
 import moment from 'moment'
-import _ from 'lodash'
 
 const apiServer = process.env.VUE_APP_PIXYSHIP_API_URL
 const spriteServer = process.env.VUE_APP_SPRITES_URL
-const rarityOrder = {
-  "common": 0,
-  "elite": 1,
-  "unique": 2,
-  "epic": 3,
-  "hero": 4,
-  "special": 5,
-  "legendary": 6,
-}
 
 export default {
   data() {
@@ -34,7 +24,6 @@ export default {
       researchesEndpoint: apiServer + 'api/research',
       playersEndpoint: apiServer + 'api/players',
       tournamentEndpoint: apiServer + 'api/tournament',
-      rarityOrder: rarityOrder,
     }
   },
 
@@ -60,146 +49,18 @@ export default {
       }
     },
 
-    filterCombobox(value, searchArray, andSearch = false) {
-      if (searchArray === null) {
-        return true
-      }
-
-      if (searchArray.length === 0) {
-        return true
-      }
-
-      if (value == null || value == '') {
-        value = 'None'
-      }
-
-      let result = false
-
-      if (andSearch) {
-        result = searchArray.every(search => {
-          if (value.toString().toLowerCase().includes(',')) {
-            return value.toString().toLowerCase().includes(search.toString().toLowerCase())
-          } else {
-            return value.toString().toLowerCase() === search.toString().toLowerCase()
-          }
-
-        })
-      } else {
-        result = searchArray.some(search => {
-          if (value.toString().toLowerCase().includes(',')) {
-            return value.toString().toLowerCase().includes(search.toString().toLowerCase())
-          } else {
-            return value.toString().toLowerCase() === search.toString().toLowerCase()
-          }
-
-        })
-      }
-
-
-      return result
-    },
-
-    multipleFilter(value, search) {
-      if (value == null) {
-        return false
-      }
-
-      if (search == null) {
-        return false
-      }
-
-      const terms = search.split(',').map(term => term.trim().toLowerCase()).filter(term => term)
-
-      if (terms.length === 0) {
-        return false
-      }
-
-      let result = terms.some(term => {
-        let computedTerm = term
-
-        if (computedTerm === 'None') {
-          computedTerm = ''
-        }
-
-        if (computedTerm.length >= 2
-          && (computedTerm[0] === "'" || computedTerm[0] === '"')
-          && computedTerm[0] === computedTerm[computedTerm.length - 1]
-        ) {
-          return value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
-        }
-
-        return value.toString().toLowerCase().indexOf(computedTerm) !== -1
-      })
-
-      return result
-    },
-
-    multipleFilterWithNegative(value, search) {
-      if (value == null) {
-        return false
-      }
-
-      if (search == null) {
-        return false
-      }
-
-      const terms = search.split(',').map(term => term.trim().toLowerCase()).filter(term => term)
-
-      if (terms.length === 0) {
-        return false
-      }
-
-      const negativeTerms = terms.filter(term => term.length >= 2 && term[0] === '-')
-      const positiveTerms = terms.filter(term => term.length >= 2 && term[0] !== '-')
-
-      let positiveResult = true
-      let negativeResult = false
-
-      if (positiveTerms.length > 0) {
-        positiveResult = positiveTerms.some(term => {
-          if (term.length >= 2
-            && (term[0] === "'" || term[0] === '"')
-            && term[0] === term[term.length - 1]
-          ) {
-            return value.toString().toLowerCase() === term.substring(1, term.length - 1)
-          }
-
-          return value.toString().toLowerCase().indexOf(term) !== -1
-        })
-      }
-
-      if (negativeTerms.length > 0) {
-        negativeResult = negativeTerms.some(term => {
-          let computedTerm = term.substring(1, term.length)
-
-          if (computedTerm.length >= 2
-            && (computedTerm[0] === "'" || computedTerm[0] === '"')
-            && computedTerm[0] === computedTerm[computedTerm.length - 1]
-          ) {
-            return value.toString().toLowerCase() === computedTerm.substring(1, computedTerm.length - 1)
-          }
-
-          return value.toString().toLowerCase().indexOf(computedTerm) !== -1
-        })
-      }
-
-      return positiveResult && !negativeResult
-    },
-
     spriteStyle(sprite, color = '', border = 0) {
       if (Object.keys(sprite).length === 0) {
         return {}
       }
 
-      let obj = {
+      return {
         background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
         width: `${sprite.width}px`,
         height: `${sprite.height}px`,
         border: `${border}px solid lightgrey`,
         imageRendering: 'pixelated'
       }
-
-      return obj
     },
 
     spriteStyleScaled(sprite, maxSize, color = '', border = 0) {
@@ -210,7 +71,7 @@ export default {
       let scale = maxSize / Math.max(sprite.width, sprite.height)
       scale = scale > 1 ? 1 : scale
 
-      let obj = {
+      return {
         background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
         width: `${sprite.width}px`,
         height: `${sprite.height}px`,
@@ -219,8 +80,6 @@ export default {
         transform: `scale(${scale})`,
         transformOrigin: 'top left'
       }
-
-      return obj
     },
 
     spriteStyleScaledWrapper(sprite, maxSize) {
@@ -231,14 +90,12 @@ export default {
       let scale = maxSize / Math.max(sprite.width, sprite.height)
       scale = scale > 1 ? 1 : scale
 
-      let obj = {
+      return {
         width: `calc(${sprite.width}px * ${scale})`,
         height: `calc(${sprite.height}px * ${scale})`,
         overflow: 'hidden',
         display: 'block',
       }
-
-      return obj
     },
 
     styleFromSprite(sprite, color = '', border = 0, scale = 1, portScale = 1) {
@@ -296,16 +153,10 @@ export default {
       const minutes = Math.floor(secs / 60) % 60
       secs -= minutes * 60
 
-      const dateStr = (days > 0 ? `${days}d ` : '') +
-        (hours > 0 ? `${hours}h ` : '') +
-        (minutes > 0 ? `${minutes}m ` : '') +
-        (secs > 0 ? `${secs}s` : '')
-
-      return dateStr
-    },
-
-    notEmptyObject(someObject) {
-      return Object.keys(someObject).length
+      return (days > 0 ? `${days}d ` : '') +
+          (hours > 0 ? `${hours}h ` : '') +
+          (minutes > 0 ? `${minutes}m ` : '') +
+          (secs > 0 ? `${secs}s` : '')
     },
 
     getAllAttributes(element) {
@@ -350,64 +201,30 @@ export default {
       return changes
     },
 
-    getSpriteServer() {
-      return spriteServer
+    makeLink(type, id) {
+      if (type === 'char') {
+        return `/crew/${id}`
+      }
+
+      if (type === 'item') {
+        return `/item/${id}`
+      }
+
+      if (type === 'room') {
+        return `/rooms?ids=${id}`
+      }
+
+      if (type === 'ship') {
+        return `/ships?ids=${id}`
+      }
+
+      if (type === 'collection') {
+        return `/collections?ids=${id}`
+      }
+
+      if (type === 'research') {
+        return `/researches?ids=${id}`
+      }
     },
-
-    sortRarity(a, b) {
-      let rarityAOrder = this.rarityOrder[a.toLowerCase()]
-      let rarityBOrder = this.rarityOrder[b.toLowerCase()]
-
-      return this.sortAlphabeticallyExceptNone(rarityAOrder, rarityBOrder)
-    },
-
-    sortAlphabeticallyExceptNone(a, b) {
-      if (a == b) {
-        return 0
-      }
-
-      if (a == 'None') {
-        return -1
-      }
-
-      if (b == 'None') {
-        return 1
-      }
-
-      if (a < b) {
-        return -1
-      }
-
-      if (a > b) {
-        return 1
-      }
-
-      return 0
-    },
-
-    updateQueryFromFilter(filterName, filterValue) {
-      let searchParams = new URLSearchParams(window.location.search)
-
-      if (_.isEmpty(filterValue)) {
-        searchParams.delete(filterName)
-      } else {
-        searchParams.set(filterName, filterValue)
-      }
-
-      let queryString = searchParams.toString()
-      if (queryString) {
-        queryString = '?' + queryString
-      }
-
-      window.history.pushState('', '', this.$route.path + queryString)
-    },
-
-    filterValueComparator(a, b) {
-      if (typeof a === 'string' && typeof b === 'string') {
-        return a.toLowerCase() === b.toLowerCase()
-      }
-
-      return a === b
-    }
   }
 }

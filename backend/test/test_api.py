@@ -419,3 +419,30 @@ def test_search_users():
     assert 'CrewReceived' in user
     assert 'AllianceJoinDate' in user
     assert 'CreationDate' in user
+
+
+def test_trainings():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    trainings = pixel_starships_api.get_trainings()
+
+    assert len(trainings) > 0
+
+    training = trainings[0]
+
+    assert 'TrainingDesignId' in training
+    assert 'TrainingSpriteId' in training
+    assert 'HpChance' in training
+    assert 'AttackChance' in training
+    assert 'PilotChance' in training
+    assert 'RepairChance' in training
+    assert 'WeaponChance' in training
+    assert 'ScienceChance' in training
+    assert 'EngineChance' in training
+    assert 'StaminaChance' in training
+    assert 'AbilityChance' in training
+    assert 'XpChance' in training
+    assert 'Fatigue' in training
+    assert 'MinimumGuarantee' in training

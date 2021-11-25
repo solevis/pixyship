@@ -6,7 +6,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="12" sm="12" md="8">
+        <v-col cols="12" sm="12" md="6">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -16,7 +16,7 @@
             outlined
           ></v-text-field>
         </v-col>
-        <v-col cols="12" sm="6" md="2">
+        <v-col cols="12" sm="4" md="2">
           <v-autocomplete
             v-model="searchLevel"
             :items="levels"
@@ -29,7 +29,19 @@
             :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
-        <v-col cols="12" sm="6" md="2">
+        <v-col cols="12" sm="4" md="2">
+          <v-autocomplete
+            v-model="searchExtended"
+            :items="['Yes', 'No']"
+            label="Extended"
+            clearable
+            outlined
+            small-chips
+            hide-details
+            :value-comparator="filterValueComparator"
+          ></v-autocomplete>
+        </v-col>
+        <v-col cols="12" sm="4" md="2">
           <v-autocomplete
             v-model="searchType"
             :items="types"
@@ -58,6 +70,8 @@
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
+      :sort-by.sync="globalSortBy"
+      :sort-desc.sync="globalSortDesc"
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
@@ -82,9 +96,10 @@
               <td class="text-xs-right">{{ item.space }}</td>
               <td class="text-xs-right">{{ item.spaceT1 }}</td>
               <td class="text-xs-right">{{ item.spaceT2 }}</td>
+              <td class="text-xs-center">{{ item.extended ? 'Yes' : 'No' }}</td>
               <td class="text-xs-right">{{ item.hp }}</td>
 
-              <td class="text-xs-right">{{ item.repair_time }}</td>
+              <td class="text-xs-right">{{ item.full_repair_time }}</td>
 
               <td style="min-width: 100px">
                 <table>
@@ -233,12 +248,13 @@
 
 <script>
 import axios from "axios"
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import DataTableMixin from "@/mixins/DataTable.vue.js"
 import Item from "@/components/Item.vue"
 import "@/assets/css/override.css"
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin, DataTableMixin],
 
   components: {
     Item,
@@ -249,6 +265,7 @@ export default {
       searchName: "",
       searchLevel: [],
       searchType: [],
+      searchExtended: null,
       levels: [],
       types: [],
       loaded: false,
@@ -305,6 +322,19 @@ export default {
           value: "spaceT2", 
           filterable: false 
         },
+        {
+          text: "Extended",
+          align: "right",
+          value: "extended",
+          filter: (value) => {
+            if (this.searchExtended !== null) {
+              let search = this.searchExtended === 'Yes'
+              return value === search
+            }
+
+            return true
+          },
+        },
         { 
           text: "Health", 
           align: "right", 
@@ -312,9 +342,9 @@ export default {
           filterable: false 
         },
         { 
-          text: "Secs/Repair", 
+          text: "Repair Time",
           align: "right", 
-          value: "repair_time", 
+          value: "full_repair_time",
           filterable: false 
         },
         { 
@@ -350,10 +380,12 @@ export default {
     isLoading: function () {
       return !this.loaded
     },
+
     pendingFilter: function () {
       return this.searchName 
         || this.searchLevel.length > 0
         || this.searchType.length > 0
+        || this.searchExtended !== null
     }
   },
 
@@ -378,6 +410,10 @@ export default {
     searchLevel(value) {
       this.updateQueryFromFilter('level', value)
     },
+
+    searchExtended(value) {
+      this.updateQueryFromFilter('extended', value)
+    },
   },
 
   methods: {
@@ -395,6 +431,10 @@ export default {
           return value.trim()
         })
       }
+
+      if (this.$route.query.extended) {
+        this.searchExtended = this.$route.query.extended.trim()
+      }
     },
 
     getShips: async function () {
@@ -406,9 +446,16 @@ export default {
         let spaceT1 = 0
         let spaceT2 = 0
 
-        for (let c of ship.mask) {
-          if (c === "1") spaceT1++
-          if (c === "2") spaceT2++
+        ship.extended = false
+        for (let column of ship.mask) {
+          if (column === "1") {
+            spaceT1++
+          }
+
+          if (column === "2") {
+            spaceT2++
+            ship.extended = true
+          }
         }
 
         ship.space = spaceT1 + spaceT2

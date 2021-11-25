@@ -91,8 +91,10 @@
                   </template>
 
                   <template v-else-if="object.type === 'Room'">
-                    {{ 'x' + object.count }} <div class="block mr-2 middle" :style="spriteStyle(object.object.sprite)"></div>
-                    <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{object.object.name }}</div>
+                    <a :href="makeLink('room', object.object.id)">
+                      {{ 'x' + object.count }} <div class="block mr-2 middle" :style="spriteStyle(object.object.sprite)"></div>
+                      <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{object.object.name }}</div>
+                    </a>
                   </template>
 
                   <template v-else-if="object.type === 'Character'">
@@ -158,8 +160,10 @@
                   </template>
 
                   <template v-else-if="offer.objects[0].type === 'Room'">
-                    {{ 'x' + offer.objects[0].count }} <div class="block mr-2 middle" :style="spriteStyle(offer.objects[0].object.sprite)"></div>
-                    <div :class="[offer.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{offer.objects[0].object.name }}</div>
+                    <a :href="makeLink('room', offer.objects[0].object.id)">
+                      {{ 'x' + offer.objects[0].count }} <div class="block mr-2 middle" :style="spriteStyle(offer.objects[0].object.sprite)"></div>
+                      <div :class="[offer.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{offer.objects[0].object.name }}</div>
+                    </a>
                   </template>
 
                   <template v-else-if="offer.objects[0].type === 'Character'">
@@ -171,7 +175,7 @@
                   </template>
 
                   <template v-else>
-                    <div>{{offer.objects[0].type }}</div>
+                    <div>{ {offer.objects[0].type }}</div>
                   </template>
                 </div>
 
@@ -207,8 +211,10 @@
                 </template>
 
                 <template v-else-if="this.offers.shop.objects[0].type === 'Room'">
-                  {{this.offers.shop.objects[0].count > 1 ? 'x' + this.offers.shop.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.objects[0].object.sprite)"></div>
-                  <div :class="[this.offers.shop.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.objects[0].object.name }}</div>
+                  <a :href="makeLink('room', this.offers.shop.objects[0].object.id)">
+                    {{this.offers.shop.objects[0].count > 1 ? 'x' + this.offers.shop.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.objects[0].object.sprite)"></div>
+                    <div :class="[this.offers.shop.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.objects[0].object.name }}</div>
+                  </a>
                 </template>
 
                 <template v-else-if="this.offers.shop.objects[0].type === 'Character'">
@@ -220,7 +226,7 @@
                 </template>
 
                 <template v-else>
-                  <div>{{this.offers.shop.objects[0].type }}</div>
+                  <div>{{ this.offers.shop.objects[0].type }}</div>
                 </template>
               </div>
 
@@ -258,8 +264,10 @@
                 </template>
 
                 <template v-else-if="this.offers.sale.objects[0].type === 'Room'">
-                  {{this.offers.sale.objects[0].count > 1 ? 'x' + this.offers.sale.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.objects[0].object.sprite)"></div>
-                  <div :class="[this.offers.sale.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.objects[0].object.name }}</div>
+                  <a :href="makeLink('room', this.offers.sale.objects[0].object.id)">
+                    {{this.offers.sale.objects[0].count > 1 ? 'x' + this.offers.sale.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.objects[0].object.sprite)"></div>
+                    <div :class="[this.offers.sale.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.objects[0].object.name }}</div>
+                  </a>
                 </template>
                 
                 <template v-else-if="this.offers.sale.objects[0].type === 'Character'">
@@ -271,7 +279,7 @@
                 </template>
                 
                 <template v-else>
-                  <div>{{this.offers.sale.objects[0].type }}</div>
+                  <div>{{ this.offers.sale.objects[0].type }}</div>
                 </template>
 
                 <div style="clear: both" class="pt-2">
@@ -316,13 +324,13 @@
 <script>
 import axios from "axios"
 import moment from "moment"
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
 import Crew from "@/components/Crew.vue"
 import Item from "@/components/Item.vue"
 const convert = require("xml-js")
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin],
 
   components: {
     Crew,
@@ -497,5 +505,9 @@ export default {
 .news-sprite {
   float: right;
   margin: 10px;
+}
+
+a {
+  color: white;
 }
 </style>

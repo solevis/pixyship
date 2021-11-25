@@ -86,10 +86,10 @@
 </template>
 
 <script>
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin],
 
   props: {
     char: null,
