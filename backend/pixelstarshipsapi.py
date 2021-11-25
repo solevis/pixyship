@@ -801,3 +801,34 @@ class PixelStarshipsApi:
         options.reverse()
 
         return options
+
+    def get_trainings(self):
+        """Get trainings data from API."""
+
+        params = {
+            'version': self.__api_settings['TrainingDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/TrainingService/ListAllTrainingDesigns2'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        trainings = []
+        training_nodes = root.find('.//TrainingDesigns')
+
+        # it's possible to don't have prestiges for the given character
+        if training_nodes:
+            for training_node in training_nodes:
+                training = self.parse_training_node(training_node)
+                training['pixyship_xml_element'] = training_node  # custom field, return raw XML data too
+                trainings.append(training)
+
+        return trainings
+
+    @staticmethod
+    def parse_training_node(training_node):
+        """Extract training data from XML node."""
+
+        return training_node.attrib.copy()

@@ -95,6 +95,8 @@
       :footer-props="{
         itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
       }"
+      :sort-by.sync="globalSortBy"
+      :sort-desc.sync="globalSortDesc"
       multi-sort
       loading-text="Loading..."
       class="elevation-1 px-3"
@@ -254,13 +256,14 @@
 
 <script>
 import axios from "axios"
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import DataTableMixin from "@/mixins/DataTable.vue.js"
 import Crew from "@/components/Crew.vue"
 import "@/assets/css/override.css"
 import _ from 'lodash'
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin, DataTableMixin],
 
   components: {
     Crew,

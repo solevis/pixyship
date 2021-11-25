@@ -75,10 +75,11 @@
         :search="searchName"
         :custom-filter="multipleFilterWithNegative"
         :loading="isLoading"
-        :sortDesc="true"
         :footer-props="{
           itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
         }"
+        :sort-by.sync="globalSortBy"
+        :sort-desc.sync="globalSortDesc"
         multi-sort
         loading-text="Loading..."
         class="elevation-1 px-3"
@@ -152,7 +153,8 @@
 <script>
 import axios from "axios"
 import moment from 'moment'
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import DataTableMixin from "@/mixins/DataTable.vue.js"
 import Crew from "@/components/Crew.vue"
 import Item from "@/components/Item.vue"
 import "@/assets/css/override.css"
@@ -160,7 +162,7 @@ import "@/assets/css/override.css"
 const convert = require('xml-js')
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin, DataTableMixin],
 
   components: {
     Crew,

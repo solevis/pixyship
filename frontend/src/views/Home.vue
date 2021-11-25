@@ -324,13 +324,13 @@
 <script>
 import axios from "axios"
 import moment from "moment"
-import mixins from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "@/mixins/PixyShip.vue.js"
 import Crew from "@/components/Crew.vue"
 import Item from "@/components/Item.vue"
 const convert = require("xml-js")
 
 export default {
-  mixins: [mixins],
+  mixins: [PixyShipMixin],
 
   components: {
     Crew,
