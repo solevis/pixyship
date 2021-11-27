@@ -1475,6 +1475,7 @@ class Pixyship(metaclass=Singleton):
                     'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                     'recipe': item['recipe'],
                     'content': item['content'],
+                    'training': item['training'],
                     'prices': item['prices'],
                 }
 
