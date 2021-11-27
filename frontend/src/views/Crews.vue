@@ -4,7 +4,7 @@
     <v-card-subtitle>All Pixel Starships crews (click on crew name to see prestiges infos)</v-card-subtitle>
 
     <!-- Filters -->
-    <v-card-subtitle v-if="loaded">
+    <v-card-subtitle v-if="loaded" class="pa-0 px-3">
       <v-row>
         <v-col cols="12" sm="4" md="1">
           <v-text-field
@@ -80,6 +80,17 @@
           ></v-autocomplete>
         </v-col>
       </v-row>
+    </v-card-subtitle>
+
+    <v-card-subtitle class="pa-0">
+    <v-card class="d-flex flex-row-reverse" flat tile>
+      <v-card class="mr-5" flat tile>
+        <v-switch
+            v-model="showScoreStat"
+            label="Display score"
+        ></v-switch>
+      </v-card>
+    </v-card>
     </v-card-subtitle>
 
     <!-- Table -->
@@ -178,76 +189,120 @@
           </td>
 
           <!-- Stats -->
-          <td>
+          <td class="text-center">
+            <span>{{ item.hp[2] | statFormat(0) }}</span>
             <v-progress-linear
-              :value="item.scoreHP"
-              :color="getScoreColor(item.scoreHP)"
-              height="25"
-            >
-              {{ item.hp[2] | statFormat(0) }}
-            </v-progress-linear>
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreHP"
+                :color="getScoreColor(item.scoreHP)"
+            ></v-progress-linear>
           </td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreAtk"
-              :color="getScoreColor(item.scoreAtk)"
-            >{{ item.attack[2] | statFormat() }}</v-progress-linear></td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreRpr"
-              :color="getScoreColor(item.scoreRpr)"
-            >{{ item.repair[2] | statFormat() }}</v-progress-linear></td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreAbl"
-              :color="getScoreColor(item.scoreAbl)"
-            >{{ item.ability[2] | statFormat() }}</v-progress-linear></td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scorePlt"
-              :color="getScoreColor(item.scorePlt)"
-            >{{ item.pilot[2] | statFormat() }}</v-progress-linear></td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreSci"
-              :color="getScoreColor(item.scoreSci)"
-            >{{ item.science[2] | statFormat() }}</v-progress-linear></td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreEng"
-              :color="getScoreColor(item.scoreEng)"
-            >{{ item.engine[2] | statFormat() }}</v-progress-linear></td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreWpn"
-              :color="getScoreColor(item.scoreWpn)"
-            >{{ item.weapon[2] | statFormat() }}</v-progress-linear></td>
+          <td class="text-center">
+            <span>{{ item.attack[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreAtk"
+                :color="getScoreColor(item.scoreAtk)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.repair[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreRpr"
+                :color="getScoreColor(item.scoreRpr)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.ability[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreAbl"
+                :color="getScoreColor(item.scoreAbl)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.pilot[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scorePlt"
+                :color="getScoreColor(item.scorePlt)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.science[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreSci"
+                :color="getScoreColor(item.scoreSci)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.engine[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreEng"
+                :color="getScoreColor(item.scoreEng)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.weapon[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreWpn"
+                :color="getScoreColor(item.scoreWpn)"
+            ></v-progress-linear>
+          </td>
 
           <!-- Fire -->
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreFire"
-              :color="getScoreColor(item.scoreFire)"
-            >{{ item.fire_resist }}</v-progress-linear></td>
+          <td class="text-center">
+            <span>{{ item.fire_resist }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreFire"
+                :color="getScoreColor(item.scoreFire)"
+            ></v-progress-linear>
+          </td>
 
           <!-- Training -->
-           <td> <v-progress-linear
-              height="25"
-              :value="item.scoreTraining"
-              :color="getScoreColor(item.scoreTraining)"
-            >{{ item.training_limit }}</v-progress-linear></td>
+          <td class="text-center">
+            <span>{{ item.training_limit }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreTraining"
+                :color="getScoreColor(item.scoreTraining)"
+            ></v-progress-linear>
+          </td>
 
           <!-- Speed -->
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreWalk"
-              :color="getScoreColor(item.scoreWalk)"
-            >{{ item.walk }}</v-progress-linear></td>
-          <td> <v-progress-linear
-              height="25"
-              :value="item.scoreRun"
-              :color="getScoreColor(item.scoreRun)"
-            >{{ item.run }}</v-progress-linear></td>
+          <td class="text-center">
+            <span>{{ item.walk }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreWalk"
+                :color="getScoreColor(item.scoreWalk)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.run }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreRun"
+                :color="getScoreColor(item.scoreRun)"
+            ></v-progress-linear>
+          </td>
         </tr>
       </template>
     </v-data-table>
@@ -284,6 +339,7 @@ export default {
       crews: [],
       defaultLevel: 40,
       level: null,
+      showScoreStat: true,
       headers: [
         { 
           text: "Order by ID", 
@@ -345,73 +401,73 @@ export default {
         },
         { 
           text: "HP", 
-          align: "start",          
+          align: "center",
           value: "hp[2]", 
           filterable: false 
         },
         {
           text: "ATK",
-          align: "start",          
+          align: "center",
           value: "attack[2]",
           filterable: false,
         },
         {
           text: "RPR",
-          align: "start",          
+          align: "center",
           value: "repair[2]",
           filterable: false,
         },
         {
           text: "ABL",
-          align: "start",          
+          align: "center",
           value: "ability[2]",
           filterable: false,
         },
         {
           text: "PLT",
-          align: "start",          
+          align: "center",
           value: "pilot[2]",
           filterable: false,
         },
         {
           text: "SCI",
-          align: "start",          
+          align: "center",
           value: "science[2]",
           filterable: false,
         },
         {
           text: "ENG",
-          align: "start",          
+          align: "center",
           value: "engine[2]",
           filterable: false,
         },
         {
           text: "WPN",
-          align: "start",          
+          align: "center",
           value: "weapon[2]",
           filterable: false,
         },
         {
           text: "Fire",
-          align: "start",          
+          align: "center",
           value: "fire_resist",
           filterable: false,
         },
         {
           text: "Training",
-          align: "start",          
+          align: "center",
           value: "training_limit",
           filterable: false,
         },
         { 
           text: "Walk",
-          align: "start",          
+          align: "center",
           value: "walk", 
           filterable: false
         },
         { 
           text: "Run",
-          align: "start",          
+          align: "center",
           value: "run", 
           filterable: false
         },
@@ -625,19 +681,23 @@ export default {
     },
 
     getScoreColor(scoreValue) {
-      if (scoreValue < 25) {
-        return 'red darken-4'
+      if (scoreValue < 20) {
+        return 'red darken-3'
       }
 
-      if (scoreValue < 50) {
-        return 'lime darken-4'
+      if (scoreValue < 40) {
+        return 'lime darken-3'
       }
 
-      if (scoreValue < 75) {
-        return 'green darken-4'
+      if (scoreValue < 60) {
+        return 'light-green darken-3'
       }
 
-      return 'blue darken-4'
+      if (scoreValue < 80) {
+        return 'green darken-3'
+      }
+
+      return 'blue darken-3'
     }
   },
 }
