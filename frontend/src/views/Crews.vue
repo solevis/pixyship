@@ -165,6 +165,7 @@
                   <div
                     v-bind="attrs"
                     v-on="on"
+                    class="center"
                     :style="spriteStyle(item.ability_sprite)"
                   ></div>
                 </template>
@@ -385,7 +386,7 @@ export default {
         },
         { 
           text: "Special", 
-          align: "start",          
+          align: "center",
           value: "special_ability", 
           filter: value => { 
             return this.filterCombobox(value, this.searchSpecial)
@@ -393,7 +394,7 @@ export default {
         },
         { 
           text: "Set", 
-          align: "start",          
+          align: "center",
           value: "collection_name", 
           filter: value => { 
             return this.filterCombobox(value, this.searchCollection)
@@ -723,5 +724,9 @@ a.name:hover {
 
 .equip {
   font-size: 90%;
+}
+
+.center {
+  margin: 0 auto;
 }
 </style>
