@@ -85,7 +85,6 @@
 
                 <template v-if="content_item.type === 'character'">
                   <div class="d-inline-block middle mr-1">{{ content_item.char.name }}</div>
-                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.char.sprite)"></div>
                 </template>
 
                 <template v-else-if="content_item.type === 'item'">

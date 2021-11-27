@@ -1101,7 +1101,7 @@ class Pixyship(metaclass=Singleton):
                 # if change's a Character, get all infos of the crew
                 if content_item_type == 'character':
                     try:
-                        line['char'] = self.characters[content_item_id]
+                        line['char'] = self.characters[int(content_item_id)]
                     except KeyError:
                         continue
 
