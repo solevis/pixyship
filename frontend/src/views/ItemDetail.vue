@@ -56,7 +56,10 @@
                   <td class="text-xs-left text-capitalize bonus">
                       {{ formatBonus(item) }}
                       <template v-if="item.module_extra_disp_enhancement != null">
-                        <br> {{ formatExtraBonus(item) }}
+                        <br>{{ formatExtraBonus(item) }}
+                      </template>
+                      <template v-if="hasRandomStat(item)">
+                        <br>+??
                       </template>
                   </td>
 
@@ -193,7 +196,7 @@
             <span>Type: {{ item.type }}</span><br>
             <span>Subtype: {{ item.slot }}</span><br>
             <template v-if="formatBonus(item)">
-              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template></span><br>
+              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><template v-if="hasRandomStat(item)"> / +??</template></span><br>
             </template>
 
             <div v-if="item.recipe.length > 0">Recipe:
