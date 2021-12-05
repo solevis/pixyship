@@ -609,7 +609,7 @@ class PixelStarshipsApi:
 
         sales = []
 
-        # offset, API returns sales only by 20 by 20
+        # offset, API returns sales only 20 by 20
         start = 0
         end = 20
 
@@ -635,6 +635,8 @@ class PixelStarshipsApi:
 
                 if errors == 3:
                     # three times the call is in errors, skip this item
+                    # clear the sales to keep the max_sale_id correct for the next run
+                    sales.clear()
                     break
 
                 # too many request, wait a little, and try again
@@ -645,6 +647,20 @@ class PixelStarshipsApi:
 
             # parse HTTP body as XML and find sales nodes
             sale_nodes = root.find('.//Sales')
+
+            # error when parsing the response
+            if sale_nodes is None:
+                logger.error('error when parsing response: {}'.format(response.text))
+                errors += 1
+
+                if errors == 3:
+                    # three times the call is in errors, skip this item
+                    # clear the sales to keep the max_sale_id correct for the next run
+                    sales.clear()
+                    break
+
+                time.sleep(3)
+                continue
 
             # no more sales available
             if len(sale_nodes) == 0:

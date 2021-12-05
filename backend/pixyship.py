@@ -909,7 +909,8 @@ class Pixyship(metaclass=Singleton):
                 'manufacture_type': room['ManufactureType'],
                 'manufacture_rate': float(room['ManufactureRate']),
                 'manufacture_rate_label': self.MANUFACTURE_RATE_MAP.get(room['RoomType'], 'Manufacture Rate'),
-                'manufacture_rate_per_hour': math.ceil(float(room['ManufactureRate']) * 3600) if self.MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
+                'manufacture_rate_per_hour':
+                    math.ceil(float(room['ManufactureRate']) * 3600) if self.MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
                 'manufacture_capacity': int(room['ManufactureCapacity']) / self.MANUFACTURE_CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
                 'manufacture_capacity_label': self.MANUFACTURE_CAPACITY_MAP.get(room['RoomType'], None),
                 'cooldown_time': int(room['CooldownTime']),
