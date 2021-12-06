@@ -739,7 +739,7 @@ class Pixyship(metaclass=Singleton):
                 AND amount > 0
                 AND user_name IS NOT NULL
                 AND seller_name IS NOT NULL
-            ORDER BY sale_at::DATE DESC
+            ORDER BY sale_at DESC
             LIMIT :limit
         """
         result = db.session.execute(sql, {'item_id': item_id, 'limit': limit}).fetchall()
