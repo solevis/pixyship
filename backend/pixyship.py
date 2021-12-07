@@ -739,7 +739,7 @@ class Pixyship(metaclass=Singleton):
                 AND amount > 0
                 AND user_name IS NOT NULL
                 AND seller_name IS NOT NULL
-            ORDER BY sale_at::DATE DESC
+            ORDER BY sale_at DESC
             LIMIT :limit
         """
         result = db.session.execute(sql, {'item_id': item_id, 'limit': limit}).fetchall()
@@ -909,7 +909,8 @@ class Pixyship(metaclass=Singleton):
                 'manufacture_type': room['ManufactureType'],
                 'manufacture_rate': float(room['ManufactureRate']),
                 'manufacture_rate_label': self.MANUFACTURE_RATE_MAP.get(room['RoomType'], 'Manufacture Rate'),
-                'manufacture_rate_per_hour': math.ceil(float(room['ManufactureRate']) * 3600) if self.MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
+                'manufacture_rate_per_hour':
+                    math.ceil(float(room['ManufactureRate']) * 3600) if self.MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
                 'manufacture_capacity': int(room['ManufactureCapacity']) / self.MANUFACTURE_CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
                 'manufacture_capacity_label': self.MANUFACTURE_CAPACITY_MAP.get(room['RoomType'], None),
                 'cooldown_time': int(room['CooldownTime']),
@@ -1475,6 +1476,7 @@ class Pixyship(metaclass=Singleton):
                     'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                     'recipe': item['recipe'],
                     'content': item['content'],
+                    'training': item['training'],
                     'prices': item['prices'],
                 }
 
