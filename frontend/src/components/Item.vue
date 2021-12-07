@@ -33,6 +33,7 @@
             Bonus:
             <span>{{ formatBonus(item) }}</span>
             <span v-if="item.module_extra_disp_enhancement != null">&nbsp;/&nbsp;{{ formatExtraBonus(item) }}</span>
+            <span v-if="hasRandomStat(item)">&nbsp;/&nbsp;+??</span>
           </td>
         </tr>
 
@@ -40,20 +41,70 @@
           <td class="text-xs-right" colspan="2">
             Training:
             <ul>
-            <li v-if="item.training.xp != 0"><span :class="item.training.xp === mainTrainingStatValue ? 'font-weight-bold' : ''">XP:&nbsp;{{ item.training.xp }}</span></li>
-            <li v-if="item.training.fatigue"><span :class="item.training.fatigue === mainTrainingStatValue ? 'font-weight-bold' : ''">Fatigue:&nbsp;{{ item.training.fatigue }}</span></li>
-            <li v-if="item.training.minimum_guarantee != 0"><span :class="item.training.minimum_guarantee === mainTrainingStatValue ? 'font-weight-bold' : ''">Min. guarantee:&nbsp;{{ item.training.minimum_guarantee }}%</span></li>
-            
-            <li v-if="item.training.hp != 0"><span :class="item.training.hp === mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;&le;&nbsp;{{ item.training.hp }}%</span></li>
-            <li v-if="item.training.attack != 0"><span :class="item.training.attack === mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;&le;&nbsp;{{ item.training.attack }}%</span></li>
-            <li v-if="item.training.repair != 0"><span :class="item.training.repair === mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;&le;&nbsp;{{ item.training.repair }}%</span></li>
-            <li v-if="item.training.ability != 0"><span :class="item.training.ability === mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;&le;&nbsp;{{ item.training.ability }}%</span></li>
-            <li v-if="item.training.stamina != 0"><span :class="item.training.stamina === mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;&le;&nbsp;{{ item.training.stamina }}%</span></li>
-            
-            <li v-if="item.training.pilot != 0"><span :class="item.training.pilot === mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;&le;&nbsp;{{ item.training.pilot }}%</span></li>
-            <li v-if="item.training.science != 0"><span :class="item.training.science === mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;&le;&nbsp;{{ item.training.science }}%</span></li>
-            <li v-if="item.training.engine != 0"><span :class="item.training.engine === mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;&le;&nbsp;{{ item.training.engine }}%</span></li>
-            <li v-if="item.training.weapon != 0"><span :class="item.training.weapon === mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;&le;&nbsp;{{ item.training.weapon }}%</span></li>
+              <li v-if="item.training.xp != 0">
+                  XP:&nbsp;{{ item.training.xp }}
+              </li>
+              <li v-if="item.training.fatigue">
+                Fatigue:&nbsp;{{
+                    item.training.fatigue
+                  }}
+              </li>
+
+              <li v-if="item.training.hp != 0">
+                <span :class="item.training.hp === mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;<span>{{ item.training.hp === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.hp
+                  }}%
+                </span>
+              </li>
+              <li v-if="item.training.attack != 0">
+                <span :class="item.training.attack === mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;<span>{{ item.training.attack === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.attack
+                  }}%
+                </span>
+              </li>
+              <li v-if="item.training.repair != 0">
+                <span :class="item.training.repair === mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;<span>{{ item.training.repair === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.repair
+                  }}%
+                </span>
+              </li>
+              <li v-if="item.training.ability != 0">
+                <span :class="item.training.ability === mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;<span>{{ item.training.ability === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.ability
+                  }}%
+                </span>
+              </li>
+              <li v-if="item.training.stamina != 0">
+                <span :class="item.training.stamina === mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;<span>{{ item.training.stamina === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.stamina
+                  }}%
+                </span>
+              </li>
+
+              <li v-if="item.training.pilot != 0">
+                <span :class="item.training.pilot === mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;<span>{{ item.training.pilot === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.pilot
+                  }}%
+                </span>
+              </li>
+              <li v-if="item.training.science != 0">
+                <span :class="item.training.science === mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;<span>{{ item.training.science === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.science
+                  }}%
+                </span>
+              </li>
+              <li v-if="item.training.engine != 0">
+                <span :class="item.training.engine === mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;<span>{{ item.training.engine === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.engine
+                  }}%
+                </span>
+              </li>
+              <li v-if="item.training.weapon != 0">
+                <span :class="item.training.weapon === mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;<span>{{ item.training.weapon === mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.weapon
+                  }}%
+                </span>
+              </li>
             </ul>
           </td>
         </tr>
