@@ -1256,7 +1256,7 @@ class Pixyship(metaclass=Singleton):
                 'enhancement': item.get('EnhancementType').lower(),
                 'disp_enhancement': self.ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
                 'short_disp_enhancement': self.SHORT_ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
-                'bonus': float(item.get('EnhancementValue')) if float(item.get('EnhancementValue')) != 0 else None,
+                'bonus': float(item.get('EnhancementValue')),
                 'module_extra_enhancement': module_extra_enhancement['enhancement'],
                 'module_extra_disp_enhancement': module_extra_enhancement['disp_enhancement'],
                 'module_extra_short_disp_enhancement': module_extra_enhancement['short_disp_enhancement'],
@@ -2004,7 +2004,7 @@ class Pixyship(metaclass=Singleton):
         disp_enhancement = self.ENHANCE_MAP.get(enhancement, enhancement)
         short_disp_enhancement = self.SHORT_ENHANCE_MAP.get(enhancement, enhancement),
 
-        bonus = None
+        bonus = 0
         if float(item['ModuleArgument']) != 0:
             bonus = float(item['ModuleArgument']) / self.MODULE_BONUS_RATIO_MAP.get(item['ModuleType'], 1)
 
