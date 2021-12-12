@@ -463,19 +463,6 @@ export default {
 
       return result
     },
-
-    formatBonus(item) {
-      let formatedBonus = ""
-
-      if (item.disp_enhancement != null && item.bonus) {
-        formatedBonus = item.slot == 'Module' ? '' : '+'
-        formatedBonus += item.bonus + " " + item.disp_enhancement
-      } else if (item.hiddenBonus) {
-        formatedBonus = item.hiddenBonus
-      }
-
-      return formatedBonus
-    },
   },
 }
 </script>

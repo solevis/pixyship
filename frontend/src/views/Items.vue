@@ -404,7 +404,12 @@ export default {
           align: "center",          
           value: "bonus",
           filter: (value, search, item) => {
-            return this.filterCombobox(item.disp_enhancement, this.searchStat)
+            let searchValue = item.disp_enhancement
+            if (item.disp_enhancement !== null) {
+              searchValue = item.disp_enhancement + ',' + item.module_extra_disp_enhancement
+            }
+
+            return this.filterCombobox(searchValue, this.searchStat)
           },
         },
         {
@@ -565,11 +570,6 @@ export default {
               .map((k) => item.prices[k].count)
               .reduce((c, s) => c + s)
           : 0
-
-        if (item.disp_enhancement == null) {
-          item.hiddenBonus = item.bonus
-          item.bonus = 0
-        }
 
         item.mainTrainingStat = null
         item.mainTrainingStatValue = 0

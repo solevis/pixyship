@@ -115,6 +115,22 @@ class Pixyship(metaclass=Singleton):
     ENHANCE_MAP = {
         'FireResistance': 'Fire Resistance',
         'FreezeAttackSkill': 'Freeze',
+        'Hp': 'HP',
+        'None': None
+    }
+
+    SHORT_ENHANCE_MAP = {
+        'Ability': 'ABL',
+        'Attack': 'ATK',
+        'Engine': 'ENG',
+        'FireResistance': 'RST',
+        'FreezeAttackSkill': 'ABL',
+        'Hp': 'HP',
+        'Pilot': 'PLT',
+        'Repair': 'RPR',
+        'Science': 'SCI',
+        'Stamina': 'STA',
+        'Weapon': 'WPN',
         'None': None
     }
 
@@ -1073,8 +1089,10 @@ class Pixyship(metaclass=Singleton):
                         'slot': item['slot'],
                         'type': item['type'],
                         'disp_enhancement': item['disp_enhancement'],
+                        'short_disp_enhancement': item['short_disp_enhancement'],
                         'bonus': item['bonus'],
                         'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                        'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
                         'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                         'prices': item['prices'],
                         'recipe': Pixyship._parse_item_recipe(item['ingredients'], items),
@@ -1121,8 +1139,10 @@ class Pixyship(metaclass=Singleton):
                         'slot': item['slot'],
                         'type': item['type'],
                         'disp_enhancement': item['disp_enhancement'],
+                        'short_disp_enhancement': item['short_disp_enhancement'],
                         'bonus': item['bonus'],
                         'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                        'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
                         'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                         'recipe': item['recipe'],
                         'prices': item['prices'],
@@ -1182,8 +1202,10 @@ class Pixyship(metaclass=Singleton):
                             'slot': item['slot'],
                             'type': item['type'],
                             'disp_enhancement': item['disp_enhancement'],
+                            'short_disp_enhancement': item['short_disp_enhancement'],
                             'bonus': item['bonus'],
                             'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                            'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
                             'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                             'recipe': item['recipe'],
                             'content': item['content'],
@@ -1233,9 +1255,11 @@ class Pixyship(metaclass=Singleton):
                 'slot': self.SLOT_MAP.get(item['ItemSubType'], item['ItemSubType']),
                 'enhancement': item.get('EnhancementType').lower(),
                 'disp_enhancement': self.ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
-                'bonus': float(item.get('EnhancementValue')),
+                'short_disp_enhancement': self.SHORT_ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
+                'bonus': float(item.get('EnhancementValue')) if float(item.get('EnhancementValue')) != 0 else None,
                 'module_extra_enhancement': module_extra_enhancement['enhancement'],
                 'module_extra_disp_enhancement': module_extra_enhancement['disp_enhancement'],
+                'module_extra_short_disp_enhancement': module_extra_enhancement['short_disp_enhancement'],
                 'module_extra_enhancement_bonus': module_extra_enhancement['bonus'],
                 'type': item.get('ItemType'),
                 'rarity': item.get('Rarity').lower(),
@@ -1471,8 +1495,10 @@ class Pixyship(metaclass=Singleton):
                     'slot': item['slot'],
                     'type': item['type'],
                     'disp_enhancement': item['disp_enhancement'],
+                    'short_disp_enhancement': item['short_disp_enhancement'],
                     'bonus': item['bonus'],
                     'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+                    'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
                     'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
                     'recipe': item['recipe'],
                     'content': item['content'],
@@ -1976,6 +2002,7 @@ class Pixyship(metaclass=Singleton):
 
         enhancement = self.MODULE_ENHANCEMENT_MAP.get(item['ModuleType'], None)
         disp_enhancement = self.ENHANCE_MAP.get(enhancement, enhancement)
+        short_disp_enhancement = self.SHORT_ENHANCE_MAP.get(enhancement, enhancement),
 
         bonus = None
         if float(item['ModuleArgument']) != 0:
@@ -1984,5 +2011,6 @@ class Pixyship(metaclass=Singleton):
         return {
             'enhancement': enhancement,
             'disp_enhancement': disp_enhancement,
+            'short_disp_enhancement': short_disp_enhancement,
             'bonus': bonus
         }
