@@ -184,7 +184,7 @@
                     <br>{{ formatExtraBonus(item) }}
                   </template>
                   <template v-if="hasRandomStat(item)">
-                    <br>+??
+                    <br>??&nbsp;+??
                   </template>
               </td>
 
