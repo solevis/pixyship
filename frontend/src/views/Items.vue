@@ -173,11 +173,7 @@
 
               <!-- Type -->
               <td class="stat">
-                {{ item.type }}
-              </td>
-
-              <!-- SubType -->
-              <td class="stat">
+                {{ item.type }}<br>
                 {{ item.slot }}
               </td>
 
@@ -188,7 +184,7 @@
                     <br>{{ formatExtraBonus(item) }}
                   </template>
                   <template v-if="hasRandomStat(item)">
-                    <br>+??
+                    <br>??&nbsp;+??
                   </template>
               </td>
 
@@ -279,7 +275,7 @@
               </td>
 
               <!-- Content -->
-              <td class="content">
+              <td class="content pa-2">
                 <template v-if="item.content.length > 0">
                   {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
                   <table style="margin: 0 auto;" class="mt-1">
@@ -385,21 +381,24 @@ export default {
           width: 210,
         },
         {
-          text: "Type",
+          text: "Type/Subtype",
           align: "center",          
           value: "type",
           sortable: true,
-          filter: (value) => {
-            return this.filterCombobox(value, this.searchType)
-          },
-        },
-        {
-          text: "Subtype",
-          align: "center",          
-          value: "slot",
-          sortable: true,
-          filter: (value) => {
-            return this.filterCombobox(value, this.searchSlot)
+          filter: (value, search, item) => {
+            // both filters
+            if ((this.searchSlot !== null && this.searchSlot.length > 0)
+                && (this.searchType !== null && this.searchType.length > 0)) {
+              return this.filterCombobox(item.type, this.searchType) && this.filterCombobox(item.slot, this.searchSlot)
+            }
+
+            // only slot
+            if (this.searchType === null || this.searchType.length === 0) {
+              return this.filterCombobox(item.slot, this.searchSlot)
+            }
+
+            // only type
+            return this.filterCombobox(item.type, this.searchType)
           },
         },
         {
@@ -407,7 +406,12 @@ export default {
           align: "center",          
           value: "bonus",
           filter: (value, search, item) => {
-            return this.filterCombobox(item.disp_enhancement, this.searchStat)
+            let searchValue = item.disp_enhancement
+            if (item.disp_enhancement !== null) {
+              searchValue = item.disp_enhancement + ',' + item.module_extra_disp_enhancement
+            }
+
+            return this.filterCombobox(searchValue, this.searchStat)
           },
         },
         {
@@ -569,8 +573,7 @@ export default {
               .reduce((c, s) => c + s)
           : 0
 
-        if (item.disp_enhancement == null) {
-          item.hiddenBonus = item.bonus
+        if (item.disp_enhancement === null) {
           item.bonus = 0
         }
 
