@@ -27,10 +27,7 @@ export default {
       let formatedBonus = ""
 
       if (item.disp_enhancement != null && item.bonus) {
-        formatedBonus = item.slot == 'Module' ? '' : '+'
-        formatedBonus += item.bonus + " " + item.disp_enhancement
-      } else if (item.hiddenBonus) {
-        formatedBonus = item.hiddenBonus
+        formatedBonus = item.short_disp_enhancement + ' +' + item.bonus
       }
 
       return formatedBonus
@@ -40,8 +37,7 @@ export default {
       let formatedBonus = ""
 
       if (item.module_extra_disp_enhancement != null && item.module_extra_enhancement_bonus) {
-        formatedBonus = item.slot == 'Module' ? '' : '+'
-        formatedBonus += item.module_extra_enhancement_bonus + " " + item.module_extra_disp_enhancement
+        formatedBonus = item.module_extra_short_disp_enhancement + ' +' + item.module_extra_enhancement_bonus
       }
 
       return formatedBonus

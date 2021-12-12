@@ -26,8 +26,7 @@
               <thead>
                 <tr>
                   <th class="text-left">Rarity</th>
-                  <th class="text-left">Type</th>
-                  <th class="text-left">Subtype</th>
+                  <th class="text-left">Type/Subtype</th>
                   <th class="text-left">Bonus</th>
                   <th class="text-left">Training</th>
                   <th class="text-left">Recipe</th>
@@ -47,10 +46,10 @@
                   </td>
 
                   <!-- Type -->
-                  <td>{{ item.type }}</td>
-
-                  <!-- Subtype -->
-                  <td>{{ item.slot }}</td>
+                  <td>
+                    {{ item.type }}<br>
+                    {{ item.slot }}
+                  </td>
 
                   <!-- Bonus -->
                   <td class="text-xs-left text-capitalize bonus">
@@ -150,7 +149,7 @@
                   </td>
 
                   <!-- Content -->
-                  <td>
+                  <td class="pa-2">
                     <template v-if="item.content.length > 0">
                       {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
                       <table style="margin: 0 auto;" class="mt-1">
@@ -243,8 +242,7 @@
           <v-card-title>Details</v-card-title>
           <v-card-text>
             <span>Rarity: <span :class="['rarity', item.rarity]">{{ item.rarity }}</span></span><br>
-            <span>Type: {{ item.type }}</span><br>
-            <span>Subtype: {{ item.slot }}</span><br>
+            <span>Type/Subtype: {{ item.type }}/{{ item.slot }}</span><br>
             <template v-if="formatBonus(item)">
               <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><template v-if="hasRandomStat(item)"> / +??</template></span><br>
             </template>

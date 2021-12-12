@@ -318,6 +318,11 @@ def test_sales():
     assert 'CurrencyType' in sale
     assert 'CurrencyValue' in sale
     assert 'BuyerShipId' in sale
+    assert 'BuyerShipName' in sale
+    assert 'BuyerShipName' in sale
+    assert 'SellerShipId' in sale
+    assert 'SellerShipName' in sale
+    assert 'ItemId' in sale
 
 
 def test_users():
