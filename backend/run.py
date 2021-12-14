@@ -156,6 +156,15 @@ def api_collections():
     })
 
 
+@app.route('/api/achievements')
+@enforce_source
+def api_achievements():
+    return jsonify({
+        'data': pixyship.achievements,
+        'status': 'success',
+    })
+
+
 @app.route('/api/research')
 @enforce_source
 def api_research():

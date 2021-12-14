@@ -451,3 +451,21 @@ def test_trainings():
     assert 'XpChance' in training
     assert 'Fatigue' in training
     assert 'MinimumGuarantee' in training
+
+
+def test_achievements():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    achievements = pixel_starships_api.get_achievements()
+
+    assert len(achievements) > 0
+
+    achievement = achievements[0]
+
+    assert 'AchievementDesignId' in achievement
+    assert 'AchievementTitle' in achievement
+    assert 'AchievementDescription' in achievement
+    assert 'SpriteId' in achievement
+    assert 'RewardString' in achievement

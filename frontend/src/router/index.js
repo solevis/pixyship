@@ -49,6 +49,11 @@ const routes = [
     component: () => import('../views/Collections.vue')
   },
   {
+    path: '/achievements',
+    name: 'Pins',
+    component: () => import('../views/Achievements.vue')
+  },
+  {
     path: '/researches',
     name: 'Researches',
     component: () => import('../views/Researches.vue')

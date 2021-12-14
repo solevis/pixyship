@@ -231,6 +231,7 @@ class Pixyship(metaclass=Singleton):
         self._researches = None
         self._prices = {}
         self._trainings = {}
+        self._achievements = {}
         self._rooms = None
         self._ships = None
         self._sprites = None
@@ -279,6 +280,14 @@ class Pixyship(metaclass=Singleton):
             self.expire_at('trainings', self.DEFAULT_EXPIRATION_DURATION)
 
         return self._trainings
+
+    @property
+    def achievements(self):
+        if not self._achievements or self.expired('achievements'):
+            self._achievements = self._get_achievements_from_db()
+            self.expire_at('achievements', self.DEFAULT_EXPIRATION_DURATION)
+
+        return self._achievements
 
     @property
     def ships(self):
@@ -672,6 +681,51 @@ class Pixyship(metaclass=Singleton):
         for training in trainings:
             record_id = int(training['TrainingDesignId'])
             Record.update_data('training', record_id, training['pixyship_xml_element'])
+
+    def _get_achievements_from_db(self):
+        """Load achievements from database."""
+
+        records = Record.query.filter_by(type='achievement', current=True).all()
+
+        achievements = {}
+        for record in records:
+            achievement = self.pixel_starships_api.parse_achievement_node(ElementTree.fromstring(record.data))
+
+            starbux_reward = 0
+            mineral_reward = 0
+            gas_reward = 0
+
+            reward_content = achievement['RewardString']
+            if reward_content:
+                reward_type, reward_value = reward_content.split(':')
+                if reward_type == 'starbux':
+                    starbux_reward = int(reward_value)
+                elif reward_type == 'mineral':
+                    mineral_reward = int(reward_value)
+                elif reward_type == 'gas':
+                    gas_reward = int(reward_value)
+
+            achievements[record.type_id] = {
+                'id': int(achievement['AchievementDesignId']),
+                'sprite': self.get_sprite_infos(int(achievement['SpriteId'])),
+                'name': achievement['AchievementTitle'],
+                'description': achievement['AchievementDescription'],
+                'starbux_reward': starbux_reward,
+                'mineral_reward': mineral_reward,
+                'gas_reward': gas_reward,
+                'max_reward': max([starbux_reward, mineral_reward, gas_reward]),
+            }
+
+        return achievements
+
+    def update_achievements(self):
+        """Update data and save records."""
+
+        achievements = self.pixel_starships_api.get_achievements()
+
+        for achievement in achievements:
+            record_id = int(achievement['AchievementDesignId'])
+            Record.update_data('achievement', record_id, achievement['pixyship_xml_element'])
 
     @staticmethod
     def _get_prices_from_db():
