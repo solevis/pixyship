@@ -740,9 +740,9 @@ class Pixyship(metaclass=Singleton):
                 , percentile_disc(.75) WITHIN GROUP (ORDER BY price/amount) AS p75
             FROM listing
             WHERE amount > 0
-            {}
+            AND sale_at > (now() - INTERVAL '48 HOURS')
             GROUP BY item_id, currency
-        """.format('' if CONFIG.get('DEV_MODE') else "  AND sale_at > (now() - INTERVAL '48 HOURS')")
+        """
 
         result = db.session.execute(sql).fetchall()
         prices = defaultdict(dict)
@@ -1134,27 +1134,31 @@ class Pixyship(metaclass=Singleton):
                 item = items.get(int(ingredient_item_id))
 
                 if item:
-                    line = {
-                        'count': int(ingredient[1]),
-                        'id': item['id'],
-                        'name': item['name'],
-                        'sprite': item['sprite'],
-                        'rarity': item['rarity'],
-                        'slot': item['slot'],
-                        'type': item['type'],
-                        'disp_enhancement': item['disp_enhancement'],
-                        'short_disp_enhancement': item['short_disp_enhancement'],
-                        'bonus': item['bonus'],
-                        'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
-                        'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
-                        'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
-                        'prices': item['prices'],
-                        'recipe': Pixyship._parse_item_recipe(item['ingredients'], items),
-                    }
+                    line = Pixyship._create_light_item(item, items)
+                    line['count'] = int(ingredient[1])
 
                     recipe.append(line)
 
         return recipe
+
+    @staticmethod
+    def _create_light_item(item, items=None):
+        return {
+            'id': item['id'],
+            'name': item['name'],
+            'sprite': item['sprite'],
+            'rarity': item['rarity'],
+            'slot': item['slot'],
+            'type': item['type'],
+            'disp_enhancement': item['disp_enhancement'],
+            'short_disp_enhancement': item['short_disp_enhancement'],
+            'bonus': item['bonus'],
+            'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
+            'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
+            'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
+            'prices': item['prices'],
+            'recipe': item['recipe'] if not items else Pixyship._parse_item_recipe(item['ingredients'], items),
+        }
 
     def _parse_item_content(self, item_content_string, last_item, items):
         """Parse content infos from API."""
@@ -1188,22 +1192,7 @@ class Pixyship(metaclass=Singleton):
                     except KeyError:
                         continue
 
-                    line['item'] = {
-                        'id': item['id'],
-                        'name': item['name'],
-                        'sprite': item['sprite'],
-                        'rarity': item['rarity'],
-                        'slot': item['slot'],
-                        'type': item['type'],
-                        'disp_enhancement': item['disp_enhancement'],
-                        'short_disp_enhancement': item['short_disp_enhancement'],
-                        'bonus': item['bonus'],
-                        'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
-                        'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
-                        'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
-                        'recipe': item['recipe'],
-                        'prices': item['prices'],
-                    }
+                    line['item'] = Pixyship._create_light_item(item)
 
                     # avoid infinite recursion when item reward can be the item itself
                     if last_item['id'] != item['id']:
@@ -1251,24 +1240,7 @@ class Pixyship(metaclass=Singleton):
                     item = self.items.get(int(cost_value))
 
                     if item:
-                        item_cost = {
-                            'id': item['id'],
-                            'name': item['name'],
-                            'sprite': item['sprite'],
-                            'rarity': item['rarity'],
-                            'slot': item['slot'],
-                            'type': item['type'],
-                            'disp_enhancement': item['disp_enhancement'],
-                            'short_disp_enhancement': item['short_disp_enhancement'],
-                            'bonus': item['bonus'],
-                            'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
-                            'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
-                            'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
-                            'recipe': item['recipe'],
-                            'content': item['content'],
-                            'prices': item['prices'],
-                        }
-
+                        item_cost = Pixyship._create_light_item(item)
                         items_cost.append(item_cost)
 
                     continue
@@ -1544,24 +1516,7 @@ class Pixyship(metaclass=Singleton):
             # if change's a Item, get all infos of the item
             if record['type'] == 'item':
                 item = self.items[record['type_id']]
-                change['item'] = {
-                    'id': item['id'],
-                    'name': item['name'],
-                    'sprite': item['sprite'],
-                    'rarity': item['rarity'],
-                    'slot': item['slot'],
-                    'type': item['type'],
-                    'disp_enhancement': item['disp_enhancement'],
-                    'short_disp_enhancement': item['short_disp_enhancement'],
-                    'bonus': item['bonus'],
-                    'module_extra_disp_enhancement': item['module_extra_disp_enhancement'],
-                    'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
-                    'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
-                    'recipe': item['recipe'],
-                    'content': item['content'],
-                    'training': item['training'],
-                    'prices': item['prices'],
-                }
+                change['item'] = Pixyship._create_light_item(item)
 
             changes.append(change)
 
@@ -2071,3 +2026,18 @@ class Pixyship(metaclass=Singleton):
             'short_disp_enhancement': short_disp_enhancement,
             'bonus': bonus
         }
+
+    def get_item_upgrades(self, item_id):
+        upgrades = []
+
+        for current_item_id in self.items.keys():
+            item = self.items[current_item_id]
+
+            if not item['recipe']:
+                continue
+
+            for recipe_item in item['recipe']:
+                if recipe_item['id'] == item_id:
+                    upgrades.append(Pixyship._create_light_item(item))
+
+        return upgrades

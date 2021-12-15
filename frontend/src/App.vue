@@ -74,7 +74,7 @@
 
     <v-main>
       <v-container fluid class="full-height">
-        <router-view></router-view>
+        <router-view :key="$route.fullPath"></router-view>
       </v-container>
     </v-main>
 

@@ -345,6 +345,9 @@
           <v-tab href="#tab-craft"
             ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Craft tree</span></v-tab
           >
+          <v-tab href="#tab-upgrades"
+          ><v-icon left>mdi-rice</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Upgrades</span></v-tab
+          >
         </v-tabs>
       </v-col>
     </v-row>
@@ -433,31 +436,30 @@
 
           <v-tab-item value="tab-craft">
             <v-card flat>
-              <v-col>
                 <v-row
                   v-if="loaded && item.recipe.length > 0"
                   justify="center"
                   class="pt-4"
                 >
-                  <v-treeview
-                    v-model="tree"
-                    hoverable
-                    activatable
-                    item-key="name"
-                    item-children="recipe"
-                    open-on-click
-                    class="px-5"
-                    :items="item.recipe"
-                  >
-                    <template v-slot:label="{ item }">
-                      <item
-                        :item="item"
-                        name="right"
-                        :disableLink="true"
-                        :count="item.count"
-                      />
-                    </template>
-                  </v-treeview>
+                    <v-treeview
+                      v-model="tree"
+                      hoverable
+                      activatable
+                      item-key="name"
+                      item-children="recipe"
+                      open-on-click
+                      class="px-5"
+                      :items="item.recipe"
+                    >
+                      <template v-slot:label="{ item }">
+                        <item
+                          :item="item"
+                          name="right"
+                          :disableLink="true"
+                          :count="item.count"
+                        />
+                      </template>
+                    </v-treeview>
                 </v-row>
 
                 <v-row v-else class="pt-4">
@@ -465,7 +467,39 @@
                     <div class="text-center">This item cannot be crafted.</div>
                   </v-col>
                 </v-row>
-              </v-col>
+            </v-card>
+          </v-tab-item>
+
+          <v-tab-item value="tab-upgrades">
+            <v-card flat>
+
+                <v-row
+                    v-if="loaded && upgrades.length > 0"
+                    justify="center"
+                    class="pt-4"
+                >
+                  <v-col cols="7">
+                    <v-chip-group
+                        column
+                        max="0"
+                    >
+                      <v-chip
+                          v-for="upgrade in upgrades" :key="upgrade.id"
+                          link
+                          outlined
+                          :to="{ name: 'ItemDetail', params: { id: upgrade.id }}"
+                      >
+                        <item :item="upgrade" name="right" disable-link="true"></item>
+                      </v-chip>
+                    </v-chip-group>
+                  </v-col>
+                </v-row>
+
+                <v-row v-else class="pt-4">
+                  <v-col>
+                    <div class="text-center">This item cannot be upgraded.</div>
+                  </v-col>
+                </v-row>
             </v-card>
           </v-tab-item>
         </v-tabs-items>
@@ -498,6 +532,7 @@ export default {
       itemId: this.$route.params.id,
       item: {},
       lastSales: [],
+      upgrades: [],
       showLastSalesStarbux: true,
       showLastSalesGas: true,
       showLastSalesMineral: true,
@@ -642,6 +677,8 @@ export default {
       }
 
       this.lastSales = response.data.lastSales
+      this.upgrades = response.data.upgrades
+
       document.title = "PixyShip - " + this.item.name
       this.loaded = true
     },
