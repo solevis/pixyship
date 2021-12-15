@@ -1163,6 +1163,9 @@ class Pixyship(metaclass=Singleton):
         if item_content_string:
             content_items = item_content_string.split('|')
             for content_item in content_items:
+                if not content_item:
+                    continue
+
                 content_item_unpacked = content_item.split(':')
                 content_item_type = content_item_unpacked[0]
 
