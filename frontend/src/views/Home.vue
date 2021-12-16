@@ -6,7 +6,7 @@
       <v-row v-if="loaded" justify="center">
         <v-col cols="12" md="6">
           <v-card outlined class="not-offers">
-            <div class="news-sprite" :style="spriteStyle(this.news.sprite)"></div>
+            <div :class="$vuetify.breakpoint.smAndUp ?'news-sprite' : 'news-sprite-mobile'" :style="spriteStyle(this.news.sprite)"></div>
             <v-card-title class="overline mb-2"
               ><v-icon left>mdi-newspaper-variant</v-icon>Pixel Starships
               News</v-card-title
@@ -51,7 +51,7 @@
                 Left: {{ this.tournament.left }}
             </v-card-text>
 
-            <v-card-text>
+            <v-card-text v-if="$vuetify.breakpoint.smAndUp">
               {{ this.tournament_news }}
             </v-card-text>
           </v-card>
@@ -510,6 +510,10 @@ export default {
 .news-sprite {
   float: right;
   margin: 10px;
+}
+
+.news-sprite-mobile {
+  margin: 20px auto 0;
 }
 
 a {
