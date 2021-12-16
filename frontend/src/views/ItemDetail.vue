@@ -335,7 +335,7 @@
 
     <v-row justify="center">
       <v-col cols="12" sm="8">
-        <v-tabs v-if="loaded" grow v-model="model" class="mt-4">
+        <v-tabs v-if="loaded" grow show-arrows center-active v-model="model" class="mt-4">
           <v-tab href="#tab-market"
             ><v-icon left>mdi-chart-histogram</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Market History</span></v-tab
           >
