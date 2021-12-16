@@ -226,6 +226,7 @@ class Pixyship(metaclass=Singleton):
         self._characters = None
         self._collections = None
         self._dailies = None
+        self._situations = None
         self._items = None
         self._prestiges = {}
         self._researches = None
@@ -374,6 +375,14 @@ class Pixyship(metaclass=Singleton):
             self.expire_at('change', 60 * 5)
 
         return self._changes
+
+    @property
+    def situations(self):
+        if not self._situations or self.expired('situation'):
+            self._situations = self._get_situations_from_api()
+            self.expire_at('situation', 60 * 5)
+
+        return self._situations
 
     def expired(self, key):
         """Check if cached data is expired."""
@@ -1712,13 +1721,70 @@ class Pixyship(metaclass=Singleton):
                 'news': data['News'],
                 'news_date': data['NewsUpdateDate'],
                 'maintenance': self.pixel_starships_api.maintenance_message,  # not anymore available with the new API endpoint
-                'tournament_news': data['TournamentNews'],
                 'sprite': self.get_sprite_infos(data['NewsSpriteId']),
             },
+            'tournament_news': data['TournamentNews'],
+            'current_situation': self._get_current_situation(),
             'offers': offers,
         }
 
         return dailies
+
+    def _get_situations_from_api(self):
+        """Get situations from API."""
+
+        data = self.pixel_starships_api.get_situations()
+        situations = []
+
+        for datum in data:
+            situation = {
+                'id': int(datum['SituationDesignId']),
+                'name': datum['SituationName'],
+                'description': datum['SituationDescription'],
+                'sprite': self.get_sprite_infos(datum['IconSpriteId']),
+                'from': datum['FromDate'],
+                'end': datum['EndDate'],
+            }
+
+            situations.append(situation)
+
+        return situations
+
+    def _get_current_situation(self):
+        """Get running situation depending on the current date."""
+
+        utc_now = datetime.datetime.utcnow()
+
+        for situation in self.situations:
+            from_date = datetime.datetime.strptime(situation['from'], "%Y-%m-%dT%H:%M:%S")
+            end_date = datetime.datetime.strptime(situation['end'], "%Y-%m-%dT%H:%M:%S")
+            if from_date <= utc_now <= end_date:
+                situation_left_delta = end_date - utc_now
+                situation_left_seconds = situation_left_delta.days * 24 * 3600 + situation_left_delta.seconds
+                situation_left_minutes, situation_left_seconds = divmod(situation_left_seconds, 60)
+                situation_left_hours, situation_left_minutes = divmod(situation_left_minutes, 60)
+                situation_left_days, situation_left_hours = divmod(situation_left_hours, 24)
+                situation_left_weeks, situation_left_days = divmod(situation_left_days, 7)
+
+                situation_left_formatted = ''
+                if situation_left_weeks > 0:
+                    situation_left_formatted += '{}w'.format(situation_left_weeks)
+
+                if situation_left_days > 0:
+                    situation_left_formatted += ' {}d'.format(situation_left_days)
+
+                if situation_left_hours > 0:
+                    situation_left_formatted += ' {}h'.format(situation_left_hours)
+
+                if situation_left_minutes > 0:
+                    situation_left_formatted += ' {}m'.format(situation_left_minutes)
+
+                situation['left'] = situation_left_formatted.strip()
+
+                return situation
+
+        return None
+
 
     def get_record_sprite(self, record_type, record_id, reload_on_error=True):
         """Get sprite date for the given record ID."""

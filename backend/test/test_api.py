@@ -470,3 +470,22 @@ def test_achievements():
     assert 'SpriteId' in achievement
     assert 'RewardString' in achievement
     assert 'ParentAchievementDesignId' in achievement
+
+
+def test_situations():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    situations = pixel_starships_api.get_situations()
+
+    assert len(situations) > 0
+
+    situation = situations[0]
+
+    assert 'SituationDesignId' in situation
+    assert 'SituationName' in situation
+    assert 'SituationDescription' in situation
+    assert 'FromDate' in situation
+    assert 'EndDate' in situation
+    assert 'IconSpriteId' in situation
