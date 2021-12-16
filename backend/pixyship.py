@@ -688,12 +688,16 @@ class Pixyship(metaclass=Singleton):
         records = Record.query.filter_by(type='achievement', current=True).all()
 
         achievements = {}
+        all_parent_achievement_design_id = []
+
         for record in records:
             achievement = self.pixel_starships_api.parse_achievement_node(ElementTree.fromstring(record.data))
 
             starbux_reward = 0
             mineral_reward = 0
             gas_reward = 0
+
+            all_parent_achievement_design_id.append(int(achievement['ParentAchievementDesignId']))
 
             reward_content = achievement['RewardString']
             if reward_content:
@@ -714,7 +718,13 @@ class Pixyship(metaclass=Singleton):
                 'mineral_reward': mineral_reward,
                 'gas_reward': gas_reward,
                 'max_reward': max([starbux_reward, mineral_reward, gas_reward]),
+                'pin_reward': False  # default value, defined after
             }
+
+        # second loop to define pin's reward
+        for achievement in achievements.values():
+            if not achievement['id'] in all_parent_achievement_design_id:
+                achievement['pin_reward'] = True
 
         return achievements
 

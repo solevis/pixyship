@@ -67,6 +67,13 @@
                 </td>
                 <td>{{ item.gas_reward }}</td>
               </tr>
+
+              <tr v-if="item.pin_reward" class="nobreak">
+                <td>
+                  <div class="block my-1 middle" :style="spriteStyle(item.sprite)"></div>
+                </td>
+                <td>(pin)</td>
+              </tr>
             </table>
           </td>
         </tr>
@@ -93,6 +100,7 @@ export default {
           text: "Order by ID",
           align: "center",
           value: "id",
+          width: 95,
           filter: value => {
             const query = this.$route.query
 
@@ -182,6 +190,10 @@ export default {
 <style scoped>
 .block {
   display: inline-block;
+}
+
+.middle {
+  vertical-align: middle;
 }
 
 .name {

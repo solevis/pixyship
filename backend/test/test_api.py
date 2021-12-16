@@ -469,3 +469,4 @@ def test_achievements():
     assert 'AchievementDescription' in achievement
     assert 'SpriteId' in achievement
     assert 'RewardString' in achievement
+    assert 'ParentAchievementDesignId' in achievement
