@@ -525,6 +525,19 @@ export default {
     Crew,
   },
 
+  metaInfo () {
+    return {
+      title: this.item.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.item.name + ': ' + this.item.description
+        },
+      ]
+    }
+  },
+
   data() {
     return {
       model: "tab-detail",
@@ -679,7 +692,6 @@ export default {
       this.lastSales = response.data.lastSales
       this.upgrades = response.data.upgrades
 
-      document.title = "PixyShip - " + this.item.name
       this.loaded = true
     },
   },

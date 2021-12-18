@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Builder </v-card-title>
-    <v-card-subtitle>Design and optimize your ship without breaking it in the game</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -365,12 +365,22 @@ export default {
     },
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   data() {
     return {
+      viewDescription: "Design and optimize your ship without breaking it in the game",
       ships: {},
       shipList: [],
       rooms: {},

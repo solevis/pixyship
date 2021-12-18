@@ -343,6 +343,11 @@ import Item from "@/components/Item.vue"
 const convert = require("xml-js")
 
 export default {
+  metaInfo: {
+    title: 'PixyShip',
+    titleTemplate: null
+  },
+
   mixins: [PixyShipMixin],
 
   components: {
@@ -381,10 +386,6 @@ export default {
     isChangesLoading: function () {
       return !this.changesLoaded
     },
-  },
-
-  created() {
-    document.title = 'PixyShip'
   },
 
   beforeMount: function () {

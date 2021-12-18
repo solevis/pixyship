@@ -84,8 +84,11 @@
 import Changelog from "@/components/Changelog";
 export default {
   components: {Changelog},
-  created() {
-    document.title = "PixyShip - " + this.$route.name
+
+  metaInfo () {
+    return {
+      title: this.$route.name
+    }
   },
 
   data() {

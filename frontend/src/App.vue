@@ -98,6 +98,29 @@
 
 <script>
 export default {
+  metaInfo: {
+    title: '',
+    titleTemplate: (titleChunk) => {
+      return titleChunk ? `PixyShip - ${titleChunk}` : 'PixyShip';
+    },
+    htmlAttrs: {
+      lang: 'en'
+    },
+    meta: [
+      {charset: 'utf-8'},
+      {
+        vmid: 'description',
+        name: 'description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {name: 'viewport', content: 'width=device-width,initial-scale=1.0'},
+      {name: 'msapplication-TileColor', content: '#2b5797'},
+      {name: 'msapplication-config', content: process.env.BASE_URL + 'browserconfig.xml'},
+      {name: 'theme-color', content: '#000000'},
+      {'http-equiv': 'X-UA-Compatible', content: 'IE=edge'},
+    ]
+  },
+
   mounted () {
     this.onMutate()
   },

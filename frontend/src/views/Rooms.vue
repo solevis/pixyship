@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Rooms </v-card-title>
-    <v-card-subtitle>All Pixel Starships rooms (click on a row to display more infos)</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }} (click on a row to display more infos)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -374,6 +374,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "All rooms infos (sprite, type, requirement, cost...) of Pixel Starships",
       searchName: "",
       searchLevel: [],
       searchShipLevel: [],
@@ -495,8 +496,17 @@ export default {
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {

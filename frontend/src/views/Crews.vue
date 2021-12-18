@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Crews </v-card-title>
-    <v-card-subtitle>All Pixel Starships crews (click on crew name to see prestiges infos)</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }} (click on crew name to see prestiges infos)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded" class="pa-0 px-3">
@@ -327,6 +327,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "All crew infos (sprite, stats, skill, collection...) of Pixel Starships",
       searchName: "",
       searchSpecial: [],
       searchRarity: [],
@@ -489,8 +490,17 @@ export default {
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {
