@@ -462,6 +462,10 @@ export default {
     }
   },
 
+  created() {
+    document.title = 'PixyShip - ' + this.$route.name
+  },
+
   data() {
     return {
       ships: {},

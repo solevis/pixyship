@@ -39,6 +39,7 @@
         <v-btn text to="/rooms">Rooms</v-btn>
         <v-btn text to="/ships">Ships</v-btn>
         <v-btn text to="/collections">Collections</v-btn>
+        <v-btn text to="/achievements">Pins</v-btn>
         <v-btn text to="/researches">Researches</v-btn>
         <v-btn aria-label="About" icon to="/about"><v-icon>mdi-help-circle-outline</v-icon></v-btn>
       </template>
@@ -64,6 +65,7 @@
             <v-list-item to="/rooms"><v-list-item-title>Rooms</v-list-item-title></v-list-item>
             <v-list-item to="/ships"><v-list-item-title>Ships</v-list-item-title></v-list-item>
             <v-list-item to="/collections"><v-list-item-title>Collections</v-list-item-title></v-list-item>
+            <v-list-item to="/achievements"><v-list-item-title>Pins</v-list-item-title></v-list-item>
             <v-list-item to="/researches"><v-list-item-title>Researches</v-list-item-title></v-list-item>
             <v-list-item to="/about"><v-list-item-title>About</v-list-item-title></v-list-item>
           </v-list-item-group>
@@ -72,7 +74,7 @@
 
     <v-main>
       <v-container fluid class="full-height">
-        <router-view></router-view>
+        <router-view :key="$route.fullPath"></router-view>
       </v-container>
     </v-main>
 

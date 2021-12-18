@@ -4,7 +4,7 @@
     <v-card-subtitle>All Pixel Starships crews (click on crew name to see prestiges infos)</v-card-subtitle>
 
     <!-- Filters -->
-    <v-card-subtitle v-if="loaded">
+    <v-card-subtitle v-if="loaded" class="pa-0 px-3">
       <v-row>
         <v-col cols="12" sm="4" md="1">
           <v-text-field
@@ -82,6 +82,17 @@
       </v-row>
     </v-card-subtitle>
 
+    <v-card-subtitle class="pa-0">
+    <v-card class="d-flex flex-row-reverse" flat tile>
+      <v-card class="mr-5" flat tile>
+        <v-switch
+            v-model="showScoreStat"
+            label="Display score"
+        ></v-switch>
+      </v-card>
+    </v-card>
+    </v-card-subtitle>
+
     <!-- Table -->
     <v-data-table
       v-if="loaded"
@@ -154,6 +165,7 @@
                   <div
                     v-bind="attrs"
                     v-on="on"
+                    class="center"
                     :style="spriteStyle(item.ability_sprite)"
                   ></div>
                 </template>
@@ -178,24 +190,120 @@
           </td>
 
           <!-- Stats -->
-          <td>{{ item.hp[2] | statFormat(0) }}</td>
-          <td>{{ item.attack[2] | statFormat() }}</td>
-          <td>{{ item.repair[2] | statFormat() }}</td>
-          <td>{{ item.ability[2] | statFormat() }}</td>
-          <td>{{ item.pilot[2] | statFormat() }}</td>
-          <td>{{ item.science[2] | statFormat() }}</td>
-          <td>{{ item.engine[2] | statFormat() }}</td>
-          <td>{{ item.weapon[2] | statFormat() }}</td>
+          <td class="text-center">
+            <span>{{ item.hp[2] | statFormat(0) }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreHP"
+                :color="getScoreColor(item.scoreHP)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.attack[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreAtk"
+                :color="getScoreColor(item.scoreAtk)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.repair[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreRpr"
+                :color="getScoreColor(item.scoreRpr)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.ability[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreAbl"
+                :color="getScoreColor(item.scoreAbl)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.pilot[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scorePlt"
+                :color="getScoreColor(item.scorePlt)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.science[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreSci"
+                :color="getScoreColor(item.scoreSci)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.engine[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreEng"
+                :color="getScoreColor(item.scoreEng)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.weapon[2] | statFormat() }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreWpn"
+                :color="getScoreColor(item.scoreWpn)"
+            ></v-progress-linear>
+          </td>
 
           <!-- Fire -->
-          <td>{{ item.fire_resist }}</td>
+          <td class="text-center">
+            <span>{{ item.fire_resist }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreFire"
+                :color="getScoreColor(item.scoreFire)"
+            ></v-progress-linear>
+          </td>
 
           <!-- Training -->
-          <td>{{ item.training_limit }}</td>
+          <td class="text-center">
+            <span>{{ item.training_limit }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreTraining"
+                :color="getScoreColor(item.scoreTraining)"
+            ></v-progress-linear>
+          </td>
 
           <!-- Speed -->
-          <td> {{ item.walk }} </td>
-          <td> {{ item.run }} </td>
+          <td class="text-center">
+            <span>{{ item.walk }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreWalk"
+                :color="getScoreColor(item.scoreWalk)"
+            ></v-progress-linear>
+          </td>
+          <td class="text-center">
+            <span>{{ item.run }}</span>
+            <v-progress-linear
+                v-if="showScoreStat"
+                class="mt-1"
+                :value="item.scoreRun"
+                :color="getScoreColor(item.scoreRun)"
+            ></v-progress-linear>
+          </td>
         </tr>
       </template>
     </v-data-table>
@@ -232,6 +340,7 @@ export default {
       crews: [],
       defaultLevel: 40,
       level: null,
+      showScoreStat: true,
       headers: [
         { 
           text: "Order by ID", 
@@ -277,7 +386,7 @@ export default {
         },
         { 
           text: "Special", 
-          align: "start",          
+          align: "center",
           value: "special_ability", 
           filter: value => { 
             return this.filterCombobox(value, this.searchSpecial)
@@ -285,7 +394,7 @@ export default {
         },
         { 
           text: "Set", 
-          align: "start",          
+          align: "center",
           value: "collection_name", 
           filter: value => { 
             return this.filterCombobox(value, this.searchCollection)
@@ -293,73 +402,73 @@ export default {
         },
         { 
           text: "HP", 
-          align: "start",          
+          align: "center",
           value: "hp[2]", 
           filterable: false 
         },
         {
           text: "ATK",
-          align: "start",          
+          align: "center",
           value: "attack[2]",
           filterable: false,
         },
         {
           text: "RPR",
-          align: "start",          
+          align: "center",
           value: "repair[2]",
           filterable: false,
         },
         {
           text: "ABL",
-          align: "start",          
+          align: "center",
           value: "ability[2]",
           filterable: false,
         },
         {
           text: "PLT",
-          align: "start",          
+          align: "center",
           value: "pilot[2]",
           filterable: false,
         },
         {
           text: "SCI",
-          align: "start",          
+          align: "center",
           value: "science[2]",
           filterable: false,
         },
         {
           text: "ENG",
-          align: "start",          
+          align: "center",
           value: "engine[2]",
           filterable: false,
         },
         {
           text: "WPN",
-          align: "start",          
+          align: "center",
           value: "weapon[2]",
           filterable: false,
         },
         {
           text: "Fire",
-          align: "start",          
+          align: "center",
           value: "fire_resist",
           filterable: false,
         },
         {
           text: "Training",
-          align: "start",          
+          align: "center",
           value: "training_limit",
           filterable: false,
         },
         { 
           text: "Walk",
-          align: "start",          
+          align: "center",
           value: "walk", 
           filterable: false
         },
         { 
           text: "Run",
-          align: "start",          
+          align: "center",
           value: "run", 
           filterable: false
         },
@@ -495,6 +604,55 @@ export default {
         this.interpolateStat(crew.progression_type, crew.engine)
         this.interpolateStat(crew.progression_type, crew.weapon)
       })
+
+      let maxHP = 0
+      let maxAtk = 0
+      let maxRpr = 0
+      let maxAbl = []
+      let maxPlt = 0
+      let maxSci = 0
+      let maxEng = 0
+      let maxWpn = 0
+      let maxFire = 0
+      let maxTraining = 0
+      let maxWalk = 0
+      let maxRun = 0
+      this.crews.map((crew) => {
+        maxHP = Math.max(maxHP, crew.hp[2])
+        maxAtk = Math.max(maxAtk, crew.attack[2])
+        maxRpr = Math.max(maxRpr, crew.repair[2])
+
+        if (!maxAbl[crew.special_ability]) {
+          maxAbl[crew.special_ability] = crew.ability[2]
+        } else {
+          maxAbl[crew.special_ability] = Math.max(maxAbl[crew.special_ability], crew.ability[2])
+        }
+
+        maxPlt = Math.max(maxPlt, crew.pilot[2])
+        maxSci = Math.max(maxSci, crew.science[2])
+        maxEng = Math.max(maxEng, crew.engine[2])
+        maxWpn = Math.max(maxWpn, crew.weapon[2])
+        maxFire = Math.max(maxFire, crew.fire_resist)
+        maxTraining = Math.max(maxTraining, crew.training_limit)
+        maxWalk = Math.max(maxWalk, crew.walk)
+        maxRun = Math.max(maxRun, crew.run)
+      })
+
+
+      this.crews.map((crew) => {
+        crew.scoreHP = crew.hp[2] / maxHP * 100
+        crew.scoreAtk = crew.attack[2] / maxAtk * 100
+        crew.scoreRpr = crew.repair[2] / maxRpr * 100
+        crew.scoreAbl = crew.ability[2] / maxAbl[crew.special_ability] * 100
+        crew.scorePlt = crew.pilot[2] / maxPlt * 100
+        crew.scoreSci = crew.science[2] / maxSci * 100
+        crew.scoreEng = crew.engine[2] / maxEng * 100
+        crew.scoreWpn = crew.weapon[2] / maxWpn * 100
+        crew.scoreFire = crew.fire_resist / maxFire * 100
+        crew.scoreTraining = crew.training_limit / maxTraining * 100
+        crew.scoreWalk = crew.walk / maxWalk * 100
+        crew.scoreRun = crew.run / maxRun * 100
+      })
     },
 
     interpolateStat(type, stat) {
@@ -522,6 +680,26 @@ export default {
       let values = this.crews.map((crew) => Object.keys(crew.equipment).length === 0 ? ['None'] : Object.keys(crew.equipment))
       this.equipments =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
     },
+
+    getScoreColor(scoreValue) {
+      if (scoreValue < 20) {
+        return 'red darken-3'
+      }
+
+      if (scoreValue < 40) {
+        return 'lime darken-3'
+      }
+
+      if (scoreValue < 60) {
+        return 'light-green darken-3'
+      }
+
+      if (scoreValue < 80) {
+        return 'green darken-3'
+      }
+
+      return 'blue darken-3'
+    }
   },
 }
 </script>
@@ -546,5 +724,9 @@ a.name:hover {
 
 .equip {
   font-size: 90%;
+}
+
+.center {
+  margin: 0 auto;
 }
 </style>

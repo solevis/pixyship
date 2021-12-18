@@ -100,4 +100,6 @@ python -m pytest
 
 **TODO: I will soon share an Ansible role for deploying Pixyship.**
 
+## Sponsors
 
+<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="150">

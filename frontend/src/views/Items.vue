@@ -173,11 +173,7 @@
 
               <!-- Type -->
               <td class="stat">
-                {{ item.type }}
-              </td>
-
-              <!-- SubType -->
-              <td class="stat">
+                {{ item.type }}<br>
                 {{ item.slot }}
               </td>
 
@@ -185,28 +181,81 @@
               <td class="text-xs-left text-capitalize bonus">
                   {{ formatBonus(item) }}
                   <template v-if="item.module_extra_disp_enhancement != null">
-                    <br> {{ formatExtraBonus(item) }}
+                    <br>{{ formatExtraBonus(item) }}
+                  </template>
+                  <template v-if="hasRandomStat(item)">
+                    <br>??&nbsp;+??
                   </template>
               </td>
 
               <!-- Training -->
               <td class="text-xs-left">
-                <table v-if="item.training" class="pa-1">
-                  <tr v-if="item.training.xp != 0"><td :class="item.training.xp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">XP:&nbsp;{{ item.training.xp }}</td></tr>
-                  <tr v-if="item.training.fatigue"><td :class="item.training.fatigue === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Fatigue:&nbsp;{{ item.training.fatigue }}</td></tr>
-                  <tr v-if="item.training.minimum_guarantee != 0"><td :class="item.training.minimum_guarantee === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Min. guarantee:&nbsp;{{ item.training.minimum_guarantee }}%</td></tr>
-                  
-                  <tr v-if="item.training.hp != 0"><td :class="item.training.hp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;&le;&nbsp;{{ item.training.hp }}%</td></tr>
-                  <tr v-if="item.training.attack != 0"><td :class="item.training.attack === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;&le;&nbsp;{{ item.training.attack }}%</td></tr>
-                  <tr v-if="item.training.repair != 0"><td :class="item.training.repair === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;&le;&nbsp;{{ item.training.repair }}%</td></tr>
-                  <tr v-if="item.training.ability != 0"><td :class="item.training.ability === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;&le;&nbsp;{{ item.training.ability }}%</td></tr>
-                  <tr v-if="item.training.stamina != 0"><td :class="item.training.stamina === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;&le;&nbsp;{{ item.training.stamina }}%</td></tr>
-                  
-                  <tr v-if="item.training.pilot != 0"><td :class="item.training.pilot === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;&le;&nbsp;{{ item.training.pilot }}%</td></tr>
-                  <tr v-if="item.training.science != 0"><td :class="item.training.science === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;&le;&nbsp;{{ item.training.science }}%</td></tr>
-                  <tr v-if="item.training.engine != 0"><td :class="item.training.engine === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;&le;&nbsp;{{ item.training.engine }}%</td></tr>
-                  <tr v-if="item.training.weapon != 0"><td :class="item.training.weapon === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;&le;&nbsp;{{ item.training.weapon }}%</td></tr>
-                </table>
+                <ul v-if="item.training" class="pa-2">
+                  <li v-if="item.training.xp != 0">
+                    XP:&nbsp;{{ item.training.xp }}
+                  </li>
+                  <li v-if="item.training.fatigue">
+                    Fatigue:&nbsp;{{
+                      item.training.fatigue
+                    }}
+                  </li>
+
+                  <li v-if="item.training.hp != 0">
+                <span :class="item.training.hp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;<span>{{ item.training.hp === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.hp
+                  }}%
+                </span>
+                  </li>
+                  <li v-if="item.training.attack != 0">
+                <span :class="item.training.attack === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;<span>{{ item.training.attack === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.attack
+                  }}%
+                </span>
+                  </li>
+                  <li v-if="item.training.repair != 0">
+                <span :class="item.training.repair === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;<span>{{ item.training.repair === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.repair
+                  }}%
+                </span>
+                  </li>
+                  <li v-if="item.training.ability != 0">
+                <span :class="item.training.ability === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;<span>{{ item.training.ability === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.ability
+                  }}%
+                </span>
+                  </li>
+                  <li v-if="item.training.stamina != 0">
+                <span :class="item.training.stamina === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;<span>{{ item.training.stamina === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.stamina
+                  }}%
+                </span>
+                  </li>
+
+                  <li v-if="item.training.pilot != 0">
+                <span :class="item.training.pilot === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;<span>{{ item.training.pilot === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.pilot
+                  }}%
+                </span>
+                  </li>
+                  <li v-if="item.training.science != 0">
+                <span :class="item.training.science === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;<span>{{ item.training.science === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.science
+                  }}%
+                </span>
+                  </li>
+                  <li v-if="item.training.engine != 0">
+                <span :class="item.training.engine === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;<span>{{ item.training.engine === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.engine
+                  }}%
+                </span>
+                  </li>
+                  <li v-if="item.training.weapon != 0">
+                <span :class="item.training.weapon === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;<span>{{ item.training.weapon === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.weapon
+                  }}%
+                </span>
+                  </li>
+                </ul>
               </td>
 
               <!-- Recipe -->
@@ -226,7 +275,7 @@
               </td>
 
               <!-- Content -->
-              <td class="content">
+              <td class="content pa-2">
                 <template v-if="item.content.length > 0">
                   {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
                   <table style="margin: 0 auto;" class="mt-1">
@@ -332,21 +381,24 @@ export default {
           width: 210,
         },
         {
-          text: "Type",
+          text: "Type/Subtype",
           align: "center",          
           value: "type",
           sortable: true,
-          filter: (value) => {
-            return this.filterCombobox(value, this.searchType)
-          },
-        },
-        {
-          text: "Subtype",
-          align: "center",          
-          value: "slot",
-          sortable: true,
-          filter: (value) => {
-            return this.filterCombobox(value, this.searchSlot)
+          filter: (value, search, item) => {
+            // both filters
+            if ((this.searchSlot !== null && this.searchSlot.length > 0)
+                && (this.searchType !== null && this.searchType.length > 0)) {
+              return this.filterCombobox(item.type, this.searchType) && this.filterCombobox(item.slot, this.searchSlot)
+            }
+
+            // only slot
+            if (this.searchType === null || this.searchType.length === 0) {
+              return this.filterCombobox(item.slot, this.searchSlot)
+            }
+
+            // only type
+            return this.filterCombobox(item.type, this.searchType)
           },
         },
         {
@@ -354,7 +406,12 @@ export default {
           align: "center",          
           value: "bonus",
           filter: (value, search, item) => {
-            return this.filterCombobox(item.disp_enhancement, this.searchStat)
+            let searchValue = item.disp_enhancement
+            if (item.disp_enhancement !== null) {
+              searchValue = item.disp_enhancement + ',' + item.module_extra_disp_enhancement
+            }
+
+            return this.filterCombobox(searchValue, this.searchStat)
           },
         },
         {
@@ -516,8 +573,7 @@ export default {
               .reduce((c, s) => c + s)
           : 0
 
-        if (item.disp_enhancement == null) {
-          item.hiddenBonus = item.bonus
+        if (item.disp_enhancement === null) {
           item.bonus = 0
         }
 
@@ -618,7 +674,7 @@ a.name {
 }
 
 .bonus {
-  min-width: 100px;
+  min-width: 110px;
 }
 
 .recipe {

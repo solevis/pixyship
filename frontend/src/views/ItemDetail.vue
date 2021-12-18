@@ -26,8 +26,7 @@
               <thead>
                 <tr>
                   <th class="text-left">Rarity</th>
-                  <th class="text-left">Type</th>
-                  <th class="text-left">Subtype</th>
+                  <th class="text-left">Type/Subtype</th>
                   <th class="text-left">Bonus</th>
                   <th class="text-left">Training</th>
                   <th class="text-left">Recipe</th>
@@ -47,37 +46,90 @@
                   </td>
 
                   <!-- Type -->
-                  <td>{{ item.type }}</td>
-
-                  <!-- Subtype -->
-                  <td>{{ item.slot }}</td>
+                  <td>
+                    {{ item.type }}<br>
+                    {{ item.slot }}
+                  </td>
 
                   <!-- Bonus -->
                   <td class="text-xs-left text-capitalize bonus">
                       {{ formatBonus(item) }}
                       <template v-if="item.module_extra_disp_enhancement != null">
-                        <br> {{ formatExtraBonus(item) }}
+                        <br>{{ formatExtraBonus(item) }}
+                      </template>
+                      <template v-if="hasRandomStat(item)">
+                        <br>??&nbsp;+??
                       </template>
                   </td>
 
                   <!-- Training -->
-                  <td class="text-xs-left" style="width: 175px">
-                    <table v-if="item.training" class="pa-1">
-                      <tr v-if="item.training.xp != 0"><td :class="item.training.xp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">XP:&nbsp;{{ item.training.xp }}</td></tr>
-                      <tr v-if="item.training.fatigue"><td :class="item.training.fatigue === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Fatigue:&nbsp;{{ item.training.fatigue }}</td></tr>
-                      <tr v-if="item.training.minimum_guarantee != 0"><td :class="item.training.minimum_guarantee === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Min. guarantee:&nbsp;{{ item.training.minimum_guarantee }}%</td></tr>
-                      
-                      <tr v-if="item.training.hp != 0"><td :class="item.training.hp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;&le;&nbsp;{{ item.training.hp }}%</td></tr>
-                      <tr v-if="item.training.attack != 0"><td :class="item.training.attack === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;&le;&nbsp;{{ item.training.attack }}%</td></tr>
-                      <tr v-if="item.training.repair != 0"><td :class="item.training.repair === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;&le;&nbsp;{{ item.training.repair }}%</td></tr>
-                      <tr v-if="item.training.ability != 0"><td :class="item.training.ability === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;&le;&nbsp;{{ item.training.ability }}%</td></tr>
-                      <tr v-if="item.training.stamina != 0"><td :class="item.training.stamina === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;&le;&nbsp;{{ item.training.stamina }}%</td></tr>
-                      
-                      <tr v-if="item.training.pilot != 0"><td :class="item.training.pilot === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;&le;&nbsp;{{ item.training.pilot }}%</td></tr>
-                      <tr v-if="item.training.science != 0"><td :class="item.training.science === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;&le;&nbsp;{{ item.training.science }}%</td></tr>
-                      <tr v-if="item.training.engine != 0"><td :class="item.training.engine === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;&le;&nbsp;{{ item.training.engine }}%</td></tr>
-                      <tr v-if="item.training.weapon != 0"><td :class="item.training.weapon === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;&le;&nbsp;{{ item.training.weapon }}%</td></tr>
-                    </table>
+                  <td class="text-xs-left">
+                    <ul v-if="item.training" class="pa-2">
+                      <li v-if="item.training.xp != 0">
+                        XP:&nbsp;{{ item.training.xp }}
+                      </li>
+                      <li v-if="item.training.fatigue">
+                        Fatigue:&nbsp;{{
+                          item.training.fatigue
+                        }}
+                      </li>
+
+                      <li v-if="item.training.hp != 0">
+                <span :class="item.training.hp === item.mainTrainingStatValue ? 'font-weight-bold' : ''">HP:&nbsp;<span>{{ item.training.hp === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.hp
+                  }}%
+                </span>
+                      </li>
+                      <li v-if="item.training.attack != 0">
+                <span :class="item.training.attack === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Attack:&nbsp;<span>{{ item.training.attack === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.attack
+                  }}%
+                </span>
+                      </li>
+                      <li v-if="item.training.repair != 0">
+                <span :class="item.training.repair === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Repair:&nbsp;<span>{{ item.training.repair === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.repair
+                  }}%
+                </span>
+                      </li>
+                      <li v-if="item.training.ability != 0">
+                <span :class="item.training.ability === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Ability:&nbsp;<span>{{ item.training.ability === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.ability
+                  }}%
+                </span>
+                      </li>
+                      <li v-if="item.training.stamina != 0">
+                <span :class="item.training.stamina === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Stamina:&nbsp;<span>{{ item.training.stamina === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.stamina
+                  }}%
+                </span>
+                      </li>
+
+                      <li v-if="item.training.pilot != 0">
+                <span :class="item.training.pilot === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Pilot:&nbsp;<span>{{ item.training.pilot === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.pilot
+                  }}%
+                </span>
+                      </li>
+                      <li v-if="item.training.science != 0">
+                <span :class="item.training.science === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Science:&nbsp;<span>{{ item.training.science === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.science
+                  }}%
+                </span>
+                      </li>
+                      <li v-if="item.training.engine != 0">
+                <span :class="item.training.engine === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Engine:&nbsp;<span>{{ item.training.engine === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.engine
+                  }}%
+                </span>
+                      </li>
+                      <li v-if="item.training.weapon != 0">
+                <span :class="item.training.weapon === item.mainTrainingStatValue ? 'font-weight-bold' : ''">Weapon:&nbsp;<span>{{ item.training.weapon === item.mainTrainingStatValue ? item.training.minimum_guarantee : 0 }}%&ndash;</span>{{
+                    item.training.weapon
+                  }}%
+                </span>
+                      </li>
+                    </ul>
                   </td>
 
                   <!-- Recipe -->
@@ -97,7 +149,7 @@
                   </td>
 
                   <!-- Content -->
-                  <td>
+                  <td class="pa-2">
                     <template v-if="item.content.length > 0">
                       {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
                       <table style="margin: 0 auto;" class="mt-1">
@@ -190,10 +242,9 @@
           <v-card-title>Details</v-card-title>
           <v-card-text>
             <span>Rarity: <span :class="['rarity', item.rarity]">{{ item.rarity }}</span></span><br>
-            <span>Type: {{ item.type }}</span><br>
-            <span>Subtype: {{ item.slot }}</span><br>
+            <span>Type/Subtype: {{ item.type }}/{{ item.slot }}</span><br>
             <template v-if="formatBonus(item)">
-              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template></span><br>
+              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><template v-if="hasRandomStat(item)">&nbsp;/&nbsp;??&nbsp;+??</template></span><br>
             </template>
 
             <div v-if="item.recipe.length > 0">Recipe:
@@ -284,7 +335,7 @@
 
     <v-row justify="center">
       <v-col cols="12" sm="8">
-        <v-tabs v-if="loaded" grow v-model="model" class="mt-4">
+        <v-tabs v-if="loaded" grow show-arrows center-active v-model="model" class="mt-4">
           <v-tab href="#tab-market"
             ><v-icon left>mdi-chart-histogram</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Market History</span></v-tab
           >
@@ -293,6 +344,9 @@
           >
           <v-tab href="#tab-craft"
             ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Craft tree</span></v-tab
+          >
+          <v-tab href="#tab-upgrades"
+          ><v-icon left>mdi-rice</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Upgrades</span></v-tab
           >
         </v-tabs>
       </v-col>
@@ -382,31 +436,30 @@
 
           <v-tab-item value="tab-craft">
             <v-card flat>
-              <v-col>
                 <v-row
                   v-if="loaded && item.recipe.length > 0"
                   justify="center"
                   class="pt-4"
                 >
-                  <v-treeview
-                    v-model="tree"
-                    hoverable
-                    activatable
-                    item-key="name"
-                    item-children="recipe"
-                    open-on-click
-                    class="px-5"
-                    :items="item.recipe"
-                  >
-                    <template v-slot:label="{ item }">
-                      <item
-                        :item="item"
-                        name="right"
-                        :disableLink="true"
-                        :count="item.count"
-                      />
-                    </template>
-                  </v-treeview>
+                    <v-treeview
+                      v-model="tree"
+                      hoverable
+                      activatable
+                      item-key="name"
+                      item-children="recipe"
+                      open-on-click
+                      class="px-5"
+                      :items="item.recipe"
+                    >
+                      <template v-slot:label="{ item }">
+                        <item
+                          :item="item"
+                          name="right"
+                          :disableLink="true"
+                          :count="item.count"
+                        />
+                      </template>
+                    </v-treeview>
                 </v-row>
 
                 <v-row v-else class="pt-4">
@@ -414,7 +467,39 @@
                     <div class="text-center">This item cannot be crafted.</div>
                   </v-col>
                 </v-row>
-              </v-col>
+            </v-card>
+          </v-tab-item>
+
+          <v-tab-item value="tab-upgrades">
+            <v-card flat>
+
+                <v-row
+                    v-if="loaded && upgrades.length > 0"
+                    justify="center"
+                    class="pt-4"
+                >
+                  <v-col cols="7">
+                    <v-chip-group
+                        column
+                        max="0"
+                    >
+                      <v-chip
+                          v-for="upgrade in upgrades" :key="upgrade.id"
+                          link
+                          outlined
+                          :to="{ name: 'ItemDetail', params: { id: upgrade.id }}"
+                      >
+                        <item :item="upgrade" name="right" disable-link="true"></item>
+                      </v-chip>
+                    </v-chip-group>
+                  </v-col>
+                </v-row>
+
+                <v-row v-else class="pt-4">
+                  <v-col>
+                    <div class="text-center">This item cannot be upgraded.</div>
+                  </v-col>
+                </v-row>
             </v-card>
           </v-tab-item>
         </v-tabs-items>
@@ -447,6 +532,7 @@ export default {
       itemId: this.$route.params.id,
       item: {},
       lastSales: [],
+      upgrades: [],
       showLastSalesStarbux: true,
       showLastSalesGas: true,
       showLastSalesMineral: true,
@@ -591,6 +677,8 @@ export default {
       }
 
       this.lastSales = response.data.lastSales
+      this.upgrades = response.data.upgrades
+
       document.title = "PixyShip - " + this.item.name
       this.loaded = true
     },

@@ -1,9 +1,20 @@
 import plotly from "plotly.js-dist"
 
+const rarityOrder = {
+  "common": 0,
+  "elite": 1,
+  "unique": 2,
+  "epic": 3,
+  "hero": 4,
+  "special": 5,
+  "legendary": 6,
+}
+
 export default {
 
   data() {
     return {
+      rarityOrder: rarityOrder,
       showStarbux: true,
       showGas: false,
       showMineral: false,
@@ -16,10 +27,7 @@ export default {
       let formatedBonus = ""
 
       if (item.disp_enhancement != null && item.bonus) {
-        formatedBonus = item.slot == 'Module' ? '' : '+'
-        formatedBonus += item.bonus + " " + item.disp_enhancement
-      } else if (item.hiddenBonus) {
-        formatedBonus = item.hiddenBonus
+        formatedBonus = item.short_disp_enhancement + ' +' + item.bonus
       }
 
       return formatedBonus
@@ -29,8 +37,7 @@ export default {
       let formatedBonus = ""
 
       if (item.module_extra_disp_enhancement != null && item.module_extra_enhancement_bonus) {
-        formatedBonus = item.slot == 'Module' ? '' : '+'
-        formatedBonus += item.module_extra_enhancement_bonus + " " + item.module_extra_disp_enhancement
+        formatedBonus = item.module_extra_short_disp_enhancement + ' +' + item.module_extra_enhancement_bonus
       }
 
       return formatedBonus
@@ -236,6 +243,27 @@ export default {
         'xaxis.autorange': true,
         'yaxis.autorange': true
       })
+    },
+
+    hasRandomStat(item) {
+      if (item.type !== 'Equipment') {
+        return false
+      }
+
+      if (!['Accessory', 'Head', 'Body', 'Weapon', 'Leg', 'Pet', ].includes(item.slot)) {
+        return false
+      }
+
+      let rarityAOrder = this.rarityOrder[item.rarity.toLowerCase()]
+      if (rarityAOrder < this.rarityOrder['hero']) {
+        return false
+      }
+
+      if (item.disp_enhancement === null && !item.bonus && !item.hiddenBonus) {
+        return false
+      }
+
+      return true
     }
   }
 }
