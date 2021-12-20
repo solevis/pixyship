@@ -89,7 +89,7 @@
         class="py-1 text-center white--text"
         cols="12"
       >
-        <strong>PixyShip</strong> — <a class="white--text" href="/changelog">v2.2.6</a>
+        <strong>PixyShip</strong> &mdash; <a class="white--text" href="/changelog">v2.2.6</a>
       </v-col>
     </v-row>
   </v-footer>
