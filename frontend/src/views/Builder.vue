@@ -677,19 +677,23 @@ export default {
        */
 
       if (this.selectedShip) {
-        let query = {
-          ship: this.selectedShip.id
-        }
+        let searchParams = new URLSearchParams()
+
+        searchParams.set('ship', this.selectedShip.id)
 
         const roomsQuery = this.shipRooms.map(location => `${location.x},${location.y},${location.roomId}`).join('-')
         if (roomsQuery) {
-          query.rooms = roomsQuery
+          searchParams.set('rooms', roomsQuery)
         }
 
-        this.$router.replace({
-          path: '/builder',
-          query
-        }).catch(() => {})
+        let queryString = searchParams.toString()
+        if (queryString) {
+          queryString = '?' + queryString
+        }
+
+        queryString = decodeURIComponent(queryString)
+
+        window.history.pushState('', '', this.$route.path + queryString)
       }
     },
 
