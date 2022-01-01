@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Collections </v-card-title>
-    <v-card-subtitle>All crew collections infos (crews, bonus, skill, ...) of Pixel Starships</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -94,6 +94,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "All crew collections infos (crews, bonus, skill...) of Pixel Starships",
       searchName: this.name,
       searchSkill: [],
       skills: [],
@@ -177,8 +178,17 @@ export default {
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {

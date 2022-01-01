@@ -13,7 +13,7 @@
           <a href="https://www.okpal.com/pixyship/#/" target="_blank"
             >crowfunding campaign</a
           >
-          crontributors, and especially to:
+          contributors, and especially to:
         </p>
         <p>
           Admiral Col, Albathoor, Alisrassa, Baradum, GudegLezat, Harmony,
@@ -84,8 +84,11 @@
 import Changelog from "@/components/Changelog";
 export default {
   components: {Changelog},
-  created() {
-    document.title = "PixyShip - " + this.$route.name
+
+  metaInfo () {
+    return {
+      title: this.$route.name
+    }
   },
 
   data() {

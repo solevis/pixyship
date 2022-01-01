@@ -6,7 +6,7 @@
       <v-row v-if="loaded" justify="center">
         <v-col cols="12" md="6">
           <v-card outlined class="not-offers">
-            <div class="news-sprite" :style="spriteStyle(this.news.sprite)"></div>
+            <div :class="$vuetify.breakpoint.smAndUp ?'news-sprite' : 'news-sprite-mobile'" :style="spriteStyle(this.news.sprite)"></div>
             <v-card-title class="overline mb-2"
               ><v-icon left>mdi-newspaper-variant</v-icon>Pixel Starships
               News</v-card-title
@@ -16,10 +16,23 @@
               Stardate #{{ stardate }} ({{ news.news_moment.format('YYYY/MM/DD') }})
             </v-card-subtitle>
             <v-card-text>
-              <p></p>
+              <br>
               <p v-if="news.news_moment">{{ news.news }}</p>
               <p class="small error">{{ news.maintenance }}</p>
             </v-card-text>
+
+
+            <v-card-title class="overline mb-2" v-if="current_situation">
+              <v-icon left>mdi-calendar</v-icon>
+
+              <div class="block middle mr-1">Current event running</div>
+              <div class="block middle mr-1" :style="spriteStyle(current_situation.sprite)"></div>
+            </v-card-title>
+
+            <v-card-subtitle v-if="current_situation">
+              <div>{{ current_situation.name }} ({{ current_situation.description }})</div>
+              <div>Left {{ current_situation.left }}</div>
+            </v-card-subtitle>
           </v-card>
         </v-col>
 
@@ -29,17 +42,13 @@
               ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
             >
             <v-card-text v-if="this.tournament.started">
-              <p>
                 End the {{ nowTime(this.tournament.end) }}<br>
                 Left: {{ this.tournament.left }}
-              </p>
             </v-card-text>
 
             <v-card-text v-else>
-              <p>
                 Start the {{ nowTime(this.tournament.start) }}<br>
                 Left: {{ this.tournament.left }}
-              </p>
             </v-card-text>
           </v-card>
         </v-col>
@@ -330,6 +339,11 @@ import Item from "@/components/Item.vue"
 const convert = require("xml-js")
 
 export default {
+  metaInfo: {
+    title: 'PixyShip',
+    titleTemplate: null
+  },
+
   mixins: [PixyShipMixin],
 
   components: {
@@ -351,6 +365,7 @@ export default {
       changesYesterday: 0,
       changesThisWeek: 0,
       news: {},
+      current_situation: {},
       stardate: 0,
     }
   },
@@ -369,10 +384,6 @@ export default {
     },
   },
 
-  created() {
-    document.title = 'PixyShip'
-  },
-
   beforeMount: function () {
     this.getDaily()
   },
@@ -388,6 +399,8 @@ export default {
 
       this.offers = response.data.data.offers
       this.stardate = response.data.data.stardate
+
+      this.current_situation = response.data.data.current_situation
 
       this.news = response.data.data.news
       this.news.news_moment = moment.utc(this.news.news_date).local()
@@ -492,6 +505,10 @@ export default {
 .news-sprite {
   float: right;
   margin: 10px;
+}
+
+.news-sprite-mobile {
+  margin: 20px auto 0;
 }
 
 a {

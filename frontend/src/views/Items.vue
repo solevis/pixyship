@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Items </v-card-title>
-    <v-card-subtitle>All Pixel Starships items and market history:
+    <v-card-subtitle>{{ viewDescription }}:
       <ul>
         <li>click on item name to see market history, last players sales and craft tree</li>
       </ul>
@@ -181,7 +181,10 @@
               <td class="text-xs-left text-capitalize bonus">
                   {{ formatBonus(item) }}
                   <template v-if="item.module_extra_disp_enhancement != null">
-                    <br> {{ formatExtraBonus(item) }}
+                    <br>{{ formatExtraBonus(item) }}
+                  </template>
+                  <template v-if="hasRandomStat(item)">
+                    <br>??&nbsp;+??
                   </template>
               </td>
 
@@ -317,6 +320,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "All Pixel Starships items (bonus, recipe, content...) and market history",
       searchName: "",
       searchRarity: [],
       searchSlot: [],
@@ -483,8 +487,17 @@ export default {
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {
@@ -671,7 +684,7 @@ a.name {
 }
 
 .bonus {
-  min-width: 100px;
+  min-width: 110px;
 }
 
 .recipe {

@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Changes</v-card-title>
-    <v-card-subtitle>API changes for common assets of Pixel Starships</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -171,6 +171,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "API and sprites changes for common assets of Pixel Starships",
       itemsPerPage: 20,
       searchName: '',
       defaultSearchDate: new Date().toISOString().substr(0, 10),
@@ -227,8 +228,17 @@ export default {
     },
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {

@@ -55,7 +55,10 @@
                   <td class="text-xs-left text-capitalize bonus">
                       {{ formatBonus(item) }}
                       <template v-if="item.module_extra_disp_enhancement != null">
-                        <br> {{ formatExtraBonus(item) }}
+                        <br>{{ formatExtraBonus(item) }}
+                      </template>
+                      <template v-if="hasRandomStat(item)">
+                        <br>??&nbsp;+??
                       </template>
                   </td>
 
@@ -241,7 +244,7 @@
             <span>Rarity: <span :class="['rarity', item.rarity]">{{ item.rarity }}</span></span><br>
             <span>Type/Subtype: {{ item.type }}/{{ item.slot }}</span><br>
             <template v-if="formatBonus(item)">
-              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template></span><br>
+              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><template v-if="hasRandomStat(item)">&nbsp;/&nbsp;??&nbsp;+??</template></span><br>
             </template>
 
             <div v-if="item.recipe.length > 0">Recipe:
@@ -332,7 +335,7 @@
 
     <v-row justify="center">
       <v-col cols="12" sm="8">
-        <v-tabs v-if="loaded" grow v-model="model" class="mt-4">
+        <v-tabs v-if="loaded" grow show-arrows center-active v-model="model" class="mt-4">
           <v-tab href="#tab-market"
             ><v-icon left>mdi-chart-histogram</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Market History</span></v-tab
           >
@@ -341,6 +344,9 @@
           >
           <v-tab href="#tab-craft"
             ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Craft tree</span></v-tab
+          >
+          <v-tab href="#tab-upgrades"
+          ><v-icon left>mdi-rice</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Upgrades</span></v-tab
           >
         </v-tabs>
       </v-col>
@@ -430,31 +436,30 @@
 
           <v-tab-item value="tab-craft">
             <v-card flat>
-              <v-col>
                 <v-row
                   v-if="loaded && item.recipe.length > 0"
                   justify="center"
                   class="pt-4"
                 >
-                  <v-treeview
-                    v-model="tree"
-                    hoverable
-                    activatable
-                    item-key="name"
-                    item-children="recipe"
-                    open-on-click
-                    class="px-5"
-                    :items="item.recipe"
-                  >
-                    <template v-slot:label="{ item }">
-                      <item
-                        :item="item"
-                        name="right"
-                        :disableLink="true"
-                        :count="item.count"
-                      />
-                    </template>
-                  </v-treeview>
+                    <v-treeview
+                      v-model="tree"
+                      hoverable
+                      activatable
+                      item-key="name"
+                      item-children="recipe"
+                      open-on-click
+                      class="px-5"
+                      :items="item.recipe"
+                    >
+                      <template v-slot:label="{ item }">
+                        <item
+                          :item="item"
+                          name="right"
+                          :disableLink="true"
+                          :count="item.count"
+                        />
+                      </template>
+                    </v-treeview>
                 </v-row>
 
                 <v-row v-else class="pt-4">
@@ -462,7 +467,39 @@
                     <div class="text-center">This item cannot be crafted.</div>
                   </v-col>
                 </v-row>
-              </v-col>
+            </v-card>
+          </v-tab-item>
+
+          <v-tab-item value="tab-upgrades">
+            <v-card flat>
+
+                <v-row
+                    v-if="loaded && upgrades.length > 0"
+                    justify="center"
+                    class="pt-4"
+                >
+                  <v-col cols="7">
+                    <v-chip-group
+                        column
+                        max="0"
+                    >
+                      <v-chip
+                          v-for="upgrade in upgrades" :key="upgrade.id"
+                          link
+                          outlined
+                          :to="{ name: 'ItemDetail', params: { id: upgrade.id }}"
+                      >
+                        <item :item="upgrade" name="right" disable-link="true"></item>
+                      </v-chip>
+                    </v-chip-group>
+                  </v-col>
+                </v-row>
+
+                <v-row v-else class="pt-4">
+                  <v-col>
+                    <div class="text-center">This item cannot be upgraded.</div>
+                  </v-col>
+                </v-row>
             </v-card>
           </v-tab-item>
         </v-tabs-items>
@@ -488,6 +525,19 @@ export default {
     Crew,
   },
 
+  metaInfo () {
+    return {
+      title: this.item.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.item.name + ': ' + this.item.description
+        },
+      ]
+    }
+  },
+
   data() {
     return {
       model: "tab-detail",
@@ -495,6 +545,7 @@ export default {
       itemId: this.$route.params.id,
       item: {},
       lastSales: [],
+      upgrades: [],
       showLastSalesStarbux: true,
       showLastSalesGas: true,
       showLastSalesMineral: true,
@@ -639,7 +690,8 @@ export default {
       }
 
       this.lastSales = response.data.lastSales
-      document.title = "PixyShip - " + this.item.name
+      this.upgrades = response.data.upgrades
+
       this.loaded = true
     },
   },

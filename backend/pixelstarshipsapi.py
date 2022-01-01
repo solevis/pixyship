@@ -834,7 +834,6 @@ class PixelStarshipsApi:
         trainings = []
         training_nodes = root.find('.//TrainingDesigns')
 
-        # it's possible to don't have prestiges for the given character
         if training_nodes:
             for training_node in training_nodes:
                 training = self.parse_training_node(training_node)
@@ -848,3 +847,63 @@ class PixelStarshipsApi:
         """Extract training data from XML node."""
 
         return training_node.attrib.copy()
+
+    def get_achievements(self):
+        """Get achievements data from API."""
+
+        params = {
+            'version': self.__api_settings['AchievementDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/AchievementService/ListAchievementDesigns2'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        achievements = []
+        achievement_nodes = root.find('.//AchievementDesigns')
+
+        if achievement_nodes:
+            for achievement_node in achievement_nodes:
+                achievement = self.parse_achievement_node(achievement_node)
+                achievement['pixyship_xml_element'] = achievement_node  # custom field, return raw XML data too
+                achievements.append(achievement)
+
+        return achievements
+
+    @staticmethod
+    def parse_achievement_node(achievement_node):
+        """Extract achievement data from XML node."""
+
+        return achievement_node.attrib.copy()
+
+    def get_situations(self):
+        """Get situations data from API."""
+
+        params = {
+            'version': self.__api_settings['SituationDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/SituationService/ListSituationDesigns'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        situations = []
+        situation_nodes = root.find('.//SituationDesigns')
+
+        if situation_nodes:
+            for situation_node in situation_nodes:
+                situation = self.parse_situation_node(situation_node)
+                situation['pixyship_xml_element'] = situation_node  # custom field, return raw XML data too
+                situations.append(situation)
+
+        return situations
+
+    @staticmethod
+    def parse_situation_node(situation_node):
+        """Extract situation data from XML node."""
+
+        return situation_node.attrib.copy()

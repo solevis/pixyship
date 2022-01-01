@@ -92,6 +92,9 @@ def import_assets():
     logger.info('Importing trainings...')
     pixyship.update_trainings()
 
+    logger.info('Importing achievements...')
+    pixyship.update_achievements()
+
     logger.info('Done')
 
 

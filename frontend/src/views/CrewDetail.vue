@@ -377,6 +377,19 @@ export default {
     },
   },
 
+  metaInfo () {
+    return {
+      title: this.character.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.character.name + ': ' + this.character.description
+        },
+      ]
+    }
+  },
+
   methods: {
     getCrew: async function () {
       const response = await axios.get(this.prestigeEndpoint + this.crewId)
@@ -394,7 +407,6 @@ export default {
       this.to = this.data.to
 
       this.character = this.characters[this.crewId]
-      document.title = 'PixyShip - ' + this.character.name
 
       this.loaded = true
       this.updateCurrentLevel()

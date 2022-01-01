@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Players </v-card-title>
-    <v-card-subtitle>Search top players and see their layout (click the gear icon for options)</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }} (click the gear icon for options)</v-card-subtitle>
 
     <v-card flat>
       <v-toolbar v-if="loaded" flat color="#1E1E1E">
@@ -380,6 +380,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "Search top players and see their layout and infos",
       menu: false,
       searchPlayer: "",
       searchText: "",
@@ -406,8 +407,17 @@ export default {
     },
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {

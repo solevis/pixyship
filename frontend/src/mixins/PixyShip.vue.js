@@ -9,6 +9,7 @@ export default {
     return {
       changesEndpoint: apiServer + 'api/changes',
       collectionsEndpoint: apiServer + 'api/collections',
+      achievementsEndpoint: apiServer + 'api/achievements',
       crewEndpoint: apiServer + 'api/crew',
       itemPricesEndpoint: (id) => apiServer + `api/item/${id}/prices`,
       itemDetailEndpoint: (id) => apiServer + `api/item/${id}/detail`,

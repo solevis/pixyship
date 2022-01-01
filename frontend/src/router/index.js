@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import VueMeta from 'vue-meta'
 
 Vue.use(VueRouter)
+Vue.use(VueMeta)
 
 const routes = [
   {
@@ -49,6 +51,11 @@ const routes = [
     component: () => import('../views/Collections.vue')
   },
   {
+    path: '/achievements',
+    name: 'Pins',
+    component: () => import('../views/Achievements.vue')
+  },
+  {
     path: '/researches',
     name: 'Researches',
     component: () => import('../views/Researches.vue')
@@ -92,6 +99,12 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.onError(error => {
+  if (/loading chunk \d* failed./i.test(error.message)) {
+    window.location.reload()
+  }
 })
 
 export default router
