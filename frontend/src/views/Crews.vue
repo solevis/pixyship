@@ -495,8 +495,38 @@ export default {
       title: this.$route.name,
       meta: [
         {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
           vmid: 'description',
           name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
           content: this.viewDescription
         },
       ]

@@ -103,15 +103,42 @@ export default {
     titleTemplate: (titleChunk) => {
       return titleChunk ? `PixyShip - ${titleChunk}` : 'PixyShip';
     },
-    htmlAttrs: {
-      lang: 'en'
-    },
     meta: [
       {charset: 'utf-8'},
       {
         vmid: 'description',
         name: 'description',
         content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'google-description',
+        itemprop: 'description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'google-title',
+        itemprop: 'name',
+        content: 'PixyShip'
+      },
+      {
+        vmid: 'og-description',
+        property: 'og:description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'og-title',
+        property: 'og:title',
+        content: 'PixyShip'
+      },
+      {
+        vmid: 'twitter-description',
+        name: 'twitter:description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'twitter-title',
+        name: 'twitter:title',
+        content: 'PixyShip'
       },
       {name: 'viewport', content: 'width=device-width,initial-scale=1.0'},
       {name: 'msapplication-TileColor', content: '#2b5797'},

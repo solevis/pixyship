@@ -85,9 +85,26 @@ import Changelog from "@/components/Changelog";
 export default {
   components: {Changelog},
 
-  metaInfo () {
+  metaInfo() {
     return {
-      title: this.$route.name
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+      ]
     }
   },
 

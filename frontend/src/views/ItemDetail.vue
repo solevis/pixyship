@@ -530,8 +530,38 @@ export default {
       title: this.item.name,
       meta: [
         {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.item.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.item.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.item.name}`
+        },
+        {
           vmid: 'description',
           name: 'description',
+          content: this.item.name + ': ' + this.item.description
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.item.name + ': ' + this.item.description
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.item.name + ': ' + this.item.description
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
           content: this.item.name + ': ' + this.item.description
         },
       ]
