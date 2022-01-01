@@ -22,7 +22,7 @@
             </v-card-text>
 
 
-            <v-card-title class="overline mb-2">
+            <v-card-title class="overline mb-2" v-if="current_situation">
               <v-icon left>mdi-calendar</v-icon>
 
               <div class="block middle mr-1">Current event running</div>
@@ -49,10 +49,6 @@
             <v-card-text v-else>
                 Start the {{ nowTime(this.tournament.start) }}<br>
                 Left: {{ this.tournament.left }}
-            </v-card-text>
-
-            <v-card-text v-if="$vuetify.breakpoint.smAndUp">
-              {{ this.tournament_news }}
             </v-card-text>
           </v-card>
         </v-col>
@@ -408,8 +404,6 @@ export default {
 
       this.news = response.data.data.news
       this.news.news_moment = moment.utc(this.news.news_date).local()
-
-      this.tournament_news = response.data.data.tournament_news
 
       this.loaded = true
     },
