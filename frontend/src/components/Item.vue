@@ -202,8 +202,7 @@ export default {
     tipPosition: null,
     tip: { default: true },
     disableLink: {
-      type: Boolean,
-      default: false
+      fast: Boolean
     }
   },
 

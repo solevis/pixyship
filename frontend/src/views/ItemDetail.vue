@@ -5,7 +5,7 @@
     <!-- Item sprite -->
     <v-card-title v-if="loaded">
       <div class="mx-auto">
-        <item :item="item" :tip="false" name="bottom" :disableLink="true" />
+        <item :item="item" :tip="false" name="bottom" disableLink />
       </div>
     </v-card-title>
 
@@ -455,7 +455,7 @@
                         <item
                           :item="item"
                           name="right"
-                          :disableLink="true"
+                          disableLink
                           :count="item.count"
                         />
                       </template>
