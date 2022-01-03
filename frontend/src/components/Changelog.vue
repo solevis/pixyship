@@ -4,7 +4,7 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
-        <v-expansion-panel-header>2.3.0 &mdash; ????-??-??</v-expansion-panel-header>
+        <v-expansion-panel-header>2.3.0 &mdash; 2022-01-01</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>
             <v-card-subtitle>Added</v-card-subtitle>
