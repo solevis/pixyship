@@ -907,3 +907,33 @@ class PixelStarshipsApi:
         """Extract situation data from XML node."""
 
         return situation_node.attrib.copy()
+
+    def get_promotions(self):
+        """Get promotions data from API."""
+
+        params = {
+            'version': self.__api_settings['PromotionDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/PromotionService/ListAllPromotionDesigns2'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        promotions = []
+        promotion_nodes = root.find('.//PromotionDesigns')
+
+        if promotion_nodes:
+            for promotion_node in promotion_nodes:
+                promotion = self.parse_situation_node(promotion_node)
+                promotion['pixyship_xml_element'] = promotion_node  # custom field, return raw XML data too
+                promotions.append(promotion)
+
+        return promotions
+
+    @staticmethod
+    def parse_promotion_node(promotion_node):
+        """Extract promotion data from XML node."""
+
+        return promotion_node.attrib.copy()

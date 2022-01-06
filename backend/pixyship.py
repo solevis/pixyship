@@ -227,6 +227,7 @@ class Pixyship(metaclass=Singleton):
         self._collections = None
         self._dailies = None
         self._situations = None
+        self._promotions = None
         self._items = None
         self._prestiges = {}
         self._researches = None
@@ -383,6 +384,14 @@ class Pixyship(metaclass=Singleton):
             self.expire_at('situation', 60 * 5)
 
         return self._situations
+
+    @property
+    def promotions(self):
+        if not self._promotions or self.expired('promotion'):
+            self._promotions = self._get_promotions_from_api()
+            self.expire_at('promotion', 60 * 5)
+
+        return self._promotions
 
     def expired(self, key):
         """Check if cached data is expired."""
@@ -1646,7 +1655,14 @@ class Pixyship(metaclass=Singleton):
     def _get_dailies_from_api(self):
         """Get settings service data, sales, motd from API."""
 
-        data = self.pixel_starships_api.get_dailies()
+        dailies = self.pixel_starships_api.get_dailies()
+        promotions = self._get_current_promotions()
+
+        daily_promotion = None
+        for promotion in promotions:
+            if promotion['type'] == 'DailyDealOffer':
+                daily_promotion = promotion
+
         offers = {
             'shop': self._format_daily_offer(
                 'Shop',
@@ -1654,16 +1670,16 @@ class Pixyship(metaclass=Singleton):
                 [
                     self._format_daily_object(
                         1,
-                        data['LimitedCatalogType'],
-                        self.get_object(data['LimitedCatalogType'], int(data['LimitedCatalogArgument']))
+                        dailies['LimitedCatalogType'],
+                        self.get_object(dailies['LimitedCatalogType'], int(dailies['LimitedCatalogArgument']))
                     )
                 ],
-                self._format_daily_price(data['LimitedCatalogCurrencyAmount'], data['LimitedCatalogCurrencyType']),
+                self._format_daily_price(dailies['LimitedCatalogCurrencyAmount'], dailies['LimitedCatalogCurrencyType']),
                 {
-                    'left': data['LimitedCatalogQuantity'],
-                    'max': data['LimitedCatalogMaxTotal'],
+                    'left': dailies['LimitedCatalogQuantity'],
+                    'max': dailies['LimitedCatalogMaxTotal'],
                 },
-                data['LimitedCatalogExpiryDate']
+                dailies['LimitedCatalogExpiryDate']
             ),
 
             'blueCargo': {
@@ -1672,19 +1688,19 @@ class Pixyship(metaclass=Singleton):
                     self._format_daily_offer(
                         'Mineral Crew',
                         None,
-                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(data['CommonCrewId'])))],
+                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['CommonCrewId'])))],
                     ),
                     self._format_daily_offer(
                         'Starbux Crew',
                         None,
-                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(data['HeroCrewId'])))],
+                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['HeroCrewId'])))],
                     )
                 ],
             },
 
             'greenCargo': {
                 'sprite': self.get_sprite_infos(11881),
-                'items': self._parse_daily_cargo(data['CargoItems'], data['CargoPrices']),
+                'items': self._parse_daily_cargo(dailies['CargoItems'], dailies['CargoPrices']),
             },
 
             'dailyRewards': self._format_daily_offer(
@@ -1692,38 +1708,28 @@ class Pixyship(metaclass=Singleton):
                 2326,
                 [
                     self._format_daily_object(
-                        int(data['DailyRewardArgument']),
+                        int(dailies['DailyRewardArgument']),
                         'Currency',
-                        self._format_daily_price(int(data['DailyRewardArgument']), data['DailyRewardType'])
+                        self._format_daily_price(int(dailies['DailyRewardArgument']), dailies['DailyRewardType'])
                     )
-                ] + self._parse_daily_items(data['DailyItemRewards']),
+                ] + self._parse_daily_items(dailies['DailyItemRewards']),
             ),
 
-            'sale': self._format_daily_offer(
-                'Sale',
-                11006,
-                [
-                    self._format_daily_object(
-                        1,
-                        data['SaleType'],
-                        self.get_object(data['SaleType'], int(data['SaleArgument']))
-                    )
-                ],
-                {
-                    'options': self._format_daily_sale_options(int(data['SaleItemMask']))
-                }
-            )
+            'promotions': {
+                'sprite': self.get_sprite_infos(11006),
+                'data': daily_promotion,
+            },
         }
 
         dailies = {
             'stardate': self.pixel_starships_api.get_stardate(),
             'news': {
-                'news': data['News'],
-                'news_date': data['NewsUpdateDate'],
+                'news': dailies['News'],
+                'news_date': dailies['NewsUpdateDate'],
                 'maintenance': self.pixel_starships_api.maintenance_message,  # not anymore available with the new API endpoint
-                'sprite': self.get_sprite_infos(data['NewsSpriteId']),
+                'sprite': self.get_sprite_infos(dailies['NewsSpriteId']),
             },
-            'tournament_news': data['TournamentNews'],
+            'tournament_news': dailies['TournamentNews'],
             'current_situation': self._get_current_situation(),
             'offers': offers,
         }
@@ -1785,6 +1791,135 @@ class Pixyship(metaclass=Singleton):
 
         return None
 
+    def _get_promotions_from_api(self):
+        """Get promotions from API."""
+
+        data = self.pixel_starships_api.get_promotions()
+        promotions = []
+
+        for datum in data:
+            promotion = {
+                'id': int(datum['PromotionDesignId']),
+                'type': datum['PromotionType'],
+                'title': datum['Title'],
+                'subtitle': datum['SubTitle'],
+                'description': datum['Description'],
+                'rewards': self._parse_assets_from_string(datum['RewardString']),
+                'sprite': self.get_sprite_infos(datum['IconSpriteId']),
+                'from': datum['FromDate'],
+                'end': datum['ToDate'],
+            }
+
+            promotions.append(promotion)
+
+        return promotions
+
+    def _parse_assets_from_string(self, assets_string):
+        """Parse RewardString from API."""
+
+        assets = []
+        if assets_string:
+            assets_items = assets_string.split('|')
+            for asset_item in assets_items:
+                if not asset_item:
+                    continue
+
+                asset_item_unpacked = asset_item.split(':')
+                asset_item_type = asset_item_unpacked[0]
+
+                asset_item_id_count_unpacked = asset_item_unpacked[1].split('x')
+                asset_item_data = asset_item_id_count_unpacked[0]
+
+                line = {}
+
+                # if change's a Character, get all infos of the crew
+                if asset_item_type == 'character':
+                    try:
+                        data = self.characters[int(asset_item_data)]
+                    except KeyError:
+                        continue
+
+                # if change's an Item, get all infos of the item
+                elif asset_item_type == 'item':
+                    try:
+                        item = self.items[int(asset_item_data)]
+                        data = Pixyship._create_light_item(item)
+                    except KeyError:
+                        continue
+
+                # if change's an Item, get all infos of the item
+                elif asset_item_type == 'room':
+                    try:
+                        data = self.rooms[int(asset_item_data)]
+                    except KeyError:
+                        continue
+
+                # if change's is Starbux
+                elif asset_item_type == 'starbux':
+                    data = int(asset_item_data)
+
+                # if change's is Dove
+                elif asset_item_type == 'purchasePoints':
+                    data = int(asset_item_data)
+
+                # Unknown type
+                else:
+                    continue
+
+                asset_item_count = 1
+                if len(asset_item_id_count_unpacked) > 1:
+                    asset_item_count = int(asset_item_id_count_unpacked[1])
+
+                line.update({
+                    'count': asset_item_count,
+                    'data': data,
+                    'type': asset_item_type,
+                })
+
+                assets.append(line)
+
+        return assets
+
+    def _get_current_promotions(self):
+        """Get running promotions depending on the current date."""
+
+        utc_now = datetime.datetime.utcnow()
+
+        promotions = []
+
+        for promotion in self.promotions:
+            # skip infinite promos
+            if promotion['from'] == "2000-01-01T00:00:00":
+                continue
+
+            from_date = datetime.datetime.strptime(promotion['from'], "%Y-%m-%dT%H:%M:%S")
+            end_date = datetime.datetime.strptime(promotion['end'], "%Y-%m-%dT%H:%M:%S")
+            if from_date <= utc_now <= end_date:
+                promotion_left_delta = end_date - utc_now
+                promotion_left_seconds = promotion_left_delta.days * 24 * 3600 + promotion_left_delta.seconds
+                promotion_left_minutes, promotion_left_seconds = divmod(promotion_left_seconds, 60)
+                promotion_left_hours, promotion_left_minutes = divmod(promotion_left_minutes, 60)
+                promotion_left_days, promotion_left_hours = divmod(promotion_left_hours, 24)
+                promotion_left_weeks, promotion_left_days = divmod(promotion_left_days, 7)
+
+                promotion_left_formatted = ''
+                if promotion_left_weeks > 0:
+                    promotion_left_formatted += '{}w'.format(promotion_left_weeks)
+
+                if promotion_left_days > 0:
+                    promotion_left_formatted += ' {}d'.format(promotion_left_days)
+
+                if promotion_left_hours > 0:
+                    promotion_left_formatted += ' {}h'.format(promotion_left_hours)
+
+                if promotion_left_minutes > 0:
+                    promotion_left_formatted += ' {}m'.format(promotion_left_minutes)
+
+                promotion['left'] = promotion_left_formatted.strip()
+
+                promotions.append(promotion)
+
+        return promotions
 
     def get_record_sprite(self, record_type, record_id, reload_on_error=True):
         """Get sprite date for the given record ID."""

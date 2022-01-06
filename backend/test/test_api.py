@@ -489,3 +489,24 @@ def test_situations():
     assert 'FromDate' in situation
     assert 'EndDate' in situation
     assert 'IconSpriteId' in situation
+
+
+def test_promotions():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    promotions = pixel_starships_api.get_promotions()
+
+    assert len(promotions) > 0
+
+    promotion = promotions[0]
+
+    assert 'PromotionDesignId' in promotion
+    assert 'PromotionType' in promotion
+    assert 'Title' in promotion
+    assert 'SubTitle' in promotion
+    assert 'Description' in promotion
+    assert 'RewardString' in promotion
+    assert 'FromDate' in promotion
+    assert 'ToDate' in promotion
