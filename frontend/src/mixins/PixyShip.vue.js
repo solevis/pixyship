@@ -140,6 +140,10 @@ export default {
       return this.styleFromSprite({ height: 24, source: 1537, width: 24, x: 469, y: 216 })
     },
 
+    doveSprite() {
+      return this.styleFromSprite({ height: 14, source: 1537, width: 17, x: 490, y: 258 })
+    },
+
     nowTime(time) {
       return time ? moment.utc(time).local().format('YYYY/MM/DD LT') : ''
     },
