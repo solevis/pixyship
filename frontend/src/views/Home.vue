@@ -57,35 +57,34 @@
       <v-row v-if="loaded" justify="center">
         <!-- Blue cargo -->
         <v-col cols="12" sm="6" md="3">
-          <v-card outlined :class="[isExpired(this.offers.blueCargo.expires) ? 'expired' : '', 'offers']">
+          <v-card outlined class="offers">
             <v-card-title class="overline mb-2">
               <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.blueCargo.sprite, '', 0, 3)"></div>Dropship
             </v-card-title>
             
             <v-card-text>
-              <div v-for="(offer, index) in this.offers.blueCargo.items" :key="'blue-cargo-' + index">
-                <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
-
-                <crew :char="offer.objects[0].object" name="right"/>
+                <crew :char="this.offers.blueCargo.mineralCrew.object" name="right"/>
 
                 <div style="clear: both" class="pt-2">
-                  <template v-if="offer.description == 'Mineral Crew'">
                     <div class="block middle mr-1">Cost: </div>
                     <div class="block middle" :style="mineralSprite()"></div>
-                  </template>
-                  <template v-else-if="offer.description == 'Starbux Crew'">
+                </div>
+
+                <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
+
+                <crew :char="this.offers.blueCargo.starbuxCrew.object" name="right"/>
+
+                <div style="clear: both" class="pt-2">
                     <div class="block middle mr-1">Cost: </div>
                     <div class="block middle" :style="buxSprite()"></div>
-                  </template>
                 </div>
-              </div>
             </v-card-text>
           </v-card>
         </v-col>
 
         <!-- Daily reward -->
         <v-col cols="12" sm="6" md="3">
-          <v-card outlined :class="[isExpired(this.offers.dailyRewards.expires) ? 'expired' : '', 'offers']">
+          <v-card outlined class="offers">
             <v-card-title class="overline mb-2">
               <div class="block mr-1" :style="styleFromSprite(this.offers.dailyRewards.sprite, '', 0, 0.8)"></div>Daily Reward
             </v-card-title>
@@ -95,22 +94,22 @@
                 <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
 
                 <div>
-                  <template v-if="object.type === 'Item'">
+                  <template v-if="object.type === 'item'">
                     <item :item="object.object" :count="object.count" name="right"/>
                   </template>
 
-                  <template v-else-if="object.type === 'Room'">
+                  <template v-else-if="object.type === 'room'">
                     <a :href="makeLink('room', object.object.id)">
                       {{ 'x' + object.count }} <div class="block mr-2 middle" :style="spriteStyle(object.object.sprite)"></div>
                       <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{object.object.name }}</div>
                     </a>
                   </template>
 
-                  <template v-else-if="object.type === 'Character'">
+                  <template v-else-if="object.type === 'character'">
                     <crew :char="object.object" name="right"/>
                   </template>
 
-                  <template v-else-if="object.type === 'Currency'">
+                  <template v-else-if="object.type === 'currency'">
                     {{ 'x' + object.count }} <div class="block middle" :style="currencySprite(object.object.currency)"></div>
                   </template>
 
@@ -164,27 +163,27 @@
                 <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
 
                 <div>
-                  <template v-if="offer.objects[0].type === 'Item'">
-                    <item :item="offer.objects[0].object" :count="offer.objects[0].count" name="right"/>
+                  <template v-if="offer.object.type === 'item'">
+                    <item :item="offer.object.object" :count="offer.object.count" name="right"/>
                   </template>
 
-                  <template v-else-if="offer.objects[0].type === 'Room'">
-                    <a :href="makeLink('room', offer.objects[0].object.id)">
-                      {{ 'x' + offer.objects[0].count }} <div class="block mr-2 middle" :style="spriteStyle(offer.objects[0].object.sprite)"></div>
-                      <div :class="[offer.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{offer.objects[0].object.name }}</div>
+                  <template v-else-if="offer.object.type === 'room'">
+                    <a :href="makeLink('room', offer.object.object.id)">
+                      {{ 'x' + offer.object.count }} <div class="block mr-2 middle" :style="spriteStyle(offer.object.object.sprite)"></div>
+                      <div :class="[offer.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{offer.object.object.name }}</div>
                     </a>
                   </template>
 
-                  <template v-else-if="offer.objects[0].type === 'Character'">
-                    <crew :char="offer.objects[0].object" name="right"/>
+                  <template v-else-if="offer.object.type === 'character'">
+                    <crew :char="offer.object.object" name="right"/>
                   </template>
 
-                  <template v-else-if="offer.objects[0].type === 'Currency'">
-                    {{ 'x' + offer.objects[0].count }} <div class="block middle" :style="currencySprite(offer.objects[0].object.currency)"></div>
+                  <template v-else-if="offer.object.type === 'currency'">
+                    {{ 'x' + offer.object.count }} <div class="block middle" :style="currencySprite(offer.object.object.currency)"></div>
                   </template>
 
                   <template v-else>
-                    <div>{ {offer.objects[0].type }}</div>
+                    <div>{ {offer.object.type }}</div>
                   </template>
                 </div>
 
@@ -215,27 +214,27 @@
             <v-card-text>
               <div>
                 
-                <template v-if="this.offers.shop.objects[0].type === 'Item'">
-                  <item :item="this.offers.shop.objects[0].object" :count="this.offers.shop.objects[0].count" name="right"/>
+                <template v-if="this.offers.shop.object.type === 'item'">
+                  <item :item="this.offers.shop.object.object" :count="this.offers.shop.object.count" name="right"/>
                 </template>
 
-                <template v-else-if="this.offers.shop.objects[0].type === 'Room'">
-                  <a :href="makeLink('room', this.offers.shop.objects[0].object.id)">
-                    {{this.offers.shop.objects[0].count > 1 ? 'x' + this.offers.shop.objects[0].count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.objects[0].object.sprite)"></div>
-                    <div :class="[this.offers.shop.objects[0].object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.objects[0].object.name }}</div>
+                <template v-else-if="this.offers.shop.object.type === 'room'">
+                  <a :href="makeLink('room', this.offers.shop.object.object.id)">
+                    {{this.offers.shop.object.count > 1 ? 'x' + this.offers.shop.object.count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.object.object.sprite)"></div>
+                    <div :class="[this.offers.shop.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.object.object.name }}</div>
                   </a>
                 </template>
 
-                <template v-else-if="this.offers.shop.objects[0].type === 'Character'">
-                  <crew :char="this.offers.shop.objects[0].object" name="right"/>
+                <template v-else-if="this.offers.shop.object.type === 'character'">
+                  <crew :char="this.offers.shop.object.object" name="right"/>
                 </template>
 
-                <template v-else-if="this.offers.shop.objects[0].type === 'Currency'">
-                  {{this.offers.shop.objects[0].count }} <div class="block middle" :style="currencySprite(this.offers.shop.objects[0].object.currency)"></div>
+                <template v-else-if="this.offers.shop.object.type === 'currency'">
+                  {{this.offers.shop.object.count }} <div class="block middle" :style="currencySprite(this.offers.shop.object.object.currency)"></div>
                 </template>
 
                 <template v-else>
-                  <div>{{ this.offers.shop.objects[0].type }}</div>
+                  <div>{{ this.offers.shop.object.type }}</div>
                 </template>
               </div>
 
@@ -266,7 +265,7 @@
               <div class="block mr-2" :style="styleFromSprite(this.offers.promotions.sprite, '', 0, 1)"></div>Daily Sale
             </v-card-title>
 
-            <v-card-text v-for="reward in this.offers.promotions.data.rewards" :key="reward.type + reward.raw_data">
+            <v-card-text v-for="reward in this.offers.promotions.data.rewards" :key="reward.type + reward.id">
               <div>
                 <template v-if="reward.type === 'starbux'">
                   {{reward.data }} <div class="block middle" :style="buxSprite()"></div>

@@ -3,13 +3,14 @@ import logging
 import os
 import sys
 import time
+import datetime
 from urllib import request
 
 from contexttimer import Timer
 
 from config import CONFIG
 from db import db
-from models import Listing, Alliance, Player
+from models import Listing, Alliance, Player, DailySale
 from pixyship import Pixyship
 from run import push_context
 
@@ -48,7 +49,8 @@ def import_players():
         db.session.query(Player).delete()
         db.session.query(Alliance).delete()
         db.session.commit()
-    except Exception:
+    except Exception as e:
+        logger.error(e)
         db.session.rollback()
 
     # save new data
@@ -96,6 +98,139 @@ def import_assets():
     pixyship.update_achievements()
 
     logger.info('Done')
+
+
+def import_daily_sales():
+    """Get all items, crews, rooms, ships on sale today and save them in database."""
+
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixyship = Pixyship()
+
+    utc_now = datetime.datetime.utcnow()
+    today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
+
+    logger.info('Importing promotions...')
+    promotions = pixyship.get_current_promotions()
+    for promotion in promotions:
+        for reward in promotion['rewards']:
+            if reward['type'] in ['starbux', 'purchasePoints']:
+                continue
+
+            daily_sale = DailySale(
+                type=reward['type'],
+                type_id=reward['id'],
+                sale_at=promotion['from'],
+                sale_from='promotion_{}'.format(promotion['type'].lower()),
+                currency=None,
+                price=None,
+            )
+
+            _save_daily_sale(daily_sale)
+
+    logger.info('Importing daily shop...')
+    dailies_offers = pixyship.dailies['offers']
+    if not dailies_offers:
+        logger.error('Empty dailies_offers')
+        return
+
+    daily_shop_offer = dailies_offers['shop']['object']
+    if not daily_shop_offer:
+        logger.error('Empty daily_shop_offer')
+        return
+
+    daily_sale = DailySale(
+        type=daily_shop_offer['type'],
+        type_id=daily_shop_offer['id'],
+        sale_at=today,
+        sale_from='shop',
+        currency=dailies_offers['shop']['cost']['currency'].lower(),
+        price=dailies_offers['shop']['cost']['price'],
+    )
+
+    _save_daily_sale(daily_sale)
+
+    daily_rewards_offers = dailies_offers['dailyRewards']['objects']
+    if not daily_rewards_offers:
+        logger.error('Empty daily_rewards_offers')
+        return
+
+    for daily_rewards_offer in daily_rewards_offers:
+        if daily_rewards_offer['type'] in ['currency', 'starbux', 'purchasePoints']:
+            continue
+
+        daily_sale = DailySale(
+            type=daily_rewards_offer['type'],
+            type_id=daily_rewards_offer['id'],
+            sale_at=today,
+            sale_from='daily_rewards',
+            currency=None,
+            price=None,
+        )
+
+        _save_daily_sale(daily_sale)
+
+    daily_bluecargo_mineral_offer = dailies_offers['blueCargo']['mineralCrew']
+    if not daily_bluecargo_mineral_offer:
+        logger.error('Empty daily_bluecargo_mineral_offer')
+        return
+
+    daily_sale = DailySale(
+        type=daily_bluecargo_mineral_offer['type'],
+        type_id=daily_bluecargo_mineral_offer['id'],
+        sale_at=today,
+        sale_from='blue_cargo_mineral',
+        currency='mineral',
+        price=None,
+    )
+
+    _save_daily_sale(daily_sale)
+
+    daily_bluecargo_starbux_offer = dailies_offers['blueCargo']['starbuxCrew']
+    if not daily_bluecargo_starbux_offer:
+        logger.error('Empty daily_bluecargo_starbux_offer')
+        return
+
+    daily_sale = DailySale(
+        type=daily_bluecargo_starbux_offer['type'],
+        type_id=daily_bluecargo_starbux_offer['id'],
+        sale_at=today,
+        sale_from='blue_cargo_starbux',
+        currency='starbux',
+        price=None,
+    )
+
+    _save_daily_sale(daily_sale)
+
+    daily_greencargo_offers = dailies_offers['greenCargo']['items']
+    if not daily_greencargo_offers:
+        logger.error('Empty daily_greencargo_offers')
+        return
+
+    for daily_greencargo_offer in daily_greencargo_offers:
+        if daily_greencargo_offer['object']['type'] in ['starbux', 'purchasePoints']:
+            continue
+
+        daily_sale = DailySale(
+            type=daily_greencargo_offer['object']['type'],
+            type_id=daily_greencargo_offer['object']['id'],
+            sale_at=today,
+            sale_from='green_cargo',
+            currency=daily_greencargo_offer['cost']['currency'],
+            price=daily_greencargo_offer['cost']['price'],
+        )
+
+        _save_daily_sale(daily_sale)
+
+
+def _save_daily_sale(daily_sale):
+    try:
+        db.session.add(daily_sale)
+        db.session.commit()
+    except Exception as e:
+        logger.error(e)
+        db.session.rollback()
 
 
 def import_market(first_item_only=False, item=None):
@@ -217,6 +352,7 @@ if __name__ == '__main__':
     parser.add_argument("--market-first-item", action="store_true")
     parser.add_argument("--market-one-item", type=int)
     parser.add_argument("--sprites", action="store_true")
+    parser.add_argument("--daily-sales", action="store_true")
     args = parser.parse_args()
 
     if args.assets:
@@ -253,4 +389,10 @@ if __name__ == '__main__':
         with Timer() as t:
             logger.info('START')
             dowload_sprites()
+            logger.info('END :: {}s'.format(t.elapsed))
+
+    if args.daily_sales:
+        with Timer() as t:
+            logger.info('START')
+            import_daily_sales()
             logger.info('END :: {}s'.format(t.elapsed))

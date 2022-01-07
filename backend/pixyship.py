@@ -221,6 +221,12 @@ class Pixyship(metaclass=Singleton):
         'Medical': 100,
     }
 
+    DAILY_SALE_SPRITE_ID = 11006
+    DAILY_REWARDS_SPRITE_ID = 2326
+    GREEN_CARGO_SPRITE_ID = 11881
+    BLUE_CARGO_SPRITE_ID = 11880
+    SHOP_SPRITE_ID = 592
+
     def __init__(self):
         self._changes = None
         self._characters = None
@@ -1213,7 +1219,7 @@ class Pixyship(metaclass=Singleton):
                     except KeyError:
                         continue
 
-                # if change's a Item, get all infos of the item
+                # if change's an Item, get all infos of the item
                 elif content_item_type == 'item':
                     try:
                         item = items.get(int(content_item_id))
@@ -1541,7 +1547,7 @@ class Pixyship(metaclass=Singleton):
             if record['type'] == 'char':
                 change['char'] = self.characters[record['type_id']]
 
-            # if change's a Item, get all infos of the item
+            # if change's an Item, get all infos of the item
             if record['type'] == 'item':
                 item = self.items[record['type_id']]
                 change['item'] = Pixyship._create_light_item(item)
@@ -1550,21 +1556,12 @@ class Pixyship(metaclass=Singleton):
 
         return changes
 
-    def _format_daily_offer(self, description, sprite_id, items, cost=None, details=None, expires=None):
-        return {
-            'description': description,
-            'sprite': self.get_sprite_infos(sprite_id),
-            'objects': items,
-            'cost': cost,
-            'details': details,
-            'expires': expires,
-        }
-
     @staticmethod
-    def _format_daily_object(count, type_str, object_str):
+    def _format_daily_object(count, type_str, object_str, type_id):
         return {
             'count': count,
-            'type': type_str,
+            'type': type_str.lower(),
+            'id': type_id,
             'object': object_str,
         }
 
@@ -1607,15 +1604,7 @@ class Pixyship(metaclass=Singleton):
     def _parse_daily_cargo(self, item_list_string, cost_list_string):
         """Split daily cargo data into prices and items."""
 
-        splitted_items = [i.split('x') for i in item_list_string.split('|')]
-        items = [
-            {
-                'count': int(item[1]),
-                'type': 'Item',
-                'object': self.items[int(item[0])],
-            }
-            for item in splitted_items
-        ]
+        items = self._parse_daily_items(item_list_string)
 
         splitted_prices = [i.split(':') for i in cost_list_string.split('|')]
         prices = []
@@ -1635,16 +1624,23 @@ class Pixyship(metaclass=Singleton):
 
             prices.append(price)
 
-        cargo = [self._format_daily_offer('Cargo', None, [item], price) for item, price in zip(items, prices)]
+        cargo = [{
+            'sprite': {},
+            'object': item,
+            'cost': price,
+            'details': None,
+            'expires': None,
+        } for item, price in zip(items, prices)]
+
         return cargo
 
     def _parse_daily_items(self, item_list_string):
         items_split = [i.split('x') for i in item_list_string.split('|')]
-
         items = [
             {
                 'count': int(item[1]),
-                'type': 'Item',
+                'type': 'item',
+                'id': int(item[0]),
                 'object': self.items[int(item[0])],
             }
             for item in items_split
@@ -1656,7 +1652,7 @@ class Pixyship(metaclass=Singleton):
         """Get settings service data, sales, motd from API."""
 
         dailies = self.pixel_starships_api.get_dailies()
-        promotions = self._get_current_promotions()
+        promotions = self.get_current_promotions()
 
         daily_promotion = None
         for promotion in promotions:
@@ -1664,59 +1660,47 @@ class Pixyship(metaclass=Singleton):
                 daily_promotion = promotion
 
         offers = {
-            'shop': self._format_daily_offer(
-                'Shop',
-                592,
-                [
-                    self._format_daily_object(
-                        1,
-                        dailies['LimitedCatalogType'],
-                        self.get_object(dailies['LimitedCatalogType'], int(dailies['LimitedCatalogArgument']))
-                    )
-                ],
-                self._format_daily_price(dailies['LimitedCatalogCurrencyAmount'], dailies['LimitedCatalogCurrencyType']),
-                {
+            'shop': {
+                'sprite': self.get_sprite_infos(Pixyship.SHOP_SPRITE_ID),
+                'object': self._format_daily_object(
+                    1,
+                    dailies['LimitedCatalogType'],
+                    self.get_object(dailies['LimitedCatalogType'], int(dailies['LimitedCatalogArgument'])),
+                    int(dailies['LimitedCatalogArgument'])
+                ),
+                'cost': self._format_daily_price(dailies['LimitedCatalogCurrencyAmount'], dailies['LimitedCatalogCurrencyType']),
+                'details': {
                     'left': dailies['LimitedCatalogQuantity'],
                     'max': dailies['LimitedCatalogMaxTotal'],
                 },
-                dailies['LimitedCatalogExpiryDate']
-            ),
+                'expires': dailies['LimitedCatalogExpiryDate']
+            },
 
             'blueCargo': {
-                'sprite': self.get_sprite_infos(11880),
-                'items': [
-                    self._format_daily_offer(
-                        'Mineral Crew',
-                        None,
-                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['CommonCrewId'])))],
-                    ),
-                    self._format_daily_offer(
-                        'Starbux Crew',
-                        None,
-                        [self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['HeroCrewId'])))],
-                    )
-                ],
+                'sprite': self.get_sprite_infos(Pixyship.BLUE_CARGO_SPRITE_ID),
+                'mineralCrew': self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['CommonCrewId'])), int(dailies['CommonCrewId'])),
+                'starbuxCrew': self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['HeroCrewId'])), int(dailies['HeroCrewId']))
             },
 
             'greenCargo': {
-                'sprite': self.get_sprite_infos(11881),
+                'sprite': self.get_sprite_infos(Pixyship.GREEN_CARGO_SPRITE_ID),
                 'items': self._parse_daily_cargo(dailies['CargoItems'], dailies['CargoPrices']),
             },
 
-            'dailyRewards': self._format_daily_offer(
-                'Reward',
-                2326,
-                [
+            'dailyRewards': {
+                'sprite': self.get_sprite_infos(Pixyship.DAILY_REWARDS_SPRITE_ID),
+                'objects': [
                     self._format_daily_object(
                         int(dailies['DailyRewardArgument']),
-                        'Currency',
-                        self._format_daily_price(int(dailies['DailyRewardArgument']), dailies['DailyRewardType'])
+                        'currency',
+                        self._format_daily_price(int(dailies['DailyRewardArgument']), dailies['DailyRewardType']),
+                        None
                     )
                 ] + self._parse_daily_items(dailies['DailyItemRewards']),
-            ),
+            },
 
             'promotions': {
-                'sprite': self.get_sprite_infos(11006),
+                'sprite': self.get_sprite_infos(Pixyship.DAILY_SALE_SPRITE_ID),
                 'data': daily_promotion,
             },
         }
@@ -1726,7 +1710,7 @@ class Pixyship(metaclass=Singleton):
             'news': {
                 'news': dailies['News'],
                 'news_date': dailies['NewsUpdateDate'],
-                'maintenance': self.pixel_starships_api.maintenance_message,  # not anymore available with the new API endpoint
+                'maintenance': self.pixel_starships_api.maintenance_message,  # not any more available with the new API endpoint
                 'sprite': self.get_sprite_infos(dailies['NewsSpriteId']),
             },
             'tournament_news': dailies['TournamentNews'],
@@ -1826,6 +1810,7 @@ class Pixyship(metaclass=Singleton):
 
                 asset_item_unpacked = asset_item.split(':')
                 asset_item_type = asset_item_unpacked[0]
+                asset_item_type_id = None
 
                 asset_item_id_count_unpacked = asset_item_unpacked[1].split('x')
                 asset_item_data = asset_item_id_count_unpacked[0]
@@ -1835,14 +1820,16 @@ class Pixyship(metaclass=Singleton):
                 # if change's a Character, get all infos of the crew
                 if asset_item_type == 'character':
                     try:
-                        data = self.characters[int(asset_item_data)]
+                        asset_item_type_id = int(asset_item_data)
+                        data = self.characters[asset_item_type_id]
                     except KeyError:
                         continue
 
                 # if change's an Item, get all infos of the item
                 elif asset_item_type == 'item':
                     try:
-                        item = self.items[int(asset_item_data)]
+                        asset_item_type_id = int(asset_item_data)
+                        item = self.items[asset_item_type_id]
                         data = Pixyship._create_light_item(item)
                     except KeyError:
                         continue
@@ -1850,7 +1837,8 @@ class Pixyship(metaclass=Singleton):
                 # if change's an Item, get all infos of the item
                 elif asset_item_type == 'room':
                     try:
-                        data = self.rooms[int(asset_item_data)]
+                        asset_item_type_id = int(asset_item_data)
+                        data = self.rooms[asset_item_type_id]
                     except KeyError:
                         continue
 
@@ -1873,6 +1861,7 @@ class Pixyship(metaclass=Singleton):
                 line.update({
                     'count': asset_item_count,
                     'data': data,
+                    'id': asset_item_type_id,
                     'type': asset_item_type,
                 })
 
@@ -1880,7 +1869,7 @@ class Pixyship(metaclass=Singleton):
 
         return assets
 
-    def _get_current_promotions(self):
+    def get_current_promotions(self):
         """Get running promotions depending on the current date."""
 
         utc_now = datetime.datetime.utcnow()
