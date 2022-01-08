@@ -151,6 +151,22 @@ def import_daily_sales():
 
     _save_daily_sale(daily_sale)
 
+    daily_bank_offer = dailies_offers['sale']['object']
+    if not daily_bank_offer:
+        logger.error('Empty daily_bank_offer')
+        return
+
+    daily_sale = DailySale(
+        type=daily_bank_offer['type'],
+        type_id=daily_bank_offer['id'],
+        sale_at=today,
+        sale_from='sale',
+        currency=None,
+        price=None,
+    )
+
+    _save_daily_sale(daily_sale)
+
     daily_rewards_offers = dailies_offers['dailyRewards']['objects']
     if not daily_rewards_offers:
         logger.error('Empty daily_rewards_offers')
