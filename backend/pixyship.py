@@ -1654,10 +1654,10 @@ class Pixyship(metaclass=Singleton):
         dailies = self.pixel_starships_api.get_dailies()
         promotions = self.get_current_promotions()
 
-        daily_promotion = None
+        daily_promotions = []
         for promotion in promotions:
             if promotion['type'] == 'DailyDealOffer':
-                daily_promotion = promotion
+                daily_promotions.append(promotion)
 
         offers = {
             'shop': {
@@ -1699,9 +1699,20 @@ class Pixyship(metaclass=Singleton):
                 ] + self._parse_daily_items(dailies['DailyItemRewards']),
             },
 
+            'sale': {
+                'sprite': self.get_sprite_infos(Pixyship.DAILY_SALE_SPRITE_ID),
+                'object': self._format_daily_object(
+                    1,
+                    dailies['SaleType'],
+                    self.get_object(dailies['SaleType'], int(dailies['SaleArgument'])),
+                    int(dailies['SaleArgument'])
+                ),
+                'options': self._format_daily_sale_options(int(dailies['SaleItemMask']))
+            },
+
             'promotions': {
                 'sprite': self.get_sprite_infos(Pixyship.DAILY_SALE_SPRITE_ID),
-                'data': daily_promotion,
+                'objects': daily_promotions,
             },
         }
 

@@ -4,7 +4,8 @@
 
     <v-card flat>
       <v-row v-if="loaded" justify="center">
-        <v-col cols="12" md="6">
+        <!-- News -->
+        <v-col cols="12" md="9">
           <v-card outlined class="not-offers">
             <div :class="$vuetify.breakpoint.smAndUp ?'news-sprite' : 'news-sprite-mobile'" :style="spriteStyle(this.news.sprite)"></div>
             <v-card-title class="overline mb-2"
@@ -35,21 +36,49 @@
             </v-card-subtitle>
           </v-card>
         </v-col>
+      </v-row>
 
-        <v-col cols="12" md="3">
+      <v-row v-if="loaded" justify="center">
+        <!-- Tournament -->
+        <v-col cols="12" md="5">
           <v-card outlined class="not-offers" :loading="isTournamentLoading">
             <v-card-title class="overline mb-2"
-              ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
+            ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
             >
             <v-card-text v-if="this.tournament.started">
-                End the {{ nowTime(this.tournament.end) }}<br>
-                Left: {{ this.tournament.left }}
+              End the {{ nowTime(this.tournament.end) }}<br>
+              Left: {{ this.tournament.left }}
             </v-card-text>
 
             <v-card-text v-else>
-                Start the {{ nowTime(this.tournament.start) }}<br>
-                Left: {{ this.tournament.left }}
+              Start the {{ nowTime(this.tournament.start) }}<br>
+              Left: {{ this.tournament.left }}
             </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Changes on large screen -->
+        <v-col md="4" v-if="$vuetify.breakpoint.mdAndUp">
+          <v-card outlined class="offers" :loading="isChangesLoading">
+            <v-card-title class="overline mb-2"
+            ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
+            >
+            <v-card-text>
+              <p>
+                Most Recent: {{ nowTime(this.changeLatest) }}<br />
+                Today: {{ this.changesToday }}<br />
+                This Week: {{ this.changesThisWeek }}
+              </p>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                  text
+                  to="/changes"
+              >
+                See changes
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
@@ -70,7 +99,7 @@
                     <div class="block middle" :style="mineralSprite()"></div>
                 </div>
 
-                <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
+                <v-divider class="mt-4 mb-4"></v-divider>
 
                 <crew :char="this.offers.blueCargo.starbuxCrew.object" name="right"/>
 
@@ -124,28 +153,57 @@
           </v-card>
         </v-col>
 
-        <!-- Changes on large screen -->
-        <v-col md="3" v-if="$vuetify.breakpoint.mdAndUp">
-          <v-card outlined class="offers" :loading="isChangesLoading">
-            <v-card-title class="overline mb-2"
-              ><v-icon left>mdi-circle-edit-outline</v-icon>Changes</v-card-title
-            >
-            <v-card-text>
-              <p>
-                Most Recent: {{ nowTime(this.changeLatest) }}<br />
-                Today: {{ this.changesToday }}<br />
-                This Week: {{ this.changesThisWeek }}
-              </p>
-            </v-card-text>
+        <!-- Shop -->
+        <v-col cols="12" sm="6" md="3">
+          <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
+            <v-card-title  class="overline mb-2" >
+              <div class="block mr-2" :style="styleFromSprite(this.offers.shop.sprite, '', 0, 1)"></div>Shop
+            </v-card-title>
 
-            <v-card-actions>
-              <v-btn
-                text
-                to="/changes"
-              >
-                See changes
-              </v-btn>
-            </v-card-actions>
+            <v-card-text>
+              <div>
+
+                <template v-if="this.offers.shop.object.type === 'item'">
+                  <item :item="this.offers.shop.object.object" :count="this.offers.shop.object.count" name="right"/>
+                </template>
+
+                <template v-else-if="this.offers.shop.object.type === 'room'">
+                  <a :href="makeLink('room', this.offers.shop.object.object.id)">
+                    {{this.offers.shop.object.count > 1 ? 'x' + this.offers.shop.object.count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.object.object.sprite)"></div>
+                    <div :class="[this.offers.shop.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.object.object.name }}</div>
+                  </a>
+                </template>
+
+                <template v-else-if="this.offers.shop.object.type === 'character'">
+                  <crew :char="this.offers.shop.object.object" name="right"/>
+                </template>
+
+                <template v-else-if="this.offers.shop.object.type === 'currency'">
+                  {{this.offers.shop.object.count }} <div class="block middle" :style="currencySprite(this.offers.shop.object.object.currency)"></div>
+                </template>
+
+                <template v-else>
+                  <div>{{ this.offers.shop.object.type }}</div>
+                </template>
+              </div>
+
+              <div style="clear: both" class="pt-2">
+                <template v-if="this.offers.shop.cost && this.offers.shop.cost.currency != 'item'">
+                  <div class="block middle mr-1">Cost: {{ this.offers.shop.cost.price }}</div>
+                  <div class="block middle" :style="currencySprite(this.offers.shop.cost.currency)"></div>
+                </template>
+                <template v-else-if="this.offers.shop.cost && this.offers.shop.cost.currency == 'item'">
+                  <div class="block middle mr-1">{{ this.offers.shop.cost.count }}</div>
+                  <div class="block middle" :style="spriteStyle(this.offers.shop.cost.object.sprite)" :title="this.offers.shop.cost.object.name"
+                  ></div>
+                </template>
+              </div>
+
+              <div class="mt-2 text-right text--disabled">
+                <div>{{ this.offers.shop.details.left }} left</div>
+                <div>Expire at {{ nowTime(this.offers.shop.expires) }}</div>
+              </div>
+            </v-card-text>
           </v-card>
         </v-col>
       </v-row>
@@ -157,7 +215,7 @@
             <v-card-title class="overline mb-2">
               <div class="block mr-5 ml-4" :style="styleFromSprite(this.offers.greenCargo.sprite, '', 0, 3)"></div>Merchant Ship
             </v-card-title>
-            
+
             <v-card-text>
               <div v-for="(offer, index) in this.offers.greenCargo.items" :key="'green-cargo-' + index">
                 <v-divider v-if="index != 0" class="mt-4 mb-4"></v-divider>
@@ -203,99 +261,145 @@
             </v-card-text>
           </v-card>
         </v-col>
-        
-        <!-- Shop -->
+
+        <!-- Bank -->
         <v-col cols="12" sm="6" md="3">
-          <v-card outlined :class="[isExpired(this.offers.shop.expires) ? 'expired' : '', 'offers']">
+          <v-card outlined class="offers">
             <v-card-title  class="overline mb-2" >
-              <div class="block mr-2" :style="styleFromSprite(this.offers.shop.sprite, '', 0, 1)"></div>Shop
+              <div class="block mr-2" :style="styleFromSprite(this.offers.sale.sprite, '', 0, 1)"></div>Bank
             </v-card-title>
 
             <v-card-text>
               <div>
-                
-                <template v-if="this.offers.shop.object.type === 'item'">
-                  <item :item="this.offers.shop.object.object" :count="this.offers.shop.object.count" name="right"/>
+                <template v-if="this.offers.sale.object.type === 'item'">
+                  <item :item="this.offers.sale.object.object" :count="this.offers.sale.object.count" name="right"/>
                 </template>
 
-                <template v-else-if="this.offers.shop.object.type === 'room'">
-                  <a :href="makeLink('room', this.offers.shop.object.object.id)">
-                    {{this.offers.shop.object.count > 1 ? 'x' + this.offers.shop.object.count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.object.object.sprite)"></div>
-                    <div :class="[this.offers.shop.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.shop.object.object.name }}</div>
+                <template v-else-if="this.offers.sale.object.type === 'room'">
+                  <a :href="makeLink('room', this.offers.sale.object.object.id)">
+                    {{this.offers.sale.object.count > 1 ? 'x' + this.offers.sale.object.count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.object.object.sprite)"></div>
+                    <div :class="[this.offers.sale.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.object.object.name }}</div>
                   </a>
                 </template>
 
-                <template v-else-if="this.offers.shop.object.type === 'character'">
-                  <crew :char="this.offers.shop.object.object" name="right"/>
+                <template v-else-if="this.offers.sale.object.type === 'character'">
+                  <crew :char="this.offers.sale.object.object" name="right"/>
                 </template>
 
-                <template v-else-if="this.offers.shop.object.type === 'currency'">
-                  {{this.offers.shop.object.count }} <div class="block middle" :style="currencySprite(this.offers.shop.object.object.currency)"></div>
+                <template v-else-if="this.offers.sale.object.type === 'currency'">
+                  {{this.offers.sale.object.count }} <div class="block middle" :style="currencySprite(this.offers.sale.object.object.currency)"></div>
                 </template>
 
                 <template v-else>
-                  <div>{{ this.offers.shop.object.type }}</div>
+                  <div>{{ this.offers.sale.object.type }}</div>
                 </template>
-              </div>
 
-              <div style="clear: both" class="pt-2">
-                <template v-if="this.offers.shop.cost && this.offers.shop.cost.currency != 'item'">
-                  <div class="block middle mr-1">Cost: {{ this.offers.shop.cost.price }}</div>
-                  <div class="block middle" :style="currencySprite(this.offers.shop.cost.currency)"></div>
-                </template>
-                <template v-else-if="this.offers.shop.cost && this.offers.shop.cost.currency == 'item'">
-                  <div class="block middle mr-1">{{ this.offers.shop.cost.count }}</div>
-                  <div class="block middle" :style="spriteStyle(this.offers.shop.cost.object.sprite)" :title="this.offers.shop.cost.object.name"
-                  ></div>
-                </template>
-              </div>
-
-              <div class="mt-2 text-right text--disabled">
-                <div>{{ this.offers.shop.details.left }} left</div>
-                <div>Expire at {{ nowTime(this.offers.shop.expires) }}</div>
+                <div style="clear: both" class="pt-2">
+                  <template v-if="this.offers.sale.options">
+                    <div>Cost: {{ formatSaleOptions(this.offers.sale.options) }}</div>
+                  </template>
+                </div>
               </div>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <!-- Daily Sale -->
+        <!-- Daily Bundles -->
         <v-col cols="12" sm="6" md="3">
           <v-card outlined class="offers">
-            <v-card-title  class="overline mb-2" >
-              <div class="block mr-2" :style="styleFromSprite(this.offers.promotions.sprite, '', 0, 1)"></div>Daily Sale
+            <v-card-title class="overline mb-2">
+              <div class="block mr-2" :style="styleFromSprite(this.offers.promotions.sprite, '', 0, 1)"></div>
+              Daily Bundles
             </v-card-title>
 
-            <v-card-text v-for="reward in this.offers.promotions.data.rewards" :key="reward.type + reward.id">
-              <div>
-                <template v-if="reward.type === 'starbux'">
-                  {{reward.data }} <div class="block middle" :style="buxSprite()"></div>
-                </template>
+            <v-card-text>
+              <v-window v-model="currentDailyBundle" >
+                <v-window-item
+                    v-for="(object, i) in this.offers.promotions.objects"
+                    :key="'promo-' + i"
 
-                <template v-else-if="reward.type === 'purchasePoints'">
-                  {{reward.data }} <div class="block middle" :style="doveSprite()"></div>
-                </template>
+                >
+                  <v-card :height="dailyBundlesMaxRewards * 30" flat tile>
+                    <v-row
+                        align="center"
+                        justify="center"
+                    >
+                      <v-col>
+                        <div v-for="reward in object.rewards" :key="'promo-' + i + '-' + reward.type + reward.id">
+                          <template v-if="reward.type === 'starbux'">
+                            {{ reward.data }}
+                            <div class="block middle" :style="buxSprite()"></div>
+                          </template>
 
-                <template v-else-if="reward.type === 'item'">
-                  <item :item="reward.data" :count="reward.count" name="right"/>
-                </template>
+                          <template v-else-if="reward.type === 'purchasePoints'">
+                            {{ reward.data }}
+                            <div class="block middle" :style="doveSprite()"></div>
+                          </template>
 
-                <template v-else-if="reward.type === 'room'">
-                  <a :href="makeLink('room', reward.data.id)">
-                    {{reward.count > 1 ? 'x' + reward.count : '' }} <div class="block mr-2 middle" :style="spriteStyle(reward.data.sprite)"></div>
-                    <div :class="[reward.data.rarity, 'block', 'middle', 'nowrap', 'bold']">{{reward.data.name }}</div>
-                  </a>
-                </template>
+                          <template v-else-if="reward.type === 'item'">
+                            <item :item="reward.data" :count="reward.count" name="right"/>
+                          </template>
 
-                <template v-else-if="reward.type === 'character'">
-                  <crew :char="reward.data" name="right"/>
-                  <div style="clear: both"></div>
-                </template>
-                
-                <template v-else>
-                  <div>{{ reward.type }}</div>
-                </template>
-              </div>
+                          <template v-else-if="reward.type === 'room'">
+                            <a :href="makeLink('room', reward.data.id)">
+                              {{ reward.count > 1 ? 'x' + reward.count : '' }}
+                              <div class="block mr-2 middle" :style="spriteStyle(reward.data.sprite)"></div>
+                              <div :class="[reward.data.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
+                                  reward.data.name
+                                }}
+                              </div>
+                            </a>
+                          </template>
+
+                          <template v-else-if="reward.type === 'character'">
+                            <crew :char="reward.data" name="right"/>
+                            <div style="clear: both"></div>
+                          </template>
+
+                          <template v-else>
+                            <div>{{ reward.type }}</div>
+                          </template>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-card>
+                </v-window-item>
+              </v-window>
             </v-card-text>
+
+            <v-card-actions class="justify-space-between">
+              <v-btn
+                  text
+                  @click="prev"
+              >
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+              <v-item-group
+                  v-model="currentDailyBundle"
+                  class="text-center"
+                  mandatory
+              >
+                <v-item
+                    v-for="n in this.dailyBundlesLength"
+                    :key="`btn-${n}`"
+                    v-slot="{ active, toggle }"
+                >
+                  <v-btn
+                      :input-value="active"
+                      icon
+                      @click="toggle"
+                  >
+                    <v-icon>mdi-record</v-icon>
+                  </v-btn>
+                </v-item>
+              </v-item-group>
+              <v-btn
+                  text
+                  @click="next"
+              >
+                <v-icon>mdi-chevron-right</v-icon>
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
 
@@ -365,6 +469,9 @@ export default {
       news: {},
       current_situation: {},
       stardate: 0,
+      currentDailyBundle: 0,
+      dailyBundlesLength: 0,
+      dailyBundlesMaxRewards: 0,
     }
   },
 
@@ -396,6 +503,14 @@ export default {
       const response = await axios.get(this.dailyEndpoint)
 
       this.offers = response.data.data.offers
+      this.dailyBundlesLength = this.offers.promotions.objects.length
+      this.dailyBundlesMaxRewards = 0
+      for (const objectIndex in this.offers.promotions.objects) {
+        let object = this.offers.promotions.objects[objectIndex]
+        this.dailyBundlesMaxRewards = Math.max(this.dailyBundlesMaxRewards, object.rewards.length)
+      }
+
+
       this.stardate = response.data.data.stardate
 
       this.current_situation = response.data.data.current_situation
@@ -473,6 +588,17 @@ export default {
       })
 
       return result
+    },
+
+    next () {
+      this.currentDailyBundle = this.currentDailyBundle + 1 === this.dailyBundlesLength
+          ? 0
+          : this.currentDailyBundle + 1
+    },
+    prev () {
+      this.currentDailyBundle = this.currentDailyBundle - 1 < 0
+          ? this.dailyBundlesLength - 1
+          : this.currentDailyBundle - 1
     },
   },
 }
