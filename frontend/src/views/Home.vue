@@ -41,7 +41,7 @@
       <v-row v-if="loaded" justify="center">
         <!-- Tournament -->
         <v-col cols="12" md="5">
-          <v-card outlined class="not-offers" :loading="isTournamentLoading">
+          <v-card outlined class="offers" :loading="isTournamentLoading">
             <v-card-title class="overline mb-2"
             ><v-icon left>mdi-tournament</v-icon>Tournament</v-card-title
             >
@@ -53,6 +53,10 @@
             <v-card-text v-else>
               Start the {{ nowTime(this.tournament.start) }}<br>
               Left: {{ this.tournament.left }}
+            </v-card-text>
+
+            <v-card-text>
+                {{ this.tournamentNews }}
             </v-card-text>
           </v-card>
         </v-col>
@@ -468,6 +472,7 @@ export default {
       changesLoaded: false,
       daily: null,
       tournament: {},
+      tournamentNews: null,
       offers: [],
       changes: [],
       changeLatest: null,
@@ -520,6 +525,7 @@ export default {
 
 
       this.stardate = response.data.data.stardate
+      this.tournamentNews = response.data.data.tournament_news
 
       this.current_situation = response.data.data.current_situation
 
