@@ -266,7 +266,7 @@
         <v-col cols="12" sm="6" md="3">
           <v-card outlined class="offers">
             <v-card-title  class="overline mb-2" >
-              <div class="block mr-2" :style="styleFromSprite(this.offers.sale.sprite, '', 0, 1)"></div>Bank
+              <div class="block mr-2" :style="styleFromSprite(this.offers.sale.sprite, '', 0, 1)"></div>Bank (Daily Special)
             </v-card-title>
 
             <v-card-text>
@@ -309,10 +309,9 @@
           <v-card outlined class="offers">
             <v-card-title class="overline mb-2">
               <div class="block mr-2" :style="styleFromSprite(this.offers.promotions.sprite, '', 0, 1)"></div>
-              Daily Bundles
+              Bank (Daily Bundles)
             </v-card-title>
 
-            <v-card-text>
               <v-window v-model="currentDailyBundle" >
                 <v-window-item
                     v-for="(object, i) in this.offers.promotions.objects"
@@ -320,12 +319,12 @@
 
                 >
                   <v-card :height="dailyBundlesMaxRewards * 35" flat tile>
+                    <v-card-text>
                     <v-row
                         align="center"
                         justify="center"
                     >
                       <v-col>
-                        <div class="text-center">Pack #{{ object.pack }}</div>
                         <div v-for="reward in object.rewards" :key="'promo-' + i + '-' + reward.type + reward.id">
                           <template v-if="reward.type === 'starbux'">
                             {{ reward.data }}
@@ -361,12 +360,15 @@
                             <div>{{ reward.type }}</div>
                           </template>
                         </div>
+                        <div style="clear: both" class="pt-2">
+                          <div>Cost<span class="font-italic">*</span>: {{ formatDailyBundlePackCost(object.pack) }}</div>
+                        </div>
                       </v-col>
                     </v-row>
+                      </v-card-text>
                   </v-card>
                 </v-window-item>
               </v-window>
-            </v-card-text>
 
             <v-card-actions class="justify-space-between">
               <v-btn
@@ -401,6 +403,11 @@
                 <v-icon>mdi-chevron-right</v-icon>
               </v-btn>
             </v-card-actions>
+
+            <v-card-text>
+              <span class="small font-italic">*Price may differ depending of your country currency.</span>
+            </v-card-text>
+
           </v-card>
         </v-col>
 
@@ -589,6 +596,28 @@ export default {
       })
 
       return result
+    },
+
+    formatDailyBundlePackCost(pack) {
+      if (pack === 1) {
+        return '$1.99'
+      }
+
+      if (pack === 2) {
+        return '$4.99'
+      }
+
+      if (pack === 3) {
+        return '$9.99'
+      }
+
+      if (pack === 4) {
+        return '$19.99'
+      }
+
+      if (pack === 5) {
+        return '$49.99'
+      }
     },
 
     next () {
