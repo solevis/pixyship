@@ -1803,6 +1803,7 @@ class Pixyship(metaclass=Singleton):
                 'sprite': self.get_sprite_infos(datum['IconSpriteId']),
                 'from': datum['FromDate'],
                 'end': datum['ToDate'],
+                'pack': int(datum['PackId'].replace('sale', '')) if datum['PackId'] else None,
             }
 
             promotions.append(promotion)

@@ -319,12 +319,13 @@
                     :key="'promo-' + i"
 
                 >
-                  <v-card :height="dailyBundlesMaxRewards * 30" flat tile>
+                  <v-card :height="dailyBundlesMaxRewards * 35" flat tile>
                     <v-row
                         align="center"
                         justify="center"
                     >
                       <v-col>
+                        <div class="text-center">Pack #{{ object.pack }}</div>
                         <div v-for="reward in object.rewards" :key="'promo-' + i + '-' + reward.type + reward.id">
                           <template v-if="reward.type === 'starbux'">
                             {{ reward.data }}

@@ -510,3 +510,4 @@ def test_promotions():
     assert 'RewardString' in promotion
     assert 'FromDate' in promotion
     assert 'ToDate' in promotion
+    assert 'PackId' in promotion
