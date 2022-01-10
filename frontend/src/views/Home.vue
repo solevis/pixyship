@@ -274,65 +274,65 @@
               Bank (Daily Bundles)
             </v-card-title>
 
-              <v-window v-model="currentDailyBundle" >
-                <v-window-item
-                    v-for="(object, i) in this.offers.promotions.objects"
-                    :key="'promo-' + i"
+            <v-window v-model="currentDailyBundle" >
+              <v-window-item
+                  v-for="(object, i) in this.offers.promotions.objects"
+                  :key="'promo-' + i"
 
-                >
-                  <v-card :height="dailyBundlesMaxRewards * 40" flat tile>
-                    <v-card-text>
-                    <v-row
-                        align="center"
-                        justify="center"
-                    >
-                      <v-col>
-                        <div v-for="reward in object.rewards" :key="'promo-' + i + '-' + reward.type + reward.id">
-                          <template v-if="reward.type === 'starbux'">
-                            {{ reward.data }}
-                            <div class="block middle" :style="buxSprite()"></div>
-                          </template>
+              >
+                <v-card :height="dailyBundlesMaxRewards * 40" flat tile>
+                  <v-card-text>
+                  <v-row
+                      align="center"
+                      justify="center"
+                  >
+                    <v-col>
+                      <div v-for="reward in object.rewards" :key="'promo-' + i + '-' + reward.type + reward.id">
+                        <template v-if="reward.type === 'starbux'">
+                          {{ reward.data }}
+                          <div class="block middle" :style="buxSprite()"></div>
+                        </template>
 
-                          <template v-else-if="reward.type === 'purchasePoints'">
-                            {{ reward.data }}
-                            <div class="block middle" :style="doveSprite()"></div>
-                          </template>
+                        <template v-else-if="reward.type === 'purchasePoints'">
+                          {{ reward.data }}
+                          <div class="block middle" :style="doveSprite()"></div>
+                        </template>
 
-                          <template v-else-if="reward.type === 'item'">
-                            <item :item="reward.data" :count="reward.count" name="right"/>
-                          </template>
+                        <template v-else-if="reward.type === 'item'">
+                          <item :item="reward.data" :count="reward.count" name="right"/>
+                        </template>
 
-                          <template v-else-if="reward.type === 'room'">
-                            <a :href="makeLink('room', reward.data.id)">
-                              {{ reward.count > 1 ? 'x' + reward.count : '' }}
-                              <div class="block mr-2 middle" :style="spriteStyle(reward.data.sprite)"></div>
-                              <div :class="[reward.data.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
-                                  reward.data.name
-                                }}
-                              </div>
-                            </a>
-                          </template>
+                        <template v-else-if="reward.type === 'room'">
+                          <a :href="makeLink('room', reward.data.id)">
+                            {{ reward.count > 1 ? 'x' + reward.count : '' }}
+                            <div class="block mr-2 middle" :style="spriteStyle(reward.data.sprite)"></div>
+                            <div :class="[reward.data.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
+                                reward.data.name
+                              }}
+                            </div>
+                          </a>
+                        </template>
 
-                          <template v-else-if="reward.type === 'character'">
-                            <crew :char="reward.data" name="right"/>
-                            <div style="clear: both"></div>
-                          </template>
+                        <template v-else-if="reward.type === 'character'">
+                          <crew :char="reward.data" name="right"/>
+                          <div style="clear: both"></div>
+                        </template>
 
-                          <template v-else>
-                            <div>{{ reward.type }}</div>
-                          </template>
-                        </div>
-                        <div style="clear: both" class="pt-2">
-                          <div>Cost<span class="font-italic">*</span>: {{ formatDailyBundlePackCost(object.pack) }}</div>
-                        </div>
-                      </v-col>
-                    </v-row>
-                      </v-card-text>
-                  </v-card>
-                </v-window-item>
-              </v-window>
+                        <template v-else>
+                          <div>{{ reward.type }}</div>
+                        </template>
+                      </div>
+                      <div style="clear: both" class="pt-2">
+                        <div>Cost<span class="font-italic">*</span>: {{ formatDailyBundlePackCost(object.pack) }}</div>
+                      </div>
+                    </v-col>
+                  </v-row>
+                    </v-card-text>
+                </v-card>
+              </v-window-item>
+            </v-window>
 
-            <v-card-actions class="justify-space-between">
+            <v-card-actions v-if="this.offers.promotions.objects.length > 1" class="justify-space-between">
               <v-btn
                   text
                   @click="prev"
