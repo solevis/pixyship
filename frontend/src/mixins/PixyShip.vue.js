@@ -137,7 +137,7 @@ export default {
     },
 
     supplySprite() {
-      return this.styleFromSprite({ height: 24, source: 1537, width: 24, x: 469, y: 216 })
+      return this.styleFromSprite({ height: 22, source: 57, width: 22, x: 244, y: 345 })
     },
 
     doveSprite() {
