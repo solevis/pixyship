@@ -266,48 +266,6 @@
           </v-card>
         </v-col>
 
-        <!-- Bank -->
-        <v-col cols="12" sm="6" md="3">
-          <v-card outlined class="offers">
-            <v-card-title  class="overline mb-2" >
-              <div class="block mr-2" :style="styleFromSprite(this.offers.sale.sprite, '', 0, 1)"></div>Bank (Daily Special)
-            </v-card-title>
-
-            <v-card-text>
-              <div>
-                <template v-if="this.offers.sale.object.type === 'item'">
-                  <item :item="this.offers.sale.object.object" :count="this.offers.sale.object.count" name="right"/>
-                </template>
-
-                <template v-else-if="this.offers.sale.object.type === 'room'">
-                  <a :href="makeLink('room', this.offers.sale.object.object.id)">
-                    {{this.offers.sale.object.count > 1 ? 'x' + this.offers.sale.object.count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.object.object.sprite)"></div>
-                    <div :class="[this.offers.sale.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.object.object.name }}</div>
-                  </a>
-                </template>
-
-                <template v-else-if="this.offers.sale.object.type === 'character'">
-                  <crew :char="this.offers.sale.object.object" name="right"/>
-                </template>
-
-                <template v-else-if="this.offers.sale.object.type === 'currency'">
-                  {{this.offers.sale.object.count }} <div class="block middle" :style="currencySprite(this.offers.sale.object.object.currency)"></div>
-                </template>
-
-                <template v-else>
-                  <div>{{ this.offers.sale.object.type }}</div>
-                </template>
-
-                <div style="clear: both" class="pt-2">
-                  <template v-if="this.offers.sale.options">
-                    <div>Cost: {{ formatSaleOptions(this.offers.sale.options) }}</div>
-                  </template>
-                </div>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
         <!-- Daily Bundles -->
         <v-col cols="12" sm="6" md="3">
           <v-card outlined class="offers">
@@ -412,6 +370,52 @@
               <span class="small font-italic">*Price may differ depending of your country currency.</span>
             </v-card-text>
 
+          </v-card>
+        </v-col>
+
+        <!-- Bank -->
+        <v-col cols="12" sm="6" md="3">
+          <v-card outlined class="offers">
+            <v-card-title  class="overline mb-2" >
+              <div class="block mr-2" :style="styleFromSprite(this.offers.sale.sprite, '', 0, 1)"></div>Bank (Daily Special)
+            </v-card-title>
+
+            <v-card-text v-if="this.offers.sale.object">
+              <div>
+                <template v-if="this.offers.sale.object.type === 'item'">
+                  <item :item="this.offers.sale.object.object" :count="this.offers.sale.object.count" name="right"/>
+                </template>
+
+                <template v-else-if="this.offers.sale.object.type === 'room'">
+                  <a :href="makeLink('room', this.offers.sale.object.object.id)">
+                    {{this.offers.sale.object.count > 1 ? 'x' + this.offers.sale.object.count : '' }} <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.object.object.sprite)"></div>
+                    <div :class="[this.offers.sale.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{this.offers.sale.object.object.name }}</div>
+                  </a>
+                </template>
+
+                <template v-else-if="this.offers.sale.object.type === 'character'">
+                  <crew :char="this.offers.sale.object.object" name="right"/>
+                </template>
+
+                <template v-else-if="this.offers.sale.object.type === 'currency'">
+                  {{this.offers.sale.object.count }} <div class="block middle" :style="currencySprite(this.offers.sale.object.object.currency)"></div>
+                </template>
+
+                <template v-else>
+                  <div>{{ this.offers.sale.object.type }}</div>
+                </template>
+
+                <div style="clear: both" class="pt-2">
+                  <template v-if="this.offers.sale.options">
+                    <div>Cost: {{ formatSaleOptions(this.offers.sale.options) }}</div>
+                  </template>
+                </div>
+              </div>
+            </v-card-text>
+
+            <v-card-text v-else>
+              No "Daily Special" sale today.
+            </v-card-text>
           </v-card>
         </v-col>
 

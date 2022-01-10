@@ -1558,6 +1558,9 @@ class Pixyship(metaclass=Singleton):
 
     @staticmethod
     def _format_daily_object(count, type_str, object_str, type_id):
+        if type_str == 'None':
+            return None
+
         return {
             'count': count,
             'type': type_str.lower(),
@@ -1707,7 +1710,7 @@ class Pixyship(metaclass=Singleton):
                     self.get_object(dailies['SaleType'], int(dailies['SaleArgument'])),
                     int(dailies['SaleArgument'])
                 ),
-                'options': self._format_daily_sale_options(int(dailies['SaleItemMask']))
+                'options': None if dailies['SaleType'] == 'None' else self._format_daily_sale_options(int(dailies['SaleItemMask']))
             },
 
             'promotions': {
