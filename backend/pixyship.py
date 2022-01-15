@@ -1191,6 +1191,7 @@ class Pixyship(metaclass=Singleton):
             'module_extra_short_disp_enhancement': item['module_extra_short_disp_enhancement'],
             'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
             'prices': item['prices'],
+            'content': item['content'] if 'content' in item else None,
             'recipe': item['recipe'] if not items else Pixyship._parse_item_recipe(item['ingredients'], items),
         }
 
