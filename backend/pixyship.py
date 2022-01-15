@@ -1710,6 +1710,7 @@ class Pixyship(metaclass=Singleton):
                     self.get_object(dailies['SaleType'], int(dailies['SaleArgument'])),
                     int(dailies['SaleArgument'])
                 ),
+                'bonus': int(dailies['SaleArgument']) if dailies['SaleType'] == 'Bonus' else None,
                 'options': None if dailies['SaleType'] == 'None' else self._format_daily_sale_options(int(dailies['SaleItemMask']))
             },
 

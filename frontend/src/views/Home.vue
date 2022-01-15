@@ -401,6 +401,10 @@
                   {{this.offers.sale.object.count }} <div class="block middle" :style="currencySprite(this.offers.sale.object.object.currency)"></div>
                 </template>
 
+                <template v-else-if="this.offers.sale.object.type === 'bonus'">
+                  {{ this.offers.sale.bonus }}% Free Starbux
+                </template>
+
                 <template v-else>
                   <div>{{ this.offers.sale.object.type }}</div>
                 </template>
