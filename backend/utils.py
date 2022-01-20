@@ -1,4 +1,3 @@
-
 def float_range(values, start_key, end_key):
     start = 0
     if values[start_key]:

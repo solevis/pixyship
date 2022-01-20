@@ -8,7 +8,7 @@ CONFIG = dict(
     # frontend domain
     DOMAIN='localhost:8080',
 
-    # directory that will contains downloaded sprites, must be served by the web server as static content
+    # directory that will contain downloaded sprites, must be served by the web server as static content
     SPRITES_DIRECTORY='../sprites',
 
     # used by scheduled.py to send e-mail on error, set to None if you want to use cron files to import data

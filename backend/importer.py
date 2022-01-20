@@ -1,17 +1,18 @@
 import argparse
+import datetime
 import logging
 import os
 import sys
 import time
-import datetime
 from urllib import request
 
 from contexttimer import Timer
 
 from config import CONFIG
+from constants import PSS_SPRITES_URL
 from db import db
 from models import Listing, Alliance, Player, DailySale
-from pixyship import Pixyship
+from pixyship import PixyShip
 from run import push_context
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -26,7 +27,7 @@ def import_players():
 
     logger.info('Importing players')
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
 
     logger.info('## top 100 players')
     top_users = list(pixyship.get_top100_users_from_api().items())
@@ -65,7 +66,7 @@ def import_assets():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
 
     logger.info('Importing items...')
     pixyship.update_items()
@@ -106,7 +107,7 @@ def import_daily_sales():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
 
     utc_now = datetime.datetime.utcnow()
     today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
@@ -257,7 +258,7 @@ def import_market(first_item_only=False, item=None):
 
     logger.info('Importing market prices')
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
 
     # no need to get sales of items not saleable
     items = pixyship.items
@@ -320,7 +321,7 @@ def dowload_sprites():
     if not os.path.exists(CONFIG['SPRITES_DIRECTORY']):
         os.mkdir(CONFIG['SPRITES_DIRECTORY'])
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     sprites = pixyship.sprites
 
     for _, sprite in sprites.items():
@@ -329,7 +330,7 @@ def dowload_sprites():
 
         if not os.path.isfile(filename):
             logger.info('getting {}'.format(filename))
-            url = pixyship.PSS_SPRITES_URL.format(image_number)
+            url = PSS_SPRITES_URL.format(image_number)
             try:
                 request.urlretrieve(url, filename)
             except Exception as e:

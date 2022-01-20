@@ -1,4 +1,4 @@
-from pixyship import Pixyship
+from pixyship import PixyShip
 from run import push_context
 
 
@@ -6,7 +6,7 @@ def test_crews():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     crews = pixyship._get_characters_from_db()
 
     assert len(crews) > 0
@@ -18,7 +18,7 @@ def test_items():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     items = pixyship._get_items_from_db()
 
     assert len(items) > 0
@@ -30,7 +30,7 @@ def test_rooms():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     rooms, _, _ = pixyship._get_rooms_from_db()
 
     assert len(rooms) > 0
@@ -43,7 +43,7 @@ def test_upgrades():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     _, upgrades, _ = pixyship._get_rooms_from_db()
 
     assert len(upgrades) > 0
@@ -54,7 +54,7 @@ def test_ships():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     ships = pixyship._get_ships_from_db()
 
     assert len(ships) > 0
@@ -67,7 +67,7 @@ def test_collections():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     collections = pixyship._get_collections_from_db()
 
     assert len(collections) > 0
@@ -79,7 +79,7 @@ def test_researches():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     researches = pixyship._get_researches_from_db()
 
     assert len(researches) > 0
@@ -91,7 +91,7 @@ def test_prices():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     prices = pixyship._get_prices_from_db()
 
     assert len(prices) > 0
@@ -101,7 +101,7 @@ def test_sprites():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     sprites = pixyship._get_sprites_from_db()
 
     assert len(sprites) > 0
@@ -111,7 +111,7 @@ def test_search_player():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     players = pixyship.get_player_data('Solevis')
 
     assert len(players) == 2
@@ -123,7 +123,7 @@ def test_changes():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     changes = pixyship.get_changes_from_db()
 
     assert len(changes) > 0
@@ -133,7 +133,7 @@ def test_user_id():
     # avoid Flask RuntimeError: No application found
     push_context()
 
-    pixyship = Pixyship()
+    pixyship = PixyShip()
     user_id = pixyship.find_user_id('Solevis')
 
     assert user_id == 6635604
