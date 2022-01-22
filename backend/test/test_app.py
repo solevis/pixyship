@@ -11,3 +11,4 @@ def test_config():
     assert 'EMAIL' in CONFIG
     assert 'MAIN_PIXELSTARSHIPS_API_URL' in CONFIG
     assert 'BACKUP_PIXELSTARSHIPS_API_URL' in CONFIG
+    assert 'CHANGES_MAX_ASSETS' in CONFIG

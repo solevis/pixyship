@@ -6,7 +6,7 @@ from flask_cors import CORS
 
 from config import CONFIG
 from db import db
-from pixyship import Pixyship
+from pixyship import PixyShip
 
 PUBLIC_ENDPOINTS = ['api_item_prices', 'api_items']
 APP_NAME = 'pixyship'
@@ -43,7 +43,7 @@ cors = CORS(
 )
 
 # helpers, cached data, etc.
-pixyship = Pixyship()
+pixyship = PixyShip()
 
 
 def push_context():
@@ -56,18 +56,18 @@ def push_context():
 
 
 def enforce_source(func):
-    """Decorator checking in production if the referrer is really Pixyship."""
+    """Decorator checking in production if the referrer is really PixyShip."""
 
     def wrapper(*args, **kwargs):
         # no need to check referrer if endpoint is public
         if flask.request.endpoint not in PUBLIC_ENDPOINTS:
-            # referrer is Pixyship ?
+            # referrer is PixyShip ?
             if flask.request.referrer and '//{}/'.format(CONFIG['DOMAIN']) not in flask.request.referrer:
                 flask.abort(404)
 
         return func(*args, **kwargs)
 
-    # let's flask see the underlying function
+    # lets flask see the underlying function
     wrapper.__name__ = func.__name__
 
     return wrapper
@@ -89,7 +89,7 @@ def before_request():
 def after_request(response):
     """Before sending the request to the client."""
 
-    # delete the session cookie, unneeded for Pixyship
+    # delete the session cookie, unneeded for PixyShip
     response.delete_cookie(app.session_cookie_name)
 
     # security headers for API
@@ -102,7 +102,7 @@ def after_request(response):
 
 
 @app.errorhandler(503)
-def error_503(error):
+def error_503(_):
     """Maintenance."""
     return 'PixyShip is down for maintenance', 503
 
@@ -250,7 +250,7 @@ def api_ships():
 
 
 @app.route('/api/<path:path>')
-def bad_api(path):
+def bad_api(_):
     """Places you shouldn't go"""
     return flask.abort(404)
 

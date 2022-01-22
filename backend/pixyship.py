@@ -1,231 +1,20 @@
-import datetime
-import time
 import math
-
+import time
 from collections import defaultdict, Counter
 from operator import itemgetter
 from xml.etree import ElementTree
+
 from sqlalchemy import desc
 
 from config import CONFIG
+from constants import *
 from db import db
 from models import Player, Record, Listing, Alliance
 from pixelstarshipsapi import PixelStarshipsApi
 from utils import float_range, int_range, Singleton
 
 
-class Pixyship(metaclass=Singleton):
-    PSS_SPRITES_URL = 'https://pixelstarships.s3.amazonaws.com/{}.png'
-
-    # A map to find the correct interior for a given race's ship
-    # This fails for some rock ship cause this isn't actually how it works
-    RACE_SPECIFIC_SPRITE_MAP = {
-        83: [83, 84, 83, 82, 1302, 561, 3134],  # basic lifts
-        1532: [1532, 1534, 1532, 1533, 1536, 1535, 3163],  # endgame lifts
-        871: [871, 872, 871, 869, 870, 873, 3135],  # armors
-    }
-
-    ABILITY_MAP = {
-        'DamageToSameRoomCharacters': {'name': 'Gas', 'sprite': 2706},
-        'HealRoomHp': {'name': 'Urgent Repair', 'sprite': 2709},
-        'HealSelfHp': {'name': 'First Aid', 'sprite': 2707},
-        'AddReload': {'name': 'Rush', 'sprite': 2703},
-        'FireWalk': {'name': 'Fire Walk', 'sprite': 5389},
-        'DamageToCurrentEnemy': {'name': 'Critical Strike', 'sprite': 2708},
-        'DamageToRoom': {'name': 'Ultra Dismantle', 'sprite': 2710},
-        'DeductReload': {'name': 'System Hack', 'sprite': 2704},
-        'HealSameRoomCharacters': {'name': 'Healing Rain', 'sprite': 2705},
-        'Freeze': {'name': 'Freeze', 'sprite': 5390},
-        'SetFire': {'name': 'Arson', 'sprite': 5388},
-        'Bloodlust': {'name': 'Bloodlust', 'sprite': 13866},
-        'Invulnerability': {'name': 'Phase Shift', 'sprite': 13319},
-        'ProtectRoom': {'name': 'Stasis Shield', 'sprite': 13320},
-        'None': {'name': '', 'sprite': 110}  # Empty sprite
-    }
-
-    COLLECTION_ABILITY_MAP = {
-        'EmpSkill': 'EMP Discharge',
-        'SharpShooterSkill': 'Sharpshooter',
-        'ResurrectSkill': 'Resurrection',
-        'BloodThirstSkill': 'Vampirism',
-        'MedicalSkill': 'Combat Medic',
-        'FreezeAttackSkill': 'Cryo Field',
-        'InstantKillSkill': 'Headshot',
-        'None': 'None'
-    }
-
-    RARITY_MAP = {
-        'Legendary': 7,
-        'Special': 6,
-        'Hero': 5,
-        'Epic': 4,
-        'Unique': 3,
-        'Elite': 2,
-        'Common': 1,
-    }
-
-    RARITY_COLOR = {
-        'Common': 'grey',
-        'Elite': 'white',
-        'Unique': 'blue',
-        'Epic': 'purple',
-        'Hero': 'gold',
-        'Special': 'gold',
-        'Legendary': 'gold',
-    }
-
-    TYPE_PSS_API_NAME_FIELD = {
-        'ship': 'ShipDesignName',
-        'room': 'RoomName',
-        'char': 'CharacterDesignName',
-        'item': 'ItemDesignName',
-        'collection': 'CollectionDesignId',
-        'sprite': 'SpriteKey',
-    }
-
-    DEFAULT_EXPIRATION_DURATION = 60 * 60 * 1  # 1 hours
-
-    EQUIPMENT_SLOTS = ['Head', 'Body', 'Leg', 'Weapon', 'Accessory', 'Pet']
-
-    SLOT_MAP = {
-        'None': None,
-        'EquipmentHead': 'Head',
-        'EquipmentWeapon': 'Weapon',
-        'EquipmentBody': 'Body',
-        'EquipmentLeg': 'Leg',
-        'EquipmentAccessory': 'Accessory',
-        'EquipmentPet': 'Pet',
-        'MineralPack': 'Mineral Pack',
-        'GasPack': 'Gas Pack',
-        'InstantPrize': 'Instant Prize',
-        'InstantTraining': 'Instant Training',
-        'ReducePrestige': 'Reduce Prestige',
-        'ReduceFatigue': 'Reduce Fatigue',
-        'ResetTraining': 'Reset Training',
-        'AIBook': 'AI Book',
-        'FillMineralStorage': 'Fill Mineral Storage',
-        'FillGasStorage': 'Fill Gas Storage',
-        'SpeedUpConstruction': 'SpeedUp Construction',
-    }
-
-    ROOM_TYPE_MAP = {
-        'Wall': 'Armor',
-    }
-
-    ENHANCE_MAP = {
-        'FireResistance': 'Fire Resistance',
-        'FreezeAttackSkill': 'Freeze',
-        'Hp': 'HP',
-        'None': None
-    }
-
-    SHORT_ENHANCE_MAP = {
-        'Ability': 'ABL',
-        'Attack': 'ATK',
-        'Engine': 'ENG',
-        'FireResistance': 'RST',
-        'FreezeAttackSkill': 'ABL',
-        'Hp': 'HP',
-        'Pilot': 'PLT',
-        'Repair': 'RPR',
-        'Science': 'SCI',
-        'Stamina': 'STA',
-        'Weapon': 'WPN',
-        'None': None
-    }
-
-    RESEARCH_TYPE_MAP = {
-        'CrewLevelUpCost': 'Crew LevelUp Cost',
-        'ConcurrentConstruction': 'Concurrent Construction',
-        'TradeCapacity': 'Trade',
-        'ModuleCapacity': 'Module',
-        'StickerCapacity': 'Sticker',
-        'AmmoSalvageCapacity': 'Ammo Recycling',
-        'CollectAll': 'Collector',
-        'ItemRecycling': 'Item Recycling',
-        'BoostGauge': 'Boost Gauge',
-        'None': None
-    }
-
-    # Daily IAP mask (see https://github.com/PieInTheSky-Inc/YaDc)
-    IAP_NAMES = {
-        500: 'Clip',
-        1200: 'Roll',
-        2500: 'Stash',
-        6500: 'Case',
-        14000: 'Vault'
-    }
-
-    # 0 - Rock?
-    # 1 - Pirate/Dark
-    # 2 - Fed/Blue
-    # 3 - Qtari/Gold
-    # 4 - Visiri/Red
-    # 5 - UFO/Green
-    # 6 - Starbase
-    RACES = {
-        1: "Pirate",
-        2: "Federation",
-        3: "Qtarian",
-        4: "Visiri",
-        5: "Gray",
-    }
-
-    MODULE_ENHANCEMENT_MAP = {
-        'Turret': 'Attack'
-    }
-
-    MODULE_BONUS_RATIO_MAP = {
-        'Turret': 100
-    }
-
-    MANUFACTURE_CAPACITY_MAP = {
-        'Shield': 'Restore',
-        'Recycling': 'Max Blend',
-        'Council': 'Max Donations',
-    }
-
-    MANUFACTURE_RATE_MAP = {
-        'Recycling': 'Harvest',
-    }
-
-    MANUFACTURE_RATE_PER_HOUR_MAP = {
-        'Laser': True,
-        'Mineral': True,
-        'Gas': True,
-        'Supply': True,
-    }
-
-    MANUFACTURE_CAPACITY_RATIO_MAP = {
-        'Shield': 100,
-        'Recycling': 1,
-    }
-
-    LABEL_CAPACITY_MAP = {
-        'Medical': 'Healing',
-        'Shield': 'Shield',
-        'Stealth': 'Cloak',
-        'Engine': 'Evasion',
-        'Trap': 'Crew Dmg',
-        'Radar': 'Detection',
-        'Training': 'Training Lvl',
-        'Recycling': 'DNA Capacity',
-        'Gas': 'Salvage',
-        'Mineral': 'Salvage',
-        'Council': 'Garrison',
-        'Command': 'Max AI',
-        'Bridge': 'Escape',
-    }
-
-    CAPACITY_RATIO_MAP = {
-        'Medical': 100,
-    }
-
-    DAILY_SALE_SPRITE_ID = 11006
-    DAILY_REWARDS_SPRITE_ID = 2326
-    GREEN_CARGO_SPRITE_ID = 11881
-    BLUE_CARGO_SPRITE_ID = 11880
-    SHOP_SPRITE_ID = 592
+class PixyShip(metaclass=Singleton):
 
     def __init__(self):
         self._changes = None
@@ -261,7 +50,7 @@ class Pixyship(metaclass=Singleton):
     def sprites(self):
         if not self._sprites or self.expired('sprite'):
             self._sprites = self._get_sprites_from_db()
-            self.expire_at('sprite', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('sprite', DEFAULT_EXPIRATION_DURATION)
 
         return self._sprites
 
@@ -269,7 +58,7 @@ class Pixyship(metaclass=Singleton):
     def rooms_sprites(self):
         if not self._rooms_sprites or self.expired('room_sprite'):
             self._rooms_sprites = self._get_room_sprites_from_db()
-            self.expire_at('room_sprite', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('room_sprite', DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms_sprites
 
@@ -277,7 +66,7 @@ class Pixyship(metaclass=Singleton):
     def prices(self):
         if not self._prices or self.expired('prices'):
             self._prices = self._get_prices_from_db()
-            self.expire_at('prices', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('prices', DEFAULT_EXPIRATION_DURATION)
 
         return self._prices
 
@@ -285,7 +74,7 @@ class Pixyship(metaclass=Singleton):
     def trainings(self):
         if not self._trainings or self.expired('trainings'):
             self._trainings = self._get_trainings_from_db()
-            self.expire_at('trainings', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('trainings', DEFAULT_EXPIRATION_DURATION)
 
         return self._trainings
 
@@ -293,7 +82,7 @@ class Pixyship(metaclass=Singleton):
     def achievements(self):
         if not self._achievements or self.expired('achievements'):
             self._achievements = self._get_achievements_from_db()
-            self.expire_at('achievements', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('achievements', DEFAULT_EXPIRATION_DURATION)
 
         return self._achievements
 
@@ -301,7 +90,7 @@ class Pixyship(metaclass=Singleton):
     def ships(self):
         if not self._ships or self.expired('ship'):
             self._ships = self._get_ships_from_db()
-            self.expire_at('ship', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('ship', DEFAULT_EXPIRATION_DURATION)
 
         return self._ships
 
@@ -309,7 +98,7 @@ class Pixyship(metaclass=Singleton):
     def rooms(self):
         if not self._rooms or self.expired('room'):
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
-            self.expire_at('room', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('room', DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms
 
@@ -317,7 +106,7 @@ class Pixyship(metaclass=Singleton):
     def rooms_by_name(self):
         if not self._rooms_by_name or self.expired('room'):
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
-            self.expire_at('room', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('room', DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms_by_name
 
@@ -325,7 +114,7 @@ class Pixyship(metaclass=Singleton):
     def researches(self):
         if not self._researches or self.expired('room'):
             self._researches = self._get_researches_from_db()
-            self.expire_at('research', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('research', DEFAULT_EXPIRATION_DURATION)
 
         return self._researches
 
@@ -333,7 +122,7 @@ class Pixyship(metaclass=Singleton):
     def upgrades(self):
         if not self._upgrades or self.expired('room'):
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
-            self.expire_at('room', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('room', DEFAULT_EXPIRATION_DURATION)
 
         return self._upgrades
 
@@ -343,7 +132,7 @@ class Pixyship(metaclass=Singleton):
             self._characters = self._get_characters_from_db()
 
             if self._characters:
-                self.expire_at('char', self.DEFAULT_EXPIRATION_DURATION)
+                self.expire_at('char', DEFAULT_EXPIRATION_DURATION)
                 self.fill_char_collection_data()
 
         return self._characters
@@ -354,7 +143,7 @@ class Pixyship(metaclass=Singleton):
             self._collections = self._get_collections_from_db()
 
             if self._collections:
-                self.expire_at('collection', self.DEFAULT_EXPIRATION_DURATION)
+                self.expire_at('collection', DEFAULT_EXPIRATION_DURATION)
                 self.fill_char_collection_data()
 
         return self._collections
@@ -363,7 +152,7 @@ class Pixyship(metaclass=Singleton):
     def items(self):
         if not self._items or self.expired('item'):
             self._items = self._get_items_from_db()
-            self.expire_at('item', self.DEFAULT_EXPIRATION_DURATION)
+            self.expire_at('item', DEFAULT_EXPIRATION_DURATION)
 
         return self._items
 
@@ -555,12 +344,12 @@ class Pixyship(metaclass=Singleton):
         if room['type'] in ('Armor', 'Lift'):
             ship = self.get_object('Ship', ship_id)
 
-            if room['sprite']['source'] in self.RACE_SPECIFIC_SPRITE_MAP:
+            if room['sprite']['source'] in RACE_SPECIFIC_SPRITE_MAP:
                 # make a new sprite in a new room to keep from overwriting original data
                 room = room.copy()
                 sprite = room['sprite'].copy()
 
-                sprite['source'] = self.RACE_SPECIFIC_SPRITE_MAP[room['sprite']['source']][ship['race']]
+                sprite['source'] = RACE_SPECIFIC_SPRITE_MAP[room['sprite']['source']][ship['race']]
                 room['sprite'] = sprite
 
         return room
@@ -940,7 +729,7 @@ class Pixyship(metaclass=Singleton):
                 'logo_sprite': self.get_sprite_infos(research['LogoSpriteId']),
                 'sprite': self.get_sprite_infos(research['ImageSpriteId']),
                 'required_research_id': int(research['RequiredResearchDesignId']),
-                'research_type': self.RESEARCH_TYPE_MAP.get(research['ResearchDesignType'], research['ResearchDesignType'])
+                'research_type': RESEARCH_TYPE_MAP.get(research['ResearchDesignType'], research['ResearchDesignType'])
             }
 
         for research in researches.values():
@@ -982,7 +771,7 @@ class Pixyship(metaclass=Singleton):
             missile_design = room['MissileDesign']
 
             room_price, room_price_currency = self._parse_price_from_pricestring(room['PriceString'])
-            room_type = self.ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType'])
+            room_type = ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType'])
 
             rooms[record.type_id] = {
                 'id': record.type_id,
@@ -990,8 +779,8 @@ class Pixyship(metaclass=Singleton):
                 'short_name': room['RoomShortName'],
                 'type': room_type,
                 'level': int(room['Level']),
-                'capacity': int(room['Capacity']) / self.CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
-                'capacity_label': self.LABEL_CAPACITY_MAP.get(room['RoomType'], 'Capacity'),
+                'capacity': int(room['Capacity']) / CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
+                'capacity_label': LABEL_CAPACITY_MAP.get(room['RoomType'], 'Capacity'),
                 'range': int(room['Range']),
                 'height': int(room['Rows']),
                 'width': int(room['Columns']),
@@ -1012,11 +801,11 @@ class Pixyship(metaclass=Singleton):
                 'enhancement_type': room['EnhancementType'],
                 'manufacture_type': room['ManufactureType'],
                 'manufacture_rate': float(room['ManufactureRate']),
-                'manufacture_rate_label': self.MANUFACTURE_RATE_MAP.get(room['RoomType'], 'Manufacture Rate'),
+                'manufacture_rate_label': MANUFACTURE_RATE_MAP.get(room['RoomType'], 'Manufacture Rate'),
                 'manufacture_rate_per_hour':
-                    math.ceil(float(room['ManufactureRate']) * 3600) if self.MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
-                'manufacture_capacity': int(room['ManufactureCapacity']) / self.MANUFACTURE_CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
-                'manufacture_capacity_label': self.MANUFACTURE_CAPACITY_MAP.get(room['RoomType'], None),
+                    math.ceil(float(room['ManufactureRate']) * 3600) if MANUFACTURE_RATE_PER_HOUR_MAP.get(room['RoomType'], False) else None,
+                'manufacture_capacity': int(room['ManufactureCapacity']) / MANUFACTURE_CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
+                'manufacture_capacity_label': MANUFACTURE_CAPACITY_MAP.get(room['RoomType'], None),
                 'cooldown_time': int(room['CooldownTime']),
                 'requirement': self._parse_requirement(room['RequirementString']),
                 'extension_grids': int(room.get('SupportedGridTypes', '0')) & 2 != 0,
@@ -1048,12 +837,13 @@ class Pixyship(metaclass=Singleton):
 
         return rooms, upgrades, rooms_by_name
 
-    def _parse_equipment_slots(self, char):
+    @staticmethod
+    def _parse_equipment_slots(char):
         """Determine equipments slots with char equipment mask."""
 
         equipment_mask = int(char['EquipmentMask'])
         output = [int(x) for x in '{:06b}'.format(equipment_mask)]
-        slots = {self.EQUIPMENT_SLOTS[5 - i]: {} for i, b in enumerate(output) if b}
+        slots = {EQUIPMENT_SLOTS[5 - i]: {} for i, b in enumerate(output) if b}
 
         return slots
 
@@ -1084,7 +874,7 @@ class Pixyship(metaclass=Singleton):
                 'body_sprite': self.get_sprite_infos(int(character['CharacterParts']['Body']['StandardSpriteId'])),
                 'leg_sprite': self.get_sprite_infos(int(character['CharacterParts']['Leg']['StandardSpriteId'])),
                 'rarity': character['Rarity'].lower(),  # Sprites for gems are 1593. 1594
-                'rarity_order': self.RARITY_MAP[character['Rarity']],
+                'rarity_order': RARITY_MAP[character['Rarity']],
                 'hp': int_range(character, 'Hp', 'FinalHp'),
                 'pilot': float_range(character, 'Pilot', 'FinalPilot'),
                 'attack': float_range(character, 'Attack', 'FinalAttack'),
@@ -1094,9 +884,9 @@ class Pixyship(metaclass=Singleton):
                 'research': float_range(character, 'Research', 'FinalResearch'),
                 'science': float_range(character, 'Science', 'FinalScience'),
                 'ability': float_range(character, 'SpecialAbilityArgument', 'SpecialAbilityFinalArgument'),
-                'special_ability': self.ABILITY_MAP.get(character['SpecialAbilityType'], {'name': ''})['name'],
+                'special_ability': ABILITY_MAP.get(character['SpecialAbilityType'], {'name': ''})['name'],
                 'ability_sprite':
-                    self.get_sprite_infos(self.ABILITY_MAP.get(character['SpecialAbilityType'], {'sprite': 110})['sprite']),
+                    self.get_sprite_infos(ABILITY_MAP.get(character['SpecialAbilityType'], {'sprite': 110})['sprite']),
                 'fire_resist': int(character['FireResistance']),
                 'resurrect': 0,
                 'walk': int(character['WalkingSpeed']),
@@ -1148,7 +938,7 @@ class Pixyship(metaclass=Singleton):
                 'step_enhancement': int(collection['StepEnhancementValue']),
                 'icon_sprite': self.get_sprite_infos(int(collection['IconSpriteId'])),
                 'chars': [],
-                'ability_name': self.COLLECTION_ABILITY_MAP[collection['EnhancementType']],
+                'ability_name': COLLECTION_ABILITY_MAP[collection['EnhancementType']],
             })
             collections[record.type_id] = collection
 
@@ -1168,7 +958,7 @@ class Pixyship(metaclass=Singleton):
                 item = items.get(int(ingredient_item_id))
 
                 if item:
-                    line = Pixyship._create_light_item(item, items)
+                    line = PixyShip._create_light_item(item, items)
                     line['count'] = int(ingredient[1])
 
                     recipe.append(line)
@@ -1192,7 +982,7 @@ class Pixyship(metaclass=Singleton):
             'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
             'prices': item['prices'],
             'content': item['content'] if 'content' in item else None,
-            'recipe': item['recipe'] if not items else Pixyship._parse_item_recipe(item['ingredients'], items),
+            'recipe': item['recipe'] if not items else PixyShip._parse_item_recipe(item['ingredients'], items),
         }
 
     def _parse_item_content(self, item_content_string, last_item, items):
@@ -1227,7 +1017,7 @@ class Pixyship(metaclass=Singleton):
                     except KeyError:
                         continue
 
-                    line['item'] = Pixyship._create_light_item(item)
+                    line['item'] = PixyShip._create_light_item(item)
 
                     # avoid infinite recursion when item reward can be the item itself
                     if last_item['id'] != item['id']:
@@ -1275,7 +1065,7 @@ class Pixyship(metaclass=Singleton):
                     item = self.items.get(int(cost_value))
 
                     if item:
-                        item_cost = Pixyship._create_light_item(item)
+                        item_cost = PixyShip._create_light_item(item)
                         items_cost.append(item_cost)
 
                     continue
@@ -1316,10 +1106,10 @@ class Pixyship(metaclass=Singleton):
                 'description': item['ItemDesignDescription'],
                 'sprite': self.get_sprite_infos(int(item['ImageSpriteId'])),
                 'logo_sprite': self.get_sprite_infos(int(item['LogoSpriteId'])),
-                'slot': self.SLOT_MAP.get(item['ItemSubType'], item['ItemSubType']),
+                'slot': SLOT_MAP.get(item['ItemSubType'], item['ItemSubType']),
                 'enhancement': item.get('EnhancementType').lower(),
-                'disp_enhancement': self.ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
-                'short_disp_enhancement': self.SHORT_ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
+                'disp_enhancement': ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
+                'short_disp_enhancement': SHORT_ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
                 'bonus': float(item.get('EnhancementValue')),
                 'module_extra_enhancement': module_extra_enhancement['enhancement'],
                 'module_extra_disp_enhancement': module_extra_enhancement['disp_enhancement'],
@@ -1536,7 +1326,7 @@ class Pixyship(metaclass=Singleton):
             change = {
                 'type': record['type'],
                 'id': record['type_id'],
-                'name': record_data[self.TYPE_PSS_API_NAME_FIELD[record['type']]],
+                'name': record_data[TYPE_PSS_API_NAME_FIELD[record['type']]],
                 'changed_at': record['created_at'],
                 'data': record['data'],
                 'old_data': record['old_data'],
@@ -1551,7 +1341,7 @@ class Pixyship(metaclass=Singleton):
             # if change's an Item, get all infos of the item
             if record['type'] == 'item':
                 item = self.items[record['type_id']]
-                change['item'] = Pixyship._create_light_item(item)
+                change['item'] = PixyShip._create_light_item(item)
 
             changes.append(change)
 
@@ -1665,7 +1455,7 @@ class Pixyship(metaclass=Singleton):
 
         offers = {
             'shop': {
-                'sprite': self.get_sprite_infos(Pixyship.SHOP_SPRITE_ID),
+                'sprite': self.get_sprite_infos(SHOP_SPRITE_ID),
                 'object': self._format_daily_object(
                     1,
                     dailies['LimitedCatalogType'],
@@ -1681,18 +1471,26 @@ class Pixyship(metaclass=Singleton):
             },
 
             'blueCargo': {
-                'sprite': self.get_sprite_infos(Pixyship.BLUE_CARGO_SPRITE_ID),
-                'mineralCrew': self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['CommonCrewId'])), int(dailies['CommonCrewId'])),
-                'starbuxCrew': self._format_daily_object(1, 'Character', self.get_object('Character', int(dailies['HeroCrewId'])), int(dailies['HeroCrewId']))
+                'sprite': self.get_sprite_infos(BLUE_CARGO_SPRITE_ID),
+                'mineralCrew': self._format_daily_object(
+                    1,
+                    'Character',
+                    self.get_object('Character', int(dailies['CommonCrewId'])), int(dailies['CommonCrewId'])
+                ),
+                'starbuxCrew': self._format_daily_object(
+                    1,
+                    'Character',
+                    self.get_object('Character', int(dailies['HeroCrewId'])), int(dailies['HeroCrewId'])
+                )
             },
 
             'greenCargo': {
-                'sprite': self.get_sprite_infos(Pixyship.GREEN_CARGO_SPRITE_ID),
+                'sprite': self.get_sprite_infos(GREEN_CARGO_SPRITE_ID),
                 'items': self._parse_daily_cargo(dailies['CargoItems'], dailies['CargoPrices']),
             },
 
             'dailyRewards': {
-                'sprite': self.get_sprite_infos(Pixyship.DAILY_REWARDS_SPRITE_ID),
+                'sprite': self.get_sprite_infos(DAILY_REWARDS_SPRITE_ID),
                 'objects': [
                     self._format_daily_object(
                         int(dailies['DailyRewardArgument']),
@@ -1704,7 +1502,7 @@ class Pixyship(metaclass=Singleton):
             },
 
             'sale': {
-                'sprite': self.get_sprite_infos(Pixyship.DAILY_SALE_SPRITE_ID),
+                'sprite': self.get_sprite_infos(DAILY_SALE_SPRITE_ID),
                 'object': self._format_daily_object(
                     1,
                     dailies['SaleType'],
@@ -1716,7 +1514,7 @@ class Pixyship(metaclass=Singleton):
             },
 
             'promotions': {
-                'sprite': self.get_sprite_infos(Pixyship.DAILY_SALE_SPRITE_ID),
+                'sprite': self.get_sprite_infos(DAILY_SALE_SPRITE_ID),
                 'objects': daily_promotions,
             },
         }
@@ -1766,26 +1564,7 @@ class Pixyship(metaclass=Singleton):
             end_date = datetime.datetime.strptime(situation['end'], "%Y-%m-%dT%H:%M:%S")
             if from_date <= utc_now <= end_date:
                 situation_left_delta = end_date - utc_now
-                situation_left_seconds = situation_left_delta.days * 24 * 3600 + situation_left_delta.seconds
-                situation_left_minutes, situation_left_seconds = divmod(situation_left_seconds, 60)
-                situation_left_hours, situation_left_minutes = divmod(situation_left_minutes, 60)
-                situation_left_days, situation_left_hours = divmod(situation_left_hours, 24)
-                situation_left_weeks, situation_left_days = divmod(situation_left_days, 7)
-
-                situation_left_formatted = ''
-                if situation_left_weeks > 0:
-                    situation_left_formatted += '{}w'.format(situation_left_weeks)
-
-                if situation_left_days > 0:
-                    situation_left_formatted += ' {}d'.format(situation_left_days)
-
-                if situation_left_hours > 0:
-                    situation_left_formatted += ' {}h'.format(situation_left_hours)
-
-                if situation_left_minutes > 0:
-                    situation_left_formatted += ' {}m'.format(situation_left_minutes)
-
-                situation['left'] = situation_left_formatted.strip()
+                situation['left'] = PixyShip.format_delta_time(situation_left_delta)
 
                 return situation
 
@@ -1847,7 +1626,7 @@ class Pixyship(metaclass=Singleton):
                     try:
                         asset_item_type_id = int(asset_item_data)
                         item = self.items[asset_item_type_id]
-                        data = Pixyship._create_light_item(item)
+                        data = PixyShip._create_light_item(item)
                     except KeyError:
                         continue
 
@@ -1902,26 +1681,7 @@ class Pixyship(metaclass=Singleton):
             end_date = datetime.datetime.strptime(promotion['end'], "%Y-%m-%dT%H:%M:%S")
             if from_date <= utc_now <= end_date:
                 promotion_left_delta = end_date - utc_now
-                promotion_left_seconds = promotion_left_delta.days * 24 * 3600 + promotion_left_delta.seconds
-                promotion_left_minutes, promotion_left_seconds = divmod(promotion_left_seconds, 60)
-                promotion_left_hours, promotion_left_minutes = divmod(promotion_left_minutes, 60)
-                promotion_left_days, promotion_left_hours = divmod(promotion_left_hours, 24)
-                promotion_left_weeks, promotion_left_days = divmod(promotion_left_days, 7)
-
-                promotion_left_formatted = ''
-                if promotion_left_weeks > 0:
-                    promotion_left_formatted += '{}w'.format(promotion_left_weeks)
-
-                if promotion_left_days > 0:
-                    promotion_left_formatted += ' {}d'.format(promotion_left_days)
-
-                if promotion_left_hours > 0:
-                    promotion_left_formatted += ' {}h'.format(promotion_left_hours)
-
-                if promotion_left_minutes > 0:
-                    promotion_left_formatted += ' {}m'.format(promotion_left_minutes)
-
-                promotion['left'] = promotion_left_formatted.strip()
+                promotion['left'] = PixyShip.format_delta_time(promotion_left_delta)
 
                 promotions.append(promotion)
 
@@ -2073,7 +1833,7 @@ class Pixyship(metaclass=Singleton):
             crew_donated=int(more_user_data['CrewDonated']),
             crew_received=int(more_user_data['CrewReceived']),
             creation_date=more_user_data['CreationDate'],
-            race=self.RACES.get(int(ship_data['OriginalRaceId']), 'Unknown'),
+            race=RACES.get(int(ship_data['OriginalRaceId']), 'Unknown'),
             last_login_date=more_user_data['LastLoginDate'],
         )
 
@@ -2132,26 +1892,8 @@ class Pixyship(metaclass=Singleton):
         first_day_next_month = (utc_now.date().replace(day=1) + datetime.timedelta(days=32)).replace(day=1)
         tournament_start = first_day_next_month - datetime.timedelta(days=7)
         tournament_start_time = datetime.datetime(tournament_start.year, tournament_start.month, tournament_start.day)
-
         tournament_left_delta = tournament_start_time - utc_now
-        tournament_left_seconds = tournament_left_delta.days * 24 * 3600 + tournament_left_delta.seconds
-        tournament_left_minutes, tournament_left_seconds = divmod(tournament_left_seconds, 60)
-        tournament_left_hours, tournament_left_minutes = divmod(tournament_left_minutes, 60)
-        tournament_left_days, tournament_left_hours = divmod(tournament_left_hours, 24)
-        tournament_left_weeks, tournament_left_days = divmod(tournament_left_days, 7)
-
-        tournament_left_formatted = ''
-        if tournament_left_weeks > 0:
-            tournament_left_formatted += '{}w'.format(tournament_left_weeks)
-
-        if tournament_left_days > 0:
-            tournament_left_formatted += ' {}d'.format(tournament_left_days)
-
-        if tournament_left_hours > 0:
-            tournament_left_formatted += ' {}h'.format(tournament_left_hours)
-
-        if tournament_left_minutes > 0:
-            tournament_left_formatted += ' {}m'.format(tournament_left_minutes)
+        tournament_left_formatted = PixyShip.format_delta_time(tournament_left_delta)
 
         infos = {
             'start': tournament_start,
@@ -2161,6 +1903,25 @@ class Pixyship(metaclass=Singleton):
         }
 
         return infos
+
+    @staticmethod
+    def format_delta_time(delta_time):
+        delta_time_seconds = delta_time.days * 24 * 3600 + delta_time.seconds
+        delta_time_minutes, delta_time_seconds = divmod(delta_time_seconds, 60)
+        delta_time_hours, delta_time_minutes = divmod(delta_time_minutes, 60)
+        delta_time_days, delta_time_hours = divmod(delta_time_hours, 24)
+        delta_time_weeks, delta_time_days = divmod(delta_time_days, 7)
+        delta_time_formatted = ''
+        if delta_time_weeks > 0:
+            delta_time_formatted += '{}w'.format(delta_time_weeks)
+        if delta_time_days > 0:
+            delta_time_formatted += ' {}d'.format(delta_time_days)
+        if delta_time_hours > 0:
+            delta_time_formatted += ' {}h'.format(delta_time_hours)
+        if delta_time_minutes > 0:
+            delta_time_formatted += ' {}m'.format(delta_time_minutes)
+
+        return delta_time_formatted
 
     def _parse_ship_stickers(self, ship_data):
         stickers_string = ship_data['StickerString']
@@ -2193,7 +1954,7 @@ class Pixyship(metaclass=Singleton):
         options = self.pixel_starships_api.parse_sale_item_mask(sale_item_mask)
 
         for option in options:
-            name = self.IAP_NAMES[option]
+            name = IAP_NAMES[option]
             result.append({'name': name, 'value': option})
 
         return result
@@ -2226,16 +1987,17 @@ class Pixyship(metaclass=Singleton):
 
         return round(ratio, 2)
 
-    def _parse_module_extra_enhancement(self, item):
+    @staticmethod
+    def _parse_module_extra_enhancement(item):
         """Parse module extra enhancement from a given item."""
 
-        enhancement = self.MODULE_ENHANCEMENT_MAP.get(item['ModuleType'], None)
-        disp_enhancement = self.ENHANCE_MAP.get(enhancement, enhancement)
-        short_disp_enhancement = self.SHORT_ENHANCE_MAP.get(enhancement, enhancement),
+        enhancement = MODULE_ENHANCEMENT_MAP.get(item['ModuleType'], None)
+        disp_enhancement = ENHANCE_MAP.get(enhancement, enhancement)
+        short_disp_enhancement = SHORT_ENHANCE_MAP.get(enhancement, enhancement),
 
         bonus = 0
         if float(item['ModuleArgument']) != 0:
-            bonus = float(item['ModuleArgument']) / self.MODULE_BONUS_RATIO_MAP.get(item['ModuleType'], 1)
+            bonus = float(item['ModuleArgument']) / MODULE_BONUS_RATIO_MAP.get(item['ModuleType'], 1)
 
         return {
             'enhancement': enhancement,
@@ -2255,6 +2017,6 @@ class Pixyship(metaclass=Singleton):
 
             for recipe_item in item['recipe']:
                 if recipe_item['id'] == item_id:
-                    upgrades.append(Pixyship._create_light_item(item))
+                    upgrades.append(PixyShip._create_light_item(item))
 
         return upgrades

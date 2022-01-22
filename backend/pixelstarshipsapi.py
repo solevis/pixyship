@@ -1,19 +1,20 @@
 import datetime
 import hashlib
+import logging
 import random
 import re
-import time
-import logging
 import sys
+import time
 from typing import Tuple
+from urllib.parse import urljoin
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
 import requests
-from urllib.parse import urljoin
 
 from api_errors import TOKEN_EXPIRED_REGEX
 from config import CONFIG
+from constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP
 from db import db
 from models import Device
 
@@ -23,17 +24,6 @@ logger = logging.getLogger(__name__)
 
 class PixelStarshipsApi:
     """Manage Pixel Starships API."""
-
-    MIN_DEVICES = 10
-    PSS_START_DATE = datetime.date(year=2016, month=1, day=6)
-
-    IAP_OPTIONS_MASK_LOOKUP = [
-        500,
-        1200,
-        2500,
-        6500,
-        14000
-    ]
 
     def __init__(self):
         self._main_pixelstarships_api_url = CONFIG.get('MAIN_PIXELSTARSHIPS_API_URL')
@@ -60,8 +50,8 @@ class PixelStarshipsApi:
         """Get generated devices from database."""
 
         devices = Device.query.all()
-        if len(devices) < self.MIN_DEVICES:
-            for x in range(0, self.MIN_DEVICES - len(devices)):
+        if len(devices) < MIN_DEVICES:
+            for x in range(0, MIN_DEVICES - len(devices)):
                 device_key, device_checksum = self.generate_device()
                 new_device = Device(key=device_key, checksum=device_checksum)
                 db.session.add(new_device)
@@ -252,7 +242,6 @@ class PixelStarshipsApi:
             users.append(user)
         else:
             users_node = root.find('.//User')
-
             for user_node in users_node:
                 user = self.parse_user_node(user_node)
 
@@ -799,19 +788,21 @@ class PixelStarshipsApi:
 
         return prestige_node.attrib.copy()
 
-    def get_stardate(self):
+    @staticmethod
+    def get_stardate():
         """Compute Stardate."""
 
         utc_now = datetime.datetime.utcnow()
         today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
-        return (today - self.PSS_START_DATE).days
+        return (today - PSS_START_DATE).days
 
-    def parse_sale_item_mask(self, sale_item_mask):
+    @staticmethod
+    def parse_sale_item_mask(sale_item_mask):
         """"From SaleItemMask determine Sale options."""
 
         equipment_mask = int(sale_item_mask)
         output = [int(x) for x in '{:05b}'.format(equipment_mask)]
-        options = [self.IAP_OPTIONS_MASK_LOOKUP[4 - i] for i, b in enumerate(output) if b]
+        options = [IAP_OPTIONS_MASK_LOOKUP[4 - i] for i, b in enumerate(output) if b]
 
         # reverse order
         options.reverse()
