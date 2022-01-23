@@ -399,7 +399,7 @@ def test_rooms_purchase():
     assert 'AvailabilityMask' in room_purchase
 
 
-def test_search_users():
+def test_exact_match_search_users():
     # avoid Flask RuntimeError: No application found
     push_context()
 
@@ -408,6 +408,33 @@ def test_search_users():
     users = pixel_starships_api.search_users(user_name_to_search, True)
 
     assert len(users) == 1
+
+    user = users[0]
+    assert 'Name' in user
+    assert user['Name'] == user_name_to_search
+
+    assert 'PVPAttackWins' in user
+    assert 'PVPAttackLosses' in user
+    assert 'PVPAttackDraws' in user
+    assert 'PVPDefenceDraws' in user
+    assert 'PVPDefenceWins' in user
+    assert 'PVPDefenceLosses' in user
+    assert 'HighestTrophy' in user
+    assert 'CrewDonated' in user
+    assert 'CrewReceived' in user
+    assert 'AllianceJoinDate' in user
+    assert 'CreationDate' in user
+
+
+def test_search_users():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    user_name_to_search = 'Sol'
+    users = pixel_starships_api.search_users(user_name_to_search, False)
+
+    assert len(users) > 1
 
     user = users[0]
     assert 'Name' in user
