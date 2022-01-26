@@ -115,7 +115,7 @@ def api_players():
     return response
 
 
-@app.route('/api/user/<string:name>')
+@app.route('/api/user/<path:name>')
 @enforce_source
 def api_ship(name):
     if not name:
