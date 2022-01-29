@@ -843,7 +843,7 @@ class PixyShip(metaclass=Singleton):
 
         equipment_mask = int(char['EquipmentMask'])
         output = [int(x) for x in '{:06b}'.format(equipment_mask)]
-        slots = {EQUIPMENT_SLOTS[5 - i]: {} for i, b in enumerate(output) if b}
+        slots = [EQUIPMENT_SLOTS[5 - i] for i, b in enumerate(output) if b]
 
         return slots
 
