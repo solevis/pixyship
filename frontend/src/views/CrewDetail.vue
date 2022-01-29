@@ -59,19 +59,8 @@
                   <!-- Equip -->
                   <td>
                     <div class="ps-left equip">
-                      <div v-for="(s, k) in character.equipment" :key="k">
-                        <div
-                          v-if="s.name"
-                          :title="`${k}: +${s.bonus} ${s.enhancement} ${
-                            s.extra_bonus ? '+' + s.extra_bonus : ''
-                          } ${s.extra_enhancement}`"
-                        >
-                          <div class="char-item" :style="spriteStyle(s.sprite)"></div>
-                          {{ s.name }}
-                        </div>
-                        <template v-else>
-                          <div class="unused">{{ k }}</div>
-                        </template>
+                      <div v-for="k in character.equipment" :key="k">
+                        {{ k }}
                       </div>
                     </div>
                   </td>
@@ -236,7 +225,7 @@
         <v-card v-if="loaded" outlined class="mt-2">
           <v-card-title>Utility Stats</v-card-title>
           <v-card-text>
-            <span>Equip: {{ Object.keys(character.equipment).join(", ") }}</span><br>
+            <span>Equip: {{ Object.values(character.equipment).join(", ") }}</span><br>
             <span>Rarity: <span :class="['rarity', character.rarity]">{{ character.rarity }}</span></span><br>
 
             <div v-if="character.special_ability">Special: {{ character.special_ability }} <div :style="spriteStyle(character.ability_sprite)" class="center d-inline-block"></div></div>

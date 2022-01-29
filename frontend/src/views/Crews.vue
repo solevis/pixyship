@@ -135,19 +135,8 @@
           <!-- Equip -->
           <td>
             <div class="ps-left equip">
-              <div v-for="(s, k) in item.equipment" :key="k">
-                <div
-                  v-if="s.name"
-                  :title="`${k}: +${s.bonus} ${s.enhancement} ${
-                    s.extra_bonus ? '+' + s.extra_bonus : ''
-                  } ${s.extra_enhancement}`"
-                >
-                  <div class="char-item" :style="spriteStyle(s.sprite)"></div>
-                  {{ s.name }}
-                </div>
-                <template v-else>
-                  <div class="unused">{{ k }}</div>
-                </template>
+              <div v-for="k in item.equipment" :key="item.id + k">
+                {{ k }}
               </div>
             </div>
           </td>
@@ -372,8 +361,13 @@ export default {
           text: "Equip",
           align: "start",          
           value: "equipment",
+          sort: (a, b) => {
+            let joinedA = Object.values(a).join('')
+            let joinedB = Object.values(b).join('')
+            return joinedA.localeCompare(joinedB)
+          },
           filter: value => { 
-            return this.filterCombobox(Object.keys(value).toString(), this.searchEquipment, true)
+            return this.filterCombobox(Object.values(value).toString(), this.searchEquipment, true)
           }
         },
         { 
@@ -717,7 +711,7 @@ export default {
       this.abilities = Array.from(new Set(this.crews.map((crew) => crew.special_ability.length === 0 ? 'None' : crew.special_ability))).sort(this.sortAlphabeticallyExceptNone)
       this.collections = Array.from(new Set(this.crews.map((crew) => crew.collection_name.length === 0 ? 'None' : crew.collection_name))).sort(this.sortAlphabeticallyExceptNone)
 
-      let values = this.crews.map((crew) => Object.keys(crew.equipment).length === 0 ? ['None'] : Object.keys(crew.equipment))
+      let values = this.crews.map((crew) => Object.keys(crew.equipment).length === 0 ? ['None'] : Object.values(crew.equipment))
       this.equipments =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
     },
 

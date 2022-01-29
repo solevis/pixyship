@@ -384,7 +384,7 @@ export default {
         {
           text: "Type/Subtype",
           align: "center",          
-          value: "type",
+          value: "typesubtype",
           sortable: true,
           filter: (value, search, item) => {
             // both filters
@@ -635,6 +635,8 @@ export default {
             }
           }
         }
+
+        item.typesubtype = item.type + item.slot
       })
 
       items.sort((a, b) => b.offers - a.offers)

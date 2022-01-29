@@ -74,10 +74,10 @@
           </td>
         </tr>
         
-        <tr v-if="Object.keys(char.equipment).length > 0">
+        <tr v-if="Object.values(char.equipment).length > 0">
           <td class="text-xs-right">Equip:</td>
           <td colspan="3">
-            {{ Object.keys(char.equipment).join(", ") }}
+            {{ Object.values(char.equipment).join(", ") }}
           </td>
         </tr>
       </table>
