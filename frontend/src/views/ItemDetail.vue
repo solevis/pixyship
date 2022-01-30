@@ -571,7 +571,7 @@ export default {
 
   data() {
     return {
-      activeTab: "tab-market",
+      activeTab: "tab-detail",
       loaded: false,
       itemId: this.$route.params.id,
       item: {},
