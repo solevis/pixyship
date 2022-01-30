@@ -335,7 +335,7 @@
 
     <v-row justify="center">
       <v-col cols="12" sm="8">
-        <v-tabs v-if="loaded" grow show-arrows center-active v-model="model" class="mt-4">
+        <v-tabs v-if="loaded" grow show-arrows center-active v-model="activeTab" class="mt-4">
           <v-tab href="#tab-market"
             ><v-icon left>mdi-chart-histogram</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Market History</span></v-tab
           >
@@ -354,7 +354,7 @@
     
     <v-row justify="center">
       <v-col cols="12">
-        <v-tabs-items v-model="model" touchless>
+        <v-tabs-items v-model="activeTab" touchless>
           <v-tab-item value="tab-sales">
             <v-card flat>
               <v-row
@@ -515,6 +515,7 @@ import ItemMixin from "@/mixins/Item.vue.js"
 import Item from "@/components/Item.vue"
 import Crew from "@/components/Crew.vue"
 import ItemMarket from "@/components/ItemMarket.vue"
+import _ from "lodash";
 
 export default {
   mixins: [PixyShipMixin, ItemMixin],
@@ -570,7 +571,7 @@ export default {
 
   data() {
     return {
-      model: "tab-detail",
+      activeTab: "tab-market",
       loaded: false,
       itemId: this.$route.params.id,
       item: {},
@@ -694,6 +695,12 @@ export default {
     this.getItem()
   },
 
+  mounted: function () {
+    if (this.$route.query.activeTab) {
+      this.activeTab = this.$route.query.activeTab.trim();
+    }
+  },
+
   methods: {
     getItem: async function () {
       const response = await axios.get(this.itemDetailEndpoint(this.itemId))
@@ -725,6 +732,27 @@ export default {
       this.loaded = true
     },
   },
+
+  watch: {
+    activeTab(value) {
+      let searchParams = new URLSearchParams(window.location.search)
+
+      // no need to append activeTab to URL on default one or empty value
+      if (_.isEmpty(value) || value === 'tab-market') {
+        searchParams.delete('activeTab')
+      } else {
+        searchParams.set('activeTab', value)
+      }
+
+      let queryString = searchParams.toString()
+      if (queryString) {
+        queryString = '?' + queryString
+      }
+
+      window.history.pushState('', '', this.$route.path + queryString)
+    }
+  }
+
 }
 </script>
 
