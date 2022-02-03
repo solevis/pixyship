@@ -17,6 +17,7 @@ from config import CONFIG
 from constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP
 from db import db
 from models import Device
+from utils import api_sleep
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -99,14 +100,20 @@ class PixelStarshipsApi:
 
         return (server or self.server) + path[0].format(**params)
 
-    def call(self, endpoint, params, access=False):
+    def call(self, endpoint, params, need_token=False, force_token_generation=False):
         """Make a PSS API call."""
 
-        # protected endpoint, add device access token
         device = None
-        if access:
+        if need_token and (not CONFIG['SAVY_PUBLIC_API_TOKEN'] or force_token_generation):
+            # protected endpoint, add device access token...
             device = self.get_device()
-            params['accessToken'] = device.get_token()
+            token = device.get_token()
+        else:
+            # ...otherwise use Savy provided token if present
+            token = CONFIG['SAVY_PUBLIC_API_TOKEN']
+
+        if token:
+            params['accessToken'] = token
 
         response = requests.get(endpoint, params=params)
 
@@ -198,7 +205,7 @@ class PixelStarshipsApi:
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f'https://{self.server}/ShipService/InspectShip2'
-        response = self.call(endpoint, params=params, access=True)
+        response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
         root = ElementTree.fromstring(response.text)
 
         inspect_ship = {
@@ -629,7 +636,7 @@ class PixelStarshipsApi:
                     break
 
                 # too many request, wait a little, and try again
-                time.sleep(10)
+                api_sleep(10, force_sleep=True)
                 continue
 
             root = ElementTree.fromstring(response.text)
@@ -648,7 +655,7 @@ class PixelStarshipsApi:
                     sales.clear()
                     break
 
-                time.sleep(3)
+                api_sleep(3, force_sleep=True)
                 continue
 
             # no more sales available
@@ -677,7 +684,7 @@ class PixelStarshipsApi:
             start += 20
             end += 20
 
-            time.sleep(3)
+            api_sleep(3, force_sleep=True)
 
         return sales
 
@@ -698,7 +705,7 @@ class PixelStarshipsApi:
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f'https://{self.server}/AllianceService/ListUsers'
-        response = self.call(endpoint, params=params, access=True)
+        response = self.call(endpoint, params=params, need_token=True)
         root = ElementTree.fromstring(response.text)
 
         users = []
@@ -721,7 +728,7 @@ class PixelStarshipsApi:
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f'https://{self.server}/LadderService/ListUsersByRanking'
-        response = self.call(endpoint, params=params, access=True)
+        response = self.call(endpoint, params=params, need_token=True)
         root = ElementTree.fromstring(response.text)
 
         users = []

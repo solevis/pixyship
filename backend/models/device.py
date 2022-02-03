@@ -18,9 +18,6 @@ class Device(db.Model):
 
         return self.token
 
-    def access_token_param(self):
-        return '&accessToken={token}'.format(token=self.get_token())
-
     def cycle_token(self):
         from pixelstarshipsapi import PixelStarshipsApi
 
