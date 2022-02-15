@@ -3,7 +3,6 @@ import datetime
 import logging
 import os
 import sys
-import time
 from urllib import request
 
 from contexttimer import Timer
@@ -14,6 +13,7 @@ from db import db
 from models import Listing, Alliance, Player, DailySale
 from pixyship import PixyShip
 from run import push_context
+from utils import api_sleep
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def import_players():
 
     logger.info('## top 100 players')
     top_users = list(pixyship.get_top100_users_from_api().items())
-    time.sleep(5)
+    api_sleep(5)
 
     logger.info('## top 100 alliances')
     count = 0
@@ -41,7 +41,7 @@ def import_players():
             count += 1
             logger.info('[{}/100] {}...'.format(count, alliance['name']))
             top_users += list(pixyship.get_alliance_users_from_api(alliance_id).items())
-            time.sleep(5)
+            api_sleep(5)
         except Exception as e:
             logger.error(e)
 
@@ -307,7 +307,7 @@ def import_market(first_item_only=False, item=None):
         if first_item_only:
             break
 
-        time.sleep(3)
+        api_sleep(3, force_sleep=True)
 
     logger.info('Done')
 
