@@ -30,11 +30,11 @@ class PixelStarshipsApi:
         self._main_pixelstarships_api_url = CONFIG.get('MAIN_PIXELSTARSHIPS_API_URL')
         self._backup_pixelstarships_api_url = CONFIG.get('BACKUP_PIXELSTARSHIPS_API_URL')
 
-        self.__api_settings = self.get_api_settings()
-        self.server = self.__api_settings['ProductionServer']
-
         self._device_next_index = 0
         self._devices = None
+
+        self.__api_settings = self.get_api_settings()
+        self.server = self.__api_settings['ProductionServer']
 
     @property
     def maintenance_message(self):
@@ -104,11 +104,13 @@ class PixelStarshipsApi:
         """Make a PSS API call."""
 
         device = None
-        if need_token and (not CONFIG['SAVY_PUBLIC_API_TOKEN'] or force_token_generation):
+        token = None
+
+        if need_token and ('SAVY_PUBLIC_API_TOKEN' not in CONFIG or force_token_generation):
             # protected endpoint, add device access token...
             device = self.get_device()
             token = device.get_token()
-        else:
+        elif 'SAVY_PUBLIC_API_TOKEN' in CONFIG:
             # ...otherwise use Savy provided token if present
             token = CONFIG['SAVY_PUBLIC_API_TOKEN']
 
