@@ -1806,7 +1806,6 @@ class PixyShip(metaclass=Singleton):
 
         upgrades = []
         user_data = inspect_ship['User']
-        more_user_data = self.pixel_starships_api.search_users(user_data['Name'], True)[0]
         ship_data = inspect_ship['Ship']
 
         user = dict(
@@ -1815,27 +1814,45 @@ class PixyShip(metaclass=Singleton):
             sprite=self.get_sprite_infos(int(user_data['IconSpriteId'])),
             alliance_name=user_data.get('AllianceName'),
             alliance_membership=user_data.get('AllianceMembership'),
-            alliance_join_date=more_user_data.get('AllianceJoinDate'),
             alliance_sprite=self.get_sprite_infos(int(user_data.get('AllianceSpriteId'))),
             trophies=int(user_data['Trophy']),
             last_date=user_data['LastAlertDate'],
-            pvpattack_wins=int(more_user_data['PVPAttackWins']),
-            pvpattack_losses=int(more_user_data['PVPAttackLosses']),
-            pvpattack_draws=int(more_user_data['PVPAttackDraws']),
-            pvpattack_ratio=self._compute_pvp_ratio(int(more_user_data['PVPAttackWins']), int(more_user_data['PVPAttackLosses']),
-                                                    int(more_user_data['PVPAttackDraws'])),
-            pvpdefence_draws=int(more_user_data['PVPDefenceDraws']),
-            pvpdefence_wins=int(more_user_data['PVPDefenceWins']),
-            pvpdefence_losses=int(more_user_data['PVPDefenceLosses']),
-            pvpdefence_ratio=self._compute_pvp_ratio(int(more_user_data['PVPDefenceWins']), int(more_user_data['PVPDefenceLosses']),
-                                                     int(more_user_data['PVPDefenceDraws'])),
-            highest_trophy=int(more_user_data['HighestTrophy']),
-            crew_donated=int(more_user_data['CrewDonated']),
-            crew_received=int(more_user_data['CrewReceived']),
-            creation_date=more_user_data['CreationDate'],
             race=RACES.get(int(ship_data['OriginalRaceId']), 'Unknown'),
-            last_login_date=more_user_data['LastLoginDate'],
         )
+
+        searched_users = self.pixel_starships_api.search_users(user_data['Name'], True)
+        if searched_users:
+            more_user_data = searched_users[0]
+
+            user['alliance_join_date'] = more_user_data.get('AllianceJoinDate')
+            user['pvpattack_wins'] = int(more_user_data['PVPAttackWins'])
+            user['pvpattack_losses'] = int(more_user_data['PVPAttackLosses'])
+            user['pvpattack_draws'] = int(more_user_data['PVPAttackDraws'])
+            user['pvpattack_ratio'] = self._compute_pvp_ratio(int(more_user_data['PVPAttackWins']), int(more_user_data['PVPAttackLosses']), int(more_user_data['PVPAttackDraws']))
+            user['pvpdefence_draws'] = int(more_user_data['PVPDefenceDraws'])
+            user['pvpdefence_wins'] = int(more_user_data['PVPDefenceWins'])
+            user['pvpdefence_losses'] = int(more_user_data['PVPDefenceLosses'])
+            user['pvpdefence_ratio'] = self._compute_pvp_ratio(int(more_user_data['PVPDefenceWins']), int(more_user_data['PVPDefenceLosses']), int(more_user_data['PVPDefenceDraws']))
+            user['highest_trophy'] = int(more_user_data['HighestTrophy'])
+            user['crew_donated'] = int(more_user_data['CrewDonated'])
+            user['crew_received'] = int(more_user_data['CrewReceived'])
+            user['creation_date'] = more_user_data['CreationDate']
+            user['last_login_date'] = more_user_data['LastLoginDate']
+        else:
+            user['alliance_join_date'] = None
+            user['pvpattack_wins'] = None
+            user['pvpattack_losses'] = None
+            user['pvpattack_draws'] = None
+            user['pvpattack_ratio'] = None
+            user['pvpdefence_draws'] = None
+            user['pvpdefence_wins'] = None
+            user['pvpdefence_losses'] = None
+            user['pvpdefence_ratio'] = None
+            user['highest_trophy'] = None
+            user['crew_donated'] = None
+            user['crew_received'] = None
+            user['creation_date'] = None
+            user['last_login_date'] = None
 
         ship_id = int(ship_data['ShipDesignId'])
         immunity_date = ship_data['ImmunityDate']

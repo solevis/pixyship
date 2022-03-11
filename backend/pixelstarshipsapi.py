@@ -245,10 +245,10 @@ class PixelStarshipsApi:
         if exact_match:
             user_node = root.find('.//User[@Name="{}"]'.format(user_name))
 
-            user = self.parse_user_node(user_node)
-
-            user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
-            users.append(user)
+            if user_node:
+                user = self.parse_user_node(user_node)
+                user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
+                users.append(user)
         else:
             users_node = root.find('.//Users')
             for user_node in users_node:
