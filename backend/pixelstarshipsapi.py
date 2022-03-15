@@ -106,11 +106,11 @@ class PixelStarshipsApi:
         device = None
         token = None
 
-        if need_token and ('SAVY_PUBLIC_API_TOKEN' not in CONFIG or force_token_generation):
+        if need_token and (not CONFIG['SAVY_PUBLIC_API_TOKEN'] or force_token_generation):
             # protected endpoint, add device access token...
             device = self.get_device()
             token = device.get_token()
-        elif 'SAVY_PUBLIC_API_TOKEN' in CONFIG:
+        elif CONFIG['SAVY_PUBLIC_API_TOKEN']:
             # ...otherwise use Savy provided token if present
             token = CONFIG['SAVY_PUBLIC_API_TOKEN']
 
