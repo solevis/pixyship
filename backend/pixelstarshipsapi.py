@@ -4,9 +4,8 @@ import logging
 import random
 import re
 import sys
-import time
 from typing import Tuple
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
@@ -29,12 +28,18 @@ class PixelStarshipsApi:
     def __init__(self):
         self._main_pixelstarships_api_url = CONFIG.get('MAIN_PIXELSTARSHIPS_API_URL')
         self._backup_pixelstarships_api_url = CONFIG.get('BACKUP_PIXELSTARSHIPS_API_URL')
+        self._forced_pixelstarships_api_url = CONFIG.get('FORCED_PIXELSTARSHIPS_API_URL')
 
         self._device_next_index = 0
         self._devices = None
 
         self.__api_settings = self.get_api_settings()
-        self.server = self.__api_settings['ProductionServer']
+
+        if not self._forced_pixelstarships_api_url:
+            self.server = self.__api_settings['ProductionServer']
+        else:
+            o = urlparse(self._forced_pixelstarships_api_url)
+            self.server = o.hostname
 
     @property
     def maintenance_message(self):
@@ -69,6 +74,15 @@ class PixelStarshipsApi:
             'languageKey': 'en',
             'deviceType': 'DeviceTypeAndroid'
         }
+
+        if self._forced_pixelstarships_api_url:
+            # call API with forced URL
+            endpoint = urljoin(self._forced_pixelstarships_api_url, 'SettingService/getlatestversion3')
+            response = self.call(endpoint, params=params)
+            root = ElementTree.fromstring(response.text)
+            settings = root.find(".//Setting").attrib
+
+            return settings
 
         try:
             # call API with classic URL, in case of error, try with alternative
