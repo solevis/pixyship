@@ -77,22 +77,6 @@
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
     </v-main>
-
-    <v-footer
-    padless
-  >
-    <v-row
-      justify="center"
-      no-gutters
-    >
-      <v-col
-        class="py-1 text-center white--text"
-        cols="12"
-      >
-        <strong>PixyShip</strong>&nbsp;<a class="white--text" href="/changelog">v2.3.0</a>
-      </v-col>
-    </v-row>
-  </v-footer>
   </v-app>
 </template>
 
