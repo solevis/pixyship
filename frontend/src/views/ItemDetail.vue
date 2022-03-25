@@ -31,6 +31,8 @@
                   <th class="text-left">Training</th>
                   <th class="text-left">Recipe</th>
                   <th class="text-left">Content</th>
+                  <th class="text-left" v-if="item.requirement">Requirement</th>
+                  <th class="text-left">Item Space</th>
                   <th class="text-left">Savy Price</th>
                   <th class="text-left">Market Prices (48h)</th>
                 </tr>
@@ -166,6 +168,16 @@
                         </tr>
                       </table>
                     </template>
+                  </td>
+
+                  <!-- Requirement -->
+                  <td v-if="item.requirement">
+                    {{ item.requirement }}
+                  </td>
+
+                  <!-- Item Space -->
+                  <td>
+                    {{ item.item_space }}
                   </td>
 
                   <!-- Savy Price -->

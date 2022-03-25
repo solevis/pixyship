@@ -292,6 +292,8 @@ def test_items():
     assert 'ItemType' in item
     assert 'Rarity' in item
     assert 'EnhancementValue' in item
+    assert 'ItemSpace' in item
+    assert 'RequirementString' in item
 
 
 def test_alliances():

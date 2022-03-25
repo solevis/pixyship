@@ -1125,7 +1125,9 @@ class PixyShip(metaclass=Singleton):
                 'prices': self.prices.get(int(item['ItemDesignId'])),
                 'training': self.trainings.get(int(item['TrainingDesignId'])),
                 'id': record.type_id,
-                'saleable': (int(item['Flags']) & 1) != 0
+                'saleable': (int(item['Flags']) & 1) != 0,
+                'item_space': int(item['ItemSpace']),
+                'requirement': item['RequirementString']
             }
 
         # Second pass required for self references
