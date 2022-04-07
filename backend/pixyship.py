@@ -411,25 +411,14 @@ class PixyShip(metaclass=Singleton):
         """Update data and save records."""
 
         sprites = self.pixel_starships_api.get_sprites()
+        still_presents_ids = []
 
         for sprite in sprites:
             record_id = sprite['SpriteId']
             Record.update_data('sprite', record_id, sprite['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
 
-    def _get_room_sprites_from_api(self):
-        """Get room sprites from API."""
-
-        rooms_sprites = self.pixel_starships_api.get_rooms_sprites()
-
-        return {
-            int(room_sprite['RoomDesignSpriteId']): {
-                'room_id': int(room_sprite['RoomDesignId']),
-                'race': int(room_sprite['RaceId']),
-                'sprite_id': int(room_sprite['SpriteId']),
-                'type': room_sprite['RoomSpriteType'],
-            }
-            for room_sprite in rooms_sprites
-        }
+        Record.purge_old_records('sprite', still_presents_ids)
 
     def _get_room_sprites_from_db(self):
         """Load sprites from database."""
@@ -445,6 +434,10 @@ class PixyShip(metaclass=Singleton):
                 'race': int(room_sprite['RaceId']),
                 'sprite_id': int(room_sprite['SpriteId']),
                 'type': room_sprite['RoomSpriteType'],
+                'skin_name': room_sprite['SkinName'],
+                'skin_key': int(room_sprite['SkinKey']),
+                'skin_description': room_sprite['SkinDescription'],
+                'requirement': self._parse_requirement(room_sprite['RequirementString']),
             }
 
         return room_sprites
@@ -453,10 +446,14 @@ class PixyShip(metaclass=Singleton):
         """Update data and save records."""
 
         room_sprites = self.pixel_starships_api.get_rooms_sprites()
+        still_presents_ids = []
 
         for room_sprite in room_sprites:
             record_id = room_sprite['RoomDesignSpriteId']
             Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('room_sprite', still_presents_ids)
 
     def _get_trainings_from_db(self):
         """Load trainings from database."""
@@ -490,10 +487,14 @@ class PixyShip(metaclass=Singleton):
         """Update data and save records."""
 
         trainings = self.pixel_starships_api.get_trainings()
+        still_presents_ids = []
 
         for training in trainings:
             record_id = int(training['TrainingDesignId'])
             Record.update_data('training', record_id, training['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('training', still_presents_ids)
 
     def _get_achievements_from_db(self):
         """Load achievements from database."""
@@ -545,10 +546,14 @@ class PixyShip(metaclass=Singleton):
         """Update data and save records."""
 
         achievements = self.pixel_starships_api.get_achievements()
+        still_presents_ids = []
 
         for achievement in achievements:
             record_id = int(achievement['AchievementDesignId'])
             Record.update_data('achievement', record_id, achievement['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('achievement', still_presents_ids)
 
     @staticmethod
     def _get_prices_from_db():
@@ -655,10 +660,14 @@ class PixyShip(metaclass=Singleton):
         """Get ships from API and save them in database."""
 
         ships = self.pixel_starships_api.get_ships()
+        still_presents_ids = []
 
         for ship in ships:
             record_id = ship['ShipDesignId']
             Record.update_data('ship', record_id, ship['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('ship', still_presents_ids)
 
     def _get_ships_from_db(self):
         """Load ships from database."""
@@ -704,10 +713,14 @@ class PixyShip(metaclass=Singleton):
         """Update data and save records."""
 
         researches = self.pixel_starships_api.get_researches()
+        still_presents_ids = []
 
         for research in researches:
             record_id = research['ResearchDesignId']
             Record.update_data('research', record_id, research['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('research', still_presents_ids)
 
     def _get_researches_from_db(self):
         """Load researches from database."""
@@ -755,10 +768,14 @@ class PixyShip(metaclass=Singleton):
         """Get rooms from API and save them in database."""
 
         rooms = self.pixel_starships_api.get_rooms()
+        still_presents_ids = []
 
         for room in rooms:
             record_id = room['RoomDesignId']
             Record.update_data('room', record_id, room['pixyship_xml_element'], ['AvailabilityMask'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('room', still_presents_ids)
 
     def _get_rooms_from_db(self):
         """Load rooms from database."""
@@ -851,10 +868,14 @@ class PixyShip(metaclass=Singleton):
         """Get crews from API and save them in database."""
 
         characters = self.pixel_starships_api.get_characters()
+        still_presents_ids = []
 
         for character in characters:
             record_id = character['CharacterDesignId']
             Record.update_data('char', record_id, character['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('char', still_presents_ids)
 
     def _get_characters_from_db(self):
         """Load crews from database."""
@@ -913,10 +934,14 @@ class PixyShip(metaclass=Singleton):
         """Get collections from API and save them in database."""
 
         collections = self.pixel_starships_api.get_collections()
+        still_presents_ids = []
 
         for collection in collections:
             record_id = collection['CollectionDesignId']
             Record.update_data('collection', record_id, collection['pixyship_xml_element'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('collection', still_presents_ids)
 
     def _get_collections_from_db(self):
         """Load collections from database."""
@@ -1080,10 +1105,14 @@ class PixyShip(metaclass=Singleton):
         """Get items from API and save them in database."""
 
         items = self.pixel_starships_api.get_items()
+        still_presents_ids = []
 
         for item in items:
             record_id = item['ItemDesignId']
             Record.update_data('item', record_id, item['pixyship_xml_element'], ['FairPrice', 'MarketPrice'])
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('item', still_presents_ids)
 
     def _get_items_from_db(self):
         """Get items from database."""
@@ -2039,3 +2068,27 @@ class PixyShip(metaclass=Singleton):
                     upgrades.append(PixyShip._create_light_item(item))
 
         return upgrades
+
+    def merge_rooms_and_sprites(self, rooms, rooms_sprites):
+        merged_rooms = rooms
+
+        # merge only RoomSprite with a SkinName
+        filtered_rooms_sprites = {}
+        for room_sprite_id, room_sprite in rooms_sprites.items():
+            if room_sprite['skin_name'] and room_sprite['type'] == 'Interior':
+                filtered_rooms_sprites[room_sprite_id] = room_sprite
+
+        index = -1
+        for room_sprite_id, room_sprite in filtered_rooms_sprites.items():
+            new_room = rooms[room_sprite['room_id']].copy()
+            new_room['name'] = room_sprite['skin_name']
+            new_room['description'] = room_sprite['skin_description']
+            new_room['sprite'] = self.get_sprite_infos(room_sprite['sprite_id'])
+            new_room['requirement'] = room_sprite['requirement']
+
+            # TODO: better id (used by front to sort rooms by oldest)
+            new_room['id'] = index
+            merged_rooms[index] = new_room
+            index -= 1
+
+        return merged_rooms

@@ -213,6 +213,23 @@ def test_rooms():
     assert 'AvailabilityMask' in room_with_purchase
 
 
+def test_rooms_sprites():
+    pixel_starships_api = PixelStarshipsApi()
+    rooms_sprites = pixel_starships_api.get_rooms_sprites()
+
+    assert len(rooms_sprites) > 0
+
+    room_sprite = rooms_sprites[0]
+    assert 'RoomDesignId' in room_sprite
+    assert 'RaceId' in room_sprite
+    assert 'SpriteId' in room_sprite
+    assert 'RoomSpriteType' in room_sprite
+    assert 'SkinName' in room_sprite
+    assert 'SkinDescription' in room_sprite
+    assert 'SkinKey' in room_sprite
+    assert 'RequirementString' in room_sprite
+
+
 def test_characters():
     pixel_starships_api = PixelStarshipsApi()
     characters = pixel_starships_api.get_characters()
