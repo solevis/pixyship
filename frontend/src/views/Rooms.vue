@@ -6,7 +6,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="12" sm="12" md="4">
+        <v-col cols="12" sm="12" md="2">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -68,6 +68,18 @@
             :value-comparator="filterValueComparator"
           ></v-autocomplete>
         </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-autocomplete
+            v-model="searchSkin"
+            :items="skins"
+            label="Skin"
+            clearable
+            outlined
+            small-chips
+            hide-details
+            :value-comparator="filterValueComparator"
+          ></v-autocomplete>
+        </v-col>
       </v-row>
     </v-card-subtitle>
 
@@ -111,6 +123,10 @@
                 <div :class="[item.rarity, 'lh-9', 'name']">
                   <span>{{ item.short_name }}</span>
                 </div>
+              </td>
+
+              <td>
+                {{ item.skin }}
               </td>
 
               <td>{{ item.type }}</td>
@@ -380,10 +396,12 @@ export default {
       searchShipLevel: [],
       searchSize: [],
       searchType: [],
+      searchSkin: null,
       levels: [],
       shipLevels: [],
       types: [],
       sizes: [],
+      skins: [],
       loaded: false,
       rooms: [],
       headers: [
@@ -418,6 +436,19 @@ export default {
           align: "left", 
           value: "short_name",
           filterable: true
+        },
+        { 
+          text: "Skin", 
+          align: "left", 
+          value: "skin",
+          filterable: true,
+          filter: (value) => {
+            if (this.searchSkin !== null) {
+              return value === this.searchSkin
+            }
+
+            return true
+          },
         },
         {
           text: "Type",
@@ -493,6 +524,7 @@ export default {
         || this.searchShipLevel.length > 0
         || this.searchSize.length > 0
         || this.searchType.length > 0
+        || this.searchSkin.length > 0
     }
   },
 
@@ -553,6 +585,10 @@ export default {
       this.updateQueryFromFilter('type', value)
     },
 
+    searchSkin(value) {
+      this.updateQueryFromFilter('skin', value)
+    },
+
     searchLevel(value) {
       this.updateQueryFromFilter('level', value)
     },
@@ -593,6 +629,12 @@ export default {
           return value.trim()
         })
       }
+
+      if (this.$route.query.skin) {
+        this.searchSkin = this.$route.query.skin.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
     },
 
     computeDps(damage, room) {
@@ -624,6 +666,7 @@ export default {
           room.upgrade_cost = 0
         }
 
+        room.skin = room.skin ? 'Yes' : 'No'
         rooms.push(room)
       }
 
@@ -655,6 +698,10 @@ export default {
 
       this.types = Array.from(
         new Set(this.rooms.map((room) => (!room.type ? "None" : room.type)))
+      ).sort(this.sortAlphabeticallyExceptNone)
+
+      this.skins = Array.from(
+        new Set(this.rooms.map((room) => (room.skin)))
       ).sort(this.sortAlphabeticallyExceptNone)
     },
 

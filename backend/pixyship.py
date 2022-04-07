@@ -840,6 +840,7 @@ class PixyShip(metaclass=Singleton):
                 'emp_length': float(missile_design['EMPLength']) if missile_design else 0,
                 'stun_length': float(missile_design['StunLength']) if missile_design else 0,
                 'hull_percentage_damage': float(missile_design['HullPercentageDamage']) if missile_design else 0,
+                'skin': False,
             }
 
         upgrades = {
@@ -2085,6 +2086,7 @@ class PixyShip(metaclass=Singleton):
             new_room['description'] = room_sprite['skin_description']
             new_room['sprite'] = self.get_sprite_infos(room_sprite['sprite_id'])
             new_room['requirement'] = room_sprite['requirement']
+            new_room['skin'] = True
 
             # TODO: better id (used by front to sort rooms by oldest)
             new_room['id'] = index
