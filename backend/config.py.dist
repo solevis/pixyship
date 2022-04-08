@@ -1,6 +1,10 @@
 CONFIG = dict(
     # database settings (see https://docs.sqlalchemy.org/en/14/core/engines.html#postgresql)
-    DSN='postgresql://postgres:password@localhost:5432/postgres',
+    # local postgresql
+    #DSN='postgresql://postgres:password@localhost:5432/postgres',
+
+    # docker postgresql
+    DSN='postgresql://pixyship:pixyship@pixyship-database:5432/pixyship',
 
     # enable features specific to development
     DEV_MODE=True,

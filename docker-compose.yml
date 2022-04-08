@@ -1,0 +1,29 @@
+# for local development
+version: '3.8'
+services:
+  pixyship-frontend:
+    build:
+      context: ./frontend/
+      target: 'develop-stage'
+    ports:
+      - '8080:8080'
+    volumes:
+      - './frontend/:/app'
+    command: /bin/sh -c "npm run serve"
+  pixyship-backend:
+    build:
+      context: ./backend/
+    ports:
+      - '5000:5000'
+    volumes:
+      - './backend/:/app'
+  pixyship-database:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=pixyship
+      - POSTGRES_PASSWORD=pixyship
+      - POSTGRES_DB=pixyship
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data

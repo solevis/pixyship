@@ -29,18 +29,25 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # configure cors (Cross-Origin Resource Sharing)
-cors = CORS(
-    app,
-    supports_credentials=True,
-    resources={
-        r"/api/*": {
-            "origins": [
-                "https://{}".format(CONFIG['DOMAIN']),
-                "http://{}".format(CONFIG['DOMAIN'])
-            ]
+if CONFIG['DEV_MODE']:
+    cors = CORS(
+        app,
+        supports_credentials=True,
+        resources={r"/api/*": {"origins": "*"}}
+    )
+else:
+    cors = CORS(
+        app,
+        supports_credentials=True,
+        resources={
+            r"/api/*": {
+                "origins": [
+                    "https://{}".format(CONFIG['DOMAIN']),
+                    "http://{}".format(CONFIG['DOMAIN'])
+                ]
+            }
         }
-    }
-)
+    )
 
 # helpers, cached data, etc.
 pixyship = PixyShip()
@@ -60,7 +67,7 @@ def enforce_source(func):
 
     def wrapper(*args, **kwargs):
         # no need to check referrer if endpoint is public
-        if flask.request.endpoint not in PUBLIC_ENDPOINTS:
+        if not CONFIG['DEV_MODE'] and flask.request.endpoint not in PUBLIC_ENDPOINTS:
             # referrer is PixyShip ?
             if flask.request.referrer and '//{}/'.format(CONFIG['DOMAIN']) not in flask.request.referrer:
                 flask.abort(404)
