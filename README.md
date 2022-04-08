@@ -18,6 +18,36 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 
 ## Getting Started locally
 
+### Docker
+
+```bash
+# Configure database connection
+cp alembic.ini.dist alembic.ini
+${EDITOR} alembic.ini # update sqlalchemy.url to postgresql://pixyship:pixyship@pixyship-database:5432/pixyship
+
+cp config.py.dist config.py
+${EDITOR} config.py # update DSN to postgresql://pixyship:pixyship@pixyship-database:5432/pixyship
+
+# Launch the stack
+docker-compose up
+
+# Initialize the database
+docker-compose exec  -w /app pixyship-backend alembic upgrade head
+
+# Initial data load
+docker-compose exec  -w /app pixyship-backend python importer.py --assets
+docker-compose exec  -w /app pixyship-backend python importer.py --players
+docker-compose exec  -w /app pixyship-backend python importer.py --market-one-item 73
+
+# PEP-8 linter
+docker-compose exec  -w /app pixyship-backend pycodestyle
+
+# Units tests
+docker-compose exec  -w /app pixyship-backend python -m pytest
+```
+
+Access the local PixyShip at [http://localhost:8080](http://localhost:8080).
+
 ### Frontend
 
 Install :
@@ -74,7 +104,7 @@ python importer.py --assets
 python importer.py --players
 
 python importer.py --market  # very long, several hours
-python importer.py --market-first-item  # retrieve market history for only one item, much faster for dev
+python importer.py --market-one-item 73  # retrieve market history for only one item, much faster for dev
 ```
 
 Run :

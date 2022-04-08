@@ -309,7 +309,7 @@ def test_alliances():
 
 def test_sales():
     pixel_starships_api = PixelStarshipsApi()
-    sales = pixel_starships_api.get_sales(131, 0, 1)  # Scratchy
+    sales = pixel_starships_api.get_sales(73, 0, 1)  # Power Drill
 
     assert len(sales) == 1
 

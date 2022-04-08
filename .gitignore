@@ -1,4 +1,5 @@
 dist/
+pgdata/
 sprites/
 .DS_Store
 *.old
