@@ -42,6 +42,9 @@ docker-compose exec  -w /app pixyship-backend pycodestyle
 
 # Units tests
 docker-compose exec  -w /app pixyship-backend python -m pytest
+
+# Build frontend for deployment
+docker-compose exec  -w /app pixyship-frontend npm run build
 ```
 
 Access the local PixyShip at [http://localhost:8080](http://localhost:8080).
