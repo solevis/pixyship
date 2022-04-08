@@ -280,9 +280,10 @@ def import_market(first_item_only=False, item=None):
 
     for item_id, item in saleable_items.items():
         count += 1
-        logger.info('[{}/{}] {}...'.format(count, total, item['name']))
+        logger.info('[{}/{}] item: {}'.format(count, total, item['name']))
 
         sales = pixyship.get_sales_from_api(item_id)
+        logger.info('[{}/{}] retrieved: {}'.format(count, total, len(sales)))
 
         for sale in sales:
             listing = Listing(
@@ -301,7 +302,7 @@ def import_market(first_item_only=False, item=None):
 
             db.session.merge(listing)
 
-        logger.info('\t{} sales updated'.format(len(sales)))
+        logger.info('[{}/{}] saved: {}'.format(count, total, len(sales)))
         db.session.commit()
 
         if first_item_only:
