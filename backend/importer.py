@@ -295,7 +295,7 @@ def import_market(first_item_only=False, item=None):
                 currency=sale['CurrencyType'],
                 price=sale['CurrencyValue'],
                 user_id=sale['BuyerShipId'],
-                user_name=sale['BuyerShipName'],
+                user_name=sale.get('BuyerShipName', ''),
                 seller_id=sale['SellerShipId'],
                 seller_name=sale.get('SellerShipName', '')
             )
