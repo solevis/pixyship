@@ -16,20 +16,18 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 * Node.js 15
 * npm 7.7
 
-## Getting Started locally
-
-### Docker
+## Getting Started locally with Docker
 
 ```bash
 # Configure database connection
 cp alembic.ini.dist alembic.ini
-${EDITOR} alembic.ini # update sqlalchemy.url to postgresql://pixyship:pixyship@pixyship-database:5432/pixyship
+${EDITOR} alembic.ini
 
 cp config.py.dist config.py
-${EDITOR} config.py # update DSN to postgresql://pixyship:pixyship@pixyship-database:5432/pixyship
+${EDITOR} config.py
 
 # Launch the stack
-docker-compose up
+docker-compose up --build
 
 # Initialize the database
 docker-compose exec  -w /app pixyship-backend alembic upgrade head
@@ -47,6 +45,8 @@ docker-compose exec  -w /app pixyship-backend python -m pytest
 ```
 
 Access the local PixyShip at [http://localhost:8080](http://localhost:8080).
+
+## Getting Started locally
 
 ### Frontend
 
