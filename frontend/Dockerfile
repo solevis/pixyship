@@ -1,4 +1,5 @@
 FROM node:15-alpine as develop-stage
+RUN mkdir /app
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
