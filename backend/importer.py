@@ -297,7 +297,7 @@ def import_market(first_item_only=False, item=None):
                 user_id=sale['BuyerShipId'],
                 user_name=sale['BuyerShipName'],
                 seller_id=sale['SellerShipId'],
-                seller_name=sale['SellerShipName']
+                seller_name=sale.get('SellerShipName', '')
             )
 
             db.session.merge(listing)
