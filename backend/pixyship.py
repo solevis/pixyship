@@ -1009,6 +1009,7 @@ class PixyShip(metaclass=Singleton):
             'prices': item['prices'],
             'content': item['content'] if 'content' in item else None,
             'recipe': item['recipe'] if not items else PixyShip._parse_item_recipe(item['ingredients'], items),
+            'training': item['training'],
         }
 
     def _parse_item_content(self, item_content_string, last_item, items):
