@@ -761,7 +761,9 @@ export default {
         queryString = '?' + queryString
       }
 
-      window.history.pushState('', '', this.$route.path + queryString)
+      if (window.location.search !== queryString) {
+        window.history.pushState('', '', this.$route.path + queryString)
+      }
     }
   }
 
