@@ -543,9 +543,9 @@ export default {
       this.updateQueryFromFilter('level', value)
     },
 
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchSpecial(value) {
       this.updateQueryFromFilter('special', value)

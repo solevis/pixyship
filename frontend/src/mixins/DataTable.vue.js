@@ -158,20 +158,22 @@ export default {
     },
 
     updateQueryFromFilter(filterName, filterValue) {
-      let searchParams = new URLSearchParams(window.location.search)
+        let searchParams = new URLSearchParams(window.location.search)
 
-      if (_.isEmpty(filterValue)) {
-        searchParams.delete(filterName)
-      } else {
-        searchParams.set(filterName, filterValue)
-      }
+        if (_.isEmpty(filterValue)) {
+          searchParams.delete(filterName)
+        } else {
+          searchParams.set(filterName, filterValue)
+        }
 
-      let queryString = searchParams.toString()
-      if (queryString) {
-        queryString = '?' + queryString
-      }
+        let queryString = searchParams.toString()
+        if (queryString) {
+          queryString = '?' + queryString
+        }
 
-      window.history.pushState('', '', this.$route.path + queryString)
+        if (window.location.search !== queryString) {
+          window.history.pushState('', '', this.$route.path + queryString)
+        }
     },
 
     filterValueComparator(a, b) {

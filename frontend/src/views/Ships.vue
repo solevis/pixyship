@@ -439,9 +439,9 @@ export default {
   },
 
   watch: {
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchType(value) {
       this.updateQueryFromFilter('type', value)

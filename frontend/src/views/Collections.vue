@@ -227,9 +227,9 @@ export default {
   },
 
   watch: {
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchSkill(value) {
       this.updateQueryFromFilter('skill', value)
