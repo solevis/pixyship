@@ -637,6 +637,8 @@ class PixelStarshipsApi:
                 'to': end
             }
 
+            logger.info('retrieve sales of {} from {} to {}'.format(item_id, start, end))
+
             # retrieve data as XML from Pixel Starships API
             endpoint = f'https://{self.server}/MarketService/ListSalesByItemDesignId'
             response = self.call(endpoint, params=params)
