@@ -86,6 +86,7 @@
 import axios from "axios"
 import PixyShipMixin from "@/mixins/PixyShip.vue.js"
 import DataTableMixin from "@/mixins/DataTable.vue.js"
+import _ from 'lodash'
 
 export default {
   mixins: [PixyShipMixin, DataTableMixin],
