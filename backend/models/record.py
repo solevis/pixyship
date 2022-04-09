@@ -64,9 +64,7 @@ class Record(db.Model):
     def set_not_current(cls, type_str, type_id):
         """Set record's current state to False in the DB."""
 
-        # check if this is already in the db as the current
         existing = Record.query.filter_by(type=type_str, type_id=type_id, current=True).first()
-
         existing.current = False
         db.session.commit()
 
