@@ -59,3 +59,22 @@ class Record(db.Model):
 
         db.session.add(new_record)
         db.session.commit()
+
+    @classmethod
+    def set_not_current(cls, type_str, type_id):
+        """Set record's current state to False in the DB."""
+
+        existing = Record.query.filter_by(type=type_str, type_id=type_id, current=True).first()
+        existing.current = False
+        db.session.commit()
+
+    @classmethod
+    def purge_old_records(cls, type_str, still_presents_ids):
+        """Disable old records not presents in API."""
+
+        current_ids = Record.query.filter_by(type=type_str, current=True).with_entities(Record.type_id).all()
+        current_ids = [current_id[0] for current_id in current_ids]
+        no_more_presents_ids = list(set(current_ids) - set(still_presents_ids))
+
+        for no_more_presents_id in no_more_presents_ids:
+            Record.set_not_current(type_str, no_more_presents_id)

@@ -241,8 +241,12 @@ def api_tournament():
 @app.route('/api/rooms')
 @enforce_source
 def api_rooms():
+    rooms = pixyship.rooms
+    rooms_sprites = pixyship.rooms_sprites
+    data = pixyship.merge_rooms_and_sprites(rooms, rooms_sprites)
+
     return jsonify({
-        'data': pixyship.rooms,
+        'data': data,
         'status': 'success',
     })
 
