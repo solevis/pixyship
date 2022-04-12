@@ -53,7 +53,7 @@
                       max="40"
                       single-line
                       :value="level"
-                      style="max-width: 50px"
+                      style="width: 50px;"
                     ></v-text-field>
                   </td>
                   <!-- Equip -->
