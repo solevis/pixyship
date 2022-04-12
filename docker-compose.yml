@@ -10,6 +10,8 @@ services:
     volumes:
       - './frontend/:/app'
     command: /bin/sh -c "npm run serve"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
   pixyship-backend:
     build:
       context: ./backend/
