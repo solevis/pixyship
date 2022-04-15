@@ -44,6 +44,8 @@ docker-compose exec  -w /app pixyship-backend pycodestyle
 docker-compose exec  -w /app pixyship-backend python -m pytest
 
 # Build frontend for deployment
+cp ./frontend/.env.development ./frontend/.env.production.local
+${EDITOR} ./frontend/.env.production.local
 docker-compose exec  -w /app pixyship-frontend npm run build
 ```
 
