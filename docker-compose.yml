@@ -1,24 +1,33 @@
-# for local development
 version: '3.8'
+
 services:
   pixyship-frontend:
     build:
       context: ./frontend/
-      target: 'develop-stage'
+      dockerfile: Dockerfile
     ports:
       - '8080:8080'
     volumes:
       - './frontend/:/app'
+      - '/app/node_modules'
     command: /bin/sh -c "npm run serve"
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
+
   pixyship-backend:
     build:
       context: ./backend/
+      dockerfile: Dockerfile
     ports:
       - '5000:5000'
     volumes:
       - './backend/:/app'
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - pixyship-database
+
   pixyship-database:
     image: postgres:11
     ports:
@@ -27,5 +36,6 @@ services:
       - POSTGRES_USER=pixyship
       - POSTGRES_PASSWORD=pixyship
       - POSTGRES_DB=pixyship
+      - PGDATA=/var/lib/postgresql/data/
     volumes:
       - ./pgdata:/var/lib/postgresql/data

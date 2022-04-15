@@ -1,14 +1,22 @@
 FROM python:3.7-alpine
+
+# install image dependencies
 RUN apk add gcc build-base linux-headers
-RUN mkdir /app
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# set working directory
 WORKDIR /app
+
+# install dependencies
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+
+# copy files
 COPY . .
+
+# serve app
 EXPOSE 5000
 CMD python run.py
-
-# build: 
-#  docker build -t pixyship/pixyship-backend .
-# test: 
-#  docker run -it -p 5000:5000 --rm --name pixyship-backend-1 pixyship/pixyship-backend
