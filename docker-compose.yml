@@ -5,26 +5,22 @@ services:
     build:
       context: ./frontend/
       dockerfile: Dockerfile
+      target: development-stage
     ports:
       - '8080:8080'
     volumes:
       - './frontend/:/app'
       - '/app/node_modules'
-    command: /bin/sh -c "npm run serve"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - NODE_ENV=development
 
   pixyship-backend:
     build:
       context: ./backend/
       dockerfile: Dockerfile
+      target: development-stage
     ports:
       - '5000:5000'
     volumes:
       - './backend/:/app'
-    environment:
-      - FLASK_ENV=development
     depends_on:
       - pixyship-database
 
@@ -39,3 +35,12 @@ services:
       - PGDATA=/var/lib/postgresql/data/
     volumes:
       - ./pgdata:/var/lib/postgresql/data
+
+  pixyship-migration:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+      target: development-stage
+    command: alembic upgrade head
+    depends_on:
+      - pixyship-database
