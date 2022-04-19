@@ -99,7 +99,7 @@ cp alembic.ini.dist alembic.ini
 ${EDITOR} alembic.ini # update sqlalchemy.url, user must be SUPERUSER
 
 cp config.py.dist config.py
-${EDITOR} config.py # update DSN
+${EDITOR} config.py # update DATABASE_URI
 
 # Create database
 alembic upgrade head

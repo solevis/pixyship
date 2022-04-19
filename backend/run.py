@@ -10,7 +10,8 @@ from pixyship import PixyShip
 
 PUBLIC_ENDPOINTS = ['api_item_prices', 'api_items']
 APP_NAME = 'pixyship'
-app = Flask(APP_NAME, static_folder="../dist/static", template_folder="../dist")
+
+app = Flask(APP_NAME)
 
 # a secret key that will be used for securely signing the session cookie
 app.secret_key = CONFIG['SECRET_KEY']
@@ -23,7 +24,7 @@ app.config.update(
 )
 
 # database settings
-app.config['SQLALCHEMY_DATABASE_URI'] = CONFIG['DSN']
+app.config['SQLALCHEMY_DATABASE_URI'] = CONFIG['DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
