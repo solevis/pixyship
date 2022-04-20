@@ -18,19 +18,6 @@
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-autocomplete
-            v-model="searchLevel"
-            :items="levels"
-            label="Level"
-            clearable
-            outlined
-            multiple
-            small-chips
-            hide-details
-            :value-comparator="filterValueComparator"
-          ></v-autocomplete>
-        </v-col>
-        <v-col cols="12" sm="6" md="2">
-          <v-autocomplete
             v-model="searchShipLevel"
             :items="shipLevels"
             label="Min Ship Level"
@@ -75,6 +62,19 @@
             label="Skin"
             clearable
             outlined
+            small-chips
+            hide-details
+            :value-comparator="filterValueComparator"
+          ></v-autocomplete>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-autocomplete
+            v-model="searchShopType"
+            :items="shopTypes"
+            label="Shop Type"
+            clearable
+            outlined
+            multiple
             small-chips
             hide-details
             :value-comparator="filterValueComparator"
@@ -130,6 +130,12 @@
               </td>
 
               <td>{{ item.type }}</td>
+              <td>
+                <div v-for="k in item.shop_type" :key="item.id + k">
+                {{ k }}
+              </div>
+              </td>
+
               <td>{{ `${item.width}x${item.height}` }}</td>
 
               <td>{{ item.level }}</td>
@@ -397,12 +403,14 @@ export default {
       searchShipLevel: [],
       searchSize: [],
       searchType: [],
+      searchShopType: [],
       searchSkin: null,
       levels: [],
       shipLevels: [],
       types: [],
       sizes: [],
       skins: [],
+      shopTypes: [],
       loaded: false,
       rooms: [],
       headers: [
@@ -457,6 +465,14 @@ export default {
           value: "type",
           filter: (value) => {
             return this.filterCombobox(value, this.searchType)
+          },
+        },
+        {
+          text: "Shop Type",
+          align: "left",
+          value: "shop_type",
+          filter: (value) => {
+            return this.filterCombobox(Object.values(value).toString(), this.searchShopType, true)
           },
         },
         {
@@ -525,6 +541,7 @@ export default {
         || this.searchShipLevel.length > 0
         || this.searchSize.length > 0
         || this.searchType.length > 0
+        || this.searchShopType.length > 0
         || this.searchSkin
     }
   },
@@ -586,6 +603,10 @@ export default {
       this.updateQueryFromFilter('type', value)
     },
 
+    searchShopType(value) {
+      this.updateQueryFromFilter('shoptype', value)
+    },
+
     searchSkin(value) {
       this.updateQueryFromFilter('skin', value)
     },
@@ -627,6 +648,12 @@ export default {
 
       if (this.$route.query.type) {
         this.searchType = this.$route.query.type.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+
+      if (this.$route.query.shoptype) {
+        this.searchShopType = this.$route.query.shoptype.split(',').map(function(value) {
           return value.trim()
         })
       }
@@ -700,6 +727,9 @@ export default {
       this.types = Array.from(
         new Set(this.rooms.map((room) => (!room.type ? "None" : room.type)))
       ).sort(this.sortAlphabeticallyExceptNone)
+
+      let values = this.rooms.map((room) => Object.keys(room.shop_type).length === 0 ? ['None'] : Object.values(room.shop_type))
+      this.shopTypes =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
 
       this.skins = Array.from(
         new Set(this.rooms.map((room) => (room.skin)))

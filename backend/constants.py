@@ -222,3 +222,10 @@ IAP_OPTIONS_MASK_LOOKUP = [
     6500,
     14000
 ]
+
+ROOM_SHOP_TYPE_MASK = {
+    '1': ['Player'],
+    '2': ['Starbase'],
+    '3': ['Player', 'Starbase'],
+    None: ['Bux']
+}

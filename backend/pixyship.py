@@ -828,6 +828,7 @@ class PixyShip(metaclass=Singleton):
                 'extension_grids': int(room.get('SupportedGridTypes', '0')) & 2 != 0,
                 'has_weapon_stats': True if missile_design else False,
                 'purchasable': True if 'AvailabilityMask' in room else False,
+                'shop_type': ROOM_SHOP_TYPE_MASK.get(room['AvailabilityMask'], room['AvailabilityMask']) if 'AvailabilityMask' in room else ROOM_SHOP_TYPE_MASK[None],
                 'system_damage': float(missile_design['SystemDamage']) if missile_design else 0,
                 'hull_damage': float(missile_design['HullDamage']) if missile_design else 0,
                 'character_damage': float(missile_design['CharacterDamage']) if missile_design else 0,
