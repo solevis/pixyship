@@ -68,7 +68,7 @@ TYPE_PSS_API_NAME_FIELD = {
     'sprite': 'SpriteKey',
 }
 
-DEFAULT_EXPIRATION_DURATION = 60 * 60 * 1  # 1 hours
+DEFAULT_EXPIRATION_DURATION = 60 * 5  # 5 minutes
 
 EQUIPMENT_SLOTS = ['Head', 'Body', 'Leg', 'Weapon', 'Accessory', 'Pet']
 

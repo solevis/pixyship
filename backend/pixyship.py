@@ -160,7 +160,7 @@ class PixyShip(metaclass=Singleton):
     def dailies(self):
         if not self._dailies or self.expired('daily'):
             self._dailies = self._get_dailies_from_api()
-            self.expire_at('daily', 60 * 5)
+            self.expire_at('daily', DEFAULT_EXPIRATION_DURATION)
 
         return self._dailies
 
@@ -168,7 +168,7 @@ class PixyShip(metaclass=Singleton):
     def changes(self):
         if not self._changes or self.expired('change'):
             self._changes = self.get_changes_from_db()
-            self.expire_at('change', 60 * 5)
+            self.expire_at('change', DEFAULT_EXPIRATION_DURATION)
 
         return self._changes
 
@@ -176,7 +176,7 @@ class PixyShip(metaclass=Singleton):
     def situations(self):
         if not self._situations or self.expired('situation'):
             self._situations = self._get_situations_from_api()
-            self.expire_at('situation', 60 * 5)
+            self.expire_at('situation', DEFAULT_EXPIRATION_DURATION)
 
         return self._situations
 
@@ -184,7 +184,7 @@ class PixyShip(metaclass=Singleton):
     def promotions(self):
         if not self._promotions or self.expired('promotion'):
             self._promotions = self._get_promotions_from_api()
-            self.expire_at('promotion', 60 * 5)
+            self.expire_at('promotion', DEFAULT_EXPIRATION_DURATION)
 
         return self._promotions
 
