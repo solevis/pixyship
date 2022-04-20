@@ -439,6 +439,7 @@ class PixelStarshipsApi:
                 (room_purchase for room_purchase in rooms_purchase if room_purchase['RoomDesignId'] == room_node.attrib['RootRoomDesignId']),
                 None
             )
+
             if room_purchase:
                 room_node.set('AvailabilityMask', room_purchase['AvailabilityMask'])
 

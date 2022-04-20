@@ -525,7 +525,7 @@ export default {
         || this.searchShipLevel.length > 0
         || this.searchSize.length > 0
         || this.searchType.length > 0
-        || this.searchSkin.length > 0
+        || this.searchSkin
     }
   },
 
