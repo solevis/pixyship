@@ -153,7 +153,7 @@
                 </div>
               </td>
               <td align="center">
-                <table v-if="item.purchasable">
+                <table v-if="item.upgrade_cost">
                   <tr class="nobreak">
                     <td>
                       <div :style="currencySprite(item.upgrade_currency)" />
@@ -689,8 +689,9 @@ export default {
       let rooms = []
       for (const itemId in response.data.data) {
         const room = response.data.data[itemId]
-        
-        if (!room.purchasable) {
+
+        // ignore cost for room lvl 1 not purchasable (random bux cost depending on Savy)
+        if (!room.purchasable && room.level === 1) {
           room.upgrade_cost = 0
         }
 
