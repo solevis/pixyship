@@ -1487,6 +1487,26 @@ class PixyShip(metaclass=Singleton):
             if promotion['type'] == 'DailyDealOffer':
                 daily_promotions.append(promotion)
 
+        if dailies['SaleType'] == "FleetGift":
+            rewards = self._parse_assets_from_string(dailies['SaleRewardString'])
+
+            # for now, we assume we only have 1 reward
+            reward = rewards[0]
+
+            daily_object = self._format_daily_object(
+                reward['count'],
+                reward['type'],
+                reward['data'],
+                reward['id']
+            )
+        else:
+            daily_object = self._format_daily_object(
+                1,
+                dailies['SaleType'],
+                self.get_object(dailies['SaleType'], int(dailies['SaleArgument'])),
+                int(dailies['SaleArgument'])
+            )
+
         offers = {
             'shop': {
                 'sprite': self.get_sprite_infos(SHOP_SPRITE_ID),
@@ -1537,12 +1557,7 @@ class PixyShip(metaclass=Singleton):
 
             'sale': {
                 'sprite': self.get_sprite_infos(DAILY_SALE_SPRITE_ID),
-                'object': self._format_daily_object(
-                    1,
-                    dailies['SaleType'],
-                    self.get_object(dailies['SaleType'], int(dailies['SaleArgument'])),
-                    int(dailies['SaleArgument'])
-                ),
+                'object': daily_object,
                 'bonus': int(dailies['SaleArgument']) if dailies['SaleType'] == 'Bonus' else None,
                 'options': None if dailies['SaleType'] == 'None' else self._format_daily_sale_options(int(dailies['SaleItemMask']))
             },

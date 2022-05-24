@@ -828,10 +828,12 @@ class PixelStarshipsApi:
 
         equipment_mask = int(sale_item_mask)
         output = [int(x) for x in '{:05b}'.format(equipment_mask)]
-        if (len(output) > 4):
-            return []
 
-        options = [IAP_OPTIONS_MASK_LOOKUP[4 - i] for i, b in enumerate(output) if b]
+        options = []
+        for index, value in enumerate(output):
+            if index > 4:
+                break
+            options.append(IAP_OPTIONS_MASK_LOOKUP[4 - index])
 
         # reverse order
         options.reverse()
