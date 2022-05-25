@@ -44,10 +44,11 @@ def check_savy_token():
     # retrieve data as XML from Pixel Starships API
     pss_api = PixelStarshipsApi()
     endpoint = f'https://{pss_api.server}/LadderService/ListUsersByRanking'
+    logger.info('Checking {}...'.format(endpoint))
     response = pss_api.call(endpoint, params=params, need_token=True)
 
     if response.text == EXPIRED_TOKEN_RESP2:
-        logger.error('Savy Token has expired: %s'.format(response.text))
+        logger.error('Savy Token has expired: {}'.format(response.text))
 
 
 if __name__ == '__main__':
