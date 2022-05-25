@@ -189,7 +189,7 @@ class PixyShip(metaclass=Singleton):
         return self._promotions
 
     def expired(self, key):
-        """Check if cached data is expired."""
+        """Check if cached data has expired."""
 
         if key not in self.__data_expiration:
             return True

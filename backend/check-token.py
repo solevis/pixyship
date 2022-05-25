@@ -26,7 +26,7 @@ logger.addHandler(mail_handler)
 
 
 def check_savy_token():
-    """Check if the token given by Savy is perimed."""
+    """Check if the token given by Savy has expired."""
 
     # no need to check if token not defined
     if not CONFIG['SAVY_PUBLIC_API_TOKEN']:
