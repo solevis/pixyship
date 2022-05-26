@@ -1,7 +1,6 @@
 import math
 import time
 from collections import defaultdict, Counter
-from operator import itemgetter
 from xml.etree import ElementTree
 
 from sqlalchemy import desc
@@ -133,7 +132,7 @@ class PixyShip(metaclass=Singleton):
 
             if self._characters:
                 self.expire_at('char', DEFAULT_EXPIRATION_DURATION)
-                self.fill_char_collection_data()
+                self.update_character_with_collection_data()
 
         return self._characters
 
@@ -144,7 +143,7 @@ class PixyShip(metaclass=Singleton):
 
             if self._collections:
                 self.expire_at('collection', DEFAULT_EXPIRATION_DURATION)
-                self.fill_char_collection_data()
+                self.update_character_with_collection_data()
 
         return self._collections
 
@@ -203,49 +202,48 @@ class PixyShip(metaclass=Singleton):
     def expire_at(self, key, secs):
         """Set expiration duration date."""
 
-        self.__data_expiration[key] = datetime.datetime.utcnow().timestamp() + secs
+        now = datetime.datetime.utcnow().timestamp()
+        self.__data_expiration[key] = now + secs
 
-    def get_object(self, object_type, oid, reload_on_err=True):
+    def get_object(self, object_type, object_id, reload_on_error=True):
         """Get PixyShip object from given PSS API type (LimitedCatalogType for example)."""
 
         try:
             if object_type == 'Item':
-                return self.items[oid]
+                return self.items[object_id]
             if object_type == 'Character':
-                return self.characters[oid]
+                return self.characters[object_id]
             if object_type == 'Room':
-                return self.rooms[oid]
+                return self.rooms[object_id]
             if object_type == 'Ship':
-                return self.ships[oid]
+                return self.ships[object_id]
             if object_type == 'Research':
-                return self.researches[oid]
+                return self.researches[object_id]
         except KeyError:
-            print('KeyErrors')
-            # Happens when there's new things, reload
-            if reload_on_err:
+            # happens when there's new things, reload
+            if reload_on_error:
                 self._items = None
                 self._characters = None
                 self._items = None
                 self._ships = None
                 self._researches = None
-                return self.get_object(object_type, oid, False)
+                return self.get_object(object_type, object_id, False)
             else:
                 raise
 
-    def fill_char_collection_data(self):
-        """Updata char data with collection."""
+    def update_character_with_collection_data(self):
+        """Updata character data with collection."""
 
         if self.characters and self.collections:
-
             # update crew with collection data
-            for char in self._characters.values():
-                if char['collection']:
-                    char['collection_sprite'] = self.collections[char['collection']]['icon_sprite']
-                    char['collection_name'] = self.collections[char['collection']]['name']
+            for character in self._characters.values():
+                if character['collection']:
+                    character['collection_sprite'] = self.collections[character['collection']]['icon_sprite']
+                    character['collection_name'] = self.collections[character['collection']]['name']
 
-            # collection with crews
+            # collection with characters
             for collection_id, collection in self._collections.items():
-                collection['chars'] = [char for char in self.characters.values() if char['collection'] == collection_id]
+                collection['chars'] = [character for character in self.characters.values() if character['collection'] == collection_id]
 
     def get_sprite_infos(self, sprite_id):
         """Get sprite infos from given id."""
@@ -271,72 +269,7 @@ class PixyShip(metaclass=Singleton):
             'height': sprite['height'],
         }
 
-    def is_room_upgradeable(self, room_design_id, ship_design_id):
-        """Check if room is upgradeable."""
-
-        upgrade_id = self.upgrades.get(room_design_id)
-        if not upgrade_id:
-            return False
-
-        req_ship_level = self.rooms[upgrade_id]['min_ship_level']
-        ship_level = self.ships[ship_design_id]['level']
-
-        return req_ship_level <= ship_level
-
-    @staticmethod
-    def generate_layout(rooms, ship):
-        """Compute ship layout matrix."""
-
-        layout = [[0] * ship['columns'] for _ in range(ship['rows'])]
-
-        for room in rooms:
-            room_position_x = room['column']
-            room_position_y = room['row']
-            room_id = room['id']
-
-            for x in range(room['width']):
-                for y in range(room['height']):
-                    layout[room_position_y + y][room_position_x + x] = room_id
-
-        return layout
-
-    def compute_total_armor_effects(self, rooms, layout):
-        """For each given rooms based on given layout, compute effective armor effects."""
-
-        for room in rooms:
-            room_armor = 0
-            if room['power_gen'] + room['power_use'] > 0:
-                # check left, right, top and bottom side
-                room_position_x = room['column']
-                room_position_y = room['row']
-                room_width = room['width']
-                room_height = room['height']
-
-                for x in range(room_width):
-                    room_armor += self.get_armor_capacity(layout, rooms, room_position_x + x, room_position_y - 1)
-                    room_armor += self.get_armor_capacity(layout, rooms, room_position_x + x, room_position_y + room_height)
-
-                for y in range(room_height):
-                    room_armor += self.get_armor_capacity(layout, rooms, room_position_x - 1, room_position_y + y)
-                    room_armor += self.get_armor_capacity(layout, rooms, room_position_x + room_width, room_position_y + y)
-
-            room['armor'] = room_armor
-
-    @staticmethod
-    def get_armor_capacity(layout, rooms, x, y):
-        """If room at given position is an armor, return armor capacity."""
-
-        neighbor = layout[y][x]
-        if not neighbor:
-            return 0
-
-        room = [r for r in rooms if r['id'] == neighbor][0]
-        if room['type'] == 'Armor':
-            return room['capacity']
-
-        return 0
-
-    def interiorize(self, room_id, ship_id):
+    def convert_room_sprite_to_race_sprite(self, room_id, ship_id):
         """Convert rooms to the correct interior depending on ship race."""
 
         room = self.get_object('Room', room_id)
@@ -375,15 +308,6 @@ class PixyShip(metaclass=Singleton):
         result = Player.query.filter(Player.name.ilike(search_name)).limit(1).first()
         if result:
             return result.id
-
-        return None
-
-    def get_upgrade_room(self, room_design_id):
-        """Get the target upgrade room."""
-
-        upgrade_id = self.upgrades[room_design_id]
-        if upgrade_id:
-            return self.rooms[upgrade_id]
 
         return None
 
@@ -561,14 +485,14 @@ class PixyShip(metaclass=Singleton):
 
         sql = """
             SELECT item_id
-                , currency
-                , SUM(amount) as count
-                , percentile_disc(.25) WITHIN GROUP (ORDER BY price/amount) AS p25
-                , percentile_disc(.5) WITHIN GROUP (ORDER BY price/amount) AS p50
-                , percentile_disc(.75) WITHIN GROUP (ORDER BY price/amount) AS p75
+                 , currency
+                 , SUM(amount)                                                 AS count
+                 , percentile_disc(.25) WITHIN GROUP (ORDER BY price / amount) AS p25
+                 , percentile_disc(.5) WITHIN GROUP (ORDER BY price / amount)  AS p50
+                 , percentile_disc(.75) WITHIN GROUP (ORDER BY price / amount) AS p75
             FROM listing
             WHERE amount > 0
-            AND sale_at > (now() - INTERVAL '48 HOURS')
+              AND sale_at > (now() - INTERVAL '48 HOURS')
             GROUP BY item_id, currency
         """
 
@@ -592,20 +516,21 @@ class PixyShip(metaclass=Singleton):
 
         sql = """
             SELECT item_id
-                , item_name
-                , currency
-                , sale_at::DATE AS sale_date
-                , SUM(amount) AS count
-                , percentile_disc(.25) WITHIN GROUP (ORDER BY price/amount) AS p25
-                , percentile_disc(.5) WITHIN GROUP (ORDER BY price/amount) AS p50
-                , percentile_disc(.75) WITHIN GROUP (ORDER BY price/amount) AS p75
+                 , item_name
+                 , currency
+                 , sale_at::DATE                                               AS sale_date
+                 , SUM(amount)                                                 AS count
+                 , percentile_disc(.25) WITHIN GROUP (ORDER BY price / amount) AS p25
+                 , percentile_disc(.5) WITHIN GROUP (ORDER BY price / amount)  AS p50
+                 , percentile_disc(.75) WITHIN GROUP (ORDER BY price / amount) AS p75
             FROM listing
             WHERE item_id = :item_id
-                AND amount > 0
-                AND sale_at::DATE >= now() - '6 months'::INTERVAL
+              AND amount > 0
+              AND sale_at::DATE >= now() - '6 months'::INTERVAL
             GROUP BY item_id, item_name, currency, sale_at::DATE
             ORDER BY item_id, item_name, currency, sale_at::DATE
-            """
+        """
+
         result = db.session.execute(sql, {'item_id': item_id}).fetchall()
         prices = defaultdict(lambda: defaultdict(dict))
 
@@ -631,15 +556,16 @@ class PixyShip(metaclass=Singleton):
         """Get last sales from database."""
 
         sql = """
-            SELECT sale_at, amount, currency, price, user_name as buyer_name, seller_name, id
+            SELECT sale_at, amount, currency, price, user_name AS buyer_name, seller_name, id
             FROM listing
             WHERE item_id = :item_id
-                AND amount > 0
-                AND user_name IS NOT NULL
-                AND seller_name IS NOT NULL
+              AND amount > 0
+              AND user_name IS NOT NULL
+              AND seller_name IS NOT NULL
             ORDER BY sale_at DESC
             LIMIT :limit
         """
+
         result = db.session.execute(sql, {'item_id': item_id, 'limit': limit}).fetchall()
         last_sales = []
 
@@ -857,10 +783,10 @@ class PixyShip(metaclass=Singleton):
         return rooms, upgrades, rooms_by_name
 
     @staticmethod
-    def _parse_equipment_slots(char):
-        """Determine equipments slots with char equipment mask."""
+    def _parse_equipment_slots(character):
+        """Determine equipments slots with character equipment mask."""
 
-        equipment_mask = int(char['EquipmentMask'])
+        equipment_mask = int(character['EquipmentMask'])
         output = [int(x) for x in '{:06b}'.format(equipment_mask)]
         slots = [EQUIPMENT_SLOTS[5 - i] for i, b in enumerate(output) if b]
 
@@ -972,12 +898,12 @@ class PixyShip(metaclass=Singleton):
         return collections
 
     @staticmethod
-    def _parse_item_recipe(item_list_string, items):
+    def _parse_item_ingredients(ingredients_string, items):
         """Parse recipe infos from API."""
 
         recipe = []
-        if item_list_string:
-            ingredients = [i.split('x') for i in item_list_string.split('|')]
+        if ingredients_string:
+            ingredients = [i.split('x') for i in ingredients_string.split('|')]
             for ingredient in ingredients:
                 # replace hack, 2021 easter event come with additional 'item:' prefix
                 ingredient_item_id = ingredient[0].replace('item:', '')
@@ -1009,7 +935,7 @@ class PixyShip(metaclass=Singleton):
             'module_extra_enhancement_bonus': item['module_extra_enhancement_bonus'],
             'prices': item['prices'],
             'content': item['content'] if 'content' in item else None,
-            'recipe': item['recipe'] if not items else PixyShip._parse_item_recipe(item['ingredients'], items),
+            'recipe': item['recipe'] if not items else PixyShip._parse_item_ingredients(item['ingredients'], items),
             'training': item['training'],
         }
 
@@ -1164,7 +1090,7 @@ class PixyShip(metaclass=Singleton):
 
         # Second pass required for self references
         for item in items.values():
-            item['recipe'] = self._parse_item_recipe(item['ingredients'], items)
+            item['recipe'] = self._parse_item_ingredients(item['ingredients'], items)
 
         # Third pass required for self references
         for item in items.values():
@@ -1292,12 +1218,12 @@ class PixyShip(metaclass=Singleton):
         prestiges_from, grouped_from = self._get_prestige_from_from_api(char_id)
 
         all_ids = list(set([i for prestige in prestiges_to for i in prestige] + [i for prestige in prestiges_from for i in prestige] + [char_id]))
-        all_chars = [self.characters[i] for i in all_ids]
+        all_characters = [self.characters[i] for i in all_ids]
 
         return {
             'to': grouped_to,
             'from': grouped_from,
-            'chars': all_chars,
+            'chars': all_characters,
             'expires_at': datetime.datetime.now() + datetime.timedelta(minutes=1)
         }
 
@@ -1331,21 +1257,17 @@ class PixyShip(metaclass=Singleton):
 
         sql = """
             SELECT *
-            FROM (
-                    SELECT DISTINCT ON (c.id)
-                        c.id,
-                        c.type,
-                        c.type_id,
-                        c.data,
-                        c.created_at,
-                        o.data as old_data
-                    FROM record c
-                        LEFT JOIN record o ON o.type = c.type AND o.type_id = c.type_id AND o.current = FALSE
-                    WHERE
-                        c.current = TRUE
-                        AND ({})
-                    ORDER BY c.id, o.created_at DESC
-                ) AS sub
+            FROM (SELECT DISTINCT ON (c.id) c.id,
+                                            c.type,
+                                            c.type_id,
+                                            c.data,
+                                            c.created_at,
+                                            o.data as old_data
+                  FROM record c
+                           LEFT JOIN record o ON o.type = c.type AND o.type_id = c.type_id AND o.current = FALSE
+                  WHERE c.current = TRUE
+                    AND ({})
+                  ORDER BY c.id, o.created_at DESC) AS sub
             ORDER BY created_at DESC
             LIMIT {}
         """.format(' OR '.join(min_changes_dates_conditions), CONFIG.get('CHANGES_MAX_ASSETS', 5000))
@@ -1355,7 +1277,7 @@ class PixyShip(metaclass=Singleton):
 
         for record in result:
             record_data = ElementTree.fromstring(record['data']).attrib
-            sprite = self.get_record_sprite(record['type'], record['type_id'])
+            sprite = self.get_object_sprite(record['type'], record['type_id'])
 
             change = {
                 'type': record['type'],
@@ -1736,20 +1658,20 @@ class PixyShip(metaclass=Singleton):
 
         return promotions
 
-    def get_record_sprite(self, record_type, record_id, reload_on_error=True):
+    def get_object_sprite(self, object_type, object_id, reload_on_error=True):
         """Get sprite date for the given record ID."""
 
         try:
-            if record_type == 'item':
-                return self.items[record_id]['sprite']
-            if record_type == 'char':
-                return self.characters[record_id]['sprite']
-            if record_type == 'room':
-                return self.rooms[record_id]['sprite']
-            if record_type == 'ship':
-                return self.ships[record_id]['mini_ship_sprite']
-            if record_type == 'sprite':
-                return self.get_sprite_infos(record_id)
+            if object_type == 'item':
+                return self.items[object_id]['sprite']
+            if object_type == 'char':
+                return self.characters[object_id]['sprite']
+            if object_type == 'room':
+                return self.rooms[object_id]['sprite']
+            if object_type == 'ship':
+                return self.ships[object_id]['mini_ship_sprite']
+            if object_type == 'sprite':
+                return self.get_sprite_infos(object_id)
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -1757,7 +1679,7 @@ class PixyShip(metaclass=Singleton):
                 self._characters = None
                 self._rooms = None
                 self._ships = None
-                return self.get_record_sprite(record_type, record_id, False)
+                return self.get_object_sprite(object_type, object_id, False)
             else:
                 raise
 
@@ -1794,7 +1716,7 @@ class PixyShip(metaclass=Singleton):
     def get_ship_data(self, player_name):
         """Get user and ship data from API."""
 
-        ship, user, rooms, stickers, upgrades = self.summarize_ship(player_name)
+        ship, user, rooms, stickers = self.summarize_ship(player_name)
 
         if user:
             data = {
@@ -1802,12 +1724,8 @@ class PixyShip(metaclass=Singleton):
                 'user': user,
                 'ship': ship,
                 'stickers': stickers,
-                'upgrades': upgrades,
                 'status': 'found'
             }
-
-            data['user']['confirmed'] = True
-            data = self._limit_ship_data(data)
         else:
             data = {
                 'status': 'not found'
@@ -1819,25 +1737,6 @@ class PixyShip(metaclass=Singleton):
         }
 
         return response
-
-    @staticmethod
-    def _limit_ship_data(data):
-        """Remove ship data that shouldn't be visible to others."""
-
-        data['user']['confirmed'] = False
-        data.pop('upgrades')
-        data['ship'].pop('power_gen')
-        data['ship'].pop('power_use')
-        data['ship'].pop('hp')
-        data['ship'].pop('shield')
-        data['ship'].pop('immunity_date')
-
-        for r in data['rooms']:
-            r.pop('armor')
-            r.pop('upgradable')
-            r.pop('defense')
-
-        return data
 
     def summarize_ship(self, player_name):
         """Get ship, user, rooms and upgrade from given player name."""
@@ -1853,7 +1752,6 @@ class PixyShip(metaclass=Singleton):
         if not inspect_ship:
             return None, None, None, None, None
 
-        upgrades = []
         user_data = inspect_ship['User']
         ship_data = inspect_ship['Ship']
 
@@ -1904,42 +1802,24 @@ class PixyShip(metaclass=Singleton):
             user['last_login_date'] = None
 
         ship_id = int(ship_data['ShipDesignId'])
-        immunity_date = ship_data['ImmunityDate']
 
         rooms = []
         for room_data in ship_data['Rooms']:
             room = dict(
-                self.interiorize(int(room_data['RoomDesignId']), ship_id),
+                self.convert_room_sprite_to_race_sprite(int(room_data['RoomDesignId']), ship_id),
                 design_id=int(room_data['RoomDesignId']),
                 id=int(room_data['RoomId']),
                 row=int(room_data['Row']),
                 column=int(room_data['Column']),
                 construction=bool(room_data['ConstructionStartDate']),
-                upgradable=self.is_room_upgradeable(int(room_data['RoomDesignId']), ship_id),
             )
 
             room['exterior_sprite'] = self.get_exterior_sprite(int(room_data['RoomDesignId']), ship_id)
-
-            if room['upgradable']:
-                upgrade_room = self.get_upgrade_room(room['design_id'])
-                if upgrade_room:
-                    cost = upgrade_room['upgrade_cost']
-                    upgrades.append(
-                        dict(
-                            description=room['name'],
-                            amount=cost,
-                            currency=upgrade_room['upgrade_currency'],
-                            seconds=upgrade_room['upgrade_seconds'])
-                    )
 
             rooms.append(room)
 
         ship = dict(
             self.ships[ship_id],
-            power_use=sum([room['power_use'] for room in rooms]),
-            power_gen=sum([room['power_gen'] for room in rooms]),
-            shield=sum([room['capacity'] for room in rooms if room['type'] == 'Shield']),
-            immunity_date=immunity_date,
             hue=ship_data['HueValue'],
             saturation=ship_data['SaturationValue'],
             brightness=ship_data['BrightnessValue'],
@@ -1947,10 +1827,7 @@ class PixyShip(metaclass=Singleton):
 
         stickers = self._parse_ship_stickers(ship_data)
 
-        layout = self.generate_layout(rooms, ship)
-        self.compute_total_armor_effects(rooms, layout)
-
-        return ship, user, rooms, stickers, sorted(upgrades, key=itemgetter('amount'))
+        return ship, user, rooms, stickers
 
     @staticmethod
     def get_tournament_infos():
