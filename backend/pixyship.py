@@ -339,7 +339,7 @@ class PixyShip(metaclass=Singleton):
 
         for sprite in sprites:
             record_id = sprite['SpriteId']
-            Record.update_data('sprite', record_id, sprite['pixyship_xml_element'])
+            Record.update_data('sprite', record_id, sprite['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('sprite', still_presents_ids)
@@ -374,7 +374,7 @@ class PixyShip(metaclass=Singleton):
 
         for room_sprite in room_sprites:
             record_id = room_sprite['RoomDesignSpriteId']
-            Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'])
+            Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('room_sprite', still_presents_ids)
@@ -415,7 +415,7 @@ class PixyShip(metaclass=Singleton):
 
         for training in trainings:
             record_id = int(training['TrainingDesignId'])
-            Record.update_data('training', record_id, training['pixyship_xml_element'])
+            Record.update_data('training', record_id, training['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('training', still_presents_ids)
@@ -474,7 +474,7 @@ class PixyShip(metaclass=Singleton):
 
         for achievement in achievements:
             record_id = int(achievement['AchievementDesignId'])
-            Record.update_data('achievement', record_id, achievement['pixyship_xml_element'])
+            Record.update_data('achievement', record_id, achievement['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('achievement', still_presents_ids)
@@ -590,7 +590,7 @@ class PixyShip(metaclass=Singleton):
 
         for ship in ships:
             record_id = ship['ShipDesignId']
-            Record.update_data('ship', record_id, ship['pixyship_xml_element'])
+            Record.update_data('ship', record_id, ship['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('ship', still_presents_ids)
@@ -643,7 +643,7 @@ class PixyShip(metaclass=Singleton):
 
         for research in researches:
             record_id = research['ResearchDesignId']
-            Record.update_data('research', record_id, research['pixyship_xml_element'])
+            Record.update_data('research', record_id, research['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('research', still_presents_ids)
@@ -698,7 +698,7 @@ class PixyShip(metaclass=Singleton):
 
         for room in rooms:
             record_id = room['RoomDesignId']
-            Record.update_data('room', record_id, room['pixyship_xml_element'], ['AvailabilityMask'])
+            Record.update_data('room', record_id, room['pixyship_xml_element'], self.pixel_starships_api.server, ['AvailabilityMask'])
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('room', still_presents_ids)
@@ -800,7 +800,7 @@ class PixyShip(metaclass=Singleton):
 
         for character in characters:
             record_id = character['CharacterDesignId']
-            Record.update_data('char', record_id, character['pixyship_xml_element'])
+            Record.update_data('char', record_id, character['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('char', still_presents_ids)
@@ -866,7 +866,7 @@ class PixyShip(metaclass=Singleton):
 
         for collection in collections:
             record_id = collection['CollectionDesignId']
-            Record.update_data('collection', record_id, collection['pixyship_xml_element'])
+            Record.update_data('collection', record_id, collection['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('collection', still_presents_ids)
@@ -1038,7 +1038,7 @@ class PixyShip(metaclass=Singleton):
 
         for item in items:
             record_id = item['ItemDesignId']
-            Record.update_data('item', record_id, item['pixyship_xml_element'], ['FairPrice', 'MarketPrice'])
+            Record.update_data('item', record_id, item['pixyship_xml_element'], self.pixel_starships_api.server, ['FairPrice', 'MarketPrice'])
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('item', still_presents_ids)

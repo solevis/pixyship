@@ -15,9 +15,10 @@ class Record(db.Model):
     md5_hash = db.Column('md5_hash', UUID, nullable=False)
     data = db.Column('data', db.TEXT, nullable=False)
     created_at = db.Column('created_at', db.TIMESTAMP, server_default=func.now())
+    url = db.Column('url', db.TEXT, nullable=False)
 
     @classmethod
-    def update_data(cls, type_str, type_id, element, ignore_list=None):
+    def update_data(cls, type_str, type_id, element, url, ignore_list=None):
         """Save a record to the DB with hash."""
         ignore_list = ignore_list or []
 
@@ -55,6 +56,7 @@ class Record(db.Model):
             current=True,
             md5_hash=md5_hash,
             data=data,
+            url=url
         )
 
         db.session.add(new_record)

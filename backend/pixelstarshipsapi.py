@@ -77,26 +77,20 @@ class PixelStarshipsApi:
 
         if self._forced_pixelstarships_api_url:
             # call API with forced URL
-            endpoint = urljoin(self._forced_pixelstarships_api_url, 'SettingService/getlatestversion3')
+            endpoint = urljoin(self._forced_pixelstarships_api_url, 'SettingService/GetLatestVersion3')
             response = self.call(endpoint, params=params)
             root = ElementTree.fromstring(response.text)
             settings = root.find(".//Setting").attrib
 
             return settings
 
-        try:
-            # call API with classic URL, in case of error, try with alternative
-            endpoint = urljoin(self._main_pixelstarships_api_url, 'SettingService/getlatestversion3')
-            response = self.call(endpoint, params=params)
-            root = ElementTree.fromstring(response.text)
-        except ParseError:
-            # servers are always supposed to return something valid, but don't always
-            endpoint = urljoin(self._backup_pixelstarships_api_url, 'SettingService/getlatestversion3')
-            response = self.call(endpoint, params=params)
-            root = ElementTree.fromstring(response.text)
+        # call API with classic URL, in case of error, try with alternative
+        endpoint = urljoin(self._main_pixelstarships_api_url, 'SettingService/GetLatestVersion3')
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
 
         settings = root.find(".//Setting").attrib
-        fixed_endpoint = urljoin(f'https://{settings["ProductionServer"]}', 'SettingService/getlatestversion3')
+        fixed_endpoint = urljoin(f'https://{settings["ProductionServer"]}', 'SettingService/GetLatestVersion3')
 
         if fixed_endpoint != endpoint:
             response = self.call(fixed_endpoint, params=params)

@@ -114,9 +114,8 @@ def test_search_player():
     pixyship = PixyShip()
     players = pixyship.get_player_data('Solevis')
 
-    assert len(players) == 2
+    assert len(players) == 1
     assert players[0]['name'] == 'Solevis'
-    assert players[1]['name'] == 'MiniSolevis'
 
 
 def test_changes():
