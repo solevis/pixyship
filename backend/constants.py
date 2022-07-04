@@ -157,7 +157,8 @@ RACES = {
 }
 
 MODULE_ENHANCEMENT_MAP = {
-    'Turret': 'Attack'
+    'Turret': 'Attack',
+    'XP': 'XP'
 }
 
 MODULE_BONUS_RATIO_MAP = {

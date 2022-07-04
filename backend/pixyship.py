@@ -1934,13 +1934,19 @@ class PixyShip(metaclass=Singleton):
     def _parse_module_extra_enhancement(item):
         """Parse module extra enhancement from a given item."""
 
-        enhancement = MODULE_ENHANCEMENT_MAP.get(item['ModuleType'], None)
+        module_type = item['ModuleType']
+
+        # XP books have ModuleArgument but no ModuleType
+        if item['ItemSubType'] == 'InstantXP':
+            module_type = 'XP'
+
+        enhancement = MODULE_ENHANCEMENT_MAP.get(module_type, None)
         disp_enhancement = ENHANCE_MAP.get(enhancement, enhancement)
         short_disp_enhancement = SHORT_ENHANCE_MAP.get(enhancement, enhancement),
 
         bonus = 0
         if float(item['ModuleArgument']) != 0:
-            bonus = float(item['ModuleArgument']) / MODULE_BONUS_RATIO_MAP.get(item['ModuleType'], 1)
+            bonus = float(item['ModuleArgument']) / MODULE_BONUS_RATIO_MAP.get(module_type, 1)
 
         return {
             'enhancement': enhancement,
