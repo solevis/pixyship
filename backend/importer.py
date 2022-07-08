@@ -2,7 +2,10 @@ import argparse
 import datetime
 import logging
 import os
+import random
 import sys
+import getpass
+import socket
 from urllib import request
 
 from contexttimer import Timer
@@ -14,6 +17,7 @@ from models import Listing, Alliance, Player, DailySale
 from pixyship import PixyShip
 from run import push_context
 from utils import api_sleep
+from logging.handlers import SMTPHandler
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -21,6 +25,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+mail_handler = SMTPHandler(
+    mailhost=("localhost", 25),
+    fromaddr='{}@{}'.format(getpass.getuser(), socket.gethostname()),
+    toaddrs=[CONFIG['EMAIL']],
+    subject="Error on PixyShip!"
+)
+
+mail_handler.setLevel(logging.ERROR)
+logger.addHandler(mail_handler)
 
 
 def import_players():
@@ -282,9 +296,12 @@ def import_market(first_item_only=False, item=None):
     if first_item_only:
         total = 1
 
-    for item_id, item in saleable_items.items():
+    saleable_items_items = list(saleable_items.items())
+    saleable_items_ordered = random.sample(saleable_items_items, k=len(saleable_items_items))
+
+    for item_id, item in saleable_items_ordered:
         count += 1
-        logger.info('[{}/{}] item: {}'.format(count, total, item['name']))
+        logger.info('[{}/{}] item: {} ({})'.format(count, total, item['name'], item_id))
 
         sales = pixyship.get_sales_from_api(item_id)
         logger.info('[{}/{}] retrieved: {}'.format(count, total, len(sales)))

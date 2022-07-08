@@ -1,13 +1,15 @@
 import datetime
+import getpass
 import hashlib
 import logging
 import random
 import re
+import socket
 import sys
+from logging.handlers import SMTPHandler
 from typing import Tuple
 from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree
-from xml.etree.ElementTree import ParseError
 
 import requests
 
@@ -24,6 +26,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+mail_handler = SMTPHandler(
+    mailhost=("localhost", 25),
+    fromaddr='{}@{}'.format(getpass.getuser(), socket.gethostname()),
+    toaddrs=[CONFIG['EMAIL']],
+    subject="Error on PixyShip!"
+)
+
+mail_handler.setLevel(logging.ERROR)
+logger.addHandler(mail_handler)
 
 
 class PixelStarshipsApi:
@@ -684,6 +696,11 @@ class PixelStarshipsApi:
                 sale = self.parse_sale_node(sale_node)
 
                 if sale_id > max_sale_id:
+                    # first sale imported, check diff
+                    sale_id_diff = sale_id - max_sale_id
+                    if count == 0 and sale_id_diff >= 25000:
+                        logger.error('Too big diff ({}) on SaleId when importing item {}'.format(sale_id_diff, item_id))
+
                     sales.append(sale)
                 else:
                     max_sale_id_reached = True

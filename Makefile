@@ -16,6 +16,12 @@ assets:
 players:
 	@docker compose exec -w /app pixyship-backend python importer.py --players
 
+market:
+	@docker compose exec -w /app pixyship-backend python importer.py --market
+
+market-first-item:
+	@docker compose exec -w /app pixyship-backend python importer.py --market-first-item
+
 run:
 	@docker compose up
 
