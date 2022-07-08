@@ -1,6 +1,7 @@
 import getpass
 import logging
 import socket
+import sys
 from logging.handlers import SMTPHandler
 
 from api_errors import EXPIRED_TOKEN_RESP2
@@ -9,6 +10,7 @@ from pixelstarshipsapi import PixelStarshipsApi
 from run import push_context
 
 logging.basicConfig(
+    stream=sys.stdout,
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
