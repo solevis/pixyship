@@ -728,6 +728,56 @@ class PixelStarshipsApi:
 
         return sale_node.attrib.copy()
 
+    def get_market_messages(self, item_id):
+        """Download market messages for given item from PSS API."""
+
+        market_messages = []
+
+        params = {
+            'itemDesignId': item_id,
+            'currencyType': 'Unknown',
+            'itemSubType': 'None',
+            'rarity': 'None',
+            'userId': 0,
+            'skip': 0,
+            'take': 999999,
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/MessageService/ListActiveMarketplaceMessages5'
+        response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
+
+        if response.status_code == 400:
+            logger.error('Response in error: {}'.format(response.text))
+
+            # too many request, wait a little, and try again
+            api_sleep(10, force_sleep=True)
+
+            return []
+
+        root = ElementTree.fromstring(response.text)
+
+        # parse HTTP body as XML and find market_messages nodes
+        market_messsage_nodes = root.find('.//Messages')
+
+        # error when parsing the response
+        if market_messsage_nodes is None:
+            logger.error('Error when parsing response: {}'.format(response.text))
+
+            return []
+
+        for market_message_node in market_messsage_nodes:
+            market_message = self.parse_market_message_node(market_message_node)
+            market_messages.append(market_message)
+
+        return market_messages
+
+    @staticmethod
+    def parse_market_message_node(message_node):
+        """Extract sale data from XML node."""
+
+        return message_node.attrib.copy()
+
     def get_alliance_users(self, alliance_id, skip=0, take=100):
         """Get alliance users from API, top 100 by default."""
 

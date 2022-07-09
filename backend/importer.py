@@ -15,6 +15,7 @@ from config import CONFIG
 from constants import PSS_SPRITES_URL
 from db import db
 from models import Listing, Alliance, Player, DailySale
+from models.market_message import MarketMessage
 from pixyship import PixyShip
 from run import push_context
 from utils import api_sleep
@@ -344,6 +345,89 @@ def import_market(first_item_only=False, item=None):
     logger.info('Done')
 
 
+def import_market_messages(first_item_only=False, item=None):
+    """Get last market messages for all items."""
+
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    logger.info('Importing market messages')
+
+    pixyship = PixyShip()
+
+    # no need to get sales of items not saleable
+    items = pixyship.items
+    items_with_offstat = {item_id: item for item_id, item in items.items() if item['has_offstat']}
+
+    if item:
+        try:
+            items_with_offstat = {
+                item: items_with_offstat[item]
+            }
+        except KeyError:
+            logger.error("Unknown item {}".format(item))
+            return
+
+    count = 0
+    total = len(items_with_offstat)
+    if first_item_only:
+        total = 1
+
+    items_with_offstat_items = list(items_with_offstat.items())
+    items_with_offstat_ordered = random.sample(items_with_offstat_items, k=len(items_with_offstat_items))
+
+    for item_id, item in items_with_offstat_ordered:
+        count += 1
+        logger.info('[{}/{}] item: {} ({})'.format(count, total, item['name'], item_id))
+
+        messages = pixyship.get_market_messages_from_api(item_id)
+        logger.info('[{}/{}] retrieved: {}'.format(count, total, len(messages)))
+
+        for message in messages:
+            market_message = MarketMessage(
+                id=message['MessageId'],
+                message=message['Message'],
+                sale_id=message['SaleId'],
+                item_id=item_id,
+                user_id=message['UserId'],
+                message_type=message['MessageType'],
+                channel_id=message['ChannelId'],
+                activit_type=message['ActivityType'],
+                message_date=message['MessageDate']
+            )
+
+            _save_market_message(market_message)
+
+        db.session.commit()
+
+        if first_item_only:
+            break
+
+        api_sleep(1, force_sleep=True)
+
+    logger.info('Done')
+
+
+def _save_market_message(market_message):
+    try:
+        insert_command = insert(MarketMessage.__table__).values(
+            id=market_message.id,
+            message=market_message.message,
+            sale_id=market_message.sale_id,
+            item_id=market_message.item_id,
+            user_id=market_message.user_id,
+            message_type=market_message.message_type,
+            channel_id=market_message.channel_id,
+            activit_type=market_message.activit_type,
+            message_date=market_message.message_date
+        ).on_conflict_do_nothing()
+
+        db.session.execute(insert_command)
+        db.session.commit()
+    except Exception as e:
+        logger.exception('Error when saving Market Message in database: {}'.format(e))
+        db.session.rollback()
+
 def dowload_sprites():
     """Download sprites from PSS."""
 
@@ -402,6 +486,9 @@ if __name__ == '__main__':
     parser.add_argument("--market-one-item", type=int)
     parser.add_argument("--sprites", action="store_true")
     parser.add_argument("--daily-sales", action="store_true")
+    parser.add_argument("--market-messages", action="store_true")
+    parser.add_argument("--market-messages-first-item", action="store_true")
+    parser.add_argument("--market-messages-one-item", type=int)
     args = parser.parse_args()
 
     if args.assets:
@@ -444,4 +531,22 @@ if __name__ == '__main__':
         with Timer() as t:
             logger.info('START')
             import_daily_sales()
+            logger.info('END :: {}s'.format(t.elapsed))
+
+    if args.market_messages:
+        with Timer() as t:
+            logger.info('START')
+            import_market_messages()
+            logger.info('END :: {}s'.format(t.elapsed))
+
+    if args.market_messages_first_item:
+        with Timer() as t:
+            logger.info('START')
+            import_market_messages(first_item_only=True)
+            logger.info('END :: {}s'.format(t.elapsed))
+
+    if args.market_messages_one_item:
+        with Timer() as t:
+            logger.info('START')
+            import_market_messages(item=args.market_messages_one_item)
             logger.info('END :: {}s'.format(t.elapsed))

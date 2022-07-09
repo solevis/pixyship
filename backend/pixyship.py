@@ -1139,6 +1139,12 @@ class PixyShip(metaclass=Singleton):
         sales = self.pixel_starships_api.get_sales(item_id, max_sale_id)
         return sales
 
+    def get_market_messages_from_api(self, item_id):
+        """Get market messages of item."""
+
+        sales = self.pixel_starships_api.get_market_messages(item_id)
+        return sales
+
     def get_alliance_users_from_api(self, alliance_id):
         """Get the top 100 alliances."""
 
