@@ -925,6 +925,8 @@ class PixyShip(metaclass=Singleton):
             'name': item['name'],
             'sprite': item['sprite'],
             'rarity': item['rarity'],
+            'rarity_order': item['rarity_order'],
+            'has_offstat': item['has_offstat'],
             'slot': item['slot'],
             'type': item['type'],
             'disp_enhancement': item['disp_enhancement'],
@@ -1059,22 +1061,31 @@ class PixyShip(metaclass=Singleton):
 
             module_extra_enhancement = self._parse_module_extra_enhancement(item)
 
+            slot = SLOT_MAP.get(item['ItemSubType'], item['ItemSubType'])
+            type = item.get('ItemType')
+            rarity_order = RARITY_MAP[item['Rarity']]
+            bonus = float(item.get('EnhancementValue'))
+            disp_enhancement = ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType'])
+            has_offstat = PixyShip.has_offstat(type, slot, rarity_order, bonus, disp_enhancement)
+
             items[record.type_id] = {
                 'name': item['ItemDesignName'],
                 'description': item['ItemDesignDescription'],
                 'sprite': self.get_sprite_infos(int(item['ImageSpriteId'])),
                 'logo_sprite': self.get_sprite_infos(int(item['LogoSpriteId'])),
-                'slot': SLOT_MAP.get(item['ItemSubType'], item['ItemSubType']),
+                'slot': slot,
                 'enhancement': item.get('EnhancementType').lower(),
-                'disp_enhancement': ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
+                'disp_enhancement': disp_enhancement,
                 'short_disp_enhancement': SHORT_ENHANCE_MAP.get(item['EnhancementType'], item['EnhancementType']),
-                'bonus': float(item.get('EnhancementValue')),
+                'bonus': bonus,
                 'module_extra_enhancement': module_extra_enhancement['enhancement'],
                 'module_extra_disp_enhancement': module_extra_enhancement['disp_enhancement'],
                 'module_extra_short_disp_enhancement': module_extra_enhancement['short_disp_enhancement'],
                 'module_extra_enhancement_bonus': module_extra_enhancement['bonus'],
-                'type': item.get('ItemType'),
+                'type': type,
                 'rarity': item.get('Rarity').lower(),
+                'rarity_order': rarity_order,
+                'has_offstat': has_offstat,
                 'ingredients': item['Ingredients'],
                 'content_string': item['Content'],
                 'number_of_rewards': number_of_rewards,
@@ -1468,13 +1479,13 @@ class PixyShip(metaclass=Singleton):
             'dailyRewards': {
                 'sprite': self.get_sprite_infos(DAILY_REWARDS_SPRITE_ID),
                 'objects': [
-                    self._format_daily_object(
-                        int(dailies['DailyRewardArgument']),
-                        'currency',
-                        self._format_daily_price(int(dailies['DailyRewardArgument']), dailies['DailyRewardType']),
-                        None
-                    )
-                ] + self._parse_daily_items(dailies['DailyItemRewards']),
+                               self._format_daily_object(
+                                   int(dailies['DailyRewardArgument']),
+                                   'currency',
+                                   self._format_daily_price(int(dailies['DailyRewardArgument']), dailies['DailyRewardType']),
+                                   None
+                               )
+                           ] + self._parse_daily_items(dailies['DailyItemRewards']),
             },
 
             'sale': {
@@ -1994,3 +2005,21 @@ class PixyShip(metaclass=Singleton):
             index -= 1
 
         return merged_rooms
+
+    @staticmethod
+    def has_offstat(type, slot, rarity_order, bonus, disp_enhancement):
+        """Check if item have an offstat bonus."""
+
+        if type != 'Equipment':
+            return False
+
+        if slot not in ['Accessory', 'Head', 'Body', 'Weapon', 'Leg', 'Pet']:
+            return False
+
+        if rarity_order < RARITY_MAP.get('Hero'):
+            return False
+
+        if disp_enhancement is None and bonus == 0.0:
+            return False
+
+        return True

@@ -2,13 +2,13 @@
 import _ from 'lodash'
 
 const rarityOrder = {
-  "common": 0,
-  "elite": 1,
-  "unique": 2,
-  "epic": 3,
-  "hero": 4,
-  "special": 5,
-  "legendary": 6,
+  "common": 1,
+  "elite": 2,
+  "unique": 3,
+  "epic": 4,
+  "hero": 5,
+  "special": 6,
+  "legendary": 7,
 }
 
 export default {

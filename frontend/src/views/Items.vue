@@ -183,7 +183,7 @@
                   <template v-if="item.module_extra_disp_enhancement != null">
                     <br>{{ formatExtraBonus(item) }}
                   </template>
-                  <template v-if="hasRandomStat(item)">
+                  <template v-if="item.has_offstat">
                     <br>??&nbsp;+??
                   </template>
               </td>

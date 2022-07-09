@@ -59,7 +59,7 @@
                       <template v-if="item.module_extra_disp_enhancement != null">
                         <br>{{ formatExtraBonus(item) }}
                       </template>
-                      <template v-if="hasRandomStat(item)">
+                      <template v-if="item.has_offstat">
                         <br>??&nbsp;+??
                       </template>
                   </td>
@@ -256,7 +256,7 @@
             <span>Rarity: <span :class="['rarity', item.rarity]">{{ item.rarity }}</span></span><br>
             <span>Type/Subtype: {{ item.type }}/{{ item.slot }}</span><br>
             <template v-if="formatBonus(item)">
-              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><template v-if="hasRandomStat(item)">&nbsp;/&nbsp;??&nbsp;+??</template></span><br>
+              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><template v-if="item.has_offstat">&nbsp;/&nbsp;??&nbsp;+??</template></span><br>
             </template>
 
             <div v-if="item.recipe.length > 0">Recipe:

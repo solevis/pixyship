@@ -26,7 +26,13 @@ daily-sales:
 	@docker compose exec -w /app pixyship-backend python importer.py --daily-sales
 
 run:
-	@docker compose up --detach
+	@docker compose up
+
+restart:
+	@docker compose restart
+
+stop:
+	@docker compose stop
 
 build:
 	@docker compose build
