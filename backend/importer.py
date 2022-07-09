@@ -61,7 +61,7 @@ def import_players():
             top_users += list(pixyship.get_alliance_users_from_api(alliance_id).items())
             api_sleep(5)
         except Exception as e:
-            logger.error(e)
+            logger.error('Error when importing alliance ({}) users: {}'.format(alliance_id, e))
 
     try:
         # purge old data
@@ -69,7 +69,7 @@ def import_players():
         db.session.query(Alliance).delete()
         db.session.commit()
     except Exception as e:
-        logger.error(e)
+        logger.error('Error when saving players in database: {}'.format(e))
         db.session.rollback()
 
     # save new data
@@ -264,7 +264,7 @@ def _save_daily_sale(daily_sale):
         db.session.add(daily_sale)
         db.session.commit()
     except Exception as e:
-        logger.error(e)
+        logger.error('Error when saving Daily Sale in database: {}'.format(e))
         db.session.rollback()
 
 
@@ -356,7 +356,7 @@ def dowload_sprites():
             try:
                 request.urlretrieve(url, filename)
             except Exception as e:
-                logger.error(e)
+                logger.error('Error when downloading sprite ({}): {}'.format(url, e))
 
 
 def __save_users(users):

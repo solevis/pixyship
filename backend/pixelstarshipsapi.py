@@ -655,7 +655,7 @@ class PixelStarshipsApi:
             response = self.call(endpoint, params=params)
 
             if response.status_code == 400:
-                logger.error('response in error: {}'.format(response.text))
+                logger.error('Response in error: {}'.format(response.text))
                 errors += 1
 
                 if errors == 3:
@@ -675,7 +675,7 @@ class PixelStarshipsApi:
 
             # error when parsing the response
             if sale_nodes is None:
-                logger.error('error when parsing response: {}'.format(response.text))
+                logger.error('Error when parsing response: {}'.format(response.text))
                 errors += 1
 
                 if errors == 3:
