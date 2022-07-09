@@ -280,7 +280,7 @@
                   :key="'promo-' + i"
 
               >
-                <v-card :height="dailyBundlesMaxRewards * 40" flat tile>
+                <v-card :height="dailyBundlesMaxRewards * 50" flat tile>
                   <v-card-text>
                   <v-row
                       align="center"
