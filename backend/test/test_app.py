@@ -12,3 +12,4 @@ def test_config():
     assert 'BACKUP_PIXELSTARSHIPS_API_URL' in CONFIG
     assert 'FORCED_PIXELSTARSHIPS_API_URL' in CONFIG
     assert 'SAVY_PUBLIC_API_TOKEN' in CONFIG
+    assert 'SALE_ID_DIFF_WARNING' in CONFIG

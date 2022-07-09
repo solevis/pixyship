@@ -698,7 +698,7 @@ class PixelStarshipsApi:
                 if sale_id > max_sale_id:
                     # first sale imported, check diff
                     sale_id_diff = sale_id - max_sale_id
-                    if count == 0 and sale_id_diff >= 25000:
+                    if count == 0 and sale_id_diff >= CONFIG['SALE_ID_DIFF_WARNING']:
                         logger.error('Too big diff ({}) on SaleId when importing item {}'.format(sale_id_diff, item_id))
 
                     sales.append(sale)
