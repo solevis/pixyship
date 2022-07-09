@@ -50,7 +50,7 @@ class SafeScheduler(Scheduler):
         try:
             super()._run_job(job)
         except Exception:
-            logger.error('Uncaught scheduler exception', exc_info=True)
+            logger.exception('Uncaught scheduler exception', exc_info=True)
 
             if self.reschedule_on_failure:
                 job.last_run = datetime.datetime.now()

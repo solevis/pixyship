@@ -1157,7 +1157,7 @@ class PixyShip(metaclass=Singleton):
                 'alliance_name': user.get('AllianceName'),
                 'alliance_sprite_id': int(user['AllianceSpriteId']),
             }
-            for user in users
+            for user in users if user['UserType'] != 'UserTypeDisabled'
         }
 
     def _get_prestige_to_from_api(self, character_id):
