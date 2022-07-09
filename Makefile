@@ -22,6 +22,9 @@ market:
 market-first-item:
 	@docker compose exec -w /app pixyship-backend python importer.py --market-first-item
 
+daily-sales:
+	@docker compose exec -w /app pixyship-backend python importer.py --daily-sales
+
 run:
 	@docker compose up --detach
 

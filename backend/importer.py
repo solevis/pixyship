@@ -9,6 +9,7 @@ import socket
 from urllib import request
 
 from contexttimer import Timer
+from sqlalchemy.dialects.postgresql import insert
 
 from config import CONFIG
 from constants import PSS_SPRITES_URL
@@ -261,7 +262,16 @@ def import_daily_sales():
 
 def _save_daily_sale(daily_sale):
     try:
-        db.session.add(daily_sale)
+        insert_command = insert(DailySale.__table__).values(
+            type=daily_sale.type,
+            type_id=daily_sale.type_id,
+            sale_at=daily_sale.sale_at,
+            sale_from=daily_sale.sale_from,
+            currency=daily_sale.currency,
+            price=daily_sale.price,
+        ).on_conflict_do_nothing()
+
+        db.session.execute(insert_command)
         db.session.commit()
     except Exception as e:
         logger.error('Error when saving Daily Sale in database: {}'.format(e))
