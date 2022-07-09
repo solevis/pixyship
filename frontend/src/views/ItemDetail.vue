@@ -343,7 +343,7 @@
       </v-col>
     </v-row>
 
-    <v-row justify="center">
+    <v-row v-if="loaded" justify="center">
       <v-col cols="12" sm="8">
         <v-tabs v-if="loaded" grow show-arrows center-active v-model="activeTab" class="mt-4">
           <v-tab href="#tab-market"
@@ -362,7 +362,7 @@
       </v-col>
     </v-row>
     
-    <v-row justify="center">
+    <v-row v-if="loaded" justify="center">
       <v-col cols="12">
         <v-tabs-items v-model="activeTab" touchless>
           <v-tab-item value="tab-sales">
