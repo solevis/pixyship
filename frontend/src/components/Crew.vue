@@ -17,20 +17,16 @@
           <div class="char-part" :style="spriteStyle(char.leg_sprite)"></div>
         </div>
 
-        <div
-          v-if="name === 'left'"
-          class="name pull-right"
-          :class="[char.rarity]"
-        >
-          {{ char.name }}
+        <div v-if="name === 'left'" class="name pull-right">
+          <span class="count" v-if="count">&nbsp;{{ 'x' + count }}</span>
+          <span :class="[char.rarity]">{{ char.name }}</span>
         </div>
-        <div
-          v-if="name === 'right'"
-          class="name pull-left"
-          :class="[char.rarity]"
-        >
-          {{ char.name }}
+
+        <div v-if="name === 'right'" class="name pull-left">
+          <span :class="[char.rarity]">{{ char.name }}</span>
+          <span class="count" v-if="count">&nbsp;{{ 'x' + count }}</span>
         </div>
+
         <div v-if="name === 'bottom'" class="name" :class="[char.rarity]">
           {{ char.name }}
         </div>
@@ -100,6 +96,7 @@ export default {
   props: {
     char: null,
     name: null,
+    count: null,
     tipPosition: null,
     tip: { default: true },
   },
@@ -140,6 +137,10 @@ export default {
   display: block;
   white-space: nowrap;
   margin: 5px 5px 0 5px;
+}
+
+.count {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 a {
