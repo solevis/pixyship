@@ -665,7 +665,7 @@ class PixelStarshipsApi:
                     break
 
                 # too many request, wait a little, and try again
-                api_sleep(10, force_sleep=True)
+                api_sleep(30, force_sleep=True)
                 continue
 
             root = ElementTree.fromstring(response.text)
