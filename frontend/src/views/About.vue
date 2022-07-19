@@ -54,12 +54,12 @@
 
     <!-- Dev Team -->
     <v-card class="mb-4" elevation="2" outlined>
-      <v-card-title>Developpers</v-card-title>
+      <v-card-title>Developers</v-card-title>
       <v-card-text>
         <p>
-          Main Developper: {{ mainDevelopper }}
-          <a :href="`mailto:${mainDevelopperEmail}`"
-            >&lt;{{ mainDevelopperEmail }}&gt;</a
+          Main Developer: {{ mainDeveloper }}
+          <a :href="`mailto:${mainDeveloperEmail}`"
+            >&lt;{{ mainDeveloperEmail }}&gt;</a
           >
         </p>
         <p>Contributor: {{ contributors }}</p>
@@ -110,8 +110,8 @@ export default {
 
   data() {
     return {
-      mainDevelopper: "Solevis",
-      mainDevelopperEmail: "contact@pixyship.com",
+      mainDeveloper: "Solevis",
+      mainDeveloperEmail: "contact@pixyship.com",
       contributors: "Bril, The worst.",
       donationUrl: process.env.VUE_APP_DONATION_URL,
       discordUrl: process.env.VUE_APP_PIXYSHIP_DISCORD_URL,
