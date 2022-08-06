@@ -428,6 +428,7 @@ def _save_market_message(market_message):
         logger.exception('Error when saving Market Message in database: {}'.format(e))
         db.session.rollback()
 
+
 def dowload_sprites():
     """Download sprites from PSS."""
 

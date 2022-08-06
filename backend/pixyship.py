@@ -754,7 +754,9 @@ class PixyShip(metaclass=Singleton):
                 'extension_grids': int(room.get('SupportedGridTypes', '0')) & 2 != 0,
                 'has_weapon_stats': True if missile_design else False,
                 'purchasable': True if 'AvailabilityMask' in room else False,
-                'shop_type': ROOM_SHOP_TYPE_MASK.get(room['AvailabilityMask'], room['AvailabilityMask']) if 'AvailabilityMask' in room else ROOM_SHOP_TYPE_MASK[None],
+                'shop_type': ROOM_SHOP_TYPE_MASK.get(
+                    room['AvailabilityMask'],
+                    room['AvailabilityMask']) if 'AvailabilityMask' in room else ROOM_SHOP_TYPE_MASK[None],
                 'system_damage': float(missile_design['SystemDamage']) if missile_design else 0,
                 'hull_damage': float(missile_design['HullDamage']) if missile_design else 0,
                 'character_damage': float(missile_design['CharacterDamage']) if missile_design else 0,
@@ -1484,14 +1486,12 @@ class PixyShip(metaclass=Singleton):
 
             'dailyRewards': {
                 'sprite': self.get_sprite_infos(DAILY_REWARDS_SPRITE_ID),
-                'objects': [
-                               self._format_daily_object(
-                                   int(dailies['DailyRewardArgument']),
-                                   'currency',
-                                   self._format_daily_price(int(dailies['DailyRewardArgument']), dailies['DailyRewardType']),
-                                   None
-                               )
-                           ] + self._parse_daily_items(dailies['DailyItemRewards']),
+                'objects': [self._format_daily_object(
+                    int(dailies['DailyRewardArgument']),
+                    'currency',
+                    self._format_daily_price(int(dailies['DailyRewardArgument']), dailies['DailyRewardType']),
+                    None
+                )] + self._parse_daily_items(dailies['DailyItemRewards']),
             },
 
             'sale': {
@@ -1792,11 +1792,19 @@ class PixyShip(metaclass=Singleton):
             user['pvpattack_wins'] = int(more_user_data['PVPAttackWins'])
             user['pvpattack_losses'] = int(more_user_data['PVPAttackLosses'])
             user['pvpattack_draws'] = int(more_user_data['PVPAttackDraws'])
-            user['pvpattack_ratio'] = self._compute_pvp_ratio(int(more_user_data['PVPAttackWins']), int(more_user_data['PVPAttackLosses']), int(more_user_data['PVPAttackDraws']))
+            user['pvpattack_ratio'] = self._compute_pvp_ratio(
+                int(more_user_data['PVPAttackWins']),
+                int(more_user_data['PVPAttackLosses']),
+                int(more_user_data['PVPAttackDraws'])
+            )
             user['pvpdefence_draws'] = int(more_user_data['PVPDefenceDraws'])
             user['pvpdefence_wins'] = int(more_user_data['PVPDefenceWins'])
             user['pvpdefence_losses'] = int(more_user_data['PVPDefenceLosses'])
-            user['pvpdefence_ratio'] = self._compute_pvp_ratio(int(more_user_data['PVPDefenceWins']), int(more_user_data['PVPDefenceLosses']), int(more_user_data['PVPDefenceDraws']))
+            user['pvpdefence_ratio'] = self._compute_pvp_ratio(
+                int(more_user_data['PVPDefenceWins']),
+                int(more_user_data['PVPDefenceLosses']),
+                int(more_user_data['PVPDefenceDraws'])
+            )
             user['highest_trophy'] = int(more_user_data['HighestTrophy'])
             user['crew_donated'] = int(more_user_data['CrewDonated'])
             user['crew_received'] = int(more_user_data['CrewReceived'])

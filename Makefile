@@ -31,6 +31,12 @@ market-messages:
 market-messages-first-item:
 	@docker compose exec -w /app pixyship-backend python importer.py --market-messages-first-item
 
+pycodestyle:
+	@docker compose exec -w /app pixyship-backend pycodestyle
+
+pytest:
+	@docker compose exec -w /app pixyship-backend python -m pytest
+
 run:
 	@docker compose up
 
