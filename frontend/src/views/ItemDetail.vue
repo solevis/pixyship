@@ -395,6 +395,18 @@
               </v-row>
 
               <v-row v-if="loaded && lastSales.length > 0" justify="center">
+                <v-col class="text-center" cols="11" md="4" >
+                  <v-text-field
+                    v-model="lastSalesSearch"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row v-if="loaded && lastSales.length > 0" justify="center">
                 <v-col class="text-center" cols="12" md="8" >
                   <v-data-table
                     mobile-breakpoint="0"
@@ -406,6 +418,7 @@
                     }"
                     multi-sort
                     class="elevation-1"
+                    :search="lastSalesSearch"
                   >
                     <template v-slot:item="{ item }">
                       <tr>
@@ -601,7 +614,7 @@ export default {
           text: "Quantity",
           align: "center",
           value: "quantity",
-          filterable: true,
+          filterable: false,
         },
         {
           text: "Currency",
@@ -625,13 +638,13 @@ export default {
           text: "Buyer",
           align: "center",
           value: "buyer",
-          filterable: false,
+          filterable: true,
         },
         {
           text: "Seller",
           align: "center",
-          value: "saller",
-          filterable: false,
+          value: "seller",
+          filterable: true,
         },
       ],
       lastSalesMobileHeaders: [
@@ -639,12 +652,13 @@ export default {
           text: "Quantity",
           align: "center",
           value: "quantity",
-          filterable: true,
+          filterable: false,
         },
         {
           text: "Currency",
           align: "center",
           value: "currency",
+          filterable: false,
           filter: (value) => {
             if (this.searchLastSalesCurrency.length > 0) {
               return this.searchLastSalesCurrency.includes(value)
@@ -663,17 +677,18 @@ export default {
           text: "Buyer",
           align: "center",
           value: "buyer",
-          filterable: false,
+          filterable: true,
         },
         {
           text: "Seller",
           align: "center",
-          value: "saller",
-          filterable: false,
+          value: "seller",
+          filterable: true,
         },
       ],
       tree: [],
       recipes: [],
+      lastSalesSearch: '',
     }
   },
 
