@@ -406,6 +406,15 @@
                 </v-col>
               </v-row>
 
+              <v-row v-if="loaded && lastSales.length > 0 && item.rarity_order >= 5" justify="center">
+                <v-col class="" cols="12" md="8" >
+                  <p class="font-weight-light">
+                    <span class="font-weight-bold">Offstats are still a feature in development.</span><br>
+                    <span>Pixel Starships API doesn't permit to retrieve offstats after the item was sold. PixyShip tries to store offstats before the item is sold, but the market may updated too quickly and PixyShip won't be able to save the offstat before the sale (for example: sniped items, swaps).</span>
+                  </p>
+                </v-col>
+              </v-row>
+
               <v-row v-if="loaded && lastSales.length > 0" justify="center">
                 <v-col class="text-center" cols="12" md="8" >
                   <v-data-table
@@ -430,7 +439,13 @@
                             :style="currencySprite(item.currency)"
                           />
                         </td>
-                        <td>{{ item.price }}</td>
+                        <td>
+                          <span>{{ item.price }}</span>
+                          <br v-if="item.offstat">
+                          <span v-if="item.offstat" class="font-weight-light">
+                            <span :title="item.offstat.bonus">(+{{ item.offstat.value }} {{ item.offstat.short_bonus }}</span>)
+                          </span>
+                        </td>
                         <td>{{ item.buyer }}</td>
                         <td>{{ item.seller }}</td>
                       </tr>

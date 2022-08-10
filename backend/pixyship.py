@@ -1,4 +1,5 @@
 import math
+import re
 import time
 from collections import defaultdict, Counter
 from xml.etree import ElementTree
@@ -484,16 +485,16 @@ class PixyShip(metaclass=Singleton):
         """Get all history market summary from database."""
 
         sql = """
-            SELECT item_id
-                 , currency
-                 , SUM(amount)                                                 AS count
-                 , percentile_disc(.25) WITHIN GROUP (ORDER BY price / amount) AS p25
-                 , percentile_disc(.5) WITHIN GROUP (ORDER BY price / amount)  AS p50
-                 , percentile_disc(.75) WITHIN GROUP (ORDER BY price / amount) AS p75
-            FROM listing
-            WHERE amount > 0
-              AND sale_at > (now() - INTERVAL '48 HOURS')
-            GROUP BY item_id, currency
+            SELECT l.item_id
+                 , l.currency
+                 , SUM(l.amount)                                                    AS count
+                 , percentile_disc(.25) WITHIN GROUP (ORDER BY l.price / l.amount)  AS p25
+                 , percentile_disc(.5) WITHIN GROUP (ORDER BY l.price / l.amount)   AS p50
+                 , percentile_disc(.75) WITHIN GROUP (ORDER BY l.price /l. amount)  AS p75
+            FROM listing l
+            WHERE l.amount > 0
+              AND l.sale_at > (now() - INTERVAL '48 HOURS')
+            GROUP BY l.item_id, l.currency
         """
 
         result = db.session.execute(sql).fetchall()
@@ -556,13 +557,21 @@ class PixyShip(metaclass=Singleton):
         """Get last sales from database."""
 
         sql = """
-            SELECT sale_at, amount, currency, price, user_name AS buyer_name, seller_name, id
-            FROM listing
-            WHERE item_id = :item_id
-              AND amount > 0
-              AND user_name IS NOT NULL
-              AND seller_name IS NOT NULL
-            ORDER BY sale_at DESC
+            SELECT l.sale_at,
+                   l.amount,
+                   l.currency,
+                   l.price,
+                   l.user_name AS buyer_name,
+                   l.seller_name,
+                   l.id,
+                   mm.message
+            FROM listing l
+                     LEFT JOIN market_message mm ON mm.sale_id = l.id
+            WHERE l.item_id = :item_id
+              AND l.amount > 0
+              AND l.user_name IS NOT NULL
+              AND l.seller_name IS NOT NULL
+            ORDER BY l.sale_at DESC
             LIMIT :limit
         """
 
@@ -570,6 +579,19 @@ class PixyShip(metaclass=Singleton):
         last_sales = []
 
         for row in result:
+            # offstat
+            offstat = None
+            if row[7]:
+                search_result = re.search(r'\(\+(.*?)\s(.*?)\)', row[7])
+                result_value = search_result.group(1)
+                if result_value:
+                    result_bonus = search_result.group(2)
+                    offstat = {
+                        'value': result_value,
+                        'bonus': result_bonus,
+                        'short_bonus': SHORT_ENHANCE_MAP.get(result_bonus, result_bonus)
+                    }
+
             last_sales.append({
                 'id': int(row[6]),
                 'date': str(row[0]),
@@ -578,6 +600,7 @@ class PixyShip(metaclass=Singleton):
                 'price': row[3],
                 'buyer': row[4],
                 'seller': row[5],
+                'offstat': offstat,
             })
 
         return last_sales
