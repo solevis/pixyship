@@ -646,8 +646,8 @@ export default {
         {
           text: "Price",
           align: "center",
-          value: "price",
-          filterable: false,
+          value: "offstat.short_bonus",
+          filterable: true
         },
         {
           text: "Buyer",
@@ -673,7 +673,6 @@ export default {
           text: "Currency",
           align: "center",
           value: "currency",
-          filterable: false,
           filter: (value) => {
             if (this.searchLastSalesCurrency.length > 0) {
               return this.searchLastSalesCurrency.includes(value)
@@ -685,8 +684,8 @@ export default {
         {
           text: "Price",
           align: "center",
-          value: "price",
-          filterable: false,
+          value: "offstat.short_bonus",
+          filterable: true
         },
         {
           text: "Buyer",
