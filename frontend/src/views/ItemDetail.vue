@@ -441,9 +441,10 @@
                         </td>
                         <td>
                           <span>{{ item.price }}</span>
-                          <br v-if="item.offstat">
+                        </td>
+                        <td>
                           <span v-if="item.offstat" class="font-weight-light">
-                            <span :title="item.offstat.bonus">(+{{ item.offstat.value }} {{ item.offstat.short_bonus }}</span>)
+                            <span :title="item.offstat.bonus">+{{ item.offstat.value }} {{ item.offstat.short_bonus }}</span>
                           </span>
                         </td>
                         <td>{{ item.buyer }}</td>
@@ -646,6 +647,12 @@ export default {
         {
           text: "Price",
           align: "center",
+          value: "price",
+          filterable: false
+        },
+        {
+          text: "Offstat",
+          align: "center",
           value: "offstat.short_bonus",
           filterable: true
         },
@@ -683,6 +690,12 @@ export default {
         },
         {
           text: "Price",
+          align: "center",
+          value: "price",
+          filterable: false
+        },
+        {
+          text: "Offstat",
           align: "center",
           value: "offstat.short_bonus",
           filterable: true
