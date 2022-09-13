@@ -41,6 +41,8 @@ services:
       context: ./backend/
       dockerfile: Dockerfile
       target: development-stage
-    command: alembic upgrade head
     depends_on:
       - pixyship-database
+    environment:
+      WAIT_HOSTS: pixyship-database:5432
+    command: sh -c "/wait && alembic upgrade head"

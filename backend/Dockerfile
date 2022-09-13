@@ -3,6 +3,10 @@ FROM python:3.7-alpine AS build-stage
 # install image dependencies
 RUN apk add gcc build-base linux-headers
 
+## Add the wait script to the image
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
+RUN chmod +x /wait
+
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -26,10 +30,11 @@ WORKDIR /app
 COPY --from=build-stage /app .
 
 ENV FLASK_ENV=development
+ENV WAIT_HOSTS=pixyship-database:5432
 
 # serve app
 EXPOSE 5000
-CMD python run.py
+CMD /wait && python run.py
 
 FROM build-stage AS production-stage
 
