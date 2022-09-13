@@ -189,8 +189,8 @@
 </template>
 
 <script>
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import ItemMixin from "@/mixins/Item.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import ItemMixin from "../mixins/Item.vue.js"
 
 export default {
   mixins: [PixyShipMixin, ItemMixin],

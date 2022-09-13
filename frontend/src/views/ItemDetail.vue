@@ -549,11 +549,11 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import ItemMixin from "@/mixins/Item.vue.js"
-import Item from "@/components/Item.vue"
-import Crew from "@/components/Crew.vue"
-import ItemMarket from "@/components/ItemMarket.vue"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import ItemMixin from "../mixins/Item.vue.js"
+import Item from "../components/Item.vue"
+import Crew from "../components/Crew.vue"
+import ItemMarket from "../components/ItemMarket.vue"
 import _ from "lodash";
 
 export default {

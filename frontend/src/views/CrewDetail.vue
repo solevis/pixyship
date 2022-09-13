@@ -319,8 +319,8 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import Crew from "@/components/Crew.vue"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import Crew from "../components/Crew.vue"
 
 export default {
   mixins: [PixyShipMixin],

@@ -153,11 +153,11 @@
 <script>
 import axios from "axios"
 import moment from 'moment'
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
-import Crew from "@/components/Crew.vue"
-import Item from "@/components/Item.vue"
-import "@/assets/css/override.css"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import Crew from "../components/Crew.vue"
+import Item from "../components/Item.vue"
+import "../assets/css/override.css"
 import _ from 'lodash'
 
 const convert = require('xml-js')

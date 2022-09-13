@@ -370,7 +370,7 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import _ from 'lodash'
 
 export default {

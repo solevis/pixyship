@@ -304,11 +304,11 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
-import ItemMixin from "@/mixins/Item.vue.js"
-import Item from "@/components/Item.vue"
-import Crew from "@/components/Crew.vue"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import ItemMixin from "../mixins/Item.vue.js"
+import Item from "../components/Item.vue"
+import Crew from "../components/Crew.vue"
 import _ from 'lodash'
 
 export default {

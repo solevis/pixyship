@@ -248,10 +248,10 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
-import Item from "@/components/Item.vue"
-import "@/assets/css/override.css"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import Item from "../components/Item.vue"
+import "../assets/css/override.css"
 import _ from 'lodash'
 
 export default {
