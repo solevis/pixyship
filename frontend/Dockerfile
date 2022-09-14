@@ -1,4 +1,4 @@
-FROM node:15-alpine AS build-stage
+FROM node:lts-alpine AS build-stage
 
 # set working directory
 WORKDIR /app
