@@ -399,7 +399,7 @@
                   <v-text-field
                     v-model="lastSalesSearch"
                     append-icon="mdi-magnify"
-                    label="Search"
+                    label="Search offstat or player name"
                     placeholder="Offstat, player name"
                     single-line
                     hide-details
