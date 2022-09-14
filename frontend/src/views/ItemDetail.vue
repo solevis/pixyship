@@ -400,6 +400,7 @@
                     v-model="lastSalesSearch"
                     append-icon="mdi-magnify"
                     label="Search"
+                    placeholder="Offstat, player name"
                     single-line
                     hide-details
                   ></v-text-field>
