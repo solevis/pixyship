@@ -37,6 +37,9 @@ pycodestyle:
 pytest:
 	@docker compose exec -w /app pixyship-backend python -m pytest
 
+flake8:
+	@docker compose exec  -w /app pixyship-backend flake8 . --count --show-source --statistics
+
 run:
 	@docker compose up
 
