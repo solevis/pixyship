@@ -226,7 +226,7 @@ class PixelStarshipsApi:
 
         params = {
             'userId': user_id,
-            'version': self.__api_settings['ShipDesignVersion']
+            'designVersion': self.__api_settings['ShipDesignVersion']
         }
 
         # retrieve data as XML from Pixel Starships API
@@ -313,7 +313,7 @@ class PixelStarshipsApi:
         """Get sprites from API."""
 
         params = {
-            'version': self.__api_settings['FileVersion'],
+            'designVersion': self.__api_settings['FileVersion'],
             'deviceType': 'DeviceTypeAndroid'
         }
 
@@ -342,7 +342,7 @@ class PixelStarshipsApi:
         """Get rooms sprites from API."""
 
         params = {
-            'version': self.__api_settings['RoomDesignSpriteVersion']
+            'designVersion': self.__api_settings['RoomDesignSpriteVersion']
         }
 
         # retrieve data as XML from Pixel Starships API
@@ -370,7 +370,7 @@ class PixelStarshipsApi:
         """Get ships designs from API."""
 
         params = {
-            'version': self.__api_settings['ShipDesignVersion'],
+            'designVersion': self.__api_settings['ShipDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -399,7 +399,7 @@ class PixelStarshipsApi:
         """Get research designs from API."""
 
         params = {
-            'version': self.__api_settings['ResearchDesignVersion'],
+            'designVersion': self.__api_settings['ResearchDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -431,7 +431,7 @@ class PixelStarshipsApi:
         rooms_purchase = self.get_rooms_purchase()
 
         params = {
-            'version': self.__api_settings['RoomDesignSpriteVersion'],
+            'designVersion': self.__api_settings['RoomDesignSpriteVersion'],
             'languageKey': 'en'
         }
 
@@ -478,7 +478,7 @@ class PixelStarshipsApi:
         """Get room designs from API."""
 
         params = {
-            'version': self.__api_settings['RoomDesignPurchaseVersion'],
+            'designVersion': self.__api_settings['RoomDesignPurchaseVersion'],
             'languageKey': 'en'
         }
 
@@ -507,7 +507,7 @@ class PixelStarshipsApi:
         """Get character designs from API."""
 
         params = {
-            'version': self.__api_settings['CharacterDesignVersion'],
+            'designVersion': self.__api_settings['CharacterDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -544,7 +544,7 @@ class PixelStarshipsApi:
         """Get collection designs from API."""
 
         params = {
-            'version': self.__api_settings['CollectionDesignVersion'],
+            'designVersion': self.__api_settings['CollectionDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -573,7 +573,7 @@ class PixelStarshipsApi:
         """Get item designs from API."""
 
         params = {
-            'version': self.__api_settings['ItemDesignVersion'],
+            'designVersion': self.__api_settings['ItemDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -602,7 +602,7 @@ class PixelStarshipsApi:
         """Get alliances from API, top 100 by default."""
 
         params = {
-            'version': self.__api_settings['ItemDesignVersion'],
+            'designVersion': self.__api_settings['ItemDesignVersion'],
             'take': take
         }
 
@@ -904,7 +904,7 @@ class PixelStarshipsApi:
         """Get trainings data from API."""
 
         params = {
-            'version': self.__api_settings['TrainingDesignVersion'],
+            'designVersion': self.__api_settings['TrainingDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -934,7 +934,7 @@ class PixelStarshipsApi:
         """Get achievements data from API."""
 
         params = {
-            'version': self.__api_settings['AchievementDesignVersion'],
+            'designVersion': self.__api_settings['AchievementDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -964,7 +964,7 @@ class PixelStarshipsApi:
         """Get situations data from API."""
 
         params = {
-            'version': self.__api_settings['SituationDesignVersion'],
+            'designVersion': self.__api_settings['SituationDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -994,7 +994,7 @@ class PixelStarshipsApi:
         """Get promotions data from API."""
 
         params = {
-            'version': self.__api_settings['PromotionDesignVersion'],
+            'designVersion': self.__api_settings['PromotionDesignVersion'],
             'languageKey': 'en'
         }
 

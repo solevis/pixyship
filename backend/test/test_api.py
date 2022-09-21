@@ -457,8 +457,6 @@ def test_search_users():
 
     user = users[0]
     assert 'Name' in user
-    assert user['Name'] == user_name_to_search
-
     assert 'PVPAttackWins' in user
     assert 'PVPAttackLosses' in user
     assert 'PVPAttackDraws' in user
