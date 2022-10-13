@@ -167,12 +167,14 @@
           <td>
             <v-tooltip v-if="item.collection_sprite" bottom color="blue-grey">
               <template v-slot:activator="{ on, attrs }">
-                <div
-                  v-bind="attrs"
-                  v-on="on"
-                  :style="spriteStyle(item.collection_sprite)"
-                  class="center"
-                ></div>
+                <a :href="`/collections?ids=${item.collection}`">
+                  <div
+                      v-bind="attrs"
+                      v-on="on"
+                      :style="spriteStyle(item.collection_sprite)"
+                      class="center"
+                  ></div>
+                </a>
               </template>
               {{ item.collection_name }}
             </v-tooltip>
