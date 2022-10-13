@@ -793,6 +793,8 @@ class PixyShip(metaclass=Singleton):
                 'stun_length': float(missile_design['StunLength']) if missile_design else 0,
                 'hull_percentage_damage': float(missile_design['HullPercentageDamage']) if missile_design else 0,
                 'skin': False,
+                'base_room_id': None,
+                'base_room_name': None,
             }
 
         upgrades = {
@@ -2030,6 +2032,10 @@ class PixyShip(metaclass=Singleton):
         index = -1
         for room_sprite_id, room_sprite in filtered_rooms_sprites.items():
             new_room = rooms[room_sprite['room_id']].copy()
+
+            new_room['base_room_id'] = room_sprite['room_id']
+            new_room['base_room_name'] = new_room['name']
+
             new_room['name'] = room_sprite['skin_name']
             new_room['description'] = room_sprite['skin_description']
             new_room['sprite'] = self.get_sprite_infos(room_sprite['sprite_id'])

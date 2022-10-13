@@ -117,6 +117,9 @@
                 <div :class="[item.rarity, 'lh-9', 'name']">
                   {{ item.name }}
                 </div>
+                <div if="item.base_room_name" class="small font-italic">
+                  {{ item.base_room_name }}
+                </div>
               </td>
 
               <td>
@@ -199,6 +202,10 @@
                       </tr>
                     </thead>
                     <tbody>
+                      <tr v-if="item.base_room_id">
+                        <td>Base room</td>
+                        <td><a :href="`/rooms?ids=${item.base_room_id}`">{{ item.base_room_name }}</a></td>
+                      </tr>
                       
                       <tr v-show="item.enhancement_type != 'None'">
                         <td>Support Stat</td>
