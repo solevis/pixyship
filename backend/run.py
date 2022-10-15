@@ -8,7 +8,7 @@ from config import CONFIG
 from db import db
 from pixyship import PixyShip
 
-PUBLIC_ENDPOINTS = ['api_item_prices', 'api_items']
+PUBLIC_ENDPOINTS = []
 APP_NAME = 'pixyship'
 
 app = Flask(APP_NAME)
