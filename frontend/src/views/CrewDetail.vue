@@ -181,8 +181,8 @@
           <v-tab href="#tab-prestiges"
             ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Prestiges</span></v-tab
           >
-          <v-tab href="#tab-sales"
-            ><v-icon left>mdi-sale</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
+          <v-tab href="#tab-last-sales"
+            ><v-icon left>mdi-history</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
           >
         </v-tabs>
       </v-col>
@@ -342,37 +342,11 @@
             </v-card>
           </v-tab-item>
 
-          <v-tab-item value="tab-sales">
+          <v-tab-item value="tab-last-sales">
             <v-card flat>
-              <v-row v-if="loaded && lastSales.length > 0" justify="center">
+              <v-row justify="center">
                 <v-col class="text-center" cols="12" md="8" >
-                  <v-data-table
-                    mobile-breakpoint="0"
-                    :headers="lastSalesHeaders"
-                    :items="lastSales"
-                    :items-per-page="20"
-                    :footer-props="{
-                      itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
-                    }"
-                    multi-sort
-                    class="elevation-1"
-                  >
-                    <template v-slot:item="{ item }">
-                      <tr>
-                        <td>{{ nowDate(item.date) }}</td>
-                        <td>{{ item.sale_from }}</td>
-                        <td>
-                          <div
-                            class="d-inline-block"
-                            :style="currencySprite(item.currency)"
-                          />
-                        </td>
-                        <td>
-                          <span>{{ item.price }}</span>
-                        </td>
-                      </tr>
-                    </template>
-                  </v-data-table>
+                  <last-sales type="character" :type-id="character.id"></last-sales>
                 </v-col>
               </v-row>
             </v-card>
@@ -504,11 +478,13 @@ import axios from "axios"
 import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Crew from "../components/Crew.vue"
 import _ from "lodash";
+import LastSales from "../components/LastSales";
 
 export default {
   mixins: [PixyShipMixin],
 
   components: {
+    LastSales,
     Crew,
   },
 
@@ -523,33 +499,6 @@ export default {
       from: [],
       to: [],
       level: 40,
-      lastSales: [],
-      lastSalesHeaders: [
-        {
-          text: "Date",
-          align: "center",
-          value: "date",
-          filterable: false,
-        },
-        {
-          text: "Shop",
-          align: "center",
-          value: "sale_from",
-          filterable: false,
-        },
-        {
-          text: "Currency",
-          align: "center",
-          value: "currency",
-          filterable: false,
-        },
-        {
-          text: "Price",
-          align: "center",
-          value: "price",
-          filterable: false
-        },
-      ],
     }
   },
 
@@ -658,7 +607,6 @@ export default {
 
       this.characters = characters
       this.data = response.data.data
-      this.lastSales = response.data.lastSales
 
       this.from = this.data.from
       this.to = this.data.to

@@ -184,7 +184,6 @@ def api_research():
 def api_prestige(char_id):
     return jsonify({
         'data': pixyship.get_prestiges_from_api(char_id),
-        'lastSales': pixyship.get_character_last_sales(char_id, 50),
         'status': 'success',
     })
 
@@ -221,11 +220,11 @@ def api_item_prices(item_id):
 @enforce_source
 def api_item_detail(item_id):
     item = pixyship.items[item_id]
-    last_sales = pixyship.get_item_last_sales_from_db(item_id, 50)
+    last_players_sales = pixyship.get_item_last_players_sales_from_db(item_id, 50)
     upgrades = pixyship.get_item_upgrades(item['id'])
     return jsonify({
         'data': item,
-        'lastSales': last_sales,
+        'lastPlayersSales': last_players_sales,
         'upgrades': upgrades,
         'status': 'success',
     })
@@ -261,6 +260,14 @@ def api_ships():
         'status': 'success',
     })
 
+@app.route('/api/lastsales/<path:type>/<int:type_id>')
+@enforce_source
+def api_last_sales(type, type_id):
+    last_sales = pixyship.get_last_sales_from_db(type, type_id, 50)
+    return jsonify({
+        'data': last_sales,
+        'status': 'success',
+    })
 
 @app.route('/api/<path:path>')
 def bad_api(_):

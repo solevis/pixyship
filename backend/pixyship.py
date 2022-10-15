@@ -553,8 +553,8 @@ class PixyShip(metaclass=Singleton):
         return data
 
     @staticmethod
-    def get_item_last_sales_from_db(item_id, limit):
-        """Get last sales from database."""
+    def get_item_last_players_sales_from_db(item_id, limit):
+        """Get item last players sales from database."""
 
         sql = """
             SELECT l.sale_at,
@@ -606,8 +606,8 @@ class PixyShip(metaclass=Singleton):
         return last_sales
 
     @staticmethod
-    def get_character_last_sales(character_id, limit):
-        """Get crew last sales from database."""
+    def get_last_sales_from_db(type, type_id, limit):
+        """Get last sales from database."""
 
         sql = """
             SELECT ds.id,
@@ -616,13 +616,13 @@ class PixyShip(metaclass=Singleton):
                    ds.currency,
                    ds.price
             FROM daily_sale ds
-            WHERE ds.type_id = :character_id
-              AND ds.type = 'character'
+            WHERE ds.type_id = :type_id
+              AND ds.type = :type
             ORDER BY ds.sale_at DESC
             LIMIT :limit
         """
 
-        result = db.session.execute(sql, {'character_id': character_id, 'limit': limit}).fetchall()
+        result = db.session.execute(sql, {'type': type, 'type_id': type_id, 'limit': limit}).fetchall()
         last_sales = []
 
         for row in result:

@@ -349,7 +349,10 @@
           <v-tab href="#tab-market"
             ><v-icon left>mdi-chart-histogram</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Market History</span></v-tab
           >
-          <v-tab href="#tab-sales"
+          <v-tab href="#tab-last-sales"
+            ><v-icon left>mdi-history</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
+          >
+          <v-tab href="#tab-players-sales"
             ><v-icon left>mdi-sale</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last players sales</span></v-tab
           >
           <v-tab href="#tab-craft"
@@ -365,39 +368,39 @@
     <v-row v-if="loaded" justify="center">
       <v-col cols="12">
         <v-tabs-items v-model="activeTab" touchless>
-          <v-tab-item value="tab-sales">
+          <v-tab-item value="tab-players-sales">
             <v-card flat>
               <v-row
-                v-if="loaded && lastSales.length > 0"
+                v-if="loaded && lastPlayersSales.length > 0"
                 justify="center"
                 :class="$vuetify.breakpoint.mdAndUp ? 'pt-4' : ''"
               >
                 <v-switch
                   class="px-3"
-                  v-model="showLastSalesGas"
+                  v-model="showLastPlayersSalesGas"
                   label="Gas"
                   color="purple lighten-2"
                 ></v-switch>
                 <v-switch
                   class="px-3"
-                  v-model="showLastSalesMineral"
+                  v-model="showLastPlayersSalesMineral"
                   :label="$vuetify.breakpoint.mdAndUp ? 'Mineral' : 'Min'"
                   color="blue lighten-2"
                   hide-details
                 ></v-switch>
                 <v-switch
                   class="px-3"
-                  v-model="showLastSalesStarbux"
+                  v-model="showLastPlayersSalesStarbux"
                   :label="$vuetify.breakpoint.mdAndUp ? 'Starbux' : 'Bux'"
                   color="green lighten-2"
                   hide-details
                 ></v-switch>
               </v-row>
 
-              <v-row v-if="loaded && lastSales.length > 0" justify="center">
+              <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center">
                 <v-col class="text-center" cols="11" md="4" >
                   <v-text-field
-                    v-model="lastSalesSearch"
+                    v-model="lastPlayersSalesSearch"
                     append-icon="mdi-magnify"
                     label="Search offstat or player name"
                     placeholder="Offstat, player name"
@@ -407,7 +410,7 @@
                 </v-col>
               </v-row>
 
-              <v-row v-if="loaded && lastSales.length > 0 && item.rarity_order >= 5" justify="center">
+              <v-row v-if="loaded && lastPlayersSales.length > 0 && item.rarity_order >= 5" justify="center">
                 <v-col class="" cols="12" md="8" >
                   <p class="font-weight-light">
                     <span class="font-weight-bold">Offstats are still a feature in development.</span><br>
@@ -416,19 +419,19 @@
                 </v-col>
               </v-row>
 
-              <v-row v-if="loaded && lastSales.length > 0" justify="center">
+              <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center">
                 <v-col class="text-center" cols="12" md="8" >
                   <v-data-table
                     mobile-breakpoint="0"
-                    :headers="$vuetify.breakpoint.mdAndUp ? lastSalesHeaders : lastSalesMobileHeaders"
-                    :items="lastSales"
+                    :headers="$vuetify.breakpoint.mdAndUp ? lastPlayersSalesHeaders : lastPlayersSalesMobileHeaders"
+                    :items="lastPlayersSales"
                     :items-per-page="20"
                     :footer-props="{
                       itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
                     }"
                     multi-sort
                     class="elevation-1"
-                    :search="lastSalesSearch"
+                    :search="lastPlayersSalesSearch"
                   >
                     <template v-slot:item="{ item }">
                       <tr>
@@ -472,6 +475,16 @@
 
           <v-tab-item value="tab-market">
             <item-market :item="item" :showTitle="false" class="mt-4" />
+          </v-tab-item>
+
+          <v-tab-item value="tab-last-sales">
+            <v-card flat>
+              <v-row justify="center">
+                <v-col class="text-center" cols="12" md="8" >
+                  <last-sales type="item" :type-id="item.id"></last-sales>
+                </v-col>
+              </v-row>
+            </v-card>
           </v-tab-item>
 
           <v-tab-item value="tab-craft">
@@ -555,6 +568,7 @@ import ItemMixin from "../mixins/Item.vue.js"
 import Item from "../components/Item.vue"
 import Crew from "../components/Crew.vue"
 import ItemMarket from "../components/ItemMarket.vue"
+import LastSales from "../components/LastSales";
 import _ from "lodash";
 
 export default {
@@ -564,6 +578,7 @@ export default {
     Item,
     ItemMarket,
     Crew,
+    LastSales,
   },
 
   metaInfo () {
@@ -615,12 +630,12 @@ export default {
       loaded: false,
       itemId: this.$route.params.id,
       item: {},
-      lastSales: [],
+      lastPlayersSales: [],
       upgrades: [],
-      showLastSalesStarbux: true,
-      showLastSalesGas: true,
-      showLastSalesMineral: true,
-      lastSalesHeaders: [
+      showLastPlayersSalesStarbux: true,
+      showLastPlayersSalesGas: true,
+      showLastPlayersSalesMineral: true,
+      lastPlayersSalesHeaders: [
         {
           text: "Date",
           align: "center",
@@ -638,8 +653,8 @@ export default {
           align: "center",
           value: "currency",
           filter: (value) => {
-            if (this.searchLastSalesCurrency.length > 0) {
-              return this.searchLastSalesCurrency.includes(value)
+            if (this.searchLastPlayersSalesCurrency.length > 0) {
+              return this.searchLastPlayersSalesCurrency.includes(value)
             }
 
             return false
@@ -670,7 +685,7 @@ export default {
           filterable: true,
         },
       ],
-      lastSalesMobileHeaders: [
+      lastPlayersSalesMobileHeaders: [
         {
           text: "Quantity",
           align: "center",
@@ -682,8 +697,8 @@ export default {
           align: "center",
           value: "currency",
           filter: (value) => {
-            if (this.searchLastSalesCurrency.length > 0) {
-              return this.searchLastSalesCurrency.includes(value)
+            if (this.searchLastPlayersSalesCurrency.length > 0) {
+              return this.searchLastPlayersSalesCurrency.includes(value)
             }
 
             return false
@@ -716,7 +731,7 @@ export default {
       ],
       tree: [],
       recipes: [],
-      lastSalesSearch: '',
+      lastPlayersSalesSearch: '',
     }
   },
 
@@ -725,18 +740,18 @@ export default {
       return !this.loaded
     },
 
-    searchLastSalesCurrency: function () {
+    searchLastPlayersSalesCurrency: function () {
       let currencies = []
 
-      if (this.showLastSalesGas) {
+      if (this.showLastPlayersSalesGas) {
         currencies.push("Gas")
       }
 
-      if (this.showLastSalesMineral) {
+      if (this.showLastPlayersSalesMineral) {
         currencies.push("Mineral")
       }
 
-      if (this.showLastSalesStarbux) {
+      if (this.showLastPlayersSalesStarbux) {
         currencies.push("Starbux")
       }
 
@@ -779,7 +794,7 @@ export default {
         }
       }
 
-      this.lastSales = response.data.lastSales
+      this.lastPlayersSales = response.data.lastPlayersSales
       this.upgrades = response.data.upgrades
 
       this.loaded = true

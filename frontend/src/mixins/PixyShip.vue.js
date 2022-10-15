@@ -25,6 +25,7 @@ export default {
       researchesEndpoint: apiServer + 'api/research',
       playersEndpoint: apiServer + 'api/players',
       tournamentEndpoint: apiServer + 'api/tournament',
+      lastSalesEndpoint: (type, id) => apiServer + `api/lastsales/${type}/${id}`,
     }
   },
 
