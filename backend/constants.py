@@ -230,3 +230,15 @@ ROOM_SHOP_TYPE_MASK = {
     '3': ['Player', 'Starbase'],
     None: ['Bux']
 }
+
+SALE_FROM_MAP = {
+    'green_cargo': 'Merchant Ship (green cargo)',
+    'promotion_valueoffer': 'Bank',
+    'blue_cargo_starbux': 'Dropship (blue cargo)',
+    'daily_rewards': 'Daily Reward',
+    'promotion_dailydealoffer': 'Bank',
+    'sale': 'Bank',
+    'shop': 'Shop',
+    'blue_cargo_mineral': 'Dropship (blue cargo)',
+    'promotion_offer': 'Bank'
+}

@@ -605,6 +605,37 @@ class PixyShip(metaclass=Singleton):
 
         return last_sales
 
+    @staticmethod
+    def get_character_last_sales(character_id, limit):
+        """Get crew last sales from database."""
+
+        sql = """
+            SELECT ds.id,
+                   ds.sale_at,
+                   ds.sale_from,
+                   ds.currency,
+                   ds.price
+            FROM daily_sale ds
+            WHERE ds.type_id = :character_id
+              AND ds.type = 'character'
+            ORDER BY ds.sale_at DESC
+            LIMIT :limit
+        """
+
+        result = db.session.execute(sql, {'character_id': character_id, 'limit': limit}).fetchall()
+        last_sales = []
+
+        for row in result:
+            last_sales.append({
+                'id': int(row[0]),
+                'date': str(row[1]),
+                'sale_from': SALE_FROM_MAP.get(row[2]),
+                'currency': row[3],
+                'price': row[4]
+            })
+
+        return last_sales
+
     def update_ships(self):
         """Get ships from API and save them in database."""
 

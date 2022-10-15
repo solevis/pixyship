@@ -148,6 +148,10 @@ export default {
       return time ? moment.utc(time).local().format('YYYY/MM/DD LT') : ''
     },
 
+    nowDate(time) {
+      return time ? moment.utc(time).local().format('YYYY/MM/DD') : ''
+    },
+
     formatTime(secs) {
       const days = Math.floor(secs / 86400)
       secs -= days * 86400

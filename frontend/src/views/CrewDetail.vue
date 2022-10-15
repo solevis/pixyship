@@ -128,76 +128,258 @@
           </v-simple-table>
         </v-col>
       </v-row>
-
-      <v-row class="mt-2 pb-2" justify="center">
-        <v-col cols="4">
-          <div class="text-center">
-            <span>Combine both for {{ character.name }}:</span>
-          </div>
-        </v-col>
-
-        <v-col cols="4">
-          <div class="text-center">
-            <span>Combine with {{ character.name }} to get:</span>
-          </div>
-        </v-col>
-      </v-row>
-
-      <v-row class="mt-1" justify="center">
-        <v-col cols="4" v-if="notEmptyObject(to)" class="mt-3">
-          <v-row
-            v-for="(olist, t) in to"
-            :key="'grouped-to-' + t"
-            class="mb-2"
-            align="center"
-          >
-            <v-col class="right-curve-border">
-              <v-row v-for="o in olist" :key="'to-' + o">
-                <v-col>
-                  <crew :char="characters[o]" name="left" tipPosition="right"/>
-                </v-col>
-              </v-row>
-            </v-col>
-
-            <v-col>
-              <crew :char="characters[t]" name="right" />
-            </v-col>
-          </v-row>
-        </v-col>
-
-        <v-col cols="4" v-else>
-          <div class="text-center">
-            <v-icon>mdi-flask-empty-off-outline</v-icon>
-          </div>
-        </v-col>
-
-        <v-col cols="4" v-if="notEmptyObject(from)" class="mt-3">
-          <v-row
-            v-for="(olist, t) in from"
-            :key="'grouped-from-' + t"
-            class="mb-2"
-            align="center"
-          >
-            <v-col class="right-curve-border">
-              <v-row v-for="o in olist" :key="'from-' + o">
-                <v-col>
-                  <crew :char="characters[o]" name="left" tipPosition="right"/>
-                </v-col>
-              </v-row>
-            </v-col>
-            <v-col>
-              <crew :char="characters[t]" name="right" />
-            </v-col>
-          </v-row>
-        </v-col>
-
-        <v-col cols="4" v-else>
-          <div class="text-center">
-            <v-icon>mdi-flask-empty-off-outline</v-icon>
-          </div>
-        </v-col>
-      </v-row>
     </template>
+
+    <!-- Small screen (infos as card and expandable prestiges) -->
+    <v-row v-else-if="loaded" justify="center">
+      <v-col>
+        <v-card v-if="loaded" outlined>
+          <v-card-title>Core Stats</v-card-title>
+          <v-card-text>
+            <span>HP: {{ character.hp[2] | statFormat(0) }}</span><br>
+            <span>Attack: {{ character.attack[2] | statFormat() }}</span><br>
+            <span>Repair: {{ character.repair[2] | statFormat() }}</span><br>
+            <span>Ability: {{ character.ability[2] | statFormat() }}</span><br>
+          </v-card-text>
+        </v-card>
+
+        <v-card v-if="loaded" outlined class="mt-2">
+          <v-card-title>Room Stats</v-card-title>
+          <v-card-text>
+            <span>Pilot: {{ character.pilot[2] | statFormat() }}</span><br>
+            <span>Science: {{ character.science[2] | statFormat() }}</span><br>
+            <span>Engine: {{ character.engine[2] | statFormat() }}</span><br>
+            <span>Weapon: {{ character.weapon[2] | statFormat() }}</span><br>
+          </v-card-text>
+        </v-card>
+
+        <v-card v-if="loaded" outlined class="mt-2">
+          <v-card-title>Utility Stats</v-card-title>
+          <v-card-text>
+            <span>Equip: {{ Object.values(character.equipment).join(", ") }}</span><br>
+            <span>Rarity: <span :class="['rarity', character.rarity]">{{ character.rarity }}</span></span><br>
+
+            <div v-if="character.special_ability">Special: {{ character.special_ability }} <div :style="spriteStyle(character.ability_sprite)" class="center d-inline-block"></div></div>
+            <div v-if="character.collection_name">Set: {{ character.collection_name }} <div :style="spriteStyle(character.collection_sprite)" class="center d-inline-block"></div></div>
+
+            <!-- Fire -->
+            <span>Fire Resist: {{ character.fire_resist }}</span><br>
+
+            <!-- Training -->
+            <span>Training: {{ character.training_limit }}</span><br>
+
+            <!-- Speed -->
+            <span>Walk/Run Speed: {{ `${character.walk}/${character.run}` }}</span><br>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="loaded" justify="center">
+      <v-col cols="12" sm="8">
+        <v-tabs v-if="loaded" grow show-arrows center-active v-model="activeTab" class="mt-4">
+          <v-tab href="#tab-prestiges"
+            ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Prestiges</span></v-tab
+          >
+          <v-tab href="#tab-sales"
+            ><v-icon left>mdi-sale</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
+          >
+        </v-tabs>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="loaded" justify="center">
+      <v-col cols="12">
+        <v-tabs-items v-model="activeTab" touchless>
+          <v-tab-item value="tab-prestiges">
+            <v-card flat>
+              <!-- Large screen (Table and prestiges side by side) -->
+              <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
+                <v-row class="mt-2 pb-2" justify="center">
+                  <v-col cols="4">
+                    <div class="text-center">
+                      <span>Combine both for {{ character.name }}:</span>
+                    </div>
+                  </v-col>
+
+                  <v-col cols="4">
+                    <div class="text-center">
+                      <span>Combine with {{ character.name }} to get:</span>
+                    </div>
+                  </v-col>
+                </v-row>
+                <v-row class="mt-1" justify="center">
+                  <v-col cols="4" v-if="notEmptyObject(to)" class="mt-3">
+                    <v-row
+                      v-for="(olist, t) in to"
+                      :key="'grouped-to-' + t"
+                      class="mb-2"
+                      align="center"
+                    >
+                      <v-col class="right-curve-border">
+                        <v-row v-for="o in olist" :key="'to-' + o">
+                          <v-col>
+                            <crew :char="characters[o]" name="left" tipPosition="right"/>
+                          </v-col>
+                        </v-row>
+                      </v-col>
+
+                      <v-col>
+                        <crew :char="characters[t]" name="right" />
+                      </v-col>
+                    </v-row>
+                  </v-col>
+
+                  <v-col cols="4" v-else>
+                    <div class="text-center">
+                      <v-icon>mdi-flask-empty-off-outline</v-icon>
+                    </div>
+                  </v-col>
+
+                  <v-col cols="4" v-if="notEmptyObject(from)" class="mt-3">
+                    <v-row
+                      v-for="(olist, t) in from"
+                      :key="'grouped-from-' + t"
+                      class="mb-2"
+                      align="center"
+                    >
+                      <v-col class="right-curve-border">
+                        <v-row v-for="o in olist" :key="'from-' + o">
+                          <v-col>
+                            <crew :char="characters[o]" name="left" tipPosition="right"/>
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col>
+                        <crew :char="characters[t]" name="right" />
+                      </v-col>
+                    </v-row>
+                  </v-col>
+
+                  <v-col cols="4" v-else>
+                    <div class="text-center">
+                      <v-icon>mdi-flask-empty-off-outline</v-icon>
+                    </div>
+                  </v-col>
+                </v-row>
+              </template>
+
+              <!-- Small screen (infos as card and expandable prestiges) -->
+              <v-row v-else-if="loaded" justify="center">
+                <v-col>
+                  <v-card v-if="loaded" outlined class="mt-2 text-sm-body-2">
+                    <v-card-title>Prestige Options</v-card-title>
+                      <v-expansion-panels>
+                        <v-expansion-panel>
+                          <v-expansion-panel-header>
+                            Combine both for {{ characters[crewId].name }}:
+                          </v-expansion-panel-header>
+                          <v-expansion-panel-content>
+                            <v-row
+                              v-for="(olist, t) in to"
+                              :key="'grouped-to-' + t"
+                              class="mb-2"
+                              align="center"
+                            >
+                              <v-col>
+                                <v-row class="mb-1">
+                                  <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
+                                </v-row>
+
+                                <v-row class="ml-10" no-gutters v-for="o in olist" :key="'to-' + o">
+                                  <v-col cols="auto">
+                                    <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                                    <crew :char="characters[o]" name="right" tipPosition="right"/>
+                                  </v-col>
+                                </v-row>
+                                <v-divider class="mt-5"></v-divider>
+                              </v-col>
+                            </v-row>
+
+                            <div class="text-center" v-if="!notEmptyObject(to)">
+                              <v-icon>mdi-flask-empty-off-outline</v-icon>
+                            </div>
+                          </v-expansion-panel-content>
+                        </v-expansion-panel>
+
+                        <v-expansion-panel>
+                          <v-expansion-panel-header>
+                            Combine with {{ characters[crewId].name }} to get:
+                          </v-expansion-panel-header>
+                          <v-expansion-panel-content>
+                            <v-row
+                              v-for="(olist, t) in from"
+                              :key="'grouped-from-' + t"
+                              class="mb-2"
+                              align="center"
+                            >
+                              <v-col>
+                                <v-row class="mb-1">
+                                  <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
+                                  <v-icon style="float: left" class="mr-2">mdi-equal</v-icon>
+                                </v-row>
+
+                                <v-row class="ml-8" no-gutters v-for="o in olist" :key="'from-' + o">
+                                  <v-col cols="auto">
+                                    <span style="float: left" :class="['mr-2', character.rarity]">{{ character.name }}</span>
+                                    <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                                    <crew :char="characters[o]" name="right" tipPosition="right"/>
+                                  </v-col>
+                                </v-row>
+                                <v-divider class="mt-5"></v-divider>
+                              </v-col>
+                            </v-row>
+
+                            <div class="text-center" v-if="!notEmptyObject(from)">
+                              <v-icon>mdi-flask-empty-off-outline</v-icon>
+                            </div>
+                          </v-expansion-panel-content>
+                        </v-expansion-panel>
+                      </v-expansion-panels>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-tab-item>
+
+          <v-tab-item value="tab-sales">
+            <v-card flat>
+              <v-row v-if="loaded && lastSales.length > 0" justify="center">
+                <v-col class="text-center" cols="12" md="8" >
+                  <v-data-table
+                    mobile-breakpoint="0"
+                    :headers="lastSalesHeaders"
+                    :items="lastSales"
+                    :items-per-page="20"
+                    :footer-props="{
+                      itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
+                    }"
+                    multi-sort
+                    class="elevation-1"
+                  >
+                    <template v-slot:item="{ item }">
+                      <tr>
+                        <td>{{ nowDate(item.date) }}</td>
+                        <td>{{ item.sale_from }}</td>
+                        <td>
+                          <div
+                            class="d-inline-block"
+                            :style="currencySprite(item.currency)"
+                          />
+                        </td>
+                        <td>
+                          <span>{{ item.price }}</span>
+                        </td>
+                      </tr>
+                    </template>
+                  </v-data-table>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-tab-item>
+        </v-tabs-items>
+      </v-col>
+    </v-row>
 
     <!-- Small screen (infos as card and expandable prestiges) -->
     <v-row v-else-if="loaded" justify="center">
@@ -321,6 +503,7 @@
 import axios from "axios"
 import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Crew from "../components/Crew.vue"
+import _ from "lodash";
 
 export default {
   mixins: [PixyShipMixin],
@@ -331,6 +514,7 @@ export default {
 
   data() {
     return {
+      activeTab: "tab-prestiges",
       loaded: false,
       crewId: this.$route.params.id,
       characters: [],
@@ -339,6 +523,33 @@ export default {
       from: [],
       to: [],
       level: 40,
+      lastSales: [],
+      lastSalesHeaders: [
+        {
+          text: "Date",
+          align: "center",
+          value: "date",
+          filterable: false,
+        },
+        {
+          text: "Shop",
+          align: "center",
+          value: "sale_from",
+          filterable: false,
+        },
+        {
+          text: "Currency",
+          align: "center",
+          value: "currency",
+          filterable: false,
+        },
+        {
+          text: "Price",
+          align: "center",
+          value: "price",
+          filterable: false
+        },
+      ],
     }
   },
 
@@ -352,10 +563,36 @@ export default {
     this.getCrew()
   },
 
+  mounted: function () {
+    if (this.$route.query.activeTab) {
+      this.activeTab = this.$route.query.activeTab.trim();
+    }
+  },
+
   watch: {
     level() {
       this.updateCurrentLevel()
     },
+
+    activeTab(value) {
+      let searchParams = new URLSearchParams(window.location.search)
+
+      // no need to append activeTab to URL on default one or empty value
+      if (_.isEmpty(value) || value === 'tab-prestiges') {
+        searchParams.delete('activeTab')
+      } else {
+        searchParams.set('activeTab', value)
+      }
+
+      let queryString = searchParams.toString()
+      if (queryString) {
+        queryString = '?' + queryString
+      }
+
+      if (window.location.search !== queryString) {
+        window.history.pushState('', '', this.$route.path + queryString)
+      }
+    }
   },
 
   filters: {
@@ -421,6 +658,7 @@ export default {
 
       this.characters = characters
       this.data = response.data.data
+      this.lastSales = response.data.lastSales
 
       this.from = this.data.from
       this.to = this.data.to

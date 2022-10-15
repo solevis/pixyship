@@ -184,6 +184,7 @@ def api_research():
 def api_prestige(char_id):
     return jsonify({
         'data': pixyship.get_prestiges_from_api(char_id),
+        'lastSales': pixyship.get_character_last_sales(char_id, 50),
         'status': 'success',
     })
 
