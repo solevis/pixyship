@@ -1,10 +1,11 @@
+import json
 import math
 import re
 import time
 from collections import defaultdict, Counter
 from xml.etree import ElementTree
 
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 from config import CONFIG
 from constants import *
@@ -18,6 +19,7 @@ class PixyShip(metaclass=Singleton):
 
     def __init__(self):
         self._changes = None
+        self._last_prestiges_changes = None
         self._characters = None
         self._collections = None
         self._dailies = None
@@ -171,6 +173,14 @@ class PixyShip(metaclass=Singleton):
             self.expire_at('change', DEFAULT_EXPIRATION_DURATION)
 
         return self._changes
+
+    @property
+    def last_prestiges_changes(self):
+        if not self._last_prestiges_changes or self.expired('last_prestiges_changes'):
+            self._last_prestiges_changes = self.get_last_prestiges_changes_from_db()
+            self.expire_at('last_prestiges_changes', DEFAULT_EXPIRATION_DURATION)
+
+        return self._last_prestiges_changes
 
     @property
     def situations(self):
@@ -916,6 +926,24 @@ class PixyShip(metaclass=Singleton):
 
         return characters
 
+    def update_prestiges(self):
+        """Get prestiges from API and save them in database."""
+
+        still_presents_ids = []
+
+        for character in self.characters.values():
+            prestiges = self.get_prestiges_from_api(character['id'])
+            json_content = json.dumps({
+                'to': prestiges['to'],
+                'from': prestiges['from'],
+            }, sort_keys=True)
+
+            record_id = character['id']
+            Record.update_data('prestige', record_id, json_content, self.pixel_starships_api.server, data_as_xml=False)
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('prestige', still_presents_ids)
+
     def update_collections(self):
         """Get collections from API and save them in database."""
 
@@ -1351,13 +1379,15 @@ class PixyShip(metaclass=Singleton):
         changes = []
 
         for record in result:
-            record_data = ElementTree.fromstring(record['data']).attrib
-            sprite = self.get_object_sprite(record['type'], record['type_id'])
+            # data stored as JSON
+
+            sprite = self.get_record_sprite(record['type'], record['type_id'])
+            name = self.get_record_name(record['type'], record['type_id'])
 
             change = {
                 'type': record['type'],
                 'id': record['type_id'],
-                'name': record_data[TYPE_PSS_API_NAME_FIELD[record['type']]],
+                'name': name,
                 'changed_at': record['created_at'],
                 'data': record['data'],
                 'old_data': record['old_data'],
@@ -1377,6 +1407,17 @@ class PixyShip(metaclass=Singleton):
             changes.append(change)
 
         return changes
+
+    @staticmethod
+    def get_last_prestiges_changes_from_db():
+        """Get last prestiges changes date."""
+
+        result = db.session.query(func.max(Record.created_at)).filter_by(type='prestige', current=True).first()
+
+        if result:
+            return result[0]
+
+        return None
 
     @staticmethod
     def _format_daily_object(count, type_str, object_str, type_id):
@@ -1731,20 +1772,20 @@ class PixyShip(metaclass=Singleton):
 
         return promotions
 
-    def get_object_sprite(self, object_type, object_id, reload_on_error=True):
+    def get_record_sprite(self, record_type, type_id, reload_on_error=True):
         """Get sprite date for the given record ID."""
 
         try:
-            if object_type == 'item':
-                return self.items[object_id]['sprite']
-            if object_type == 'char':
-                return self.characters[object_id]['sprite']
-            if object_type == 'room':
-                return self.rooms[object_id]['sprite']
-            if object_type == 'ship':
-                return self.ships[object_id]['mini_ship_sprite']
-            if object_type == 'sprite':
-                return self.get_sprite_infos(object_id)
+            if record_type == 'item':
+                return self.items[type_id]['sprite']
+            if record_type == 'char' or record_type == 'prestige':
+                return self.characters[type_id]['sprite']
+            if record_type == 'room':
+                return self.rooms[type_id]['sprite']
+            if record_type == 'ship':
+                return self.ships[type_id]['mini_ship_sprite']
+            if record_type == 'sprite':
+                return self.get_sprite_infos(type_id)
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -1752,7 +1793,32 @@ class PixyShip(metaclass=Singleton):
                 self._characters = None
                 self._rooms = None
                 self._ships = None
-                return self.get_object_sprite(object_type, object_id, False)
+                return self.get_record_sprite(record_type, type_id, False)
+            else:
+                raise
+
+    def get_record_name(self, record_type, type_id, reload_on_error=True):
+        """Get sprite date for the given record ID."""
+
+        try:
+            if record_type == 'item':
+                return self.items[type_id]['name']
+            if record_type == 'char' or record_type == 'prestige':
+                return self.characters[type_id]['name']
+            if record_type == 'room':
+                return self.rooms[type_id]['name']
+            if record_type == 'ship':
+                return self.ships[type_id]['name']
+            if record_type == 'sprite':
+                return self.get_sprite_infos(type_id)['source']
+        except KeyError:
+            # happens when there's new things, reload
+            if reload_on_error:
+                self._items = None
+                self._characters = None
+                self._rooms = None
+                self._ships = None
+                return self.get_record_sprite(record_type, type_id, False)
             else:
                 raise
 

@@ -18,22 +18,27 @@ class Record(db.Model):
     url = db.Column('url', db.TEXT, nullable=False)
 
     @classmethod
-    def update_data(cls, type_str, type_id, element, url, ignore_list=None):
+    def update_data(cls, record_type, record_id, raw_data, url, ignore_list=None, data_as_xml=True):
         """Save a record to the DB with hash."""
         ignore_list = ignore_list or []
 
-        data = ElementTree.tostring(element).decode()
+        if data_as_xml:
+            data = ElementTree.tostring(raw_data).decode()
 
-        # ignore some fields for hashing
-        for i in ignore_list:
-            element.attrib.pop(i, None)
+            # ignore some fields for hashing
+            for i in ignore_list:
+                raw_data.attrib.pop(i, None)
 
-        # hash
-        md5_str = ElementTree.tostring(element).decode().replace("\n", " ")
+            # hash
+            md5_str = ElementTree.tostring(raw_data).decode().replace("\n", " ")
+        else:
+            data = raw_data
+            md5_str = data
+
         md5_hash = hashlib.md5(md5_str.encode('utf-8')).hexdigest()
 
         # check if this is already in the db as the current
-        existing = Record.query.filter_by(type=type_str, type_id=type_id, current=True).first()
+        existing = Record.query.filter_by(type=record_type, type_id=record_id, current=True).first()
 
         if existing:
             # hash is stored as uuid with extra dashes, remove them when comparing hashes
@@ -51,12 +56,12 @@ class Record(db.Model):
 
         # create the new record and save it in database
         new_record = cls(
-            type=type_str,
-            type_id=type_id,
+            type=record_type,
+            type_id=record_id,
             current=True,
             md5_hash=md5_hash,
             data=data,
-            url=url
+            url=url,
         )
 
         db.session.add(new_record)

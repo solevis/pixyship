@@ -13,6 +13,9 @@ frontend: update-browsers npm-build
 assets:
 	@docker compose exec -w /app pixyship-backend python importer.py --assets
 
+prestiges:
+	@docker compose exec -w /app pixyship-backend python importer.py --prestiges
+
 players:
 	@docker compose exec -w /app pixyship-backend python importer.py --players
 

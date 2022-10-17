@@ -3,6 +3,10 @@
     <v-card-title class="overline">> Changes</v-card-title>
     <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
 
+    <v-card-subtitle v-if="this.lastPrestigesChanges">
+      Last prestiges changes: <b>{{ this.lastPrestigesChanges }}</b>
+    </v-card-subtitle>
+
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
@@ -184,6 +188,7 @@ export default {
       labLevers: [],
       loaded: false,
       changes: [],
+      lastPrestigesChanges: null,
       headers: [
         {
           text: 'Image',
@@ -321,6 +326,8 @@ export default {
       })
 
       this.changes = changes
+      this.lastPrestigesChanges = this.nowTime(response.data.lastprestigeschanges)
+
       this.updateFilters()
 
       this.loaded = true

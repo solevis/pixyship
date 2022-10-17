@@ -71,7 +71,8 @@
               <p>
                 Most Recent: {{ nowTime(this.changeLatest) }}<br />
                 Today: {{ this.changesToday }}<br />
-                This Week: {{ this.changesThisWeek }}
+                This Week: {{ this.changesThisWeek }}<br />
+                <span v-if="this.lastPrestigesChanges">Last Prestiges Changes: {{ this.lastPrestigesChanges }}</span>
               </p>
             </v-card-text>
 
@@ -433,7 +434,8 @@
               <p>
                 Most Recent: {{ nowTime(this.changeLatest) }}<br />
                 Today: {{ this.changesToday }}<br />
-                This Week: {{ this.changesThisWeek }}
+                This Week: {{ this.changesThisWeek }}<br>
+                <span v-if="this.lastPrestigesChanges">Last Prestiges Changes: {{ this.lastPrestigesChanges }}</span>
               </p>
             </v-card-text>
 
@@ -483,6 +485,7 @@ export default {
       tournamentNews: null,
       offers: [],
       changes: [],
+      lastPrestigesChanges: null,
       changeLatest: null,
       changesToday: 0,
       changesYesterday: 0,
@@ -577,6 +580,7 @@ export default {
         ...this.changes.map((change) => change.moment)
       )
 
+      this.lastPrestigesChanges = this.nowTime(changes.data.lastprestigeschanges)
       this.changesLoaded = true
     },
 

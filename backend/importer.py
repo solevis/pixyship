@@ -120,6 +120,18 @@ def import_assets():
 
     logger.info('Done')
 
+def import_prestiges():
+    """Import prestiges for checking changes."""
+
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixyship = PixyShip()
+
+    logger.info('Importing prestiges...')
+    pixyship.update_prestiges()
+
+    logger.info('Done')
 
 def import_daily_sales():
     """Get all items, crews, rooms, ships on sale today and save them in database."""
@@ -482,6 +494,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--assets", action="store_true")
     parser.add_argument("--players", action="store_true")
+    parser.add_argument("--prestiges", action="store_true")
     parser.add_argument("--market", action="store_true")
     parser.add_argument("--market-first-item", action="store_true")
     parser.add_argument("--market-one-item", type=int)
@@ -550,4 +563,10 @@ if __name__ == '__main__':
         with Timer() as t:
             logger.info('START')
             import_market_messages(item=args.market_messages_one_item)
+            logger.info('END :: {}s'.format(t.elapsed))
+
+    if args.prestiges:
+        with Timer() as t:
+            logger.info('START')
+            import_prestiges()
             logger.info('END :: {}s'.format(t.elapsed))

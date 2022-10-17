@@ -146,8 +146,11 @@ def api_daily():
 @app.route('/api/changes')
 @enforce_source
 def api_changes():
+    last_prestiges_changes = pixyship.last_prestiges_changes
+
     return jsonify({
         'data': pixyship.changes,
+        'lastprestigeschanges': last_prestiges_changes,
         'status': 'success',
     })
 
