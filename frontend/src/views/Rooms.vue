@@ -433,10 +433,15 @@ export default {
               return true
             }
 
-            const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim())
-            })
-            
+            let ids = []
+            if (typeof query.ids === 'number') {
+              ids.push(query.ids)
+            } else {
+               ids = query.ids.split(',').map(function(id) {
+                return parseInt(id.trim())
+              })
+            }
+
             return ids.includes(value)
           }
         },
