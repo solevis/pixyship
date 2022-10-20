@@ -234,6 +234,40 @@
               </v-col>
             </v-row>
 
+            <v-row class="mx-2" v-if="item.requirements">
+              <v-col cols="12">
+                <v-card
+                    elevation="3"
+                    outlined
+                    shaped
+                  >
+
+                  <v-card-subtitle>
+                    <div class="overline">
+                      Requirements
+                    </div>
+                  </v-card-subtitle>
+
+                  <div class="px-4 pb-2">
+                    <v-chip-group
+                        column
+                        max="0"
+                        class="ma2"
+                    >
+                      <v-chip
+                          v-for="requirement in item.requirements" :key="requirement.object.id"
+                          link
+                          outlined
+                          :to="{ name: 'Rooms', query: { ids: requirement.object.id }}"
+                      >
+                        x{{ requirement.count }} {{ requirement.object.name }}
+                      </v-chip>
+                    </v-chip-group>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="primary" text @click="openShipInBuilder(item.id)">Open in Builder</v-btn>

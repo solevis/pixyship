@@ -1,3 +1,4 @@
+import html
 import json
 import math
 import re
@@ -218,6 +219,9 @@ class PixyShip(metaclass=Singleton):
 
     def get_object(self, object_type, object_id, reload_on_error=True):
         """Get PixyShip object from given PSS API type (LimitedCatalogType for example)."""
+
+        if object_type == 'Allrooms':
+            object_type = 'Room'
 
         try:
             if object_type == 'Item':
@@ -695,6 +699,7 @@ class PixyShip(metaclass=Singleton):
                 'gas_capacity': ship['GasCapacity'],
                 'equipment_capacity': ship['EquipmentCapacity'],
                 'ship_type': ship['ShipType'],
+                'requirements': self._parse_requirements(ship['RequirementString']),
             }
 
         return ships
@@ -1438,8 +1443,19 @@ class PixyShip(metaclass=Singleton):
             'currency': currency,
         }
 
+    def _parse_requirements(self, requirements_string):
+        """Parse several requirements assets."""
+
+        if not requirements_string:
+            return None
+
+        requirements_string = html.unescape(requirements_string)
+        unparsed_requirements = requirements_string.split('&&')
+
+        return [self._parse_requirement(unparsed_requirement.strip()) for unparsed_requirement in unparsed_requirements]
+
     def _parse_requirement(self, requirement_string):
-        """Split requirements into items."""
+        """Parse requirement asset."""
 
         if not requirement_string:
             return None
