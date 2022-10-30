@@ -2,12 +2,12 @@
   <v-tooltip :disabled="!show" top color="grey darken-3">
     <template v-slot:activator="{ on, attrs }">
       <component :is="disableLink ? 'span' : 'a'" :href="`/item/${item.id}`" v-bind="attrs" v-on="on" :aria-label="item.name" class="item-link">
-        <div>
+        <div :class="name === 'bottom' ? 'text-center' : ''">
           <div v-if="!name" :aria-label="item.name">
               <div class="item-sprite" :style="spriteStyle(item.sprite)"></div>
           </div>
 
-          <table v-else :aria-label="item.name">
+          <table v-else :aria-label="item.name" class="d-inline-block">
             <tr v-if="name === 'top'" class="nobreak">
               <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
             </tr>

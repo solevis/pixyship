@@ -1,20 +1,21 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
-    <v-card-title v-if="!loaded"> Loading... </v-card-title>
+    <v-card-title v-if="!loaded"> Loading...</v-card-title>
 
     <!-- Crew sprite -->
     <v-card-title v-if="loaded">
       <div class="mx-auto">
-        <crew :char="character" :tip="false" name="bottom" />
+        <crew :char="character" :tip="false" name="bottom"/>
+        <sprites-button :object="character" type="char" />
       </div>
     </v-card-title>
 
     <v-row justify="center" v-if="loaded">
-        <v-col cols="8">
-          <div class="text-center">
-            <q class="font-italic">{{ character.description }}</q>
-          </div>
-        </v-col>
+      <v-col cols="8">
+        <div class="text-center">
+          <q class="font-italic">{{ character.description }}</q>
+        </div>
+      </v-col>
     </v-row>
 
     <!-- Large screen (Table and prestiges side by side) -->
@@ -24,29 +25,29 @@
           <v-simple-table v-if="loaded" class="px-3">
             <template v-slot:default>
               <thead>
-                <tr>
-                  <th class="text-left">Level</th>
-                  <th class="text-left">Equip</th>
-                  <th class="text-left">Rarity</th>
-                  <th class="text-left">Special</th>
-                  <th class="text-left">Set</th>
-                  <th class="text-left">HP</th>
-                  <th class="text-left">ATK</th>
-                  <th class="text-left">RPR</th>
-                  <th class="text-left">ABL</th>
-                  <th class="text-left">PLT</th>
-                  <th class="text-left">SCI</th>
-                  <th class="text-left">ENG</th>
-                  <th class="text-left">WPN</th>
-                  <th class="text-left">Fire</th>
-                  <th class="text-left">Training</th>
-                  <th class="text-left">Speed</th>
-                </tr>
+              <tr>
+                <th class="text-left">Level</th>
+                <th class="text-left">Equip</th>
+                <th class="text-left">Rarity</th>
+                <th class="text-left">Special</th>
+                <th class="text-left">Set</th>
+                <th class="text-left">HP</th>
+                <th class="text-left">ATK</th>
+                <th class="text-left">RPR</th>
+                <th class="text-left">ABL</th>
+                <th class="text-left">PLT</th>
+                <th class="text-left">SCI</th>
+                <th class="text-left">ENG</th>
+                <th class="text-left">WPN</th>
+                <th class="text-left">Fire</th>
+                <th class="text-left">Training</th>
+                <th class="text-left">Speed</th>
+              </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <v-text-field
+              <tr>
+                <td>
+                  <v-text-field
                       v-model="level"
                       type="number"
                       min="1"
@@ -54,75 +55,75 @@
                       single-line
                       :value="level"
                       style="width: 50px;"
-                    ></v-text-field>
-                  </td>
-                  <!-- Equip -->
-                  <td>
-                    <div class="ps-left equip">
-                      <div v-for="k in character.equipment" :key="k">
-                        {{ k }}
-                      </div>
+                  ></v-text-field>
+                </td>
+                <!-- Equip -->
+                <td>
+                  <div class="ps-left equip">
+                    <div v-for="k in character.equipment" :key="k">
+                      {{ k }}
                     </div>
-                  </td>
+                  </div>
+                </td>
 
-                  <!-- Rarity -->
-                  <td>
-                    <div :class="['rarity', character.rarity]">
-                      {{ character.rarity }}
-                    </div>
-                  </td>
+                <!-- Rarity -->
+                <td>
+                  <div :class="['rarity', character.rarity]">
+                    {{ character.rarity }}
+                  </div>
+                </td>
 
-                  <td>
-                    <div class="special-ability">
-                      <v-tooltip bottom color="blue-grey">
-                        <template v-slot:activator="{ on, attrs }">
-                          <div
+                <td>
+                  <div class="special-ability">
+                    <v-tooltip bottom color="blue-grey">
+                      <template v-slot:activator="{ on, attrs }">
+                        <div
                             v-bind="attrs"
                             v-on="on"
                             :style="spriteStyle(character.ability_sprite)"
-                          ></div>
-                        </template>
-                        {{ character.special_ability }}
-                      </v-tooltip>
-                    </div>
-                  </td>
+                        ></div>
+                      </template>
+                      {{ character.special_ability }}
+                    </v-tooltip>
+                  </div>
+                </td>
 
-                  <!-- Collection -->
-                  <td>
-                    <v-tooltip v-if="character.collection_sprite" bottom color="blue-grey">
-                      <template v-slot:activator="{ on, attrs }">
-                        <div
+                <!-- Collection -->
+                <td>
+                  <v-tooltip v-if="character.collection_sprite" bottom color="blue-grey">
+                    <template v-slot:activator="{ on, attrs }">
+                      <div
                           v-bind="attrs"
                           v-on="on"
                           :style="spriteStyle(character.collection_sprite)"
                           class="center"
-                        ></div>
-                      </template>
-                      {{ character.collection_name }}
-                    </v-tooltip>
-                  </td>
+                      ></div>
+                    </template>
+                    {{ character.collection_name }}
+                  </v-tooltip>
+                </td>
 
-                  <!-- Stats -->
-                  <td>{{ character.hp[2] | statFormat(0) }}</td>
-                  <td>{{ character.attack[2] | statFormat() }}</td>
-                  <td>{{ character.repair[2] | statFormat() }}</td>
-                  <td>{{ character.ability[2] | statFormat() }}</td>
-                  <td>{{ character.pilot[2] | statFormat() }}</td>
-                  <td>{{ character.science[2] | statFormat() }}</td>
-                  <td>{{ character.engine[2] | statFormat() }}</td>
-                  <td>{{ character.weapon[2] | statFormat() }}</td>
+                <!-- Stats -->
+                <td>{{ character.hp[2] | statFormat(0) }}</td>
+                <td>{{ character.attack[2] | statFormat() }}</td>
+                <td>{{ character.repair[2] | statFormat() }}</td>
+                <td>{{ character.ability[2] | statFormat() }}</td>
+                <td>{{ character.pilot[2] | statFormat() }}</td>
+                <td>{{ character.science[2] | statFormat() }}</td>
+                <td>{{ character.engine[2] | statFormat() }}</td>
+                <td>{{ character.weapon[2] | statFormat() }}</td>
 
-                  <!-- Fire -->
-                  <td>{{ character.fire_resist }}</td>
+                <!-- Fire -->
+                <td>{{ character.fire_resist }}</td>
 
-                  <!-- Training -->
-                  <td>{{ character.training_limit }}</td>
+                <!-- Training -->
+                <td>{{ character.training_limit }}</td>
 
-                  <!-- Speed -->
-                  <td>
-                    <div>{{ `${character.walk}:${character.run}` }}</div>
-                  </td>
-                </tr>
+                <!-- Speed -->
+                <td>
+                  <div>{{ `${character.walk}:${character.run}` }}</div>
+                </td>
+              </tr>
               </tbody>
             </template>
           </v-simple-table>
@@ -159,8 +160,12 @@
             <span>Equip: {{ Object.values(character.equipment).join(", ") }}</span><br>
             <span>Rarity: <span :class="['rarity', character.rarity]">{{ character.rarity }}</span></span><br>
 
-            <div v-if="character.special_ability">Special: {{ character.special_ability }} <div :style="spriteStyle(character.ability_sprite)" class="center d-inline-block"></div></div>
-            <div v-if="character.collection_name">Set: {{ character.collection_name }} <div :style="spriteStyle(character.collection_sprite)" class="center d-inline-block"></div></div>
+            <div v-if="character.special_ability">Special: {{ character.special_ability }}
+              <div :style="spriteStyle(character.ability_sprite)" class="center d-inline-block"></div>
+            </div>
+            <div v-if="character.collection_name">Set: {{ character.collection_name }}
+              <div :style="spriteStyle(character.collection_sprite)" class="center d-inline-block"></div>
+            </div>
 
             <!-- Fire -->
             <span>Fire Resist: {{ character.fire_resist }}</span><br>
@@ -179,10 +184,14 @@
       <v-col cols="12" sm="8">
         <v-tabs v-if="loaded" grow show-arrows center-active v-model="activeTab" class="mt-4">
           <v-tab href="#tab-prestiges"
-            ><v-icon left>mdi-sitemap</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Prestiges</span></v-tab
+          >
+            <v-icon left>mdi-sitemap</v-icon>
+            <span v-if="$vuetify.breakpoint.mdAndUp">Prestiges</span></v-tab
           >
           <v-tab href="#tab-last-sales"
-            ><v-icon left>mdi-history</v-icon><span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
+          >
+            <v-icon left>mdi-history</v-icon>
+            <span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
           >
         </v-tabs>
       </v-col>
@@ -211,10 +220,10 @@
                 <v-row class="mt-1" justify="center">
                   <v-col cols="4" v-if="notEmptyObject(to)" class="mt-3">
                     <v-row
-                      v-for="(olist, t) in to"
-                      :key="'grouped-to-' + t"
-                      class="mb-2"
-                      align="center"
+                        v-for="(olist, t) in to"
+                        :key="'grouped-to-' + t"
+                        class="mb-2"
+                        align="center"
                     >
                       <v-col class="right-curve-border">
                         <v-row v-for="o in olist" :key="'to-' + o">
@@ -225,7 +234,7 @@
                       </v-col>
 
                       <v-col>
-                        <crew :char="characters[t]" name="right" />
+                        <crew :char="characters[t]" name="right"/>
                       </v-col>
                     </v-row>
                   </v-col>
@@ -238,10 +247,10 @@
 
                   <v-col cols="4" v-if="notEmptyObject(from)" class="mt-3">
                     <v-row
-                      v-for="(olist, t) in from"
-                      :key="'grouped-from-' + t"
-                      class="mb-2"
-                      align="center"
+                        v-for="(olist, t) in from"
+                        :key="'grouped-from-' + t"
+                        class="mb-2"
+                        align="center"
                     >
                       <v-col class="right-curve-border">
                         <v-row v-for="o in olist" :key="'from-' + o">
@@ -251,7 +260,7 @@
                         </v-row>
                       </v-col>
                       <v-col>
-                        <crew :char="characters[t]" name="right" />
+                        <crew :char="characters[t]" name="right"/>
                       </v-col>
                     </v-row>
                   </v-col>
@@ -269,73 +278,77 @@
                 <v-col>
                   <v-card v-if="loaded" outlined class="mt-2 text-sm-body-2">
                     <v-card-title>Prestige Options</v-card-title>
-                      <v-expansion-panels>
-                        <v-expansion-panel>
-                          <v-expansion-panel-header>
-                            Combine both for {{ characters[crewId].name }}:
-                          </v-expansion-panel-header>
-                          <v-expansion-panel-content>
-                            <v-row
+                    <v-expansion-panels>
+                      <v-expansion-panel>
+                        <v-expansion-panel-header>
+                          Combine both for {{ characters[crewId].name }}:
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          <v-row
                               v-for="(olist, t) in to"
                               :key="'grouped-to-' + t"
                               class="mb-2"
                               align="center"
-                            >
-                              <v-col>
-                                <v-row class="mb-1">
-                                  <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
-                                </v-row>
+                          >
+                            <v-col>
+                              <v-row class="mb-1">
+                                <v-col cols="auto">
+                                  <crew :char="characters[t]" name="right"/>
+                                </v-col>
+                              </v-row>
 
-                                <v-row class="ml-10" no-gutters v-for="o in olist" :key="'to-' + o">
-                                  <v-col cols="auto">
-                                    <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
-                                    <crew :char="characters[o]" name="right" tipPosition="right"/>
-                                  </v-col>
-                                </v-row>
-                                <v-divider class="mt-5"></v-divider>
-                              </v-col>
-                            </v-row>
+                              <v-row class="ml-10" no-gutters v-for="o in olist" :key="'to-' + o">
+                                <v-col cols="auto">
+                                  <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                                  <crew :char="characters[o]" name="right" tipPosition="right"/>
+                                </v-col>
+                              </v-row>
+                              <v-divider class="mt-5"></v-divider>
+                            </v-col>
+                          </v-row>
 
-                            <div class="text-center" v-if="!notEmptyObject(to)">
-                              <v-icon>mdi-flask-empty-off-outline</v-icon>
-                            </div>
-                          </v-expansion-panel-content>
-                        </v-expansion-panel>
+                          <div class="text-center" v-if="!notEmptyObject(to)">
+                            <v-icon>mdi-flask-empty-off-outline</v-icon>
+                          </div>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
 
-                        <v-expansion-panel>
-                          <v-expansion-panel-header>
-                            Combine with {{ characters[crewId].name }} to get:
-                          </v-expansion-panel-header>
-                          <v-expansion-panel-content>
-                            <v-row
+                      <v-expansion-panel>
+                        <v-expansion-panel-header>
+                          Combine with {{ characters[crewId].name }} to get:
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          <v-row
                               v-for="(olist, t) in from"
                               :key="'grouped-from-' + t"
                               class="mb-2"
                               align="center"
-                            >
-                              <v-col>
-                                <v-row class="mb-1">
-                                  <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
-                                  <v-icon style="float: left" class="mr-2">mdi-equal</v-icon>
-                                </v-row>
+                          >
+                            <v-col>
+                              <v-row class="mb-1">
+                                <v-col cols="auto">
+                                  <crew :char="characters[t]" name="right"/>
+                                </v-col>
+                                <v-icon style="float: left" class="mr-2">mdi-equal</v-icon>
+                              </v-row>
 
-                                <v-row class="ml-8" no-gutters v-for="o in olist" :key="'from-' + o">
-                                  <v-col cols="auto">
-                                    <span style="float: left" :class="['mr-2', character.rarity]">{{ character.name }}</span>
-                                    <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
-                                    <crew :char="characters[o]" name="right" tipPosition="right"/>
-                                  </v-col>
-                                </v-row>
-                                <v-divider class="mt-5"></v-divider>
-                              </v-col>
-                            </v-row>
+                              <v-row class="ml-8" no-gutters v-for="o in olist" :key="'from-' + o">
+                                <v-col cols="auto">
+                                  <span style="float: left" :class="['mr-2', character.rarity]">{{ character.name }}</span>
+                                  <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                                  <crew :char="characters[o]" name="right" tipPosition="right"/>
+                                </v-col>
+                              </v-row>
+                              <v-divider class="mt-5"></v-divider>
+                            </v-col>
+                          </v-row>
 
-                            <div class="text-center" v-if="!notEmptyObject(from)">
-                              <v-icon>mdi-flask-empty-off-outline</v-icon>
-                            </div>
-                          </v-expansion-panel-content>
-                        </v-expansion-panel>
-                      </v-expansion-panels>
+                          <div class="text-center" v-if="!notEmptyObject(from)">
+                            <v-icon>mdi-flask-empty-off-outline</v-icon>
+                          </div>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
                   </v-card>
                 </v-col>
               </v-row>
@@ -345,7 +358,7 @@
           <v-tab-item value="tab-last-sales">
             <v-card flat>
               <v-row justify="center">
-                <v-col class="text-center" cols="12" md="8" >
+                <v-col class="text-center" cols="12" md="8">
                   <last-sales type="character" :type-id="character.id"></last-sales>
                 </v-col>
               </v-row>
@@ -384,9 +397,13 @@
             <span>Equip: {{ Object.values(character.equipment).join(", ") }}</span><br>
             <span>Rarity: <span :class="['rarity', character.rarity]">{{ character.rarity }}</span></span><br>
 
-            <div v-if="character.special_ability">Special: {{ character.special_ability }} <div :style="spriteStyle(character.ability_sprite)" class="center d-inline-block"></div></div>
-            <div v-if="character.collection_name">Set: {{ character.collection_name }} <div :style="spriteStyle(character.collection_sprite)" class="center d-inline-block"></div></div>
-            
+            <div v-if="character.special_ability">Special: {{ character.special_ability }}
+              <div :style="spriteStyle(character.ability_sprite)" class="center d-inline-block"></div>
+            </div>
+            <div v-if="character.collection_name">Set: {{ character.collection_name }}
+              <div :style="spriteStyle(character.collection_sprite)" class="center d-inline-block"></div>
+            </div>
+
             <!-- Fire -->
             <span>Fire Resist: {{ character.fire_resist }}</span><br>
 
@@ -400,73 +417,77 @@
 
         <v-card v-if="loaded" outlined class="mt-2 text-sm-body-2">
           <v-card-title>Prestige Options</v-card-title>
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-header>
-                  Combine both for {{ characters[crewId].name }}:
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <v-row
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                Combine both for {{ characters[crewId].name }}:
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-row
                     v-for="(olist, t) in to"
                     :key="'grouped-to-' + t"
                     class="mb-2"
                     align="center"
-                  >
-                    <v-col>
-                      <v-row class="mb-1">
-                        <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
-                      </v-row>
+                >
+                  <v-col>
+                    <v-row class="mb-1">
+                      <v-col cols="auto">
+                        <crew :char="characters[t]" name="right"/>
+                      </v-col>
+                    </v-row>
 
-                      <v-row class="ml-10" no-gutters v-for="o in olist" :key="'to-' + o">
-                        <v-col cols="auto">
-                          <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
-                          <crew :char="characters[o]" name="right" tipPosition="right"/>
-                        </v-col>
-                      </v-row>
-                      <v-divider class="mt-5"></v-divider>
-                    </v-col>
-                  </v-row>
+                    <v-row class="ml-10" no-gutters v-for="o in olist" :key="'to-' + o">
+                      <v-col cols="auto">
+                        <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                        <crew :char="characters[o]" name="right" tipPosition="right"/>
+                      </v-col>
+                    </v-row>
+                    <v-divider class="mt-5"></v-divider>
+                  </v-col>
+                </v-row>
 
-                  <div class="text-center" v-if="!notEmptyObject(to)">
-                    <v-icon>mdi-flask-empty-off-outline</v-icon>
-                  </div>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
+                <div class="text-center" v-if="!notEmptyObject(to)">
+                  <v-icon>mdi-flask-empty-off-outline</v-icon>
+                </div>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-              <v-expansion-panel>
-                <v-expansion-panel-header>
-                  Combine with {{ characters[crewId].name }} to get:
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <v-row
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                Combine with {{ characters[crewId].name }} to get:
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-row
                     v-for="(olist, t) in from"
                     :key="'grouped-from-' + t"
                     class="mb-2"
                     align="center"
-                  >
-                    <v-col>
-                      <v-row class="mb-1">
-                        <v-col cols="auto"><crew :char="characters[t]" name="right" /></v-col>
-                        <v-icon style="float: left" class="mr-2">mdi-equal</v-icon>
-                      </v-row>
+                >
+                  <v-col>
+                    <v-row class="mb-1">
+                      <v-col cols="auto">
+                        <crew :char="characters[t]" name="right"/>
+                      </v-col>
+                      <v-icon style="float: left" class="mr-2">mdi-equal</v-icon>
+                    </v-row>
 
-                      <v-row class="ml-8" no-gutters v-for="o in olist" :key="'from-' + o">
-                        <v-col cols="auto">
-                          <span style="float: left" :class="['mr-2', character.rarity]">{{ character.name }}</span>
-                          <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
-                          <crew :char="characters[o]" name="right" tipPosition="right"/>
-                        </v-col>
-                      </v-row>
-                      <v-divider class="mt-5"></v-divider>
-                    </v-col>
-                  </v-row>
+                    <v-row class="ml-8" no-gutters v-for="o in olist" :key="'from-' + o">
+                      <v-col cols="auto">
+                        <span style="float: left" :class="['mr-2', character.rarity]">{{ character.name }}</span>
+                        <v-icon style="float: left" class="mr-2">mdi-plus</v-icon>
+                        <crew :char="characters[o]" name="right" tipPosition="right"/>
+                      </v-col>
+                    </v-row>
+                    <v-divider class="mt-5"></v-divider>
+                  </v-col>
+                </v-row>
 
-                  <div class="text-center" v-if="!notEmptyObject(from)">
-                    <v-icon>mdi-flask-empty-off-outline</v-icon>
-                  </div>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
+                <div class="text-center" v-if="!notEmptyObject(from)">
+                  <v-icon>mdi-flask-empty-off-outline</v-icon>
+                </div>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card>
       </v-col>
     </v-row>
@@ -479,11 +500,13 @@ import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Crew from "../components/Crew.vue"
 import _ from "lodash";
 import LastSales from "../components/LastSales";
+import SpritesButton from "@/components/SpritesButton";
 
 export default {
   mixins: [PixyShipMixin],
 
   components: {
+    SpritesButton,
     LastSales,
     Crew,
   },
@@ -552,7 +575,7 @@ export default {
     },
   },
 
-  metaInfo () {
+  metaInfo() {
     return {
       title: this.character.name,
       meta: [
@@ -620,38 +643,38 @@ export default {
     updateCurrentLevel() {
       this.interpolateStat(this.character.progression_type, this.character.hp)
       this.interpolateStat(
-        this.character.progression_type,
-        this.character.attack
+          this.character.progression_type,
+          this.character.attack
       )
 
       this.interpolateStat(
-        this.character.progression_type,
-        this.character.repair
+          this.character.progression_type,
+          this.character.repair
       )
 
       this.interpolateStat(
-        this.character.progression_type,
-        this.character.ability
+          this.character.progression_type,
+          this.character.ability
       )
 
       this.interpolateStat(
-        this.character.progression_type,
-        this.character.pilot
+          this.character.progression_type,
+          this.character.pilot
       )
 
       this.interpolateStat(
-        this.character.progression_type,
-        this.character.science
+          this.character.progression_type,
+          this.character.science
       )
 
       this.interpolateStat(
-        this.character.progression_type,
-        this.character.engine
+          this.character.progression_type,
+          this.character.engine
       )
-      
+
       this.interpolateStat(
-        this.character.progression_type,
-        this.character.weapon
+          this.character.progression_type,
+          this.character.weapon
       )
     },
 

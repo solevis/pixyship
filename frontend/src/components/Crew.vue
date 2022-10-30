@@ -27,7 +27,7 @@
           <span class="count" v-if="count">&nbsp;{{ 'x' + count }}</span>
         </div>
 
-        <div v-if="name === 'bottom'" class="name" :class="[char.rarity]">
+        <div v-if="name === 'bottom'" class="name" :class="[char.rarity, 'text-center']">
           {{ char.name }}
         </div>
       </a>
