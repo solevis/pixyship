@@ -137,4 +137,6 @@ python -m pytest
 
 ## Sponsors
 
+<a href="https://jb.gg/OpenSourceSupport">
 <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="150">
+</a>
