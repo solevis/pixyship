@@ -650,6 +650,64 @@ class PixyShip(metaclass=Singleton):
 
         return last_sales
 
+    def get_last_sales_by_sale_from_from_db(self, sale_from, limit):
+        """Get last sales for given type from database."""
+
+        sql = """
+            SELECT ds.id,
+                   ds.sale_at,
+                   ds.type,
+                   ds.type_id,
+                   ds.currency,
+                   ds.price
+            FROM daily_sale ds
+            WHERE ds.sale_from IN :sale_from
+            ORDER BY ds.sale_at DESC
+            LIMIT :limit
+        """
+
+        if sale_from == "blue_cargo":
+            sale_from = ["blue_cargo_mineral", "blue_cargo_starbux"]
+        else:
+            sale_from = [sale_from]
+
+        print(sale_from)
+        result = db.session.execute(sql, {'sale_from': tuple(sale_from), 'limit': limit}).fetchall()
+        last_sales = []
+
+        for row in result:
+            object_type = str(row[2])
+            if object_type == 'character':
+                object_type = 'char'
+
+            object_id = int(row[3])
+
+            sprite = self.get_record_sprite(object_type, object_id)
+            name = self.get_record_name(object_type, object_id)
+
+            last_sale = {
+                'type': object_type,
+                'id': object_id,
+                'name': name,
+                'sprite': sprite,
+                'currency': row[4],
+                'price': row[5],
+                'date': str(row[1]),
+            }
+
+            # if it's a Character, get all infos of the crew
+            if object_type == 'char':
+                last_sale['char'] = self.characters[object_id]
+
+            # if it's an Item, get all infos of the item
+            if object_type == 'item':
+                item = self.items[object_id]
+                last_sale['item'] = PixyShip._create_light_item(item)
+
+            last_sales.append(last_sale)
+
+        return last_sales
+
     def update_ships(self):
         """Get ships from API and save them in database."""
 

@@ -113,6 +113,15 @@
                     <div class="block middle" :style="buxSprite()"></div>
                 </div>
             </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                  text
+                  to="/dailysales/blue_cargo"
+              >
+                History
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
 
@@ -155,6 +164,14 @@
                 <div style="clear: both" class="pt-2"></div>
               </div>
             </v-card-text>
+            <v-card-actions>
+              <v-btn
+                  text
+                  to="/dailysales/daily_rewards"
+              >
+                History
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
 
@@ -209,6 +226,15 @@
                 <div>Expire at {{ nowTime(this.offers.shop.expires) }}</div>
               </div>
             </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                  text
+                  to="/dailysales/shop"
+              >
+                History
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
@@ -264,6 +290,15 @@
 
               </div>
             </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                  text
+                  to="/dailysales/green_cargo"
+              >
+                History
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
 
@@ -371,6 +406,15 @@
               <span class="small font-italic">*Price may differ depending of your country currency.</span>
             </v-card-text>
 
+            <v-card-actions>
+              <v-btn
+                  text
+                  to="/dailysales/promotion_dailydealoffer"
+              >
+                History
+              </v-btn>
+            </v-card-actions>
+
           </v-card>
         </v-col>
 
@@ -421,6 +465,15 @@
             <v-card-text v-else>
               No "Daily Special" sale today.
             </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                  text
+                  to="/dailysales/sale"
+              >
+                History
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
 

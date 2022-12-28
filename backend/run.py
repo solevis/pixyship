@@ -266,7 +266,16 @@ def api_ships():
 @app.route('/api/lastsales/<path:type>/<int:type_id>')
 @enforce_source
 def api_last_sales(type, type_id):
-    last_sales = pixyship.get_last_sales_from_db(type, type_id, 50)
+    last_sales = pixyship.get_last_sales_from_db(type, type_id, 1000)
+    return jsonify({
+        'data': last_sales,
+        'status': 'success',
+    })
+
+@app.route('/api/lastsalesbysalefrom/<path:sale_from>')
+@enforce_source
+def api_last_sales_by_type(sale_from):
+    last_sales = pixyship.get_last_sales_by_sale_from_from_db(sale_from, 5000)
     return jsonify({
         'data': last_sales,
         'status': 'success',

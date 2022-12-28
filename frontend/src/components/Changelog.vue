@@ -4,6 +4,26 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
+        <v-expansion-panel-header>2.5.0 &mdash; 2022-12-28</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Add button to display history of each daily sale origin (cargo, shop, etc)</li>
+              </ul>
+            </v-card-text>
+            <v-card-subtitle>Changed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Last sales by item show now 1,000 entries instead of 50</li>
+              </ul>
+            </v-card-text>
+        </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header>2.4.0 &mdash; 2022-09-14</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>
