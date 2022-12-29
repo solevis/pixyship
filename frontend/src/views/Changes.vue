@@ -1,7 +1,11 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Changes</v-card-title>
-    <v-card-subtitle>API changes for common assets of Pixel Starships</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
+
+    <v-card-subtitle v-if="this.lastPrestigesChanges">
+      Last prestiges changes: <b>{{ this.lastPrestigesChanges }}</b>
+    </v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -153,11 +157,12 @@
 <script>
 import axios from "axios"
 import moment from 'moment'
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
-import Crew from "@/components/Crew.vue"
-import Item from "@/components/Item.vue"
-import "@/assets/css/override.css"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import Crew from "../components/Crew.vue"
+import Item from "../components/Item.vue"
+import "../assets/css/override.css"
+import _ from 'lodash'
 
 const convert = require('xml-js')
 
@@ -171,6 +176,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "API and sprites changes for common assets of Pixel Starships",
       itemsPerPage: 20,
       searchName: '',
       defaultSearchDate: new Date().toISOString().substr(0, 10),
@@ -182,6 +188,7 @@ export default {
       labLevers: [],
       loaded: false,
       changes: [],
+      lastPrestigesChanges: null,
       headers: [
         {
           text: 'Image',
@@ -227,8 +234,47 @@ export default {
     },
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {
@@ -237,9 +283,9 @@ export default {
   },
 
   watch: {
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchDate(value) {
       if (value === this.defaultSearchDate) {
@@ -280,6 +326,8 @@ export default {
       })
 
       this.changes = changes
+      this.lastPrestigesChanges = this.nowTime(response.data.lastprestigeschanges)
+
       this.updateFilters()
 
       this.loaded = true

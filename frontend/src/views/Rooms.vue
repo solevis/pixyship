@@ -1,12 +1,12 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Rooms </v-card-title>
-    <v-card-subtitle>All Pixel Starships rooms (click on a row to display more infos)</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }} (click on a row to display more infos)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="12" sm="12" md="4">
+        <v-col cols="12" sm="12" md="2">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -15,19 +15,6 @@
             clearable
             outlined
           ></v-text-field>
-        </v-col>
-        <v-col cols="12" sm="6" md="2">
-          <v-autocomplete
-            v-model="searchLevel"
-            :items="levels"
-            label="Level"
-            clearable
-            outlined
-            multiple
-            small-chips
-            hide-details
-            :value-comparator="filterValueComparator"
-          ></v-autocomplete>
         </v-col>
         <v-col cols="12" sm="6" md="2">
           <v-autocomplete
@@ -60,6 +47,31 @@
             v-model="searchType"
             :items="types"
             label="Type"
+            clearable
+            outlined
+            multiple
+            small-chips
+            hide-details
+            :value-comparator="filterValueComparator"
+          ></v-autocomplete>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-autocomplete
+            v-model="searchSkin"
+            :items="skins"
+            label="Skin"
+            clearable
+            outlined
+            small-chips
+            hide-details
+            :value-comparator="filterValueComparator"
+          ></v-autocomplete>
+        </v-col>
+        <v-col cols="12" sm="6" md="2">
+          <v-autocomplete
+            v-model="searchShopType"
+            :items="shopTypes"
+            label="Shop Type"
             clearable
             outlined
             multiple
@@ -105,6 +117,9 @@
                 <div :class="[item.rarity, 'lh-9', 'name']">
                   {{ item.name }}
                 </div>
+                <div if="item.base_room_name" class="small font-italic">
+                  {{ item.base_room_name }}
+                </div>
               </td>
 
               <td>
@@ -113,7 +128,17 @@
                 </div>
               </td>
 
+              <td>
+                {{ item.skin }}
+              </td>
+
               <td>{{ item.type }}</td>
+              <td>
+                <div v-for="k in item.shop_type" :key="item.id + k">
+                {{ k }}
+              </div>
+              </td>
+
               <td>{{ `${item.width}x${item.height}` }}</td>
 
               <td>{{ item.level }}</td>
@@ -131,7 +156,7 @@
                 </div>
               </td>
               <td align="center">
-                <table v-if="item.purchasable">
+                <table v-if="item.upgrade_cost">
                   <tr class="nobreak">
                     <td>
                       <div :style="currencySprite(item.upgrade_currency)" />
@@ -177,6 +202,10 @@
                       </tr>
                     </thead>
                     <tbody>
+                      <tr v-if="item.base_room_id">
+                        <td>Base room</td>
+                        <td><a :href="`/rooms?ids=${item.base_room_id}`">{{ item.base_room_name }}</a></td>
+                      </tr>
                       
                       <tr v-show="item.enhancement_type != 'None'">
                         <td>Support Stat</td>
@@ -360,10 +389,11 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
-import Item from "@/components/Item.vue"
-import "@/assets/css/override.css"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import Item from "../components/Item.vue"
+import "../assets/css/override.css"
+import _ from 'lodash'
 
 export default {
   mixins: [PixyShipMixin, DataTableMixin],
@@ -374,15 +404,20 @@ export default {
 
   data() {
     return {
+      viewDescription: "All rooms infos (sprite, type, requirement, cost...) of Pixel Starships",
       searchName: "",
       searchLevel: [],
       searchShipLevel: [],
       searchSize: [],
       searchType: [],
+      searchShopType: [],
+      searchSkin: null,
       levels: [],
       shipLevels: [],
       types: [],
       sizes: [],
+      skins: [],
+      shopTypes: [],
       loaded: false,
       rooms: [],
       headers: [
@@ -398,10 +433,15 @@ export default {
               return true
             }
 
-            const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim())
-            })
-            
+            let ids = []
+            if (typeof query.ids === 'number') {
+              ids.push(query.ids)
+            } else {
+               ids = query.ids.split(',').map(function(id) {
+                return parseInt(id.trim())
+              })
+            }
+
             return ids.includes(value)
           }
         },
@@ -418,12 +458,33 @@ export default {
           value: "short_name",
           filterable: true
         },
+        { 
+          text: "Skin", 
+          align: "left", 
+          value: "skin",
+          filterable: true,
+          filter: (value) => {
+            if (this.searchSkin !== null) {
+              return value === this.searchSkin
+            }
+
+            return true
+          },
+        },
         {
           text: "Type",
           align: "left",          
           value: "type",
           filter: (value) => {
             return this.filterCombobox(value, this.searchType)
+          },
+        },
+        {
+          text: "Shop Type",
+          align: "left",
+          value: "shop_type",
+          filter: (value) => {
+            return this.filterCombobox(Object.values(value).toString(), this.searchShopType, true)
           },
         },
         {
@@ -492,11 +553,52 @@ export default {
         || this.searchShipLevel.length > 0
         || this.searchSize.length > 0
         || this.searchType.length > 0
+        || this.searchShopType.length > 0
+        || this.searchSkin
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {
@@ -505,12 +607,20 @@ export default {
   },
 
   watch: {
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchType(value) {
       this.updateQueryFromFilter('type', value)
+    },
+
+    searchShopType(value) {
+      this.updateQueryFromFilter('shoptype', value)
+    },
+
+    searchSkin(value) {
+      this.updateQueryFromFilter('skin', value)
     },
 
     searchLevel(value) {
@@ -553,6 +663,18 @@ export default {
           return value.trim()
         })
       }
+
+      if (this.$route.query.shoptype) {
+        this.searchShopType = this.$route.query.shoptype.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
+
+      if (this.$route.query.skin) {
+        this.searchSkin = this.$route.query.skin.split(',').map(function(value) {
+          return value.trim()
+        })
+      }
     },
 
     computeDps(damage, room) {
@@ -579,11 +701,13 @@ export default {
       let rooms = []
       for (const itemId in response.data.data) {
         const room = response.data.data[itemId]
-        
-        if (!room.purchasable) {
+
+        // ignore cost for room lvl 1 not purchasable (random bux cost depending on Savy)
+        if (!room.purchasable && room.level === 1) {
           room.upgrade_cost = 0
         }
 
+        room.skin = room.skin ? 'Yes' : 'No'
         rooms.push(room)
       }
 
@@ -615,6 +739,13 @@ export default {
 
       this.types = Array.from(
         new Set(this.rooms.map((room) => (!room.type ? "None" : room.type)))
+      ).sort(this.sortAlphabeticallyExceptNone)
+
+      let values = this.rooms.map((room) => Object.keys(room.shop_type).length === 0 ? ['None'] : Object.values(room.shop_type))
+      this.shopTypes =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
+
+      this.skins = Array.from(
+        new Set(this.rooms.map((room) => (room.skin)))
       ).sort(this.sortAlphabeticallyExceptNone)
     },
 

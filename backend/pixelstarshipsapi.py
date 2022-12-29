@@ -1,49 +1,61 @@
 import datetime
+import getpass
 import hashlib
+import logging
 import random
 import re
-import time
-import logging
+import socket
 import sys
+from logging.handlers import SMTPHandler
 from typing import Tuple
+from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree
-from xml.etree.ElementTree import ParseError
 
 import requests
-from urllib.parse import urljoin
 
 from api_errors import TOKEN_EXPIRED_REGEX
 from config import CONFIG
+from constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP
 from db import db
 from models import Device
+from utils import api_sleep
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
+mail_handler = SMTPHandler(
+    mailhost=("localhost", 25),
+    fromaddr='{}@{}'.format(getpass.getuser(), socket.gethostname()),
+    toaddrs=[CONFIG['EMAIL']],
+    subject="Error on PixyShip!"
+)
+
+mail_handler.setLevel(logging.ERROR)
+logger.addHandler(mail_handler)
 
 
 class PixelStarshipsApi:
     """Manage Pixel Starships API."""
 
-    MIN_DEVICES = 10
-    PSS_START_DATE = datetime.date(year=2016, month=1, day=6)
-
-    IAP_OPTIONS_MASK_LOOKUP = [
-        500,
-        1200,
-        2500,
-        6500,
-        14000
-    ]
-
     def __init__(self):
         self._main_pixelstarships_api_url = CONFIG.get('MAIN_PIXELSTARSHIPS_API_URL')
         self._backup_pixelstarships_api_url = CONFIG.get('BACKUP_PIXELSTARSHIPS_API_URL')
-
-        self.__api_settings = self.get_api_settings()
-        self.server = self.__api_settings['ProductionServer']
+        self._forced_pixelstarships_api_url = CONFIG.get('FORCED_PIXELSTARSHIPS_API_URL')
 
         self._device_next_index = 0
         self._devices = None
+
+        self.__api_settings = self.get_api_settings()
+
+        if not self._forced_pixelstarships_api_url:
+            self.server = self.__api_settings['ProductionServer']
+        else:
+            o = urlparse(self._forced_pixelstarships_api_url)
+            self.server = o.hostname
 
     @property
     def maintenance_message(self):
@@ -60,8 +72,8 @@ class PixelStarshipsApi:
         """Get generated devices from database."""
 
         devices = Device.query.all()
-        if len(devices) < self.MIN_DEVICES:
-            for x in range(0, self.MIN_DEVICES - len(devices)):
+        if len(devices) < MIN_DEVICES:
+            for x in range(0, MIN_DEVICES - len(devices)):
                 device_key, device_checksum = self.generate_device()
                 new_device = Device(key=device_key, checksum=device_checksum)
                 db.session.add(new_device)
@@ -79,19 +91,22 @@ class PixelStarshipsApi:
             'deviceType': 'DeviceTypeAndroid'
         }
 
-        try:
-            # call API with classic URL, in case of error, try with alternative
-            endpoint = urljoin(self._main_pixelstarships_api_url, 'SettingService/getlatestversion3')
+        if self._forced_pixelstarships_api_url:
+            # call API with forced URL
+            endpoint = urljoin(self._forced_pixelstarships_api_url, 'SettingService/GetLatestVersion3')
             response = self.call(endpoint, params=params)
             root = ElementTree.fromstring(response.text)
-        except ParseError:
-            # servers are always supposed to return something valid, but don't always
-            endpoint = urljoin(self._backup_pixelstarships_api_url, 'SettingService/getlatestversion3')
-            response = self.call(endpoint, params=params)
-            root = ElementTree.fromstring(response.text)
+            settings = root.find(".//Setting").attrib
+
+            return settings
+
+        # call API with classic URL, in case of error, try with alternative
+        endpoint = urljoin(self._main_pixelstarships_api_url, 'SettingService/GetLatestVersion3')
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
 
         settings = root.find(".//Setting").attrib
-        fixed_endpoint = urljoin(f'https://{settings["ProductionServer"]}', 'SettingService/getlatestversion3')
+        fixed_endpoint = urljoin(f'https://{settings["ProductionServer"]}', 'SettingService/GetLatestVersion3')
 
         if fixed_endpoint != endpoint:
             response = self.call(fixed_endpoint, params=params)
@@ -109,14 +124,22 @@ class PixelStarshipsApi:
 
         return (server or self.server) + path[0].format(**params)
 
-    def call(self, endpoint, params, access=False):
+    def call(self, endpoint, params, need_token=False, force_token_generation=False):
         """Make a PSS API call."""
 
-        # protected endpoint, add device access token
         device = None
-        if access:
+        token = None
+
+        if need_token and (not CONFIG['SAVY_PUBLIC_API_TOKEN'] or force_token_generation):
+            # protected endpoint, add device access token...
             device = self.get_device()
-            params['accessToken'] = device.get_token()
+            token = device.get_token()
+        elif CONFIG['SAVY_PUBLIC_API_TOKEN']:
+            # ...otherwise use Savy provided token if present
+            token = CONFIG['SAVY_PUBLIC_API_TOKEN']
+
+        if token:
+            params['accessToken'] = token
 
         response = requests.get(endpoint, params=params)
 
@@ -203,12 +226,12 @@ class PixelStarshipsApi:
 
         params = {
             'userId': user_id,
-            'version': self.__api_settings['ShipDesignVersion']
+            'designVersion': self.__api_settings['ShipDesignVersion']
         }
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f'https://{self.server}/ShipService/InspectShip2'
-        response = self.call(endpoint, params=params, access=True)
+        response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
         root = ElementTree.fromstring(response.text)
 
         inspect_ship = {
@@ -246,13 +269,12 @@ class PixelStarshipsApi:
         if exact_match:
             user_node = root.find('.//User[@Name="{}"]'.format(user_name))
 
-            user = self.parse_user_node(user_node)
-
-            user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
-            users.append(user)
+            if user_node:
+                user = self.parse_user_node(user_node)
+                user['pixyship_xml_element'] = user_node  # custom field, return raw XML data too
+                users.append(user)
         else:
-            users_node = root.find('.//User')
-
+            users_node = root.find('.//Users')
             for user_node in users_node:
                 user = self.parse_user_node(user_node)
 
@@ -291,7 +313,7 @@ class PixelStarshipsApi:
         """Get sprites from API."""
 
         params = {
-            'version': self.__api_settings['FileVersion'],
+            'designVersion': self.__api_settings['FileVersion'],
             'deviceType': 'DeviceTypeAndroid'
         }
 
@@ -320,7 +342,7 @@ class PixelStarshipsApi:
         """Get rooms sprites from API."""
 
         params = {
-            'version': self.__api_settings['RoomDesignSpriteVersion']
+            'designVersion': self.__api_settings['RoomDesignSpriteVersion']
         }
 
         # retrieve data as XML from Pixel Starships API
@@ -348,7 +370,7 @@ class PixelStarshipsApi:
         """Get ships designs from API."""
 
         params = {
-            'version': self.__api_settings['ShipDesignVersion'],
+            'designVersion': self.__api_settings['ShipDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -377,7 +399,7 @@ class PixelStarshipsApi:
         """Get research designs from API."""
 
         params = {
-            'version': self.__api_settings['ResearchDesignVersion'],
+            'designVersion': self.__api_settings['ResearchDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -409,7 +431,7 @@ class PixelStarshipsApi:
         rooms_purchase = self.get_rooms_purchase()
 
         params = {
-            'version': self.__api_settings['RoomDesignSpriteVersion'],
+            'designVersion': self.__api_settings['RoomDesignSpriteVersion'],
             'languageKey': 'en'
         }
 
@@ -427,6 +449,7 @@ class PixelStarshipsApi:
                 (room_purchase for room_purchase in rooms_purchase if room_purchase['RoomDesignId'] == room_node.attrib['RootRoomDesignId']),
                 None
             )
+
             if room_purchase:
                 room_node.set('AvailabilityMask', room_purchase['AvailabilityMask'])
 
@@ -455,7 +478,7 @@ class PixelStarshipsApi:
         """Get room designs from API."""
 
         params = {
-            'version': self.__api_settings['RoomDesignPurchaseVersion'],
+            'designVersion': self.__api_settings['RoomDesignPurchaseVersion'],
             'languageKey': 'en'
         }
 
@@ -484,7 +507,7 @@ class PixelStarshipsApi:
         """Get character designs from API."""
 
         params = {
-            'version': self.__api_settings['CharacterDesignVersion'],
+            'designVersion': self.__api_settings['CharacterDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -521,7 +544,7 @@ class PixelStarshipsApi:
         """Get collection designs from API."""
 
         params = {
-            'version': self.__api_settings['CollectionDesignVersion'],
+            'designVersion': self.__api_settings['CollectionDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -550,7 +573,7 @@ class PixelStarshipsApi:
         """Get item designs from API."""
 
         params = {
-            'version': self.__api_settings['ItemDesignVersion'],
+            'designVersion': self.__api_settings['ItemDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -579,7 +602,7 @@ class PixelStarshipsApi:
         """Get alliances from API, top 100 by default."""
 
         params = {
-            'version': self.__api_settings['ItemDesignVersion'],
+            'designVersion': self.__api_settings['ItemDesignVersion'],
             'take': take
         }
 
@@ -625,12 +648,14 @@ class PixelStarshipsApi:
                 'to': end
             }
 
+            logger.info('retrieve sales of {} from {} to {}'.format(item_id, start, end))
+
             # retrieve data as XML from Pixel Starships API
             endpoint = f'https://{self.server}/MarketService/ListSalesByItemDesignId'
             response = self.call(endpoint, params=params)
 
             if response.status_code == 400:
-                logger.error('response in error: {}'.format(response.text))
+                logger.error('Response in error: {}'.format(response.text))
                 errors += 1
 
                 if errors == 3:
@@ -640,7 +665,7 @@ class PixelStarshipsApi:
                     break
 
                 # too many request, wait a little, and try again
-                time.sleep(10)
+                api_sleep(30, force_sleep=True)
                 continue
 
             root = ElementTree.fromstring(response.text)
@@ -650,7 +675,7 @@ class PixelStarshipsApi:
 
             # error when parsing the response
             if sale_nodes is None:
-                logger.error('error when parsing response: {}'.format(response.text))
+                logger.error('Error when parsing response: {}'.format(response.text))
                 errors += 1
 
                 if errors == 3:
@@ -659,7 +684,7 @@ class PixelStarshipsApi:
                     sales.clear()
                     break
 
-                time.sleep(3)
+                api_sleep(3, force_sleep=True)
                 continue
 
             # no more sales available
@@ -688,7 +713,7 @@ class PixelStarshipsApi:
             start += 20
             end += 20
 
-            time.sleep(3)
+            api_sleep(3, force_sleep=True)
 
         return sales
 
@@ -697,6 +722,56 @@ class PixelStarshipsApi:
         """Extract sale data from XML node."""
 
         return sale_node.attrib.copy()
+
+    def get_market_messages(self, item_id):
+        """Download market messages for given item from PSS API."""
+
+        market_messages = []
+
+        params = {
+            'itemDesignId': item_id,
+            'currencyType': 'Unknown',
+            'itemSubType': 'None',
+            'rarity': 'None',
+            'userId': 0,
+            'skip': 0,
+            'take': 999999,
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/MessageService/ListActiveMarketplaceMessages5'
+        response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
+
+        if response.status_code == 400:
+            logger.error('Response in error: {}'.format(response.text))
+
+            # too many request, wait a little, and try again
+            api_sleep(10, force_sleep=True)
+
+            return []
+
+        root = ElementTree.fromstring(response.text)
+
+        # parse HTTP body as XML and find market_messages nodes
+        market_messsage_nodes = root.find('.//Messages')
+
+        # error when parsing the response
+        if market_messsage_nodes is None:
+            logger.error('Error when parsing response: {}'.format(response.text))
+
+            return []
+
+        for market_message_node in market_messsage_nodes:
+            market_message = self.parse_market_message_node(market_message_node)
+            market_messages.append(market_message)
+
+        return market_messages
+
+    @staticmethod
+    def parse_market_message_node(message_node):
+        """Extract sale data from XML node."""
+
+        return message_node.attrib.copy()
 
     def get_alliance_users(self, alliance_id, skip=0, take=100):
         """Get alliance users from API, top 100 by default."""
@@ -709,7 +784,7 @@ class PixelStarshipsApi:
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f'https://{self.server}/AllianceService/ListUsers'
-        response = self.call(endpoint, params=params, access=True)
+        response = self.call(endpoint, params=params, need_token=True)
         root = ElementTree.fromstring(response.text)
 
         users = []
@@ -732,7 +807,7 @@ class PixelStarshipsApi:
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f'https://{self.server}/LadderService/ListUsersByRanking'
-        response = self.call(endpoint, params=params, access=True)
+        response = self.call(endpoint, params=params, need_token=True)
         root = ElementTree.fromstring(response.text)
 
         users = []
@@ -799,19 +874,26 @@ class PixelStarshipsApi:
 
         return prestige_node.attrib.copy()
 
-    def get_stardate(self):
+    @staticmethod
+    def get_stardate():
         """Compute Stardate."""
 
         utc_now = datetime.datetime.utcnow()
         today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
-        return (today - self.PSS_START_DATE).days
+        return (today - PSS_START_DATE).days
 
-    def parse_sale_item_mask(self, sale_item_mask):
+    @staticmethod
+    def parse_sale_item_mask(sale_item_mask):
         """"From SaleItemMask determine Sale options."""
 
         equipment_mask = int(sale_item_mask)
         output = [int(x) for x in '{:05b}'.format(equipment_mask)]
-        options = [self.IAP_OPTIONS_MASK_LOOKUP[4 - i] for i, b in enumerate(output) if b]
+
+        options = []
+        for index, value in enumerate(output):
+            if index > 4:
+                break
+            options.append(IAP_OPTIONS_MASK_LOOKUP[4 - index])
 
         # reverse order
         options.reverse()
@@ -822,7 +904,7 @@ class PixelStarshipsApi:
         """Get trainings data from API."""
 
         params = {
-            'version': self.__api_settings['TrainingDesignVersion'],
+            'designVersion': self.__api_settings['TrainingDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -852,7 +934,7 @@ class PixelStarshipsApi:
         """Get achievements data from API."""
 
         params = {
-            'version': self.__api_settings['AchievementDesignVersion'],
+            'designVersion': self.__api_settings['AchievementDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -882,7 +964,7 @@ class PixelStarshipsApi:
         """Get situations data from API."""
 
         params = {
-            'version': self.__api_settings['SituationDesignVersion'],
+            'designVersion': self.__api_settings['SituationDesignVersion'],
             'languageKey': 'en'
         }
 
@@ -907,3 +989,33 @@ class PixelStarshipsApi:
         """Extract situation data from XML node."""
 
         return situation_node.attrib.copy()
+
+    def get_promotions(self):
+        """Get promotions data from API."""
+
+        params = {
+            'designVersion': self.__api_settings['PromotionDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/PromotionService/ListAllPromotionDesigns2'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        promotions = []
+        promotion_nodes = root.find('.//PromotionDesigns')
+
+        if promotion_nodes:
+            for promotion_node in promotion_nodes:
+                promotion = self.parse_situation_node(promotion_node)
+                promotion['pixyship_xml_element'] = promotion_node  # custom field, return raw XML data too
+                promotions.append(promotion)
+
+        return promotions
+
+    @staticmethod
+    def parse_promotion_node(promotion_node):
+        """Extract promotion data from XML node."""
+
+        return promotion_node.attrib.copy()

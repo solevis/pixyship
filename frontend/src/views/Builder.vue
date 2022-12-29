@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Builder </v-card-title>
-    <v-card-subtitle>Design and optimize your ship without breaking it in the game</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -408,7 +408,7 @@
 
 <script>
 import axios from 'axios'
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import "@/assets/css/override.css"
@@ -466,8 +466,52 @@ export default {
     document.title = 'PixyShip - ' + this.$route.name
   },
 
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
+  },
+
   data() {
     return {
+      viewDescription: "Design and optimize your ship without breaking it in the game",
       ships: {},
       shipList: [],
       rooms: {},
@@ -769,19 +813,23 @@ export default {
        */
 
       if (this.selectedShip) {
-        let query = {
-          ship: this.selectedShip.id
-        }
+        let searchParams = new URLSearchParams()
+
+        searchParams.set('ship', this.selectedShip.id)
 
         const roomsQuery = this.shipRooms.map(location => `${location.x},${location.y},${location.roomId}`).join('-')
         if (roomsQuery) {
-          query.rooms = roomsQuery
+          searchParams.set('rooms', roomsQuery)
         }
 
-        this.$router.replace({
-          path: '/builder',
-          query
-        }).catch(() => {})
+        let queryString = searchParams.toString()
+        if (queryString) {
+          queryString = '?' + queryString
+        }
+
+        queryString = decodeURIComponent(queryString)
+
+        window.history.pushState('', '', this.$route.path + queryString)
       }
     },
 

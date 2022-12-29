@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import VueMeta from 'vue-meta'
 
 Vue.use(VueRouter)
+Vue.use(VueMeta)
 
 const routes = [
   {
@@ -86,6 +88,11 @@ const routes = [
     path: '/changelog',
     name: 'Changelog',
     component: () => import('../views/Changelog.vue')
+  },
+  {
+    path: '/dailysales/:from',
+    name: 'DailySalesHistory',
+    component: () => import('../views/DailySalesHistory.vue')
   },
   {
     path: '*',

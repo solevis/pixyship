@@ -213,6 +213,23 @@ def test_rooms():
     assert 'AvailabilityMask' in room_with_purchase
 
 
+def test_rooms_sprites():
+    pixel_starships_api = PixelStarshipsApi()
+    rooms_sprites = pixel_starships_api.get_rooms_sprites()
+
+    assert len(rooms_sprites) > 0
+
+    room_sprite = rooms_sprites[0]
+    assert 'RoomDesignId' in room_sprite
+    assert 'RaceId' in room_sprite
+    assert 'SpriteId' in room_sprite
+    assert 'RoomSpriteType' in room_sprite
+    assert 'SkinName' in room_sprite
+    assert 'SkinDescription' in room_sprite
+    assert 'SkinKey' in room_sprite
+    assert 'RequirementString' in room_sprite
+
+
 def test_characters():
     pixel_starships_api = PixelStarshipsApi()
     characters = pixel_starships_api.get_characters()
@@ -292,6 +309,8 @@ def test_items():
     assert 'ItemType' in item
     assert 'Rarity' in item
     assert 'EnhancementValue' in item
+    assert 'ItemSpace' in item
+    assert 'RequirementString' in item
 
 
 def test_alliances():
@@ -307,7 +326,7 @@ def test_alliances():
 
 def test_sales():
     pixel_starships_api = PixelStarshipsApi()
-    sales = pixel_starships_api.get_sales(131, 0, 1)  # Scratchy
+    sales = pixel_starships_api.get_sales(73, 0, 1)  # Power Drill
 
     assert len(sales) == 1
 
@@ -399,7 +418,7 @@ def test_rooms_purchase():
     assert 'AvailabilityMask' in room_purchase
 
 
-def test_search_users():
+def test_exact_match_search_users():
     # avoid Flask RuntimeError: No application found
     push_context()
 
@@ -413,6 +432,31 @@ def test_search_users():
     assert 'Name' in user
     assert user['Name'] == user_name_to_search
 
+    assert 'PVPAttackWins' in user
+    assert 'PVPAttackLosses' in user
+    assert 'PVPAttackDraws' in user
+    assert 'PVPDefenceDraws' in user
+    assert 'PVPDefenceWins' in user
+    assert 'PVPDefenceLosses' in user
+    assert 'HighestTrophy' in user
+    assert 'CrewDonated' in user
+    assert 'CrewReceived' in user
+    assert 'AllianceJoinDate' in user
+    assert 'CreationDate' in user
+
+
+def test_search_users():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    user_name_to_search = 'Sol'
+    users = pixel_starships_api.search_users(user_name_to_search, False)
+
+    assert len(users) > 1
+
+    user = users[0]
+    assert 'Name' in user
     assert 'PVPAttackWins' in user
     assert 'PVPAttackLosses' in user
     assert 'PVPAttackDraws' in user
@@ -489,3 +533,25 @@ def test_situations():
     assert 'FromDate' in situation
     assert 'EndDate' in situation
     assert 'IconSpriteId' in situation
+
+
+def test_promotions():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    promotions = pixel_starships_api.get_promotions()
+
+    assert len(promotions) > 0
+
+    promotion = promotions[0]
+
+    assert 'PromotionDesignId' in promotion
+    assert 'PromotionType' in promotion
+    assert 'Title' in promotion
+    assert 'SubTitle' in promotion
+    assert 'Description' in promotion
+    assert 'RewardString' in promotion
+    assert 'FromDate' in promotion
+    assert 'ToDate' in promotion
+    assert 'PackId' in promotion

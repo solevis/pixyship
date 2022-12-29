@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2022-12-28
+
+### Added
+
+- Add button to display history of each daily sale origin (cargo, shop, etc)
+
+### Changed
+
+- Last sales by item show now 1,000 entries instead of 50
+
+## [2.4.0] - 2022-09-14
+
+### Added
+
+- Social network banner
+- Get promotions from API (new daily sales)
+- Import daily sales (for futur historic display)
+- Display tournament news
+- Store Item page active tab in URL
+- Add Savy token implementation
+- Item page: display item space and requirement
+- Add Docker environment for developing PixyShip
+- Add Fire Resists and Walk/Run stats in crew popup
+- Rooms page: filter by shop type (starbase, player, bux)
+- Implementation of FleetGift sale
+- Add search input for last sales in Item page
+- Import market messages to retrieve item sales offstat
+- WIP: display offstat in Item last sales table
+
+### Changed
+
+- Footer removed
+- Merge room and skins
+- Rename DSN to DATABASE_URI in backend configuration
+- Reduce cache expiration from 1 hour to 5 minutes
+- Randomize items when importing sales
+
+### Fixed
+
+- Builder was reloading at each change
+- Daily bundle sales can be multiple
+- Fix player search
+- Fix equipments column sorting
+- Rooms page: fix ids query parameter
+- Fix XP books bonus display
+
+## [2.3.0] - 2022-01-01
+
+### Added
+
+- Pins page
+- Crews: display stats score
+- Items: display "+??" (random stat) if rarity is at least hero
+- Item page: new tab showing possible upgrades
+- Home: display running event
+
+### Changed
+
+- Page's metadata
+
 ## [2.2.6] - 2021-11-24
 
 ### Added
@@ -212,6 +272,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
+[rolling]: https://github.com/solevis/pixyship/compare/2.3.0...main
+[2.4.0]: https://github.com/solevis/pixyship/compare/2.3.0...2.4.0
+[2.3.0]: https://github.com/solevis/pixyship/compare/2.2.6...2.3.0
 [2.2.6]: https://github.com/solevis/pixyship/compare/2.2.5...2.2.6
 [2.2.5]: https://github.com/solevis/pixyship/compare/2.2.4...2.2.5
 [2.2.4]: https://github.com/solevis/pixyship/compare/2.2.3...2.2.4

@@ -17,21 +17,17 @@
           <div class="char-part" :style="spriteStyle(char.leg_sprite)"></div>
         </div>
 
-        <div
-          v-if="name === 'left'"
-          class="name pull-right"
-          :class="[char.rarity]"
-        >
-          {{ char.name }}
+        <div v-if="name === 'left'" class="name pull-right">
+          <span class="count" v-if="count">&nbsp;{{ 'x' + count }}</span>
+          <span :class="[char.rarity]">{{ char.name }}</span>
         </div>
-        <div
-          v-if="name === 'right'"
-          class="name pull-left"
-          :class="[char.rarity]"
-        >
-          {{ char.name }}
+
+        <div v-if="name === 'right'" class="name pull-left">
+          <span :class="[char.rarity]">{{ char.name }}</span>
+          <span class="count" v-if="count">&nbsp;{{ 'x' + count }}</span>
         </div>
-        <div v-if="name === 'bottom'" class="name" :class="[char.rarity]">
+
+        <div v-if="name === 'bottom'" class="name" :class="[char.rarity, 'text-center']">
           {{ char.name }}
         </div>
       </a>
@@ -64,6 +60,12 @@
           <td class="text-xs-right">WPN:</td>
           <td class="text-xs-left">{{ char.weapon[1] }}</td>
         </tr>
+        <tr>
+          <td class="text-xs-right">Fire:</td>
+          <td class="text-xs-left">{{ char.fire_resist }}</td>
+          <td class="text-xs-right">Walk:</td>
+          <td class="text-xs-left">{{ char.walk }}/{{ char.run }}</td>
+        </tr>
         <tr v-if="char.special_ability">
           <td class="text-xs-right">Special:</td>
           <td class="text-xs-left" colspan="3">
@@ -74,10 +76,10 @@
           </td>
         </tr>
         
-        <tr v-if="Object.keys(char.equipment).length > 0">
+        <tr v-if="Object.values(char.equipment).length > 0">
           <td class="text-xs-right">Equip:</td>
           <td colspan="3">
-            {{ Object.keys(char.equipment).join(", ") }}
+            {{ Object.values(char.equipment).join(", ") }}
           </td>
         </tr>
       </table>
@@ -86,7 +88,7 @@
 </template>
 
 <script>
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
 
 export default {
   mixins: [PixyShipMixin],
@@ -94,6 +96,7 @@ export default {
   props: {
     char: null,
     name: null,
+    count: null,
     tipPosition: null,
     tip: { default: true },
   },
@@ -134,6 +137,10 @@ export default {
   display: block;
   white-space: nowrap;
   margin: 5px 5px 0 5px;
+}
+
+.count {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 a {

@@ -47,8 +47,8 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import ItemMixin from "@/mixins/Item.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import ItemMixin from "../mixins/Item.vue.js"
 import _ from 'lodash'
 
 export default {

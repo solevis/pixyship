@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Items </v-card-title>
-    <v-card-subtitle>All Pixel Starships items and market history:
+    <v-card-subtitle>{{ viewDescription }}:
       <ul>
         <li>click on item name to see market history, last players sales and craft tree</li>
       </ul>
@@ -183,7 +183,7 @@
                   <template v-if="item.module_extra_disp_enhancement != null">
                     <br>{{ formatExtraBonus(item) }}
                   </template>
-                  <template v-if="hasRandomStat(item)">
+                  <template v-if="item.has_offstat">
                     <br>??&nbsp;+??
                   </template>
               </td>
@@ -304,11 +304,12 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
-import ItemMixin from "@/mixins/Item.vue.js"
-import Item from "@/components/Item.vue"
-import Crew from "@/components/Crew.vue"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import ItemMixin from "../mixins/Item.vue.js"
+import Item from "../components/Item.vue"
+import Crew from "../components/Crew.vue"
+import _ from 'lodash'
 
 export default {
   mixins: [PixyShipMixin, ItemMixin, DataTableMixin],
@@ -320,6 +321,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "All Pixel Starships items (bonus, recipe, content...) and market history",
       searchName: "",
       searchRarity: [],
       searchSlot: [],
@@ -345,9 +347,14 @@ export default {
               return true
             }
 
-            const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim())
-            })
+            let ids = []
+            if (typeof query.ids === 'number') {
+              ids.push(query.ids)
+            } else {
+               ids = query.ids.split(',').map(function(id) {
+                return parseInt(id.trim())
+              })
+            }
             
             return ids.includes(value)
           } 
@@ -383,7 +390,7 @@ export default {
         {
           text: "Type/Subtype",
           align: "center",          
-          value: "type",
+          value: "typesubtype",
           sortable: true,
           filter: (value, search, item) => {
             // both filters
@@ -486,8 +493,47 @@ export default {
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {
@@ -496,9 +542,9 @@ export default {
   },
 
   watch: {
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchType(value) {
       this.updateQueryFromFilter('type', value)
@@ -595,6 +641,8 @@ export default {
             }
           }
         }
+
+        item.typesubtype = item.type + item.slot
       })
 
       items.sort((a, b) => b.offers - a.offers)

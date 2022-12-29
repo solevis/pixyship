@@ -77,27 +77,61 @@
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
     </v-main>
-
-    <v-footer
-    padless
-  >
-    <v-row
-      justify="center"
-      no-gutters
-    >
-      <v-col
-        class="py-1 text-center white--text"
-        cols="12"
-      >
-        <strong>PixyShip</strong> — <a class="white--text" href="/changelog">v2.2.6</a>
-      </v-col>
-    </v-row>
-  </v-footer>
   </v-app>
 </template>
 
 <script>
 export default {
+  metaInfo: {
+    title: '',
+    titleTemplate: (titleChunk) => {
+      return titleChunk ? `PixyShip - ${titleChunk}` : 'PixyShip';
+    },
+    meta: [
+      {charset: 'utf-8'},
+      {
+        vmid: 'description',
+        name: 'description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'google-description',
+        itemprop: 'description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'google-title',
+        itemprop: 'name',
+        content: 'PixyShip'
+      },
+      {
+        vmid: 'og-description',
+        property: 'og:description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'og-title',
+        property: 'og:title',
+        content: 'PixyShip'
+      },
+      {
+        vmid: 'twitter-description',
+        name: 'twitter:description',
+        content: 'Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.'
+      },
+      {
+        vmid: 'twitter-title',
+        name: 'twitter:title',
+        content: 'PixyShip'
+      },
+      {name: 'viewport', content: 'width=device-width,initial-scale=1.0'},
+      {name: 'msapplication-TileColor', content: '#2b5797'},
+      {name: 'msapplication-config', content: process.env.BASE_URL + 'browserconfig.xml'},
+      {name: 'theme-color', content: '#000000'},
+      {'http-equiv': 'X-UA-Compatible', content: 'IE=edge'},
+    ]
+  },
+
   mounted () {
     this.onMutate()
   },

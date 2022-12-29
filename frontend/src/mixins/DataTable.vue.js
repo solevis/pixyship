@@ -2,13 +2,13 @@
 import _ from 'lodash'
 
 const rarityOrder = {
-  "common": 0,
-  "elite": 1,
-  "unique": 2,
-  "epic": 3,
-  "hero": 4,
-  "special": 5,
-  "legendary": 6,
+  "common": 1,
+  "elite": 2,
+  "unique": 3,
+  "epic": 4,
+  "hero": 5,
+  "special": 6,
+  "legendary": 7,
 }
 
 export default {
@@ -158,20 +158,22 @@ export default {
     },
 
     updateQueryFromFilter(filterName, filterValue) {
-      let searchParams = new URLSearchParams(window.location.search)
+        let searchParams = new URLSearchParams(window.location.search)
 
-      if (_.isEmpty(filterValue)) {
-        searchParams.delete(filterName)
-      } else {
-        searchParams.set(filterName, filterValue)
-      }
+        if (_.isEmpty(filterValue)) {
+          searchParams.delete(filterName)
+        } else {
+          searchParams.set(filterName, filterValue)
+        }
 
-      let queryString = searchParams.toString()
-      if (queryString) {
-        queryString = '?' + queryString
-      }
+        let queryString = searchParams.toString()
+        if (queryString) {
+          queryString = '?' + queryString
+        }
 
-      window.history.pushState('', '', this.$route.path + queryString)
+        if (window.location.search !== queryString) {
+          window.history.pushState('', '', this.$route.path + queryString)
+        }
     },
 
     filterValueComparator(a, b) {

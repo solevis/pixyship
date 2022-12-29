@@ -1,0 +1,10 @@
+.idea/
+.vscode/
+.git/
+.gitignore
+Dockerfile
+.dockerignore
+
+node_modules
+npm-debug.log
+dist

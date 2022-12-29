@@ -35,8 +35,11 @@ script_location = alembic
 # are written from script.py.mako
 # output_encoding = utf-8
 
-sqlalchemy.url = postgresql://postgres:password@localhost:5432/postgres
+# local postgresql
+#sqlalchemy.url = postgresql://postgres:password@localhost:5432/postgres
 
+# docker postgresql
+sqlalchemy.url = postgresql://pixyship:pixyship@pixyship-database:5432/pixyship
 
 # Logging configuration
 [loggers]

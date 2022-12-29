@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Researches </v-card-title>
-    <v-card-subtitle>All Pixel Starships researches</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -162,8 +162,9 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import _ from 'lodash'
 
 export default {
   mixins: [PixyShipMixin, DataTableMixin],
@@ -172,6 +173,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "All researches infos (sprite, requirement, levels...) of Pixel Starships",
       searchName: "",
       searchType: [],
       searchLabLevel: [],
@@ -194,9 +196,14 @@ export default {
               return true
             }
 
-            const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim())
-            })
+            let ids = []
+            if (typeof query.ids === 'number') {
+              ids.push(query.ids)
+            } else {
+               ids = query.ids.split(',').map(function(id) {
+                return parseInt(id.trim())
+              })
+            }
             
             return ids.includes(value)
           }
@@ -257,8 +264,47 @@ export default {
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {
@@ -267,9 +313,9 @@ export default {
   },
 
   watch: {
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchType(value) {
       this.updateQueryFromFilter('type', value)

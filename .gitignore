@@ -1,4 +1,5 @@
 dist/
+pgdata/
 sprites/
 .DS_Store
 *.old
@@ -6,3 +7,4 @@ sprites/
 *.diff
 .vscode
 .idea
+.fleet

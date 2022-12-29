@@ -5,10 +5,8 @@ Revises: a2ac148441cf
 Create Date: 2018-09-24 21:49:20.811276
 
 """
-from alembic import op
 import sqlalchemy as sa
-
-
+from alembic import op
 # revision identifiers, used by Alembic.
 from sqlalchemy.dialects.postgresql import UUID
 

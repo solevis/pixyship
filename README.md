@@ -16,6 +16,41 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 * Node.js 15
 * npm 7.7
 
+## Getting Started locally with Docker
+
+```bash
+# Configure database connection
+cp alembic.ini.dist alembic.ini
+${EDITOR} alembic.ini
+
+cp config.py.dist config.py
+${EDITOR} config.py
+
+# Launch the stack
+docker-compose up --build
+
+# Initialize the database
+docker-compose exec  -w /app pixyship-backend alembic upgrade head
+
+# Initial data load
+docker-compose exec  -w /app pixyship-backend python importer.py --assets
+docker-compose exec  -w /app pixyship-backend python importer.py --players
+docker-compose exec  -w /app pixyship-backend python importer.py --market-one-item 73
+
+# PEP-8 linter
+docker-compose exec  -w /app pixyship-backend pycodestyle
+
+# Units tests
+docker-compose exec  -w /app pixyship-backend python -m pytest
+
+# Build frontend for deployment
+cp ./frontend/.env.development ./frontend/.env.production.local
+${EDITOR} ./frontend/.env.production.local
+docker-compose exec  -w /app pixyship-frontend npm run build
+```
+
+Access the local PixyShip at [http://localhost:8080](http://localhost:8080).
+
 ## Getting Started locally
 
 ### Frontend
@@ -64,7 +99,7 @@ cp alembic.ini.dist alembic.ini
 ${EDITOR} alembic.ini # update sqlalchemy.url, user must be SUPERUSER
 
 cp config.py.dist config.py
-${EDITOR} config.py # update DSN
+${EDITOR} config.py # update DATABASE_URI
 
 # Create database
 alembic upgrade head
@@ -74,7 +109,7 @@ python importer.py --assets
 python importer.py --players
 
 python importer.py --market  # very long, several hours
-python importer.py --market-first-item  # retrieve market history for only one item, much faster for dev
+python importer.py --market-one-item 73  # retrieve market history for only one item, much faster for dev
 ```
 
 Run :
@@ -102,4 +137,6 @@ python -m pytest
 
 ## Sponsors
 
+<a href="https://jb.gg/OpenSourceSupport">
 <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="150">
+</a>

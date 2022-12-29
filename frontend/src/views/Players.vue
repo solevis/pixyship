@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Players </v-card-title>
-    <v-card-subtitle>Search top players and see their layout (click the gear icon for options)</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }} (click the gear icon for options)</v-card-subtitle>
 
     <v-card flat>
       <v-toolbar v-if="loaded" flat color="#1E1E1E">
@@ -370,7 +370,7 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import _ from 'lodash'
 
 export default {
@@ -380,6 +380,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "Search top players and see their layout and infos",
       menu: false,
       searchPlayer: "",
       searchText: "",
@@ -406,8 +407,47 @@ export default {
     },
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {

@@ -25,6 +25,8 @@ export default {
       researchesEndpoint: apiServer + 'api/research',
       playersEndpoint: apiServer + 'api/players',
       tournamentEndpoint: apiServer + 'api/tournament',
+      lastSalesEndpoint: (type, id) => apiServer + `api/lastsales/${type}/${id}`,
+      lastSalesBySaleFromEndpoint: (sale_from) => apiServer + `api/lastsalesbysalefrom/${sale_from}`,
     }
   },
 
@@ -137,11 +139,19 @@ export default {
     },
 
     supplySprite() {
-      return this.styleFromSprite({ height: 24, source: 1537, width: 24, x: 469, y: 216 })
+      return this.styleFromSprite({ height: 22, source: 57, width: 22, x: 244, y: 345 })
+    },
+
+    doveSprite() {
+      return this.styleFromSprite({ height: 14, source: 1537, width: 17, x: 490, y: 258 })
     },
 
     nowTime(time) {
       return time ? moment.utc(time).local().format('YYYY/MM/DD LT') : ''
+    },
+
+    nowDate(time) {
+      return time ? moment.utc(time).local().format('YYYY/MM/DD') : ''
     },
 
     formatTime(secs) {

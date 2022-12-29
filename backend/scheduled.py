@@ -4,12 +4,12 @@ import logging
 import socket
 import sys
 import time
-
 from logging.handlers import SMTPHandler
+
 from schedule import Scheduler
 
-from importer import import_market, import_assets, import_players
 from config import CONFIG
+from importer import import_market, import_assets, import_players, import_daily_sales
 
 logging.basicConfig(
     level=logging.INFO,
@@ -50,7 +50,7 @@ class SafeScheduler(Scheduler):
         try:
             super()._run_job(job)
         except Exception:
-            logger.error('Uncaught scheduler exception', exc_info=True)
+            logger.exception('Uncaught scheduler exception', exc_info=True)
 
             if self.reschedule_on_failure:
                 job.last_run = datetime.datetime.now()
@@ -63,8 +63,9 @@ class SafeScheduler(Scheduler):
 # Scheduler setup
 scheduler = SafeScheduler(False)
 scheduler.every(5).minutes.do(import_assets)
-scheduler.every(1).hours.do(import_market)
-scheduler.every(1).day.do(import_players)
+scheduler.every().hour.do(import_market)
+scheduler.every().hour.do(import_players)
+scheduler.every().day.do(import_daily_sales)
 
 while True:
     scheduler.run_pending()

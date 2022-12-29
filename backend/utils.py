@@ -1,3 +1,7 @@
+import time
+
+from config import CONFIG
+
 
 def float_range(values, start_key, end_key):
     start = 0
@@ -21,6 +25,11 @@ def int_range(values, start_key, end_key):
         end = int(values[end_key])
 
     return start, end
+
+
+def api_sleep(secs, force_sleep=False):
+    if not CONFIG['SAVY_PUBLIC_API_TOKEN'] or force_sleep:
+        time.sleep(secs)
 
 
 class Singleton(type):

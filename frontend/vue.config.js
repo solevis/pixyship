@@ -3,5 +3,9 @@ module.exports = {
     'vuetify'
   ],
 
-  assetsDir: 'static'
+  assetsDir: 'static',
+
+  devServer: {
+    public: '0.0.0.0:8080'
+  }
 }

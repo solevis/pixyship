@@ -2,12 +2,12 @@
   <v-tooltip :disabled="!show" top color="grey darken-3">
     <template v-slot:activator="{ on, attrs }">
       <component :is="disableLink ? 'span' : 'a'" :href="`/item/${item.id}`" v-bind="attrs" v-on="on" :aria-label="item.name" class="item-link">
-        <div>
+        <div :class="name === 'bottom' ? 'text-center' : ''">
           <div v-if="!name" :aria-label="item.name">
               <div class="item-sprite" :style="spriteStyle(item.sprite)"></div>
           </div>
 
-          <table v-else :aria-label="item.name">
+          <table v-else :aria-label="item.name" class="d-inline-block">
             <tr v-if="name === 'top'" class="nobreak">
               <td>{{ count > 1 ? 'x' + count : '' }} <span :class="[item.rarity]">{{ item.name }}</span></td>
             </tr>
@@ -33,7 +33,7 @@
             Bonus:
             <span>{{ formatBonus(item) }}</span>
             <span v-if="item.module_extra_disp_enhancement != null">&nbsp;/&nbsp;{{ formatExtraBonus(item) }}</span>
-            <span v-if="hasRandomStat(item)">&nbsp;/&nbsp;??&nbsp;+??</span>
+            <span v-if="item.has_offstat">&nbsp;/&nbsp;??&nbsp;+??</span>
           </td>
         </tr>
 
@@ -189,8 +189,8 @@
 </template>
 
 <script>
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import ItemMixin from "@/mixins/Item.vue.js"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import ItemMixin from "../mixins/Item.vue.js"
 
 export default {
   mixins: [PixyShipMixin, ItemMixin],
@@ -202,8 +202,7 @@ export default {
     tipPosition: null,
     tip: { default: true },
     disableLink: {
-      type: Boolean,
-      default: false
+      fast: Boolean
     }
   },
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta data-vue-meta="1" charset="utf-8">
+    <meta data-vue-meta="1" http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta data-vue-meta="1" name="viewport" content="width=device-width,initial-scale=1.0">
 
     <title>PixyShip</title>
 
@@ -15,7 +15,6 @@
     <% if (process.env.NODE_ENV === 'production') { %>
     <link rel="manifest" href="<%= BASE_URL %>site.webmanifest">
     <% } %>
-
 
     <% if (process.env.VUE_APP_PLAUSIBLE_SCRIPT_URL && process.env.VUE_APP_PLAUSIBLE_DOMAIN) { %>
     <script defer data-domain="<%= process.env.VUE_APP_PLAUSIBLE_DOMAIN %>"
@@ -30,12 +29,28 @@
     </script>
     <% } %>
 
-    <meta name="msapplication-TileColor" content="#2b5797">
-    <meta name="msapplication-config" content="<%= BASE_URL %>browserconfig.xml">
-    <meta name="theme-color" content="#000000">
+    <meta data-vue-meta="1" name="msapplication-TileColor" content="#2b5797">
+    <meta data-vue-meta="1" name="msapplication-config" content="<%= BASE_URL %>browserconfig.xml">
+    <meta data-vue-meta="1" name="theme-color" content="#000000">
 
-    <meta name="description"
-          content="Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game."/>
+    <meta data-vue-meta="1" data-vmid="description" name="description" content="Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.">
+
+    <!-- Google / Search Engine Tags -->
+    <meta data-vue-meta="1" data-vmid="google-title" itemprop="name" content="PixyShip">
+    <meta data-vue-meta="1" data-vmid="google-description" itemprop="description" content="Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.">
+    <meta data-vue-meta="1" itemprop="image" content="https://pixyship.com/banner-1200x630.png">
+
+    <!-- Facebook Meta Tags -->
+    <meta data-vue-meta="1" property="og:type" content="website">
+    <meta data-vue-meta="1" data-vmid="og-title" property="og:title" content="PixyShip">
+    <meta data-vue-meta="1" data-vmid="og-description" property="og:description" content="Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.">
+    <meta data-vue-meta="1" property="og:image" content="https://pixyship.com/banner-1200x630.png">
+
+    <!-- Twitter Meta Tags -->
+    <meta data-vue-meta="1" name="twitter:card" content="summary_large_image">
+    <meta data-vue-meta="1" data-vmid="twitter-title" name="twitter:title" content="PixyShip">
+    <meta data-vue-meta="1" data-vmid="twitter-description" name="twitter:description" content="Daily offers, crews, prestiges recipes, items, market price and others resources of Pixel Starships game.">
+    <meta data-vue-meta="1" name="twitter:image" content="https://pixyship.com/banner-1200x630.png">
 </head>
 <body>
 <noscript>

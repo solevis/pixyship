@@ -1,7 +1,7 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
     <v-card-title class="overline">> Ships </v-card-title>
-    <v-card-subtitle>All Pixel Starships ships infos and sprites (click on a row to see interior and exterior)</v-card-subtitle>
+    <v-card-subtitle>{{ viewDescription }} (click on a row to see interior and exterior)</v-card-subtitle>
 
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
@@ -234,6 +234,40 @@
               </v-col>
             </v-row>
 
+            <v-row class="mx-2" v-if="item.requirements">
+              <v-col cols="12">
+                <v-card
+                    elevation="3"
+                    outlined
+                    shaped
+                  >
+
+                  <v-card-subtitle>
+                    <div class="overline">
+                      Requirements
+                    </div>
+                  </v-card-subtitle>
+
+                  <div class="px-4 pb-2">
+                    <v-chip-group
+                        column
+                        max="0"
+                        class="ma2"
+                    >
+                      <v-chip
+                          v-for="requirement in item.requirements" :key="requirement.object.id"
+                          link
+                          outlined
+                          :to="{ name: 'Rooms', query: { ids: requirement.object.id }}"
+                      >
+                        x{{ requirement.count }} {{ requirement.object.name }}
+                      </v-chip>
+                    </v-chip-group>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="primary" text @click="openShipInBuilder(item.id)">Open in Builder</v-btn>
@@ -248,10 +282,11 @@
 
 <script>
 import axios from "axios"
-import PixyShipMixin from "@/mixins/PixyShip.vue.js"
-import DataTableMixin from "@/mixins/DataTable.vue.js"
-import Item from "@/components/Item.vue"
-import "@/assets/css/override.css"
+import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
+import Item from "../components/Item.vue"
+import "../assets/css/override.css"
+import _ from 'lodash'
 
 export default {
   mixins: [PixyShipMixin, DataTableMixin],
@@ -262,6 +297,7 @@ export default {
 
   data() {
     return {
+      viewDescription: "All ships infos (sprite, type, requirement, spaces, HP...) of Pixel Starships",
       searchName: "",
       searchLevel: [],
       searchType: [],
@@ -283,9 +319,14 @@ export default {
               return true
             }
 
-            const ids = query.ids.split(',').map(function(id) {
-              return parseInt(id.trim())
-            })
+            let ids = []
+            if (typeof query.ids === 'number') {
+              ids.push(query.ids)
+            } else {
+               ids = query.ids.split(',').map(function(id) {
+                return parseInt(id.trim())
+              })
+            }
             
             return ids.includes(value)
           }
@@ -389,8 +430,47 @@ export default {
     }
   },
 
-  created() {
-    document.title = 'PixyShip - ' + this.$route.name
+  metaInfo () {
+    return {
+      title: this.$route.name,
+      meta: [
+        {
+          vmid: 'google-title',
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'og-title',
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'twitter-title',
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          vmid: 'description',
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'twitter-description',
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'og-description',
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          vmid: 'google-description',
+          itemprop: 'description',
+          content: this.viewDescription
+        },
+      ]
+    }
   },
 
   beforeMount: function () {
@@ -399,9 +479,9 @@ export default {
   },
 
   watch: {
-    searchName(value) {
+    searchName: _.debounce(function(value){
       this.updateQueryFromFilter('name', value)
-    },
+    }, 250),
 
     searchType(value) {
       this.updateQueryFromFilter('type', value)

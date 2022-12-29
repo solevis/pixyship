@@ -4,6 +4,101 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
+        <v-expansion-panel-header>2.5.0 &mdash; 2022-12-28</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Add button to display history of each daily sale origin (cargo, shop, etc)</li>
+              </ul>
+            </v-card-text>
+            <v-card-subtitle>Changed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Last sales by item show now 1,000 entries instead of 50</li>
+              </ul>
+            </v-card-text>
+        </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
+        <v-expansion-panel-header>2.4.0 &mdash; 2022-09-14</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Social network banner</li>
+                <li>Get promotions from API (new daily sales)</li>
+                <li>Import daily sales (for futur historic display)</li>
+                <li>Display tournament news</li>
+                <li>Store Item page active tab in URL</li>
+                <li>Add Savy token implementation</li>
+                <li>Item page: display item space and requirement</li>
+                <li>Add Docker environment for developing PixyShip</li>
+                <li>Add Fire Resists and Walk/Run stats in crew popup</li>
+                <li>Rooms page: filter by shop type (starbase, player, bux)</li>
+                <li>Implementation of FleetGift sale</li>
+                <li>Add search input for last sales in Item page</li>
+                <li>Import market messages to retrieve item sales offstat</li>
+                <li>WIP: display offstat in Item last sales table</li>
+              </ul>
+            </v-card-text>
+
+            <v-card-subtitle>Changed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Footer removed</li>
+                <li>Merge room and skins</li>
+                <li>Rename DSN to DATABASE_URI in backend configuration</li>
+                <li>Reduce cache expiration from 1 hour to 5 minutes</li>
+                <li>Randomize items when importing sales</li>
+              </ul>
+            </v-card-text>
+
+            <v-card-subtitle>Fixed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Builder was reloading at each change</li>
+                <li>Daily bundle sales can be multiple</li>
+                <li>Fix player search</li>
+                <li>Fix equipments column sorting</li>
+                <li>Rooms page: fix ids query parameter</li>
+                <li>Fix XP books bonus display</li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
+        <v-expansion-panel-header>2.3.0 &mdash; 2022-01-01</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Pins page</li>
+                <li>Crews: display stats score</li>
+                <li>Items: display "+??" (random stat) if rarity is at least hero</li>
+                <li>Item page: new tab showing possible upgrades</li>
+                <li>Home: display running event</li>
+              </ul>
+            </v-card-text>
+
+            <v-card-subtitle>Changed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                <li>Page's metadata</li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header>2.2.6 &mdash; 2021-11-24</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>
@@ -435,7 +530,7 @@ export default {
   name: "Changelog",
   data() {
     return {
-      panel: [0, 1, 2, 3, 4, 5, 6],
+      panel: [0],
     }
   },
 
