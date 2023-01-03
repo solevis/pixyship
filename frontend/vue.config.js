@@ -1,11 +1,13 @@
 module.exports = {
-  transpileDependencies: [
-    'vuetify'
-  ],
+    transpileDependencies: [
+        'vuetify'
+    ],
 
-  assetsDir: 'static',
+    assetsDir: 'static',
+    filenameHashing: true,
+    productionSourceMap: false,
 
-  devServer: {
-    public: '0.0.0.0:8080'
-  }
+    devServer: {
+        public: '0.0.0.0:8080'
+    }
 }

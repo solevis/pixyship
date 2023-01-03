@@ -6,7 +6,7 @@ update-browsers:
 	@docker compose exec -w /app pixyship-frontend npx browserslist@latest --update-db
 
 npm-build:
-	@docker compose exec -w /app pixyship-frontend npm run build
+	@docker compose exec -e NODE_ENV=production -w /app pixyship-frontend npm run build
 
 frontend: update-browsers npm-build
 
