@@ -69,8 +69,12 @@ def enforce_source(func):
     def wrapper(*args, **kwargs):
         # no need to check referrer if endpoint is public
         if not CONFIG['DEV_MODE'] and flask.request.endpoint not in PUBLIC_ENDPOINTS:
+            # no referrer ?
+            if not flask.request.referrer:
+                flask.abort(404)
+
             # referrer is PixyShip ?
-            if flask.request.referrer and '//{}/'.format(CONFIG['DOMAIN']) not in flask.request.referrer:
+            if '//{}/'.format(CONFIG['DOMAIN']) not in flask.request.referrer:
                 flask.abort(404)
 
         return func(*args, **kwargs)
