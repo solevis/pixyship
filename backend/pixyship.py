@@ -24,6 +24,7 @@ class PixyShip(metaclass=Singleton):
         self._characters = None
         self._collections = None
         self._dailies = None
+        self._star_system_merchant_markers = None
         self._situations = None
         self._promotions = None
         self._items = None
@@ -166,6 +167,14 @@ class PixyShip(metaclass=Singleton):
             self.expire_at('daily', DEFAULT_EXPIRATION_DURATION)
 
         return self._dailies
+
+    @property
+    def star_system_merchant_markers(self):
+        if not self._star_system_merchant_markers or self.expired('star_system_merchant_marker'):
+            self._star_system_merchant_markers = self._get_star_system_merchant_markers_from_api()
+            self.expire_at('star_system_merchant_marker', DEFAULT_EXPIRATION_DURATION)
+
+        return self._star_system_merchant_markers
 
     @property
     def changes(self):
@@ -1689,6 +1698,7 @@ class PixyShip(metaclass=Singleton):
             'tournament_news': dailies['TournamentNews'],
             'current_situation': self._get_current_situation(),
             'offers': offers,
+            'merchant_markers': self.star_system_merchant_markers
         }
 
         return dailies
@@ -1728,6 +1738,46 @@ class PixyShip(metaclass=Singleton):
                 return situation
 
         return None
+
+    def _get_star_system_merchant_markers_from_api(self):
+        """Get Star System Merchant Markers from API."""
+
+        data = self.pixel_starships_api.get_star_system_markers()
+        markers = []
+
+        for datum in data:
+            if datum['MarkerType'] != 'MerchantShip':
+                continue
+
+            costs = self._parse_assets_from_string(datum['CostString'])
+            rewards = self._parse_assets_from_string(datum['RewardString'])
+
+            availables_items = []
+            for i in range(0, len(rewards)):
+                availables_item = {
+                    'cost': costs[i],
+                    'reward': rewards[i]
+                }
+
+                availables_items.append(availables_item)
+
+            expiry_date = datum['ExpiryDate']
+
+            # hack, Savy don't put midnight but 5s before...
+            if expiry_date.endswith('T23:59:55'):
+                next_utc = datetime.datetime.utcnow().date() + datetime.timedelta(days=1)
+                expiry_date = next_utc.strftime("%Y-%m-%dT%H:%M:%S")
+
+            marker = {
+                'title': datum['Title'],
+                'sprite': self.get_sprite_infos(datum['SpriteId']),
+                'items': availables_items,
+                'expires': expiry_date
+            }
+
+            markers.append(marker)
+
+        return markers
 
     def _get_promotions_from_api(self):
         """Get promotions from API."""

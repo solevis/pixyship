@@ -1019,3 +1019,32 @@ class PixelStarshipsApi:
         """Extract promotion data from XML node."""
 
         return promotion_node.attrib.copy()
+
+    def get_star_system_markers(self):
+        """Get Star System Markers data from API."""
+
+        params = {
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/GalaxyService/ListStarSystemMarkers'
+        response = self.call(endpoint, params=params, need_token=True)
+        root = ElementTree.fromstring(response.text)
+
+        markers = []
+        markers_nodes = root.find('.//StarSystemMarkers')
+
+        if markers_nodes:
+            for marker_node in markers_nodes:
+                marker = self.parse_star_system_marker_node(marker_node)
+                marker['pixyship_xml_element'] = marker_node  # custom field, return raw XML data too
+                markers.append(marker)
+
+        return markers
+
+    @staticmethod
+    def parse_star_system_marker_node(marker_node):
+        """Extract Star System Marker data from XML node."""
+
+        return marker_node.attrib.copy()

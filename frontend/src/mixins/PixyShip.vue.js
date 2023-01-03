@@ -146,6 +146,10 @@ export default {
       return this.styleFromSprite({ height: 14, source: 1537, width: 17, x: 490, y: 258 })
     },
 
+    mapSprite() {
+      return this.styleFromSprite({ height: 20, source: 1391, width: 30, x: 175, y: 168 })
+    },
+
     nowTime(time) {
       return time ? moment.utc(time).local().format('YYYY/MM/DD LT') : ''
     },

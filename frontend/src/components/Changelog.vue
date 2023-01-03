@@ -4,6 +4,26 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
+        <v-expansion-panel-header>2.6.0 &mdash; 2023-01-03</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Display galaxy map merchant trader on the home</li>
+              </ul>
+            </v-card-text>
+            <v-card-subtitle>Changed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Larger home page layout</li>
+              </ul>
+            </v-card-text>
+        </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header>2.5.0 &mdash; 2022-12-28</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>
@@ -530,7 +550,7 @@ export default {
   name: "Changelog",
   data() {
     return {
-      panel: [0],
+      panel: [0, 1],
     }
   },
 

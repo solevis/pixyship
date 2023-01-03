@@ -555,3 +555,20 @@ def test_promotions():
     assert 'FromDate' in promotion
     assert 'ToDate' in promotion
     assert 'PackId' in promotion
+
+def test_star_system_markers():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+    markers = pixel_starships_api.get_star_system_markers()
+
+    assert len(markers) > 0
+
+    marker = markers[0]
+
+    assert 'CostString' in marker
+    assert 'RewardString' in marker
+    assert 'MarkerType' in marker
+    assert 'Title' in marker
+    assert 'ExpiryDate' in marker
