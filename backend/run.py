@@ -8,7 +8,6 @@ from config import CONFIG
 from db import db
 from pixyship import PixyShip
 
-PUBLIC_ENDPOINTS = []
 APP_NAME = 'pixyship'
 
 app = Flask(APP_NAME)
@@ -67,16 +66,19 @@ def enforce_source(func):
     """Decorator checking in production if the referrer is really PixyShip."""
 
     def wrapper(*args, **kwargs):
-        # no need to check referrer if endpoint is public
-        if not CONFIG['DEV_MODE'] and flask.request.endpoint not in PUBLIC_ENDPOINTS:
-            # no referrer ?
-            if not flask.request.referrer:
-                flask.abort(404)
+        # no need to check referrer on DEV
+        if CONFIG['DEV_MODE']:
+            return func(*args, **kwargs)
 
-            # referrer is PixyShip ?
-            if '//{}/'.format(CONFIG['DOMAIN']) not in flask.request.referrer:
-                flask.abort(404)
+        # no referrer ?
+        if not flask.request.referrer:
+            flask.abort(404)
 
+        # referrer is PixyShip ?
+        if '//{}/'.format(CONFIG['DOMAIN']) not in flask.request.referrer:
+            flask.abort(404)
+
+        # everything is ok, continue
         return func(*args, **kwargs)
 
     # lets flask see the underlying function
