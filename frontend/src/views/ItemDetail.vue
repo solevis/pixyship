@@ -158,12 +158,20 @@
                     <table style="margin: 0 auto;" class="mt-1">
                       <tr
                           v-for="(content_item, index) in item.content"
-                          :key="'item' + item.id + '-content-' + content_item.id + '-' + index"
+                          :key="'item' + item.id + '-content-' + index"
                           class="nobreak"
                       >
                         <td>
-                          <crew v-if="content_item.type === 'character'" :char="content_item.char"/>
-                          <item v-else-if="content_item.type === 'item'" :item="content_item.item"/>
+                          <crew v-if="content_item.type === 'character'" :char="content_item.data"/>
+                          <item v-else-if="content_item.type === 'item'" :item="content_item.data"/>
+
+                          <template v-else-if="content_item.type === 'starbux'">
+                            <div class="d-inline-block middle mr-1" :style="buxSprite()"></div>
+                          </template>
+
+                          <template v-else-if="content_item.type === 'points' || content_item.type === 'purchasePoints'">
+                            <div class="d-inline-block middle mr-1" :style="doveSprite()"></div>
+                          </template>
                         </td>
                         <td>x{{ content_item.count }}</td>
                       </tr>
@@ -276,18 +284,28 @@
 
             <div v-if="item.content.length > 0">Content:
               <ul>
-                <li v-for="(content_item) in item.content"
-                    :key="'item-cmp-' + item.id + '-content-' + content_item.id"
+                <li v-for="(content_item, index) in item.content"
+                    :key="'item-cmp-' + item.id + '-content-' + index"
                 >
 
                   <template v-if="content_item.type === 'character'">
-                    <crew :char="content_item.char" name="right" :count="content_item.count"/>
+                    <crew :char="content_item.data" name="right" :count="content_item.count"/>
                     <div style="clear: both"></div>
                   </template>
 
                   <template v-else-if="content_item.type === 'item'">
-                    <div class="d-inline-block middle mr-1">{{ content_item.item.name }}</div>
-                    <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.item.sprite)"></div>
+                    <div class="d-inline-block middle mr-1">{{ content_item.data.name }}</div>
+                    <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                    <div class="d-inline-block middle">x{{ content_item.count }}</div>
+                  </template>
+
+                  <template v-else-if="content_item.type === 'starbux'">
+                    <div class="d-inline-block middle mr-1" :style="buxSprite()"></div>
+                    <div class="d-inline-block middle">x{{ content_item.count }}</div>
+                  </template>
+
+                  <template v-else-if="content_item.type === 'points' || content_item.type === 'purchasePoints'">
+                    <div class="d-inline-block middle mr-1" :style="doveSprite()"></div>
                     <div class="d-inline-block middle">x{{ content_item.count }}</div>
                   </template>
                 </li>

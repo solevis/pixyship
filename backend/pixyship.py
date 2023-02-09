@@ -1115,12 +1115,15 @@ class PixyShip(metaclass=Singleton):
                 content_item_id_count_unpacked = content_item_unpacked[1].split('x')
                 content_item_id = content_item_id_count_unpacked[0]
 
-                line = {}
+                content_item_count = 1
+                content_item_data = None
 
                 # if change's a Character, get all infos of the crew
                 if content_item_type == 'character':
                     try:
-                        line['char'] = self.characters[int(content_item_id)]
+                        content_item_data = self.characters[int(content_item_id)]
+                        if len(content_item_id_count_unpacked) > 1:
+                            content_item_count = int(content_item_id_count_unpacked[1])
                     except KeyError:
                         continue
 
@@ -1128,28 +1131,39 @@ class PixyShip(metaclass=Singleton):
                 elif content_item_type == 'item':
                     try:
                         item = items.get(int(content_item_id))
+                        if len(content_item_id_count_unpacked) > 1:
+                            content_item_count = int(content_item_id_count_unpacked[1])
                     except KeyError:
                         continue
 
-                    line['item'] = PixyShip._create_light_item(item)
+                    content_item_data = PixyShip._create_light_item(item)
 
                     # avoid infinite recursion when item reward can be the item itself
                     if last_item['id'] != item['id']:
-                        line['item']['content'] = self._parse_item_content(item['content_string'], item, items)
+                        content_item_data['content'] = self._parse_item_content(item['content_string'], item, items)
+
+                # if change's is Starbux
+                elif content_item_type == 'starbux':
+                    content_item_data = None
+                    content_item_id = None
+                    content_item_count = int(content_item_unpacked[1])
+
+                # if change's is Dove
+                elif content_item_type == 'purchasePoints' or content_item_type == 'points':
+                    content_item_data = None
+                    content_item_id = None
+                    content_item_count = int(content_item_unpacked[1])
 
                 # Unknown type
                 else:
                     continue
 
-                content_item_count = 1
-                if len(content_item_id_count_unpacked) > 1:
-                    content_item_count = int(content_item_id_count_unpacked[1])
-
-                line.update({
-                    'count': content_item_count,
-                    'id': content_item_id,
+                line = {
                     'type': content_item_type,
-                })
+                    'id': content_item_id,
+                    'data': content_item_data,
+                    'count': content_item_count,
+                }
 
                 content.append(line)
 
@@ -1852,7 +1866,7 @@ class PixyShip(metaclass=Singleton):
                     data = int(asset_item_data)
 
                 # if change's is Dove
-                elif asset_item_type == 'purchasePoints':
+                elif asset_item_type == 'purchasePoints' or asset_item_type == 'points':
                     data = int(asset_item_data)
 
                 # Unknown type

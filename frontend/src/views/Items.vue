@@ -285,8 +285,16 @@
                       class="nobreak"
                     >
                       <td>
-                        <crew v-if="content_item.type === 'character'" :char="content_item.char" />
-                        <item v-else-if="content_item.type === 'item'" :item="content_item.item"/>
+                        <crew v-if="content_item.type === 'character'" :char="content_item.data" />
+                        <item v-else-if="content_item.type === 'item'" :item="content_item.data"/>
+
+                        <template v-else-if="content_item.type === 'starbux'">
+                          <div class="d-inline-block middle mr-1" :style="buxSprite()"></div>
+                        </template>
+
+                        <template v-else-if="content_item.type === 'points' || content_item.type === 'purchasePoints'">
+                          <div class="d-inline-block middle mr-1" :style="doveSprite()"></div>
+                        </template>
                       </td>
                       <td>x{{ content_item.count }}</td>
                     </tr>
