@@ -116,6 +116,13 @@
                     </td>
                     <td>{{ item.starbux_cost }}</td>
                   </tr>
+
+                  <tr v-if="item.points_cost > 0" class="nobreak">
+                    <td>
+                      <div :style="doveSprite()" />
+                    </td>
+                    <td>{{ item.points_cost }}</td>
+                  </tr>
                 </table>
 
                 <item v-for="cost in item.items_cost" :key="item.id + '-' + cost.id" :item="cost" name="right" />

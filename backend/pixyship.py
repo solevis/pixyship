@@ -738,7 +738,7 @@ class PixyShip(metaclass=Singleton):
         ships = {}
         for record in records:
             ship = self.pixel_starships_api.parse_ship_node(ElementTree.fromstring(record.data))
-            starbux_cost, mineral_cost, items_cost = self._parse_ship_unlock_costs(ship['MineralCost'], ship['StarbuxCost'], ship['UnlockCost'])
+            starbux_cost, mineral_cost, points_cost, items_cost = self._parse_ship_unlock_costs(ship['MineralCost'], ship['StarbuxCost'], ship['UnlockCost'])
 
             ships[record.type_id] = {
                 'id': record.type_id,
@@ -761,6 +761,7 @@ class PixyShip(metaclass=Singleton):
                 'mask': ship['Mask'],
                 'mineral_cost': mineral_cost,
                 'starbux_cost': starbux_cost,
+                'points_cost': points_cost,
                 'items_cost': items_cost,
                 'mineral_capacity': ship['MineralCapacity'],
                 'gas_capacity': ship['GasCapacity'],
@@ -1174,6 +1175,7 @@ class PixyShip(metaclass=Singleton):
 
         starbux_cost = 0
         mineral_cost = 0
+        points_cost = 0
         items_cost = []
 
         if unlock_cost_string:
@@ -1189,6 +1191,10 @@ class PixyShip(metaclass=Singleton):
                     mineral_cost = int(cost_value)
                     continue
 
+                if cost_type == 'points':
+                    points_cost = int(cost_value)
+                    continue
+
                 if cost_type == 'item':
                     item = self.items.get(int(cost_value))
 
@@ -1202,7 +1208,7 @@ class PixyShip(metaclass=Singleton):
             starbux_cost = int(starbux_cost_string)
             mineral_cost = int(mineral_cost_string)
 
-        return starbux_cost, mineral_cost, items_cost
+        return starbux_cost, mineral_cost, points_cost, items_cost
 
     def update_items(self):
         """Get items from API and save them in database."""
