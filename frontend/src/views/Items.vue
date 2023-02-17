@@ -616,8 +616,12 @@ export default {
       let items = []
       for (const itemId in response.data.data) {
         const item = response.data.data[itemId]
-        item.id = Number(itemId)
-        items.push(item)
+
+        // filter Craft, they already are in Crafts page
+        if (item.type !== 'Craft') {
+          item.id = Number(itemId)
+          items.push(item)
+        }
       }
 
       items.forEach((item) => {

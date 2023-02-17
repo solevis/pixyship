@@ -269,6 +269,7 @@ def api_ships():
         'status': 'success',
     })
 
+
 @app.route('/api/lastsales/<path:type>/<int:type_id>')
 @enforce_source
 def api_last_sales(type, type_id):
@@ -278,6 +279,7 @@ def api_last_sales(type, type_id):
         'status': 'success',
     })
 
+
 @app.route('/api/lastsalesbysalefrom/<path:sale_from>')
 @enforce_source
 def api_last_sales_by_type(sale_from):
@@ -286,6 +288,18 @@ def api_last_sales_by_type(sale_from):
         'data': last_sales,
         'status': 'success',
     })
+
+
+@app.route('/api/crafts')
+@enforce_source
+def api_crafts():
+    crafts = pixyship.crafts
+
+    return jsonify({
+        'data': crafts,
+        'status': 'success',
+    })
+
 
 @app.route('/api/<path:path>')
 def bad_api(_):

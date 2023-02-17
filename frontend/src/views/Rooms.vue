@@ -677,24 +677,6 @@ export default {
       }
     },
 
-    computeDps(damage, room) {
-      let volley = room.volley
-      if (volley == 0) {
-        volley = 1
-      }
-
-      let volley_delay = room.volley_delay / 40
-      if (volley_delay == 0) {
-        volley_delay = 1
-      }
-
-      let reload = room.reload / 40
-      let cooldown = room.cooldown_time ? room.cooldown_time / 40 : 0
-
-      let dps = (damage * volley) / (reload + (volley - 1) * volley_delay + cooldown)
-      return Math.ceil(dps * 100) / 100
-    },
-
     getRooms: async function () {
       const response = await axios.get(this.roomsEndpoint)
 

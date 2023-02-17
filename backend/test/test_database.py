@@ -39,6 +39,19 @@ def test_rooms():
     assert rooms[10]['level'] == 2
 
 
+def test_crafts():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixyship = PixyShip()
+    crafts = pixyship._get_crafts_from_db()
+
+    assert len(crafts) > 0
+    assert crafts[10]['id'] == 10
+    assert crafts[10]['name'] == 'Interceptor Lv7'
+    assert crafts[10]['hp'] == 5
+
+
 def test_upgrades():
     # avoid Flask RuntimeError: No application found
     push_context()

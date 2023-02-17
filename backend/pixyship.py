@@ -34,6 +34,7 @@ class PixyShip(metaclass=Singleton):
         self._trainings = {}
         self._achievements = {}
         self._rooms = None
+        self._crafts = None
         self._ships = None
         self._sprites = None
         self._rooms_sprites = None
@@ -113,6 +114,14 @@ class PixyShip(metaclass=Singleton):
             self.expire_at('room', DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms_by_name
+
+    @property
+    def crafts(self):
+        if not self._crafts or self.expired('craft'):
+            self._crafts = self._get_crafts_from_db()
+            self.expire_at('craft', DEFAULT_EXPIRATION_DURATION)
+
+        return self._crafts
 
     @property
     def researches(self):
@@ -243,6 +252,8 @@ class PixyShip(metaclass=Singleton):
                 return self.ships[object_id]
             if object_type == 'Research':
                 return self.researches[object_id]
+            if object_type == 'Craft':
+                return self.crafts[object_id]
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -923,6 +934,55 @@ class PixyShip(metaclass=Singleton):
 
         return rooms, upgrades, rooms_by_name
 
+    def update_crafts(self):
+        """Get crafts from API and save them in database."""
+
+        crafts = self.pixel_starships_api.get_crafts()
+        still_presents_ids = []
+
+        for craft in crafts:
+            record_id = craft['CraftDesignId']
+            Record.update_data('craft', record_id, craft['pixyship_xml_element'], self.pixel_starships_api.server)
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('craft', still_presents_ids)
+
+    def _get_crafts_from_db(self):
+        """Load crafts from database."""
+
+        records = Record.query.filter_by(type='craft', current=True).all()
+
+        crafts = {}
+        for record in records:
+            craft = self.pixel_starships_api.parse_craft_node(ElementTree.fromstring(record.data))
+            missile_design = craft['MissileDesign']
+
+            crafts[record.type_id] = {
+                'id': record.type_id,
+                'name': craft['CraftName'],
+                'flight_speed': int(craft['FlightSpeed']),
+                'reload': int(craft['Reload']),
+                'volley': int(craft['Volley']),
+                'volley_delay': int(craft['VolleyDelay']),
+                'hp': int(craft['Hp']),
+                'craft_attack_type': craft['CraftAttackType'],
+                'sprite': self.get_sprite_infos(int(craft['SpriteId'])),
+                'system_damage': float(missile_design['SystemDamage']) if missile_design else 0,
+                'hull_damage': float(missile_design['HullDamage']) if missile_design else 0,
+                'character_damage': float(missile_design['CharacterDamage']) if missile_design else 0,
+                'shield_damage': float(missile_design['ShieldDamage']) if missile_design else 0,
+                'direct_system_damage': float(missile_design['DirectSystemDamage']) if missile_design else 0,
+                'volley': float(missile_design['Volley']) if missile_design else 0,
+                'volley_delay': float(missile_design['VolleyDelay']) if missile_design else 0,
+                'speed': float(missile_design['Speed']) if missile_design else 0,
+                'fire_length': float(missile_design['FireLength']) if missile_design else 0,
+                'emp_length': float(missile_design['EMPLength']) if missile_design else 0,
+                'stun_length': float(missile_design['StunLength']) if missile_design else 0,
+                'hull_percentage_damage': float(missile_design['HullPercentageDamage']) if missile_design else 0,
+            }
+
+        return crafts
+
     @staticmethod
     def _parse_equipment_slots(character):
         """Determine equipments slots with character equipment mask."""
@@ -1429,7 +1489,7 @@ class PixyShip(metaclass=Singleton):
         min_changes_dates_sql = """
             SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
             FROM record
-            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite')
+            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite', 'craft')
             GROUP BY type
         """
 
@@ -1930,6 +1990,8 @@ class PixyShip(metaclass=Singleton):
                 return self.ships[type_id]['mini_ship_sprite']
             if record_type == 'sprite':
                 return self.get_sprite_infos(type_id)
+            if record_type == 'craft':
+                return self.crafts[type_id]['sprite']
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -1955,6 +2017,8 @@ class PixyShip(metaclass=Singleton):
                 return self.ships[type_id]['name']
             if record_type == 'sprite':
                 return self.get_sprite_infos(type_id)['source']
+            if record_type == 'craft':
+                return self.crafts[type_id]['name']
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:

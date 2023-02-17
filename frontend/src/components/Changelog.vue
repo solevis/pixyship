@@ -4,6 +4,26 @@
 
     <v-expansion-panels accordion multiple v-model="panel">
       <v-expansion-panel>
+        <v-expansion-panel-header>2.7.0 &mdash; 2023-02-17</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-card flat>
+            <v-card-subtitle>Added</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Crafts page</li>
+              </ul>
+            </v-card-text>
+            <v-card-subtitle>Changed</v-card-subtitle>
+            <v-card-text>
+              <ul>
+                  <li>Crafts are no longer displayed in Items page</li>
+              </ul>
+            </v-card-text>
+        </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header>2.6.0 &mdash; 2023-01-03</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-card flat>

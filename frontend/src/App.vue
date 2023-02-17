@@ -31,17 +31,18 @@
       <v-spacer></v-spacer>
 
       <template v-if="$vuetify.breakpoint.mdAndUp">
-        <v-btn text to="/players">Players</v-btn>
-        <v-btn text to="/builder">Builder</v-btn>
-        <v-btn text to="/changes">Changes</v-btn>
-        <v-btn text to="/crews">Crews</v-btn>
-        <v-btn text to="/items">Items</v-btn>
-        <v-btn text to="/rooms">Rooms</v-btn>
-        <v-btn text to="/ships">Ships</v-btn>
-        <v-btn text to="/collections">Collections</v-btn>
-        <v-btn text to="/achievements">Pins</v-btn>
-        <v-btn text to="/researches">Researches</v-btn>
-        <v-btn aria-label="About" icon to="/about"><v-icon>mdi-help-circle-outline</v-icon></v-btn>
+        <v-btn text small to="/players">Players</v-btn>
+        <v-btn text small to="/builder">Builder</v-btn>
+        <v-btn text small to="/changes">Changes</v-btn>
+        <v-btn text small to="/crews">Crews</v-btn>
+        <v-btn text small to="/items">Items</v-btn>
+        <v-btn text small to="/rooms">Rooms</v-btn>
+        <v-btn text small to="/crafts">Crafts</v-btn>
+        <v-btn text small to="/ships">Ships</v-btn>
+        <v-btn text small to="/collections">Collections</v-btn>
+        <v-btn text small to="/achievements">Pins</v-btn>
+        <v-btn text small to="/researches">Researches</v-btn>
+        <v-btn small aria-label="About" icon to="/about"><v-icon small>mdi-help-circle-outline</v-icon></v-btn>
       </template>
     </v-app-bar>
 
@@ -63,6 +64,7 @@
             <v-list-item to="/crews"><v-list-item-title>Crews</v-list-item-title></v-list-item>
             <v-list-item to="/items"><v-list-item-title>Items</v-list-item-title></v-list-item>
             <v-list-item to="/rooms"><v-list-item-title>Rooms</v-list-item-title></v-list-item>
+            <v-list-item to="/crafts"><v-list-item-title>Crafts</v-list-item-title></v-list-item>
             <v-list-item to="/ships"><v-list-item-title>Ships</v-list-item-title></v-list-item>
             <v-list-item to="/collections"><v-list-item-title>Collections</v-list-item-title></v-list-item>
             <v-list-item to="/achievements"><v-list-item-title>Pins</v-list-item-title></v-list-item>

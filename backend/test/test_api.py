@@ -572,3 +572,32 @@ def test_star_system_markers():
     assert 'MarkerType' in marker
     assert 'Title' in marker
     assert 'ExpiryDate' in marker
+
+
+def test_crafts():
+    pixel_starships_api = PixelStarshipsApi()
+    crafts = pixel_starships_api.get_crafts()
+
+    assert len(crafts) > 0
+
+    craft = crafts[0]
+    assert 'CraftName' in craft
+    assert 'FlightSpeed' in craft
+    assert 'Reload' in craft
+    assert 'Volley' in craft
+    assert 'VolleyDelay' in craft
+    assert 'Hp' in craft
+    assert 'CraftAttackType' in craft
+    assert 'SpriteId' in craft
+    assert 'SystemDamage' in craft['MissileDesign']
+    assert 'HullDamage' in craft['MissileDesign']
+    assert 'CharacterDamage' in craft['MissileDesign']
+    assert 'ShieldDamage' in craft['MissileDesign']
+    assert 'DirectSystemDamage' in craft['MissileDesign']
+    assert 'Volley' in craft['MissileDesign']
+    assert 'VolleyDelay' in craft['MissileDesign']
+    assert 'Speed' in craft['MissileDesign']
+    assert 'FireLength' in craft['MissileDesign']
+    assert 'EMPLength' in craft['MissileDesign']
+    assert 'StunLength' in craft['MissileDesign']
+    assert 'HullPercentageDamage' in craft['MissileDesign']

@@ -118,6 +118,9 @@ def import_assets():
     logger.info('Importing achievements...')
     pixyship.update_achievements()
 
+    logger.info('Importing crafts...')
+    pixyship.update_crafts()
+
     logger.info('Done')
 
 def import_prestiges():

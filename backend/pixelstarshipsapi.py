@@ -474,6 +474,86 @@ class PixelStarshipsApi:
 
         return room
 
+    def get_missile_designs(self):
+        """Get missile designs from API."""
+
+        params = {
+            'designVersion': self.__api_settings['MissileDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/RoomService/ListMissileDesigns'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        missile_designs = []
+        missile_design_nodes = root.find('.//MissileDesigns')
+
+        for missile_design_node in missile_design_nodes:
+            missile_design = self.parse_missile_design_node(missile_design_node)
+
+            missile_design['pixyship_xml_element'] = missile_design_node  # custom field, return raw XML data too
+            missile_designs.append(missile_design)
+
+        return missile_designs
+
+    @staticmethod
+    def parse_missile_design_node(missile_design_node):
+        """Extract missile design data from XML node."""
+
+        missile_design = missile_design_node.attrib.copy()
+        return missile_design
+
+    def get_crafts(self):
+        """Get crafts designs from API."""
+
+        # get room purchase
+        missile_designs = self.get_missile_designs()
+
+        params = {
+            'designVersion': self.__api_settings['CraftDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/RoomService/ListCraftDesigns'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        crafts = []
+        craft_nodes = root.find('.//CraftDesigns')
+
+        for craft_node in craft_nodes:
+            missile_design = next(
+                (missile_design for missile_design in missile_designs if missile_design['MissileDesignId'] == craft_node.attrib['MissileDesignId']),
+                None
+            )
+
+            if missile_design:
+                craft_node.append(missile_design['pixyship_xml_element'])
+
+            craft = self.parse_craft_node(craft_node)
+
+            craft['pixyship_xml_element'] = craft_node  # custom field, return raw XML data too
+            crafts.append(craft)
+
+        return crafts
+
+    @staticmethod
+    def parse_craft_node(craft_node):
+        """Extract craft data from XML node."""
+
+        craft = craft_node.attrib.copy()
+
+        missile_design_node = list(craft_node.iter('MissileDesign'))
+        if missile_design_node:
+            craft['MissileDesign'] = missile_design_node[0].attrib
+        else:
+            craft['MissileDesign'] = None
+
+        return craft
+
     def get_rooms_purchase(self):
         """Get room designs from API."""
 

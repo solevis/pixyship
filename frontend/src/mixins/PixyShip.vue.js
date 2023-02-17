@@ -27,6 +27,7 @@ export default {
       tournamentEndpoint: apiServer + 'api/tournament',
       lastSalesEndpoint: (type, id) => apiServer + `api/lastsales/${type}/${id}`,
       lastSalesBySaleFromEndpoint: (sale_from) => apiServer + `api/lastsalesbysalefrom/${sale_from}`,
+      craftsEndpoint: apiServer + 'api/crafts',
     }
   },
 
@@ -240,6 +241,28 @@ export default {
       if (type === 'research') {
         return `/researches?ids=${id}`
       }
+
+      if (type === 'craft') {
+        return `/crafts?ids=${id}`
+      }
+    },
+
+    computeDps(damage, room) {
+      let volley = room.volley
+      if (volley == 0) {
+        volley = 1
+      }
+
+      let volley_delay = room.volley_delay / 40
+      if (volley_delay == 0) {
+        volley_delay = 1
+      }
+
+      let reload = room.reload / 40
+      let cooldown = room.cooldown_time ? room.cooldown_time / 40 : 0
+
+      let dps = (damage * volley) / (reload + (volley - 1) * volley_delay + cooldown)
+      return Math.ceil(dps * 100) / 100
     },
   }
 }
