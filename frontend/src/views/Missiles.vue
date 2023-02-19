@@ -59,7 +59,7 @@
           <td>{{ item.character_damage }}</td>
           <td>{{ item.shield_damage }}</td>
           <td>{{ item.direct_system_damage }}</td>
-          <td>{{ item.speed }}<br><span class="damage-dps">{{ `${item.speed / 40}s` }}</span></td>
+          <td>{{ item.speed }}<br><span class="damage-dps">{{ `${item.speed * 40}px/s` }}</span></td>
           <td>{{ item.fire_length }}<br><span class="damage-dps">{{ `${item.fire_length / 40}s` }}</span></td>
           <td>{{ item.emp_length }}<br><span class="damage-dps">{{ `${item.emp_length / 40}s` }}</span></td>
         </tr>
