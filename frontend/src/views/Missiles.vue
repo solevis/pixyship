@@ -24,7 +24,7 @@
         v-if="loaded"
         mobile-breakpoint="0"
         :headers="headers"
-        :items="crafts"
+        :items="missiles"
         :search="searchName"
         :custom-filter="multipleFilterWithNegative"
         :items-per-page="20"
@@ -44,16 +44,21 @@
             <div class="block my-1" :style="spriteStyle(item.sprite)"></div>
           </td>
           <td class="name">{{ item.name }}</td>
-          <td>{{ item.flight_speed }}</td>
-          <td>{{ item.reload }}<br><span class="damage-dps">{{ `${item.reload / 40}s` }}</span></td>
+          <td>{{ item.build_time }}<br><span class="damage-dps">{{ `${item.build_time / 40}s` }}</span></td>
+          <td>
+            <div class="d-flex">
+              {{ item.manufacture_cost[0].data }}
+              <div v-if="item.manufacture_cost[0].type === 'gas'" :style="gasSprite()"></div>
+              <div v-else-if="item.manufacture_cost[0].type === 'mineral'" :style="mineralSprite()"></div>
+            </div>
+          </td>
           <td>{{ item.volley }}</td>
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
-          <td>{{ item.hp }}</td>
-          <td>{{ item.system_damage }}<br><span class="damage-dps">{{ `${computeDps(item.system_damage, item)}/s` }}</span></td>
-          <td>{{ item.hull_damage }}<br><span class="damage-dps">{{ `${computeDps(item.hull_damage, item)}/s` }}</span></td>
-          <td>{{ item.character_damage }}<br><span class="damage-dps">{{ `${computeDps(item.character_damage, item)}/s` }}</span></td>
-          <td>{{ item.shield_damage }}<br><span class="damage-dps">{{ `${computeDps(item.shield_damage, item)}/s` }}</span></td>
-          <td>{{ item.direct_system_damage }}<br><span class="damage-dps">{{ `${computeDps(item.direct_system_damage, item)}/s` }}</span></td>
+          <td>{{ item.system_damage }}</td>
+          <td>{{ item.hull_damage }}</td>
+          <td>{{ item.character_damage }}</td>
+          <td>{{ item.shield_damage }}</td>
+          <td>{{ item.direct_system_damage }}</td>
           <td>{{ item.speed }}<br><span class="damage-dps">{{ `${item.speed / 40}s` }}</span></td>
           <td>{{ item.fire_length }}<br><span class="damage-dps">{{ `${item.fire_length / 40}s` }}</span></td>
           <td>{{ item.emp_length }}<br><span class="damage-dps">{{ `${item.emp_length / 40}s` }}</span></td>
@@ -74,8 +79,8 @@ export default {
 
   data() {
     return {
-      viewDescription: "All crafts infos of Pixel Starships",
-      crafts: [],
+      viewDescription: "All missiles infos of Pixel Starships",
+      missiles: [],
       loaded: false,
       searchName: this.name,
       headers: [
@@ -108,18 +113,19 @@ export default {
           text: "Name",
           align: "left",
           value: "name",
+          width: 150,
           filterable: true
         },
         {
-          text: "Speed",
+          text: "Build Time",
           align: "left",
-          value: "flight_speed",
+          value: "build_time",
           filterable: true
         },
         {
-          text: "Reload",
+          text: "Cost",
           align: "left",
-          value: "reload",
+          value: "manufacture_cost",
           filterable: true
         },
         {
@@ -132,12 +138,6 @@ export default {
           text: "Volley Delay",
           align: "left",
           value: "volley_delay",
-          filterable: true
-        },
-        {
-          text: "HP",
-          align: "left",
-          value: "hp",
           filterable: true
         },
         {
@@ -246,7 +246,7 @@ export default {
 
   beforeMount: function () {
     this.initFilters()
-    this.getCrafts()
+    this.getMissiles()
   },
 
   watch: {
@@ -260,19 +260,19 @@ export default {
       this.searchName = this.$route.query.name
     },
 
-    getCrafts: async function () {
-      const response = await axios.get(this.craftsEndpoint)
+    getMissiles: async function () {
+      const response = await axios.get(this.missilesEndpoint)
 
-      let crafts = Object.entries(response.data.data).map(
-          (craft) => craft[1]
+      let missiles = Object.entries(response.data.data).map(
+          (missile) => missile[1]
       )
 
-      crafts.sort((a, b) => b.id - a.id)
+      missiles.sort((a, b) => b.id - a.id)
 
-      this.crafts = crafts
+      this.missiles = missiles
 
       this.loaded = true
-      return this.crafts
+      return this.missiles
     },
   },
 }

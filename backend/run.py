@@ -301,6 +301,17 @@ def api_crafts():
     })
 
 
+@app.route('/api/missiles')
+@enforce_source
+def api_missiles():
+    missiles = pixyship.missiles
+
+    return jsonify({
+        'data': missiles,
+        'status': 'success',
+    })
+
+
 @app.route('/api/<path:path>')
 def bad_api(_):
     """Places you shouldn't go"""

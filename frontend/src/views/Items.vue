@@ -617,8 +617,8 @@ export default {
       for (const itemId in response.data.data) {
         const item = response.data.data[itemId]
 
-        // filter Craft, they already are in Crafts page
-        if (item.type !== 'Craft') {
+        // filter Craft and Missile, they already are in Crafts page
+        if (item.type !== 'Craft' && item.type !== 'Missile') {
           item.id = Number(itemId)
           items.push(item)
         }

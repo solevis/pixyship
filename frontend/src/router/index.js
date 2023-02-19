@@ -100,6 +100,11 @@ const routes = [
     component: () => import('../views/Crafts.vue')
   },
   {
+    path: '/missiles',
+    name: 'Missiles',
+    component: () => import('../views/Missiles.vue')
+  },
+  {
     path: '*',
     component: () => import('../views/Home.vue')
   }

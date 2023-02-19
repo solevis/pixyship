@@ -28,6 +28,7 @@ export default {
       lastSalesEndpoint: (type, id) => apiServer + `api/lastsales/${type}/${id}`,
       lastSalesBySaleFromEndpoint: (sale_from) => apiServer + `api/lastsalesbysalefrom/${sale_from}`,
       craftsEndpoint: apiServer + 'api/crafts',
+      missilesEndpoint: apiServer + 'api/missiles',
     }
   },
 
@@ -244,6 +245,10 @@ export default {
 
       if (type === 'craft') {
         return `/crafts?ids=${id}`
+      }
+
+      if (type === 'missile') {
+        return `/missiles?ids=${id}`
       }
     },
 

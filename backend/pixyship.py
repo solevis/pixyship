@@ -35,6 +35,7 @@ class PixyShip(metaclass=Singleton):
         self._achievements = {}
         self._rooms = None
         self._crafts = None
+        self._missiles = None
         self._ships = None
         self._sprites = None
         self._rooms_sprites = None
@@ -122,6 +123,14 @@ class PixyShip(metaclass=Singleton):
             self.expire_at('craft', DEFAULT_EXPIRATION_DURATION)
 
         return self._crafts
+
+    @property
+    def missiles(self):
+        if not self._missiles or self.expired('missile'):
+            self._missiles = self._get_missiles_from_db()
+            self.expire_at('craft', DEFAULT_EXPIRATION_DURATION)
+
+        return self._missiles
 
     @property
     def researches(self):
@@ -982,6 +991,51 @@ class PixyShip(metaclass=Singleton):
             }
 
         return crafts
+
+    def update_missiles(self):
+        """Get missiles from API and save them in database."""
+
+        missiles = self.pixel_starships_api.get_missiles()
+        still_presents_ids = []
+
+        for missile in missiles:
+            record_id = missile['ItemDesignId']
+            Record.update_data('missile', record_id, missile['pixyship_xml_element'], self.pixel_starships_api.server)
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('missile', still_presents_ids)
+
+    def _get_missiles_from_db(self):
+        """Load missiles from database."""
+
+        records = Record.query.filter_by(type='missile', current=True).all()
+
+        missiles = {}
+        for record in records:
+            missile = self.pixel_starships_api.parse_missile_node(ElementTree.fromstring(record.data))
+            missile_design = missile['MissileDesign']
+
+            missiles[record.type_id] = {
+                'id': record.type_id,
+                'name': missile['ItemDesignName'],
+                'build_time': int(missile['BuildTime']),
+                'manufacture_cost': self._parse_assets_from_string(missile['ManufactureCost']),
+                'sprite': self.get_sprite_infos(int(missile['ImageSpriteId'])),
+                'system_damage': float(missile_design['SystemDamage']) if missile_design else 0,
+                'hull_damage': float(missile_design['HullDamage']) if missile_design else 0,
+                'character_damage': float(missile_design['CharacterDamage']) if missile_design else 0,
+                'shield_damage': float(missile_design['ShieldDamage']) if missile_design else 0,
+                'direct_system_damage': float(missile_design['DirectSystemDamage']) if missile_design else 0,
+                'volley': float(missile_design['Volley']) if missile_design else 0,
+                'volley_delay': float(missile_design['VolleyDelay']) if missile_design else 0,
+                'speed': float(missile_design['Speed']) if missile_design else 0,
+                'fire_length': float(missile_design['FireLength']) if missile_design else 0,
+                'emp_length': float(missile_design['EMPLength']) if missile_design else 0,
+                'stun_length': float(missile_design['StunLength']) if missile_design else 0,
+                'hull_percentage_damage': float(missile_design['HullPercentageDamage']) if missile_design else 0,
+            }
+
+        return missiles
 
     @staticmethod
     def _parse_equipment_slots(character):
@@ -1927,12 +1981,11 @@ class PixyShip(metaclass=Singleton):
                     except KeyError:
                         continue
 
-                # if change's is Starbux
-                elif asset_item_type == 'starbux':
-                    data = int(asset_item_data)
-
-                # if change's is Dove
-                elif asset_item_type == 'purchasePoints' or asset_item_type == 'points':
+                # if change's is Starbux, Dove, Gas or Mineral
+                elif asset_item_type == 'starbux' \
+                        or asset_item_type == 'purchasePoints' or asset_item_type == 'points' \
+                        or asset_item_type == 'gas' \
+                        or asset_item_type == 'mineral':
                     data = int(asset_item_data)
 
                 # Unknown type

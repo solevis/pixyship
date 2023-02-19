@@ -508,7 +508,7 @@ class PixelStarshipsApi:
     def get_crafts(self):
         """Get crafts designs from API."""
 
-        # get room purchase
+        # get missile designs
         missile_designs = self.get_missile_designs()
 
         params = {
@@ -530,9 +530,11 @@ class PixelStarshipsApi:
                 None
             )
 
-            if missile_design:
-                craft_node.append(missile_design['pixyship_xml_element'])
+            if not missile_design:
+                logger.error('Cannot retrieve craft MissileDesign for MissileDesignId {}'.format(craft_node.attrib['MissileDesignId']))
+                continue
 
+            craft_node.append(missile_design['pixyship_xml_element'])
             craft = self.parse_craft_node(craft_node)
 
             craft['pixyship_xml_element'] = craft_node  # custom field, return raw XML data too
@@ -547,12 +549,60 @@ class PixelStarshipsApi:
         craft = craft_node.attrib.copy()
 
         missile_design_node = list(craft_node.iter('MissileDesign'))
-        if missile_design_node:
-            craft['MissileDesign'] = missile_design_node[0].attrib
-        else:
-            craft['MissileDesign'] = None
+        craft['MissileDesign'] = missile_design_node[0].attrib
 
         return craft
+
+    def get_missiles(self):
+        """Get missiles designs from API."""
+
+        # get room purchase
+        missile_designs = self.get_missile_designs()
+
+        params = {
+            'designVersion': self.__api_settings['ItemDesignVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/ItemService/ListItemDesigns2'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        missiles = []
+        item_nodes = root.find('.//ItemDesigns')
+
+        for item_node in item_nodes:
+            if item_node.attrib['ItemType'] != 'Missile':
+                continue
+
+            missile_design = next(
+                (missile_design for missile_design in missile_designs if missile_design['MissileDesignId'] == item_node.attrib['MissileDesignId']),
+                None
+            )
+
+            if not missile_design:
+                logger.error('Cannot retrieve missile MissileDesign for MissileDesignId {}'.format(item_node.attrib['MissileDesignId']))
+                continue
+
+            item_node.append(missile_design['pixyship_xml_element'])
+            missile = self.parse_missile_node(item_node)
+
+            missile['pixyship_xml_element'] = item_node  # custom field, return raw XML data too
+            missiles.append(missile)
+
+        return missiles
+
+    @staticmethod
+    def parse_missile_node(missile_node):
+        """Extract missile data from XML node."""
+
+        missile = missile_node.attrib.copy()
+
+        missile_design_node = list(missile_node.iter('MissileDesign'))
+        missile['MissileDesign'] = missile_design_node[0].attrib
+
+        return missile
 
     def get_rooms_purchase(self):
         """Get room designs from API."""

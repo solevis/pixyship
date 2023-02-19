@@ -52,6 +52,19 @@ def test_crafts():
     assert crafts[10]['hp'] == 5
 
 
+def test_missiles():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixyship = PixyShip()
+    missiles = pixyship._get_missiles_from_db()
+
+    assert len(missiles) > 0
+    assert missiles[40]['id'] == 40
+    assert missiles[40]['name'] == 'Penetrator Lv5'
+    assert missiles[40]['volley'] == 1.0
+
+
 def test_upgrades():
     # avoid Flask RuntimeError: No application found
     push_context()

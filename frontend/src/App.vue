@@ -38,10 +38,39 @@
         <v-btn text small to="/items">Items</v-btn>
         <v-btn text small to="/rooms">Rooms</v-btn>
         <v-btn text small to="/crafts">Crafts</v-btn>
+        <v-btn text small to="/missiles">Missiles</v-btn>
         <v-btn text small to="/ships">Ships</v-btn>
-        <v-btn text small to="/collections">Collections</v-btn>
-        <v-btn text small to="/achievements">Pins</v-btn>
-        <v-btn text small to="/researches">Researches</v-btn>
+        <v-menu
+          open-on-hover
+          bottom
+          offset-y
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              text
+              small
+              v-bind="attrs"
+              v-on="on"
+            >
+              Misc
+              <v-icon right>
+                mdi-menu-down
+              </v-icon>
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item to="/collections">
+              <v-list-item-title>Collections</v-list-item-title>
+            </v-list-item>
+            <v-list-item to="/achievements">
+              <v-list-item-title>Pins</v-list-item-title>
+            </v-list-item>
+            <v-list-item to="/researches">
+              <v-list-item-title>Researches</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
         <v-btn small aria-label="About" icon to="/about"><v-icon small>mdi-help-circle-outline</v-icon></v-btn>
       </template>
     </v-app-bar>
@@ -57,7 +86,7 @@
           dense
         >
           <v-list-item-group>
-             <v-list-item to="/"><v-list-item-title>Home</v-list-item-title></v-list-item>
+            <v-list-item to="/"><v-list-item-title>Home</v-list-item-title></v-list-item>
             <v-list-item to="/players"><v-list-item-title>Players</v-list-item-title></v-list-item>
             <v-list-item to="/builder"><v-list-item-title>Builder</v-list-item-title></v-list-item>
             <v-list-item to="/changes"><v-list-item-title>Changes</v-list-item-title></v-list-item>
@@ -65,6 +94,7 @@
             <v-list-item to="/items"><v-list-item-title>Items</v-list-item-title></v-list-item>
             <v-list-item to="/rooms"><v-list-item-title>Rooms</v-list-item-title></v-list-item>
             <v-list-item to="/crafts"><v-list-item-title>Crafts</v-list-item-title></v-list-item>
+            <v-list-item to="/missiles"><v-list-item-title>Missiles</v-list-item-title></v-list-item>
             <v-list-item to="/ships"><v-list-item-title>Ships</v-list-item-title></v-list-item>
             <v-list-item to="/collections"><v-list-item-title>Collections</v-list-item-title></v-list-item>
             <v-list-item to="/achievements"><v-list-item-title>Pins</v-list-item-title></v-list-item>

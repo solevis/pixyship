@@ -121,7 +121,11 @@ def import_assets():
     logger.info('Importing crafts...')
     pixyship.update_crafts()
 
+    logger.info('Importing missiles...')
+    pixyship.update_missiles()
+
     logger.info('Done')
+
 
 def import_prestiges():
     """Import prestiges for checking changes."""
@@ -135,6 +139,7 @@ def import_prestiges():
     pixyship.update_prestiges()
 
     logger.info('Done')
+
 
 def import_daily_sales():
     """Get all items, crews, rooms, ships on sale today and save them in database."""

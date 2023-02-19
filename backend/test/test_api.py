@@ -601,3 +601,29 @@ def test_crafts():
     assert 'EMPLength' in craft['MissileDesign']
     assert 'StunLength' in craft['MissileDesign']
     assert 'HullPercentageDamage' in craft['MissileDesign']
+
+
+def test_missiles():
+    pixel_starships_api = PixelStarshipsApi()
+    missiles = pixel_starships_api.get_missiles()
+
+    assert len(missiles) > 0
+
+    missile = missiles[0]
+    assert 'ItemDesignName' in missile
+    assert 'BuildTime' in missile
+    assert 'ManufactureCost' in missile
+    assert 'ReloadModifier' in missile
+    assert 'ImageSpriteId' in missile
+    assert 'SystemDamage' in missile['MissileDesign']
+    assert 'HullDamage' in missile['MissileDesign']
+    assert 'CharacterDamage' in missile['MissileDesign']
+    assert 'ShieldDamage' in missile['MissileDesign']
+    assert 'DirectSystemDamage' in missile['MissileDesign']
+    assert 'Volley' in missile['MissileDesign']
+    assert 'VolleyDelay' in missile['MissileDesign']
+    assert 'Speed' in missile['MissileDesign']
+    assert 'FireLength' in missile['MissileDesign']
+    assert 'EMPLength' in missile['MissileDesign']
+    assert 'StunLength' in missile['MissileDesign']
+    assert 'HullPercentageDamage' in missile['MissileDesign']
