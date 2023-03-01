@@ -52,7 +52,7 @@
               <div v-else-if="item.manufacture_cost[0].type === 'mineral'" :style="mineralSprite()"></div>
             </div>
           </td>
-          <td>{{ item.reload_modifier }}</td>
+          <td><span if="item.reload_modifier">{{ item.reload_modifier }}%</span></td>
           <td>{{ item.volley }}</td>
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
           <td>{{ item.system_damage }}</td>
@@ -130,7 +130,7 @@ export default {
           filterable: true
         },
         {
-          text: "Reload Modifier",
+          text: "Reload Speed",
           align: "left",
           value: "reload_modifier",
           filterable: true
