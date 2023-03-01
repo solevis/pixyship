@@ -46,6 +46,7 @@
           <td class="name">{{ item.name }}</td>
           <td>{{ item.flight_speed }}</td>
           <td>{{ item.reload }}<br><span class="damage-dps">{{ `${item.reload / 40}s` }}</span></td>
+          <td>{{ item.reload_modifier }}</td>
           <td>{{ item.volley }}</td>
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
           <td>{{ item.hp }}</td>
@@ -120,6 +121,12 @@ export default {
           text: "Reload",
           align: "left",
           value: "reload",
+          filterable: true
+        },
+        {
+          text: "Reload Modifier",
+          align: "left",
+          value: "reload_modifier",
           filterable: true
         },
         {

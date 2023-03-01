@@ -511,6 +511,9 @@ class PixelStarshipsApi:
         # get missile designs
         missile_designs = self.get_missile_designs()
 
+        # get item designs
+        item_designs = self.get_items()
+
         params = {
             'designVersion': self.__api_settings['CraftDesignVersion'],
             'languageKey': 'en'
@@ -533,6 +536,15 @@ class PixelStarshipsApi:
             if not missile_design:
                 logger.error('Cannot retrieve craft MissileDesign for MissileDesignId {}'.format(craft_node.attrib['MissileDesignId']))
                 continue
+
+            item_design = next(
+                (item_design for item_design in item_designs if
+                 item_design['CraftDesignId'] == craft_node.attrib['CraftDesignId']),
+                None
+            )
+
+            if item_design:
+                craft_node.set('ReloadModifier', item_design['ReloadModifier'])
 
             craft_node.append(missile_design['pixyship_xml_element'])
             craft = self.parse_craft_node(craft_node)
@@ -559,6 +571,9 @@ class PixelStarshipsApi:
         # get room purchase
         missile_designs = self.get_missile_designs()
 
+        # get item designs
+        item_designs = self.get_items()
+
         params = {
             'designVersion': self.__api_settings['ItemDesignVersion'],
             'languageKey': 'en'
@@ -584,6 +599,15 @@ class PixelStarshipsApi:
             if not missile_design:
                 logger.error('Cannot retrieve missile MissileDesign for MissileDesignId {}'.format(item_node.attrib['MissileDesignId']))
                 continue
+
+            item_design = next(
+                (item_design for item_design in item_designs if
+                 item_design['CraftDesignId'] == item_node.attrib['CraftDesignId']),
+                None
+            )
+
+            if item_design:
+                item_node.set('ReloadModifier', item_design['ReloadModifier'])
 
             item_node.append(missile_design['pixyship_xml_element'])
             missile = self.parse_missile_node(item_node)

@@ -584,6 +584,7 @@ def test_crafts():
     assert 'CraftName' in craft
     assert 'FlightSpeed' in craft
     assert 'Reload' in craft
+    assert 'ReloadModifier' in craft
     assert 'Volley' in craft
     assert 'VolleyDelay' in craft
     assert 'Hp' in craft
@@ -615,6 +616,7 @@ def test_missiles():
     assert 'ManufactureCost' in missile
     assert 'ReloadModifier' in missile
     assert 'ImageSpriteId' in missile
+    assert 'ReloadModifier' in missile
     assert 'SystemDamage' in missile['MissileDesign']
     assert 'HullDamage' in missile['MissileDesign']
     assert 'CharacterDamage' in missile['MissileDesign']

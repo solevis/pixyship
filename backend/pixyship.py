@@ -951,7 +951,7 @@ class PixyShip(metaclass=Singleton):
 
         for craft in crafts:
             record_id = craft['CraftDesignId']
-            Record.update_data('craft', record_id, craft['pixyship_xml_element'], self.pixel_starships_api.server)
+            Record.update_data('craft', record_id, craft['pixyship_xml_element'], self.pixel_starships_api.server, ['ReloadModifier'])
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('craft', still_presents_ids)
@@ -971,6 +971,7 @@ class PixyShip(metaclass=Singleton):
                 'name': craft['CraftName'],
                 'flight_speed': int(craft['FlightSpeed']),
                 'reload': int(craft['Reload']),
+                'reload_modifier': int(craft['ReloadModifier']) if 'ReloadModifier' in craft else None,
                 'volley': int(craft['Volley']),
                 'volley_delay': int(craft['VolleyDelay']),
                 'hp': int(craft['Hp']),
@@ -1000,7 +1001,7 @@ class PixyShip(metaclass=Singleton):
 
         for missile in missiles:
             record_id = missile['ItemDesignId']
-            Record.update_data('missile', record_id, missile['pixyship_xml_element'], self.pixel_starships_api.server)
+            Record.update_data('missile', record_id, missile['pixyship_xml_element'], self.pixel_starships_api.server, ['ReloadModifier'])
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('missile', still_presents_ids)
@@ -1019,6 +1020,7 @@ class PixyShip(metaclass=Singleton):
                 'id': record.type_id,
                 'name': missile['ItemDesignName'],
                 'build_time': int(missile['BuildTime']),
+                'reload_modifier': int(missile['ReloadModifier']) if 'ReloadModifier' in missile else None,
                 'manufacture_cost': self._parse_assets_from_string(missile['ManufactureCost']),
                 'sprite': self.get_sprite_infos(int(missile['ImageSpriteId'])),
                 'system_damage': float(missile_design['SystemDamage']) if missile_design else 0,
