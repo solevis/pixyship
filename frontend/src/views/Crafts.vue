@@ -46,7 +46,7 @@
           <td class="name">{{ item.name }}</td>
           <td>{{ item.flight_speed }}</td>
           <td>{{ item.reload }}<br><span class="damage-dps">{{ `${item.reload / 40}s` }}</span></td>
-          <td><span if="item.reload_modifier">{{ item.reload_modifier }}%</span></td>
+          <td><span v-if="item.reload_modifier">{{ item.reload_modifier }}%</span></td>
           <td>{{ item.volley }}</td>
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
           <td>{{ item.hp }}</td>
