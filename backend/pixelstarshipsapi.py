@@ -298,7 +298,7 @@ class PixelStarshipsApi:
         }
 
         # retrieve data as XML from Pixel Starships API
-        endpoint = f'https://{self.server}/LiveOpsService/GetTodayLiveOps'
+        endpoint = f'https://{self.server}/LiveOpsService/GetTodayLiveOps2'
         response = self.call(endpoint, params=params)
         root = ElementTree.fromstring(response.text)
 
