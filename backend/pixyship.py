@@ -976,6 +976,7 @@ class PixyShip(metaclass=Singleton):
                 'craft_volley_delay': int(craft['VolleyDelay']),
                 'hp': int(craft['Hp']),
                 'craft_attack_type': craft['CraftAttackType'],
+                'craft_target_type': craft['CraftTargetType'],
                 'sprite': self.get_sprite_infos(int(craft['SpriteId'])),
                 'volley': float(missile_design['Volley']) if missile_design else 0,
                 'volley_delay': float(missile_design['VolleyDelay']) if missile_design else 0,

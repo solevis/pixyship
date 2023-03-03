@@ -61,6 +61,7 @@
           <td>{{ item.fire_length }}<br><span class="damage-dps">{{ `${item.fire_length / 40}s` }}</span></td>
           <td>{{ item.emp_length }}<br><span class="damage-dps">{{ `${item.emp_length / 40}s` }}</span></td>
           <td>{{ item.craft_attack_type }}</td>
+          <td>{{ item.craft_target_type }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -121,7 +122,7 @@ export default {
           filterable: true
         },
         {
-          text: "Reload",
+          text: "Attack Speed",
           align: "left",
           value: "reload",
           filterable: true
@@ -214,6 +215,12 @@ export default {
           text: "Type",
           align: "left",
           value: "craft_attack_type",
+          filterable: true
+        },
+        {
+          text: "Target",
+          align: "left",
+          value: "craft_target_type",
           filterable: true
         }
       ],
