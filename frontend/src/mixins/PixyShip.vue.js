@@ -252,22 +252,19 @@ export default {
       }
     },
 
-    computeDps(damage, room) {
-      let volley = room.volley
+    computeDps(damage, entity) {
+      let volley = entity.volley
       if (volley == 0) {
         volley = 1
       }
 
-      let volley_delay = room.volley_delay / 40
-      if (volley_delay == 0) {
-        volley_delay = 1
-      }
+      let volley_delay = entity.volley_delay / 40
+      let reload = entity.reload / 40
+      let cooldown = entity.cooldown_time ? entity.cooldown_time / 40 : 0
 
-      let reload = room.reload / 40
-      let cooldown = room.cooldown_time ? room.cooldown_time / 40 : 0
-
+      console.log(damage, volley, reload, volley_delay, cooldown)
       let dps = (damage * volley) / (reload + (volley - 1) * volley_delay + cooldown)
-      return Math.ceil(dps * 100) / 100
+      return Math.ceil((dps * 100).toFixed(2)) / 100
     },
   }
 }
