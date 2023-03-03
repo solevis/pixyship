@@ -47,9 +47,11 @@
           <td>{{ item.flight_speed }}</td>
           <td>{{ item.reload }}<br><span class="damage-dps">{{ `${item.reload / 40}s` }}</span></td>
           <td><span v-if="item.reload_modifier">{{ item.reload_modifier }}%</span></td>
+          <td>{{ item.craft_volley }}</td>
+          <td>{{ item.craft_volley_delay }}<br><span class="damage-dps">{{ `${item.craft_volley_delay / 40}s` }}</span></td>
+          <td>{{ item.hp }}</td>
           <td>{{ item.volley }}</td>
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
-          <td>{{ item.hp }}</td>
           <td>{{ item.system_damage }}<br><span class="damage-dps">{{ `${computeDps(item.system_damage, item)}/s` }}</span></td>
           <td>{{ item.hull_damage }}<br><span class="damage-dps">{{ `${computeDps(item.hull_damage, item)}/s` }}</span></td>
           <td>{{ item.character_damage }}<br><span class="damage-dps">{{ `${computeDps(item.character_damage, item)}/s` }}</span></td>
@@ -131,6 +133,24 @@ export default {
           filterable: true
         },
         {
+          text: "Craft Volley",
+          align: "left",
+          value: "craft_volley",
+          filterable: true
+        },
+        {
+          text: "Craft Volley Delay",
+          align: "left",
+          value: "craft_volley_delay",
+          filterable: true
+        },
+        {
+          text: "HP",
+          align: "left",
+          value: "hp",
+          filterable: true
+        },
+        {
           text: "Volley",
           align: "left",
           value: "volley",
@@ -140,12 +160,6 @@ export default {
           text: "Volley Delay",
           align: "left",
           value: "volley_delay",
-          filterable: true
-        },
-        {
-          text: "HP",
-          align: "left",
-          value: "hp",
           filterable: true
         },
         {
