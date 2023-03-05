@@ -1123,6 +1123,11 @@ class PixyShip(metaclass=Singleton):
 
         for character in self.characters.values():
             prestiges = self.get_prestiges_from_api(character['id'])
+
+            # no prestiges, probably special crew or API bug
+            if not prestiges['to'] and not prestiges['from']:
+                continue
+
             json_content = json.dumps({
                 'to': prestiges['to'],
                 'from': prestiges['from'],
