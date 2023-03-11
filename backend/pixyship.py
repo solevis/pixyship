@@ -2003,7 +2003,11 @@ class PixyShip(metaclass=Singleton):
 
                 asset_item_count = 1
                 if len(asset_item_id_count_unpacked) > 1:
-                    asset_item_count = int(asset_item_id_count_unpacked[1])
+                    # TODO: handle count based in IAP value, for now ignore it
+                    if '[USD/' in assets_string:
+                        asset_item_count = None
+                    else:
+                        asset_item_count = int(asset_item_id_count_unpacked[1])
 
                 line.update({
                     'count': asset_item_count,
