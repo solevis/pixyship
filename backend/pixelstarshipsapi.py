@@ -15,7 +15,7 @@ import requests
 
 from api_errors import TOKEN_EXPIRED_REGEX
 from config import CONFIG
-from constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP
+from constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP, API_URLS
 from db import db
 from models import Device
 from utils import api_sleep
@@ -42,8 +42,11 @@ class PixelStarshipsApi:
     """Manage Pixel Starships API."""
 
     def __init__(self):
-        self._main_pixelstarships_api_url = CONFIG.get('MAIN_PIXELSTARSHIPS_API_URL')
-        self._backup_pixelstarships_api_url = CONFIG.get('BACKUP_PIXELSTARSHIPS_API_URL')
+        if CONFIG.get('USE_STAGING_API'):
+            self._main_pixelstarships_api_url = API_URLS.get('STAGING')
+        else:
+            self._main_pixelstarships_api_url = API_URLS.get('MAIN')
+
         self._forced_pixelstarships_api_url = CONFIG.get('FORCED_PIXELSTARSHIPS_API_URL')
 
         self._device_next_index = 0

@@ -242,3 +242,8 @@ SALE_FROM_MAP = {
     'blue_cargo_mineral': 'Dropship (blue cargo)',
     'promotion_offer': 'Bank'
 }
+
+API_URLS = {
+    'MAIN': 'https://api.pixelstarships.com/',
+    'STAGING': 'https://apistaging.pixelstarships.com/',
+}

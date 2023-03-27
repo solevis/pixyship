@@ -19,9 +19,8 @@ CONFIG = dict(
     EMAIL='contact@example.com',
 
     # Savy PSS API urls
-    MAIN_PIXELSTARSHIPS_API_URL="https://api.pixelstarships.com/",
-    BACKUP_PIXELSTARSHIPS_API_URL="https://api2.pixelstarships.com/",
     FORCED_PIXELSTARSHIPS_API_URL=None,
+    USE_STAGING_API=False,
 
     # maximum of changes to be returned by PixyShip API and displayed in front
     CHANGES_MAX_ASSETS=5000,

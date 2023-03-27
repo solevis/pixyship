@@ -8,7 +8,6 @@ def test_config():
     assert 'SPRITES_DIRECTORY' in CONFIG
     assert 'CHANGES_MAX_ASSETS' in CONFIG
     assert 'EMAIL' in CONFIG
-    assert 'MAIN_PIXELSTARSHIPS_API_URL' in CONFIG
-    assert 'BACKUP_PIXELSTARSHIPS_API_URL' in CONFIG
     assert 'FORCED_PIXELSTARSHIPS_API_URL' in CONFIG
+    assert 'USE_STAGING_API' in CONFIG
     assert 'SAVY_PUBLIC_API_TOKEN' in CONFIG
