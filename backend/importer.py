@@ -42,6 +42,10 @@ logger.addHandler(mail_handler)
 def import_players():
     """Get all top 100 players and top 100 alliances' players and save them in database."""
 
+    if CONFIG['USE_STAGING_API']:
+        logger.info('In staging mode, no players to import')
+        return
+
     # avoid Flask RuntimeError: No application found
     push_context()
 
@@ -143,6 +147,10 @@ def import_prestiges():
 
 def import_daily_sales():
     """Get all items, crews, rooms, ships on sale today and save them in database."""
+
+    if CONFIG['USE_STAGING_API']:
+        logger.info('In staging mode, no daily sales to import')
+        return
 
     # avoid Flask RuntimeError: No application found
     push_context()
@@ -302,6 +310,10 @@ def _save_daily_sale(daily_sale):
 def import_market(first_item_only=False, item=None):
     """Get last market sales for all items."""
 
+    if CONFIG['USE_STAGING_API']:
+        logger.info('In staging mode, no sales to import')
+        return
+
     # avoid Flask RuntimeError: No application found
     push_context()
 
@@ -367,6 +379,10 @@ def import_market(first_item_only=False, item=None):
 
 def import_market_messages(first_item_only=False, item=None):
     """Get last market messages for all items."""
+
+    if CONFIG['USE_STAGING_API']:
+        logger.info('In staging mode, no market messages to import')
+        return
 
     # avoid Flask RuntimeError: No application found
     push_context()

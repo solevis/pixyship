@@ -44,10 +44,11 @@ class PixelStarshipsApi:
     def __init__(self):
         if CONFIG.get('USE_STAGING_API'):
             self._main_pixelstarships_api_url = API_URLS.get('STAGING')
+            # force staging URL and not get automatic ProductionServer from API
+            self._forced_pixelstarships_api_url = API_URLS.get('STAGING')
         else:
             self._main_pixelstarships_api_url = API_URLS.get('MAIN')
-
-        self._forced_pixelstarships_api_url = CONFIG.get('FORCED_PIXELSTARSHIPS_API_URL')
+            self._forced_pixelstarships_api_url = CONFIG.get('FORCED_PIXELSTARSHIPS_API_URL')
 
         self._device_next_index = 0
         self._devices = None
@@ -132,6 +133,10 @@ class PixelStarshipsApi:
 
         device = None
         token = None
+
+        # don't use SAVY_PUBLIC_API_TOKEN on staging (it doesn't work)
+        if CONFIG.get('USE_STAGING_API'):
+            force_token_generation = True
 
         if need_token and (not CONFIG['SAVY_PUBLIC_API_TOKEN'] or force_token_generation):
             # protected endpoint, add device access token...
