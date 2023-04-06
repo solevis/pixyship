@@ -1,6 +1,6 @@
 <template>
   <v-card :loading="isLoading" class="full-height">
-    <v-card-title class="overline">> Pins </v-card-title>
+    <v-card-title class="overline">> Missiles </v-card-title>
     <v-card-subtitle>{{ viewDescription }}</v-card-subtitle>
 
     <!-- Filters -->
