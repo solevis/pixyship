@@ -1340,7 +1340,7 @@ class PixyShip(metaclass=Singleton):
 
         for item in items:
             record_id = item['ItemDesignId']
-            Record.update_data('item', record_id, item['pixyship_xml_element'], self.pixel_starships_api.server, ['FairPrice', 'MarketPrice'])
+            Record.update_data('item', record_id, item['pixyship_xml_element'], self.pixel_starships_api.server, ['FairPrice', 'MarketPrice', 'BuildPrice'])
             still_presents_ids.append(int(record_id))
 
         Record.purge_old_records('item', still_presents_ids)
