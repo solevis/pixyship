@@ -44,7 +44,7 @@
             <div class="block my-1" :style="spriteStyle(item.sprite)"></div>
           </td>
           <td class="name">{{ item.name }}</td>
-          <td>{{ item.build_time }}<br><span class="damage-dps">{{ `${item.build_time / 40}s` }}</span></td>
+          <td>{{ item.build_time }}s<br><span class="damage-dps">{{ secondsToMinutesSeconds(item.build_time) }}</span></td>
           <td>
             <div class="d-flex">
               {{ item.manufacture_cost[0].data }}
@@ -73,6 +73,7 @@
 import axios from "axios"
 import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import DataTableMixin from "../mixins/DataTable.vue.js"
+import moment from 'moment'
 import _ from 'lodash'
 
 export default {
@@ -281,6 +282,10 @@ export default {
       this.loaded = true
       return this.missiles
     },
+
+    secondsToMinutesSeconds: function (seconds) {
+      return moment.utc(seconds*1000).format('mm:ss')
+    }
   },
 }
 </script>
