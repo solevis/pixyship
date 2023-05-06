@@ -219,7 +219,12 @@
 
                       <tr v-show="item.capacity">
                         <td>{{ item.capacity_label }}</td>
-                        <td>{{ item.capacity }}</td>
+                          <template v-if="item.capacity_label === 'Cloak'">
+                              <td>{{ item.capacity }} ({{ `${Math.ceil(item.capacity / 40 * 100) / 100}s` }})</td>
+                          </template>
+                          <template v-else>
+                              <td>{{ item.capacity }}</td>
+                          </template>
                       </tr>
 
                       <tr v-show="item.range">
