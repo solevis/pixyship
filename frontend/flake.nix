@@ -1,5 +1,5 @@
 {
-  description = "Example JavaScript development environment for Zero to Nix";
+  description = "PixyShip frontend";
 
   # Flake outputs
   outputs = { self, nixpkgs, flake-utils }:
