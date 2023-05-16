@@ -489,7 +489,7 @@ export default {
           align: "left",
           value: "shop_type",
           filter: (value) => {
-            return this.filterCombobox(Object.values(value).toString(), this.searchShopType, true)
+            return this.filterCombobox(Object.values(value).toString(), this.searchShopType)
           },
         },
         {
