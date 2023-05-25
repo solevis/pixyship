@@ -1669,7 +1669,12 @@ class PixyShip(metaclass=Singleton):
         if not requirement_string:
             return None
 
-        requirement_type, id_and_amount = requirement_string.split(':')
+        # TODO: quick fix, but I need more investigation when I will have more time
+        splits = requirement_string.split(':')
+        if len(splits) < 2:
+            return None
+        
+        requirement_type, id_and_amount = splits
 
         if '>=' in id_and_amount:
             requirement_id, requirement_count = id_and_amount.split('>=')
