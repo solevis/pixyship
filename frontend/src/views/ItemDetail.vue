@@ -745,7 +745,9 @@ export default {
           text: "Offstat",
           align: "center",
           value: "offstat.value",
-          filterable: true
+          filter: (value, search, item) => {
+            return this.filterCombobox(item.offstat.short_bonus, search)
+          },
         },
         {
           text: "Buyer",
