@@ -11,10 +11,32 @@ const rarityOrder = {
   "legendary": 7,
 }
 
+const currencies = [
+    'Gas',
+    'Mineral',
+    'Starbux'
+]
+
+const itemStats = [
+    'ABL',
+    'ATK',
+    'ENG',
+    'RST',
+    'ABL',
+    'HP',
+    'PLT',
+    'RPR',
+    'SCI',
+    'STA',
+    'WPN',
+]
+
 export default {
   data() {
     return {
       rarityOrder: rarityOrder,
+      currencies: currencies,
+      itemStats: itemStats,
       globalSortBy: [],
       globalSortDesc: [],
     }

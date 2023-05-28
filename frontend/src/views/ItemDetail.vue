@@ -400,7 +400,7 @@
           <v-tab-item value="tab-players-sales">
             <v-card flat>
               <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center" :class="$vuetify.breakpoint.mdAndUp ? 'pt-4' : ''">
-                <v-col class="text-center" cols="6" md="3">
+                <v-col class="text-center" cols="12" md="3">
                   <v-text-field
                       v-model="lastPlayersSalesSearch"
                       append-icon="mdi-magnify"
@@ -412,7 +412,7 @@
                   ></v-text-field>
                 </v-col>
 
-                <v-col cols="6" md="2">
+                <v-col cols="12" md="2">
                   <v-autocomplete
                     v-model="lastPlayersSalesOffstatSearch"
                     :items="lastPlayersSalesOffstats"
@@ -668,9 +668,13 @@ export default {
       item: {},
       lastPlayersSales: [],
       upgrades: [],
-      showLastPlayersSalesStarbux: true,
-      showLastPlayersSalesGas: true,
-      showLastPlayersSalesMineral: true,
+      tree: [],
+      recipes: [],
+      lastPlayersSalesSearch: '',
+      lastPlayersSalesOffstatSearch: [],
+      lastPlayersSalesOffstats: [],
+      lastPlayersSalesCurrencySearch: [],
+      lastPlayersSalesCurrencies: [],
       lastPlayersSalesHeaders: [
         {
           text: "Date",
@@ -736,11 +740,7 @@ export default {
           align: "center",
           value: "currency",
           filter: (value) => {
-            if (this.searchLastPlayersSalesCurrency.length > 0) {
-              return this.searchLastPlayersSalesCurrency.includes(value)
-            }
-
-            return false
+            return this.filterCombobox(value, this.lastPlayersSalesCurrencySearch)
           },
         },
         {
@@ -754,7 +754,12 @@ export default {
           align: "center",
           value: "offstat.value",
           filter: (value, search, item) => {
-            return this.filterCombobox(item.offstat.short_bonus, search)
+            let filtered = null;
+            if (item.offstat !== null) {
+              filtered = item.offstat.short_bonus
+            }
+
+            return this.filterCombobox(filtered, this.lastPlayersSalesOffstatSearch)
           },
         },
         {
@@ -770,37 +775,12 @@ export default {
           filterable: true,
         },
       ],
-      tree: [],
-      recipes: [],
-      lastPlayersSalesSearch: '',
-      lastPlayersSalesOffstatSearch: [],
-      lastPlayersSalesOffstats: [],
-      lastPlayersSalesCurrencySearch: [],
-      lastPlayersSalesCurrencies: [],
     }
   },
 
   computed: {
     isLoading: function () {
       return !this.loaded
-    },
-
-    searchLastPlayersSalesCurrency: function () {
-      let currencies = []
-
-      if (this.showLastPlayersSalesGas) {
-        currencies.push("Gas")
-      }
-
-      if (this.showLastPlayersSalesMineral) {
-        currencies.push("Mineral")
-      }
-
-      if (this.showLastPlayersSalesStarbux) {
-        currencies.push("Starbux")
-      }
-
-      return currencies
     },
   },
 
@@ -848,21 +828,12 @@ export default {
     },
 
     updateLastPlayersSalesFilters: async function () {
-      this.lastPlayersSalesOffstats = Array.from(
-        new Set(
-          this.lastPlayersSales.map((sale) =>
-            sale.offstat === null ? 'None' : sale.offstat.short_bonus
-          )
-        )
-      ).sort(this.sortAlphabeticallyExceptNone)
+      this.lastPlayersSalesOffstats = this.itemStats
+      this.lastPlayersSalesOffstats.push('None')
+      this.lastPlayersSalesOffstats.sort(this.sortAlphabeticallyExceptNone)
 
-      this.lastPlayersSalesCurrencies = Array.from(
-        new Set(
-          this.lastPlayersSales.map((sale) =>
-            sale.currency === null ? 'None' : sale.currency
-          )
-        )
-      ).sort(this.sortAlphabeticallyExceptNone)
+      this.lastPlayersSalesCurrencies = this.currencies
+      this.lastPlayersSalesCurrencies.sort(this.sortAlphabeticallyExceptNone)
     }
   },
 
