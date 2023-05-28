@@ -700,7 +700,7 @@ export default {
         {
           text: "Offstat",
           align: "center",
-          value: "offstat.value",
+          value: "offstat.short_bonus",
           filterable: true
         },
         {
@@ -744,7 +744,7 @@ export default {
         {
           text: "Offstat",
           align: "center",
-          value: "offstat.value",
+          value: "offstat.short_bonus",
           filterable: true
         },
         {
