@@ -399,52 +399,47 @@
         <v-tabs-items v-model="activeTab" touchless>
           <v-tab-item value="tab-players-sales">
             <v-card flat>
-              <v-row
-                  v-if="loaded && lastPlayersSales.length > 0"
-                  justify="center"
-                  :class="$vuetify.breakpoint.mdAndUp ? 'pt-4' : ''"
-              >
-                <v-switch
-                    class="px-3"
-                    v-model="showLastPlayersSalesGas"
-                    label="Gas"
-                    color="purple lighten-2"
-                ></v-switch>
-                <v-switch
-                    class="px-3"
-                    v-model="showLastPlayersSalesMineral"
-                    :label="$vuetify.breakpoint.mdAndUp ? 'Mineral' : 'Min'"
-                    color="blue lighten-2"
-                    hide-details
-                ></v-switch>
-                <v-switch
-                    class="px-3"
-                    v-model="showLastPlayersSalesStarbux"
-                    :label="$vuetify.breakpoint.mdAndUp ? 'Starbux' : 'Bux'"
-                    color="green lighten-2"
-                    hide-details
-                ></v-switch>
-              </v-row>
-
-              <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center">
-                <v-col class="text-center" cols="11" md="4">
+              <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center" :class="$vuetify.breakpoint.mdAndUp ? 'pt-4' : ''">
+                <v-col class="text-center" cols="6" md="3">
                   <v-text-field
                       v-model="lastPlayersSalesSearch"
                       append-icon="mdi-magnify"
-                      label="Search offstat or player name"
-                      placeholder="Offstat, player name"
+                      label="Search player name"
+                      placeholder="Player name"
                       single-line
                       hide-details
+                      dense
                   ></v-text-field>
                 </v-col>
-              </v-row>
 
-              <v-row v-if="loaded && lastPlayersSales.length > 0 && item.rarity_order >= 5" justify="center">
-                <v-col class="" cols="12" md="8">
-                  <p class="font-weight-light">
-                    <span class="font-weight-bold">Offstats are still a feature in development.</span><br>
-                    <span>Pixel Starships API doesn't permit to retrieve offstats after the item was sold. PixyShip tries to store offstats before the item is sold, but the market may updated too quickly and PixyShip won't be able to save the offstat before the sale (for example: sniped items, swaps).</span>
-                  </p>
+                <v-col cols="6" md="2">
+                  <v-autocomplete
+                    v-model="lastPlayersSalesOffstatSearch"
+                    :items="lastPlayersSalesOffstats"
+                    label="Offstat"
+                    clearable
+                    outlined
+                    multiple
+                    small-chips
+                    hide-details
+                    dense
+                    :value-comparator="filterValueComparator"
+                  ></v-autocomplete>
+                </v-col>
+
+                <v-col cols="12" md="2">
+                  <v-autocomplete
+                    v-model="lastPlayersSalesCurrencySearch"
+                    :items="lastPlayersSalesCurrencies"
+                    label="Currency"
+                    clearable
+                    outlined
+                    multiple
+                    small-chips
+                    hide-details
+                    dense
+                    :value-comparator="filterValueComparator"
+                  ></v-autocomplete>
                 </v-col>
               </v-row>
 
@@ -485,6 +480,15 @@
                       </tr>
                     </template>
                   </v-data-table>
+                </v-col>
+              </v-row>
+
+              <v-row v-if="loaded && lastPlayersSales.length > 0 && item.rarity_order >= 5" justify="center">
+                <v-col class="" cols="12" md="8">
+                  <p class="font-weight-light">
+                    <span class="font-weight-bold">Offstats are still a feature in development.</span><br>
+                    <span>Pixel Starships API doesn't permit to retrieve offstats after the item was sold. PixyShip tries to store offstats before the item is sold, but the market may updated too quickly and PixyShip won't be able to save the offstat before the sale (for example: sniped items, swaps).</span>
+                  </p>
                 </v-col>
               </v-row>
 
@@ -593,6 +597,7 @@
 <script>
 import axios from "axios"
 import PixyShipMixin from "../mixins/PixyShip.vue.js"
+import DataTableMixin from "../mixins/DataTable.vue.js"
 import ItemMixin from "../mixins/Item.vue.js"
 import Item from "../components/Item.vue"
 import Crew from "../components/Crew.vue"
@@ -602,7 +607,7 @@ import SpritesButton from "@/components/SpritesButton";
 import _ from "lodash";
 
 export default {
-  mixins: [PixyShipMixin, ItemMixin],
+  mixins: [PixyShipMixin, ItemMixin, DataTableMixin],
 
   components: {
     Item,
@@ -684,11 +689,7 @@ export default {
           align: "center",
           value: "currency",
           filter: (value) => {
-            if (this.searchLastPlayersSalesCurrency.length > 0) {
-              return this.searchLastPlayersSalesCurrency.includes(value)
-            }
-
-            return false
+            return this.filterCombobox(value, this.lastPlayersSalesCurrencySearch)
           },
         },
         {
@@ -700,8 +701,15 @@ export default {
         {
           text: "Offstat",
           align: "center",
-          value: "offstat.short_bonus",
-          filterable: true
+          value: "offstat.value",
+          filter: (value, search, item) => {
+            let filtered = null;
+            if (item.offstat !== null) {
+              filtered = item.offstat.short_bonus
+            }
+
+            return this.filterCombobox(filtered, this.lastPlayersSalesOffstatSearch)
+          },
         },
         {
           text: "Buyer",
@@ -744,8 +752,10 @@ export default {
         {
           text: "Offstat",
           align: "center",
-          value: "offstat.short_bonus",
-          filterable: true
+          value: "offstat.value",
+          filter: (value, search, item) => {
+            return this.filterCombobox(item.offstat.short_bonus, search)
+          },
         },
         {
           text: "Buyer",
@@ -763,6 +773,10 @@ export default {
       tree: [],
       recipes: [],
       lastPlayersSalesSearch: '',
+      lastPlayersSalesOffstatSearch: [],
+      lastPlayersSalesOffstats: [],
+      lastPlayersSalesCurrencySearch: [],
+      lastPlayersSalesCurrencies: [],
     }
   },
 
@@ -826,10 +840,30 @@ export default {
       }
 
       this.lastPlayersSales = response.data.lastPlayersSales
+      await this.updateLastPlayersSalesFilters()
+
       this.upgrades = response.data.upgrades
 
       this.loaded = true
     },
+
+    updateLastPlayersSalesFilters: async function () {
+      this.lastPlayersSalesOffstats = Array.from(
+        new Set(
+          this.lastPlayersSales.map((sale) =>
+            sale.offstat === null ? 'None' : sale.offstat.short_bonus
+          )
+        )
+      ).sort(this.sortAlphabeticallyExceptNone)
+
+      this.lastPlayersSalesCurrencies = Array.from(
+        new Set(
+          this.lastPlayersSales.map((sale) =>
+            sale.currency === null ? 'None' : sale.currency
+          )
+        )
+      ).sort(this.sortAlphabeticallyExceptNone)
+    }
   },
 
   watch: {
