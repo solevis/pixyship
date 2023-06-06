@@ -147,7 +147,7 @@
               <td>
                 <div
                   :class="[
-                    item.power_gen - item.power_use >= 0
+                    item.power_diff >= 0
                       ? 'positive'
                       : 'negative',
                   ]"
@@ -519,8 +519,8 @@ export default {
         },
         { 
           text: "Power", 
-          align: "center", 
-          sortable: false, 
+          align: "center",
+          value: "power_diff",
           filterable: false 
         },
         {
@@ -737,12 +737,10 @@ export default {
     },
 
     formatPower(item) {
-      let comsumption = item.power_gen - item.power_use
+      if (!item.power_diff) { return '' }
 
-      if (!comsumption) { return '' }
-
-      let sign = comsumption >= 0 ? '+' : '-'
-      return sign + Math.abs(comsumption)
+      let sign = item.power_diff >= 0 ? '+' : '-'
+      return sign + Math.abs(item.power_diff)
     }
   },
 }

@@ -893,6 +893,7 @@ class PixyShip(metaclass=Singleton):
                 'construction_sprite': self.get_sprite_infos(int(room['ConstructionSpriteId'])),
                 'power_use': int(room['MaxSystemPower']),
                 'power_gen': int(room['MaxPowerGenerated']),
+                'power_diff': int(room['MaxPowerGenerated']) - int(room['MaxSystemPower']),
                 'min_ship_level': int(room['MinShipLevel']),
                 'upgrade_from_id': int(room['UpgradeFromRoomDesignId']),
                 'defense': int(room['DefaultDefenceBonus']),
