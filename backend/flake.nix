@@ -15,6 +15,8 @@
           venvDir = "./.venv";
 
           buildInputs = [
+            postgresql_11
+
             # Python interpreter
             python39Packages.python
 

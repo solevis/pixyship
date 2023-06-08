@@ -41,3 +41,18 @@ test:
 .PHONY=lint
 lint:
 	flake8 . --count --show-source --statistics
+
+.PHONY=init-nix-db
+init-nix-db:
+	initdb -D .pg/pixyship
+	pg_ctl -D .pg/pixyship -l .pg/log start
+	createdb pixyship
+
+.PHONY=start-nix-db
+start-nix-db:
+	pg_ctl -D .pg/pixyship -l .pg/log start
+	
+.PHONY=stop-nix-db
+stop-nix-db:
+	pg_ctl -D .pg/pixyship stop
+	
