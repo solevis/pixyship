@@ -228,7 +228,8 @@
                       </tr>
 
                       <tr v-show="item.range">
-                        <td>Range</td>
+                        <td v-if="item.type === 'Carrier'">Deploy Limit</td>
+                        <td v-else>Range</td>
                         <td>{{ item.range }}</td>
                       </tr>
 
