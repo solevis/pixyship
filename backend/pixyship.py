@@ -273,12 +273,8 @@ class PixyShip(metaclass=Singleton):
                 self._researches = None
                 return self.get_object(object_type, object_id, False)
             else:
-                # just log in staging, data can be a mess...
-                if CONFIG['USE_STAGING_API']:
-                    current_app.logger.error('Cannot find object with id %d logged in successfully', object_id)
-                    return {}
-                else:
-                    raise
+                current_app.logger.error('Cannot find object with id %d logged in successfully', object_id)
+                return {}
 
     def update_character_with_collection_data(self):
         """Updata character data with collection."""
@@ -2078,12 +2074,8 @@ class PixyShip(metaclass=Singleton):
                 self._ships = None
                 return self.get_record_sprite(record_type, type_id, False)
             else:
-                # just log in staging, data can be a mess...
-                if CONFIG['USE_STAGING_API']:
-                    current_app.logger.error('Cannot find object with id %d logged in successfully', type_id)
-                    return {}
-                else:
-                    raise
+                current_app.logger.error('Cannot find object with id %d logged in successfully', type_id)
+                return {}
 
     def get_record_name(self, record_type, type_id, reload_on_error=True):
         """Get sprite date for the given record ID."""
@@ -2110,12 +2102,8 @@ class PixyShip(metaclass=Singleton):
                 self._ships = None
                 return self.get_record_sprite(record_type, type_id, False)
             else:
-                # just log in staging, data can be a mess...
-                if CONFIG['USE_STAGING_API']:
-                    current_app.logger.error('Cannot find object with id %d logged in successfully', type_id)
-                    return {}
-                else:
-                    raise
+                current_app.logger.error('Cannot find object with id %d logged in successfully', type_id)
+                return {}
 
     def get_player_data(self, search: str = None):
         """Retrieve all players data or players found by given search."""
