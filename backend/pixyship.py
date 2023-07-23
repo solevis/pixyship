@@ -6,7 +6,7 @@ import time
 from collections import defaultdict, Counter
 from xml.etree import ElementTree
 
-from sqlalchemy import desc, func
+from sqlalchemy import desc, func, text
 
 from config import CONFIG
 from constants import *
@@ -541,7 +541,7 @@ class PixyShip(metaclass=Singleton):
             GROUP BY l.item_id, l.currency
         """
 
-        result = db.session.execute(sql).fetchall()
+        result = db.session.execute(text(sql)).fetchall()
         prices = defaultdict(dict)
         for row in result:
             item_id = row[0]
@@ -576,7 +576,7 @@ class PixyShip(metaclass=Singleton):
             ORDER BY item_id, item_name, currency, sale_at::DATE
         """
 
-        result = db.session.execute(sql, {'item_id': item_id}).fetchall()
+        result = db.session.execute(text(sql), {'item_id': item_id}).fetchall()
         prices = defaultdict(lambda: defaultdict(dict))
 
         for row in result:
@@ -619,7 +619,7 @@ class PixyShip(metaclass=Singleton):
             LIMIT :limit
         """
 
-        result = db.session.execute(sql, {'item_id': item_id, 'limit': limit}).fetchall()
+        result = db.session.execute(text(sql), {'item_id': item_id, 'limit': limit}).fetchall()
         last_sales = []
 
         for row in result:
@@ -666,7 +666,7 @@ class PixyShip(metaclass=Singleton):
             LIMIT :limit
         """
 
-        result = db.session.execute(sql, {'type': type, 'type_id': type_id, 'limit': limit}).fetchall()
+        result = db.session.execute(text(sql), {'type': type, 'type_id': type_id, 'limit': limit}).fetchall()
         last_sales = []
 
         for row in result:
@@ -702,7 +702,7 @@ class PixyShip(metaclass=Singleton):
             sale_from = [sale_from]
 
         print(sale_from)
-        result = db.session.execute(sql, {'sale_from': tuple(sale_from), 'limit': limit}).fetchall()
+        result = db.session.execute(text(sql), {'sale_from': tuple(sale_from), 'limit': limit}).fetchall()
         last_sales = []
 
         for row in result:
@@ -1557,20 +1557,20 @@ class PixyShip(metaclass=Singleton):
             GROUP BY type
         """
 
-        min_changes_dates_result = db.session.execute(min_changes_dates_sql).fetchall()
+        min_changes_dates_result = db.session.execute(text(min_changes_dates_sql)).fetchall()
 
         min_changes_dates_conditions = []
         for min_changes_dates_record in min_changes_dates_result:
-            if min_changes_dates_record['type'] == 'sprite':
+            if min_changes_dates_record[0] == 'sprite':
                 # only new
                 condition = "(c.type = '{}' AND o.data IS NULL AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
-                    min_changes_dates_record['type'],
-                    min_changes_dates_record['min']
+                    min_changes_dates_record[0],
+                    min_changes_dates_record[1]
                 )
             else:
                 condition = "(c.type = '{}' AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
-                    min_changes_dates_record['type'],
-                    min_changes_dates_record['min']
+                    min_changes_dates_record[0],
+                    min_changes_dates_record[1]
                 )
             min_changes_dates_conditions.append(condition)
 
@@ -1591,33 +1591,33 @@ class PixyShip(metaclass=Singleton):
             LIMIT {}
         """.format(' OR '.join(min_changes_dates_conditions), CONFIG.get('CHANGES_MAX_ASSETS', 5000))
 
-        result = db.session.execute(sql).fetchall()
+        result = db.session.execute(text(sql)).fetchall()
         changes = []
 
         for record in result:
             # data stored as JSON
 
-            sprite = self.get_record_sprite(record['type'], record['type_id'])
-            name = self.get_record_name(record['type'], record['type_id'])
+            sprite = self.get_record_sprite(record[1], record[2])
+            name = self.get_record_name(record[1], record[2])
 
             change = {
-                'type': record['type'],
-                'id': record['type_id'],
+                'type': record[1],
+                'id': record[2],
                 'name': name,
-                'changed_at': record['created_at'],
-                'data': record['data'],
-                'old_data': record['old_data'],
-                'change_type': 'Changed' if record['old_data'] else 'New',
+                'changed_at': record[4],
+                'data': record[3],
+                'old_data': record[5],
+                'change_type': 'Changed' if record[5] else 'New',
                 'sprite': sprite
             }
 
             # if change's a Character, get all infos of the crew
-            if record['type'] == 'char':
-                change['char'] = self.characters[record['type_id']]
+            if record[1] == 'char':
+                change['char'] = self.characters[record[2]]
 
             # if change's an Item, get all infos of the item
-            if record['type'] == 'item':
-                item = self.items[record['type_id']]
+            if record[1] == 'item':
+                item = self.items[record[2]]
                 change['item'] = PixyShip._create_light_item(item)
 
             changes.append(change)

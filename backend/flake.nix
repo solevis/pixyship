@@ -15,19 +15,20 @@
           venvDir = "./.venv";
 
           buildInputs = [
-            postgresql_11
+            postgresql_15
 
             # Python interpreter
-            python39Packages.python
+            python311Packages.python
 
             # This executes some shell code to initialize a venv in $venvDir before
             # dropping into the shell
-            python39Packages.venvShellHook
+            python311Packages.venvShellHook
           ];
 
           # Run this command, only after creating the virtual environment
           postVenvCreation = ''
             unset SOURCE_DATE_EPOCH
+            pip install --upgrade pip
             pip install wheel
             pip install -r requirements.txt
           '';

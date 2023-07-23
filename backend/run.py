@@ -103,9 +103,6 @@ def before_request():
 def after_request(response):
     """Before sending the request to the client."""
 
-    # delete the session cookie, unneeded for PixyShip
-    response.delete_cookie(app.session_cookie_name)
-
     # security headers for API
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
