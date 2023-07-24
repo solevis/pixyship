@@ -556,6 +556,7 @@ def test_promotions():
     assert 'ToDate' in promotion
     assert 'PackId' in promotion
 
+
 def test_star_system_markers():
     # avoid Flask RuntimeError: No application found
     push_context()

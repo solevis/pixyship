@@ -42,7 +42,7 @@ class Record(db.Model):
 
         if existing:
             # hash is stored as uuid with extra dashes, remove them when comparing hashes
-            if existing.md5_hash.replace('-', '') == md5_hash:
+            if str(existing.md5_hash).replace('-', '') == md5_hash:
                 # if we ignored fields, update them, but don't make a new record.
                 if ignore_list:
                     if existing.data != data:

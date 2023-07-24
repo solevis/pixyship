@@ -28,15 +28,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-mail_handler = SMTPHandler(
-    mailhost=("localhost", 25),
-    fromaddr='{}@{}'.format(getpass.getuser(), socket.gethostname()),
-    toaddrs=[CONFIG['EMAIL']],
-    subject="Error on PixyShip!"
-)
+if CONFIG['EMAIL']:
+    mail_handler = SMTPHandler(
+        mailhost=("localhost", 25),
+        fromaddr='{}@{}'.format(getpass.getuser(), socket.gethostname()),
+        toaddrs=[CONFIG['EMAIL']],
+        subject="Error on PixyShip!"
+    )
 
-mail_handler.setLevel(logging.ERROR)
-logger.addHandler(mail_handler)
+    mail_handler.setLevel(logging.ERROR)
+    logger.addHandler(mail_handler)
 
 
 def import_players():

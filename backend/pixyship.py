@@ -16,6 +16,7 @@ from pixelstarshipsapi import PixelStarshipsApi
 from utils import float_range, int_range, Singleton
 from flask import current_app
 
+
 class PixyShip(metaclass=Singleton):
 
     def __init__(self):
@@ -1675,7 +1676,7 @@ class PixyShip(metaclass=Singleton):
         splits = requirement_string.split(':')
         if len(splits) < 2:
             return None
-        
+
         requirement_type, id_and_amount = splits
 
         if '>=' in id_and_amount:
