@@ -29,6 +29,13 @@ class Record(db.Model):
             for i in ignore_list:
                 raw_data.attrib.pop(i, None)
 
+            # since python 3.8, attrib order is now preserved, but we need a sorted order for legacy comparaisons
+            attrib = raw_data.attrib
+            if len(attrib) > 1:
+                attribs = sorted(attrib.items())
+                attrib.clear()
+                attrib.update(attribs)
+
             # hash
             md5_str = ElementTree.tostring(raw_data).decode().replace("\n", " ")
         else:
