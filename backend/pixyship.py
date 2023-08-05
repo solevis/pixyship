@@ -274,7 +274,7 @@ class PixyShip(metaclass=Singleton):
                 self._researches = None
                 return self.get_object(object_type, object_id, False)
             else:
-                current_app.logger.error('Cannot find object with id %d logged in successfully', object_id)
+                current_app.logger.error('Cannot find object of type %s with id %d', object_type, object_id)
                 return {}
 
     def update_character_with_collection_data(self):
@@ -2075,7 +2075,7 @@ class PixyShip(metaclass=Singleton):
                 self._ships = None
                 return self.get_record_sprite(record_type, type_id, False)
             else:
-                current_app.logger.error('Cannot find object with id %d logged in successfully', type_id)
+                current_app.logger.error('Cannot find object of type %s with id %d', record_type, type_id)
                 return {}
 
     def get_record_name(self, record_type, type_id, reload_on_error=True):
@@ -2103,7 +2103,7 @@ class PixyShip(metaclass=Singleton):
                 self._ships = None
                 return self.get_record_sprite(record_type, type_id, False)
             else:
-                current_app.logger.error('Cannot find object with id %d logged in successfully', type_id)
+                current_app.logger.error('Cannot find object of type %s with id %d', record_type, type_id)
                 return {}
 
     def get_player_data(self, search: str = None):
