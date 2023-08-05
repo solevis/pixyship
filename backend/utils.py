@@ -32,6 +32,15 @@ def api_sleep(secs, force_sleep=False):
         time.sleep(secs)
 
 
+def sort_attributes(root):
+    for el in root.iter():
+        attrib = el.attrib
+        if len(attrib) > 1:
+            attribs = sorted(attrib.items())
+            attrib.clear()
+            attrib.update(attribs)
+
+
 class Singleton(type):
     _instances = {}
 

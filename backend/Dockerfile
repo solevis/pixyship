@@ -1,4 +1,4 @@
-FROM python:3.7-alpine AS build-stage
+FROM python:3.11-alpine AS build-stage
 
 # install image dependencies
 RUN apk add gcc build-base linux-headers

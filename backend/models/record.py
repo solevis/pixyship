@@ -5,6 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID
 
 from db import db
+from utils import sort_attributes
 
 
 class Record(db.Model):
@@ -23,6 +24,10 @@ class Record(db.Model):
         ignore_list = ignore_list or []
 
         if data_as_xml:
+            # since python 3.8, attrib order is now preserved, but we need a sorted order for legacy comparaisons
+            sort_attributes(raw_data)
+
+            # data to be stored in database
             data = ElementTree.tostring(raw_data).decode()
 
             # ignore some fields for hashing
@@ -42,7 +47,7 @@ class Record(db.Model):
 
         if existing:
             # hash is stored as uuid with extra dashes, remove them when comparing hashes
-            if existing.md5_hash.replace('-', '') == md5_hash:
+            if str(existing.md5_hash).replace('-', '') == md5_hash:
                 # if we ignored fields, update them, but don't make a new record.
                 if ignore_list:
                     if existing.data != data:
