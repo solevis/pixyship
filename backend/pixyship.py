@@ -1236,6 +1236,9 @@ class PixyShip(metaclass=Singleton):
                     continue
 
                 content_item_unpacked = content_item.split(':')
+                if len(content_item_unpacked) < 2:
+                    continue
+
                 content_item_type = content_item_unpacked[0]
 
                 content_item_id_count_unpacked = content_item_unpacked[1].split('x')
