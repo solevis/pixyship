@@ -29,11 +29,11 @@ class PixyShip(metaclass=Singleton):
         self._situations = None
         self._promotions = None
         self._items = None
-        self._prestiges = {}
+        self._prestiges = None
         self._researches = None
-        self._prices = {}
-        self._trainings = {}
-        self._achievements = {}
+        self._prices = None
+        self._trainings = None
+        self._achievements = None
         self._rooms = None
         self._crafts = None
         self._missiles = None
@@ -47,7 +47,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def pixel_starships_api(self):
-        if not self._pixel_starships_api or self.expired('api'):
+        if self._pixel_starships_api is None or self.expired('api'):
             self._pixel_starships_api = PixelStarshipsApi()
             self.expire_at('api', 60 * 60 * 12)  # 12h
 
@@ -55,7 +55,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def sprites(self):
-        if not self._sprites or self.expired('sprite'):
+        if self._sprites is None or self.expired('sprite'):
             self._sprites = self._get_sprites_from_db()
             self.expire_at('sprite', DEFAULT_EXPIRATION_DURATION)
 
@@ -63,7 +63,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def rooms_sprites(self):
-        if not self._rooms_sprites or self.expired('room_sprite'):
+        if self._rooms_sprites is None or self.expired('room_sprite'):
             self._rooms_sprites = self._get_room_sprites_from_db()
             self.expire_at('room_sprite', DEFAULT_EXPIRATION_DURATION)
 
@@ -71,7 +71,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def prices(self):
-        if not self._prices or self.expired('prices'):
+        if self._prices is None or self.expired('prices'):
             self._prices = self._get_prices_from_db()
             self.expire_at('prices', DEFAULT_EXPIRATION_DURATION)
 
@@ -79,7 +79,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def trainings(self):
-        if not self._trainings or self.expired('trainings'):
+        if self._trainings is None or self.expired('trainings'):
             self._trainings = self._get_trainings_from_db()
             self.expire_at('trainings', DEFAULT_EXPIRATION_DURATION)
 
@@ -87,7 +87,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def achievements(self):
-        if not self._achievements or self.expired('achievements'):
+        if self._achievements is None or self.expired('achievements'):
             self._achievements = self._get_achievements_from_db()
             self.expire_at('achievements', DEFAULT_EXPIRATION_DURATION)
 
@@ -95,7 +95,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def ships(self):
-        if not self._ships or self.expired('ship'):
+        if self._ships is None or self.expired('ship'):
             self._ships = self._get_ships_from_db()
             self.expire_at('ship', DEFAULT_EXPIRATION_DURATION)
 
@@ -103,7 +103,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def rooms(self):
-        if not self._rooms or self.expired('room'):
+        if self._rooms is None or self.expired('room'):
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
             self.expire_at('room', DEFAULT_EXPIRATION_DURATION)
 
@@ -111,7 +111,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def rooms_by_name(self):
-        if not self._rooms_by_name or self.expired('room'):
+        if self._rooms_by_name is None or self.expired('room'):
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
             self.expire_at('room', DEFAULT_EXPIRATION_DURATION)
 
@@ -119,7 +119,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def crafts(self):
-        if not self._crafts or self.expired('craft'):
+        if self._crafts is None or self.expired('craft'):
             self._crafts = self._get_crafts_from_db()
             self.expire_at('craft', DEFAULT_EXPIRATION_DURATION)
 
@@ -127,7 +127,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def missiles(self):
-        if not self._missiles or self.expired('missile'):
+        if self._missiles is None or self.expired('missile'):
             self._missiles = self._get_missiles_from_db()
             self.expire_at('craft', DEFAULT_EXPIRATION_DURATION)
 
@@ -135,7 +135,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def researches(self):
-        if not self._researches or self.expired('room'):
+        if self._researches is None or self.expired('room'):
             self._researches = self._get_researches_from_db()
             self.expire_at('research', DEFAULT_EXPIRATION_DURATION)
 
@@ -143,7 +143,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def upgrades(self):
-        if not self._upgrades or self.expired('room'):
+        if self._upgrades is None or self.expired('room'):
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
             self.expire_at('room', DEFAULT_EXPIRATION_DURATION)
 
@@ -151,7 +151,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def characters(self):
-        if not self._characters or self.expired('char'):
+        if self._characters is None or self.expired('char'):
             self._characters = self._get_characters_from_db()
 
             if self._characters:
@@ -162,7 +162,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def collections(self):
-        if not self._collections or self.expired('collection'):
+        if self._collections is None or self.expired('collection'):
             self._collections = self._get_collections_from_db()
 
             if self._collections:
@@ -173,7 +173,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def items(self):
-        if not self._items or self.expired('item'):
+        if self._items is None or self.expired('item'):
             self._items = self._get_items_from_db()
             self.expire_at('item', DEFAULT_EXPIRATION_DURATION)
 
@@ -181,7 +181,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def dailies(self):
-        if not self._dailies or self.expired('daily'):
+        if self._dailies is None or self.expired('daily'):
             self._dailies = self._get_dailies_from_api()
             self.expire_at('daily', DEFAULT_EXPIRATION_DURATION)
 
@@ -189,7 +189,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def star_system_merchant_markers(self):
-        if not self._star_system_merchant_markers or self.expired('star_system_merchant_marker'):
+        if self._star_system_merchant_markers is None or self.expired('star_system_merchant_marker'):
             self._star_system_merchant_markers = self._get_star_system_merchant_markers_from_api()
             self.expire_at('star_system_merchant_marker', DEFAULT_EXPIRATION_DURATION)
 
@@ -197,7 +197,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def changes(self):
-        if not self._changes or self.expired('change'):
+        if self._changes is None or self.expired('change'):
             self._changes = self.get_changes_from_db()
             self.expire_at('change', DEFAULT_EXPIRATION_DURATION)
 
@@ -205,7 +205,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def last_prestiges_changes(self):
-        if not self._last_prestiges_changes or self.expired('last_prestiges_changes'):
+        if self._last_prestiges_changes is None or self.expired('last_prestiges_changes'):
             self._last_prestiges_changes = self.get_last_prestiges_changes_from_db()
             self.expire_at('last_prestiges_changes', DEFAULT_EXPIRATION_DURATION)
 
@@ -213,7 +213,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def situations(self):
-        if not self._situations or self.expired('situation'):
+        if self._situations is None or self.expired('situation'):
             self._situations = self._get_situations_from_api()
             self.expire_at('situation', DEFAULT_EXPIRATION_DURATION)
 
@@ -221,7 +221,7 @@ class PixyShip(metaclass=Singleton):
 
     @property
     def promotions(self):
-        if not self._promotions or self.expired('promotion'):
+        if self._promotions is None or self.expired('promotion'):
             self._promotions = self._get_promotions_from_api()
             self.expire_at('promotion', DEFAULT_EXPIRATION_DURATION)
 
@@ -254,16 +254,18 @@ class PixyShip(metaclass=Singleton):
         try:
             if object_type == 'Item':
                 return self.items[object_id]
-            if object_type == 'Character':
+            elif object_type == 'Character':
                 return self.characters[object_id]
-            if object_type == 'Room':
+            elif object_type == 'Room':
                 return self.rooms[object_id]
-            if object_type == 'Ship':
+            elif object_type == 'Ship':
                 return self.ships[object_id]
-            if object_type == 'Research':
+            elif object_type == 'Research':
                 return self.researches[object_id]
-            if object_type == 'Craft':
+            elif object_type == 'Craft':
                 return self.crafts[object_id]
+            else:
+                return None
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -275,7 +277,7 @@ class PixyShip(metaclass=Singleton):
                 return self.get_object(object_type, object_id, False)
             else:
                 current_app.logger.error('Cannot find object of type %s with id %d', object_type, object_id)
-                return {}
+                return None
 
     def update_character_with_collection_data(self):
         """Updata character data with collection."""
@@ -295,17 +297,17 @@ class PixyShip(metaclass=Singleton):
         """Get sprite infos from given id."""
 
         if not sprite_id:
-            return {}
+            return None
 
         if isinstance(sprite_id, str):
             sprite_id = int(sprite_id)
 
         if not isinstance(sprite_id, int):
-            return {}
+            return None
 
         sprite = self.sprites.get(sprite_id)
         if not sprite:
-            return {}
+            return None
 
         return {
             'source': sprite['image_file'],
@@ -1245,7 +1247,6 @@ class PixyShip(metaclass=Singleton):
                 content_item_id = content_item_id_count_unpacked[0]
 
                 content_item_count = 1
-                content_item_data = None
 
                 # if change's a Character, get all infos of the crew
                 if content_item_type == 'character':
@@ -2059,16 +2060,18 @@ class PixyShip(metaclass=Singleton):
         try:
             if record_type == 'item':
                 return self.items[type_id]['sprite']
-            if record_type == 'char' or record_type == 'prestige':
+            elif record_type == 'char' or record_type == 'prestige':
                 return self.characters[type_id]['sprite']
-            if record_type == 'room':
+            elif record_type == 'room':
                 return self.rooms[type_id]['sprite']
-            if record_type == 'ship':
+            elif record_type == 'ship':
                 return self.ships[type_id]['mini_ship_sprite']
-            if record_type == 'sprite':
+            elif record_type == 'sprite':
                 return self.get_sprite_infos(type_id)
-            if record_type == 'craft':
+            elif record_type == 'craft':
                 return self.crafts[type_id]['sprite']
+            else:
+                return None
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -2079,7 +2082,7 @@ class PixyShip(metaclass=Singleton):
                 return self.get_record_sprite(record_type, type_id, False)
             else:
                 current_app.logger.error('Cannot find object of type %s with id %d', record_type, type_id)
-                return {}
+                return None
 
     def get_record_name(self, record_type, type_id, reload_on_error=True):
         """Get sprite date for the given record ID."""
@@ -2087,16 +2090,18 @@ class PixyShip(metaclass=Singleton):
         try:
             if record_type == 'item':
                 return self.items[type_id]['name']
-            if record_type == 'char' or record_type == 'prestige':
+            elif record_type == 'char' or record_type == 'prestige':
                 return self.characters[type_id]['name']
-            if record_type == 'room':
+            elif record_type == 'room':
                 return self.rooms[type_id]['name']
-            if record_type == 'ship':
+            elif record_type == 'ship':
                 return self.ships[type_id]['name']
-            if record_type == 'sprite':
+            elif record_type == 'sprite':
                 return self.get_sprite_infos(type_id)['source']
-            if record_type == 'craft':
+            elif record_type == 'craft':
                 return self.crafts[type_id]['name']
+            else:
+                return None
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
@@ -2107,7 +2112,7 @@ class PixyShip(metaclass=Singleton):
                 return self.get_record_sprite(record_type, type_id, False)
             else:
                 current_app.logger.error('Cannot find object of type %s with id %d', record_type, type_id)
-                return {}
+                return None
 
     def get_player_data(self, search: str = None):
         """Retrieve all players data or players found by given search."""
