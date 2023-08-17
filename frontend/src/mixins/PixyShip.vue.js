@@ -250,6 +250,10 @@ export default {
       if (type === 'missile') {
         return `/missiles?ids=${id}`
       }
+
+      if (type === 'skin') {
+        return `/rooms?ids=${-1 * id}`
+      }
     },
 
     computeDps(damage, entity) {

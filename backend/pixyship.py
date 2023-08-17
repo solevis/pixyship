@@ -35,6 +35,7 @@ class PixyShip(metaclass=Singleton):
         self._trainings = None
         self._achievements = None
         self._rooms = None
+        self._rooms_skins = None
         self._crafts = None
         self._missiles = None
         self._ships = None
@@ -68,6 +69,23 @@ class PixyShip(metaclass=Singleton):
             self.expire_at('room_sprite', DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms_sprites
+
+    @property
+    def rooms_skins(self):
+        if self._rooms_skins is None or self.expired('room_skin'):
+            filtered_rooms_sprites = self._get_rooms_skins()
+            self._rooms_skins = filtered_rooms_sprites
+            self.expire_at('room_skin', DEFAULT_EXPIRATION_DURATION)
+
+        return self._rooms_skins
+
+    def _get_rooms_skins(self):
+        # skins are RoomSprite with a SkinName and we just want Interior sprite
+        filtered_rooms_sprites = {}
+        for room_sprite_id, room_sprite in self.rooms_sprites.items():
+            if room_sprite['skin_name'] and room_sprite['type'] == 'Interior':
+                filtered_rooms_sprites[room_sprite['skin_key']] = room_sprite
+        return filtered_rooms_sprites
 
     @property
     def prices(self):
@@ -1248,7 +1266,7 @@ class PixyShip(metaclass=Singleton):
 
                 content_item_count = 1
 
-                # if change's a Character, get all infos of the crew
+                # if content's a Character, get all infos of the crew
                 if content_item_type == 'character':
                     try:
                         content_item_data = self.characters[int(content_item_id)]
@@ -1257,7 +1275,7 @@ class PixyShip(metaclass=Singleton):
                     except KeyError:
                         continue
 
-                # if change's an Item, get all infos of the item
+                # if content's an Item, get all infos of the item
                 elif content_item_type == 'item':
                     try:
                         item = items.get(int(content_item_id))
@@ -1272,17 +1290,22 @@ class PixyShip(metaclass=Singleton):
                     if last_item['id'] != item['id']:
                         content_item_data['content'] = self._parse_item_content(item['content_string'], item, items)
 
-                # if change's is Starbux
+                # if content's is Starbux
                 elif content_item_type == 'starbux':
                     content_item_data = None
                     content_item_id = None
                     content_item_count = int(content_item_unpacked[1])
 
-                # if change's is Dove
+                # if content's is Dove
                 elif content_item_type == 'purchasePoints' or content_item_type == 'points':
                     content_item_data = None
                     content_item_id = None
                     content_item_count = int(content_item_unpacked[1])
+
+                # if content's is Skin
+                elif content_item_type == 'skin':
+                    # TODO: get rooms_skins entity, but need to fix infinite recursion first (item -> content -> skin -> requirement -> item)
+                    content_item_data = None
 
                 # Unknown type
                 else:
@@ -2409,17 +2432,10 @@ class PixyShip(metaclass=Singleton):
 
         return upgrades
 
-    def merge_rooms_and_sprites(self, rooms, rooms_sprites):
+    def merge_rooms_and_skins(self, rooms, rooms_sprites):
         merged_rooms = rooms
 
-        # merge only RoomSprite with a SkinName
-        filtered_rooms_sprites = {}
         for room_sprite_id, room_sprite in rooms_sprites.items():
-            if room_sprite['skin_name'] and room_sprite['type'] == 'Interior':
-                filtered_rooms_sprites[room_sprite_id] = room_sprite
-
-        index = -1
-        for room_sprite_id, room_sprite in filtered_rooms_sprites.items():
             new_room = rooms[room_sprite['room_id']].copy()
 
             new_room['base_room_id'] = room_sprite['room_id']
@@ -2429,12 +2445,11 @@ class PixyShip(metaclass=Singleton):
             new_room['description'] = room_sprite['skin_description']
             new_room['sprite'] = self.get_sprite_infos(room_sprite['sprite_id'])
             new_room['requirement'] = room_sprite['requirement']
+            new_room['skin_key'] = room_sprite['skin_key']
             new_room['skin'] = True
 
-            # TODO: better id (used by front to sort rooms by oldest)
-            new_room['id'] = index
-            merged_rooms[index] = new_room
-            index -= 1
+            new_room['id'] = -1 * new_room['skin_key']
+            merged_rooms[new_room['id']] = new_room
 
         return merged_rooms
 

@@ -249,8 +249,8 @@ def api_tournament():
 @enforce_source
 def api_rooms():
     rooms = pixyship.rooms
-    rooms_sprites = pixyship.rooms_sprites
-    data = pixyship.merge_rooms_and_sprites(rooms, rooms_sprites)
+    rooms_skins = pixyship.rooms_skins
+    data = pixyship.merge_rooms_and_skins(rooms, rooms_skins)
 
     return jsonify({
         'data': data,

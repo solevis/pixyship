@@ -153,7 +153,10 @@
 
                 <!-- Content -->
                 <td class="pa-2">
-                  <template v-if="item.content.length > 0">
+                  <template v-if="item.content.length === 1  && item.content[0].type === 'skin'">
+                    <a :href="makeLink(item.content[0].type, item.content[0].id)">Skin</a>
+                  </template>
+                  <template v-else-if="item.content.length > 0">
                     {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
                     <table style="margin: 0 auto;" class="mt-1">
                       <tr
