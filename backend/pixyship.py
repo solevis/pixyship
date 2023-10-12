@@ -997,6 +997,7 @@ class PixyShip(metaclass=Singleton):
                 'reload_modifier': int(craft['ReloadModifier']) if 'ReloadModifier' in craft else None,
                 'craft_volley': int(craft['Volley']),
                 'craft_volley_delay': int(craft['VolleyDelay']),
+                'attack_distance': int(craft['AttackDistance']),
                 'hp': int(craft['Hp']),
                 'craft_attack_type': craft['CraftAttackType'],
                 'craft_target_type': craft['CraftTargetType'],

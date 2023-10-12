@@ -46,6 +46,7 @@
           <td class="name">{{ item.name }}</td>
           <td>{{ item.flight_speed }}</td>
           <td>{{ item.reload }}<br><span class="damage-dps">{{ `${item.reload / 40}s` }}</span></td>
+          <td>{{ item.attack_distance }}</td>
           <td><span v-if="item.reload_modifier">{{ item.reload_modifier }}%</span></td>
           <td>{{ item.craft_volley }}</td>
           <td>{{ item.craft_volley_delay }}<br><span class="damage-dps">{{ `${item.craft_volley_delay / 40}s` }}</span></td>
@@ -125,6 +126,12 @@ export default {
           text: "Attack Speed",
           align: "left",
           value: "reload",
+          filterable: true
+        },
+        {
+          text: "Attack Distance",
+          align: "left",
+          value: "attack_distance",
           filterable: true
         },
         {
