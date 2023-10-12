@@ -227,8 +227,14 @@
                           </template>
                       </tr>
 
+                      <tr v-show="item.min_range">
+                        <td>Min Range</td>
+                        <td>{{ item.min_range }}</td>
+                      </tr>
+
                       <tr v-show="item.range">
                         <td v-if="item.type === 'Carrier'">Deploy Limit</td>
+                        <td v-else-if="item.type === 'AntiCraft'">Max Range</td>
                         <td v-else>Range</td>
                         <td>{{ item.range }}</td>
                       </tr>

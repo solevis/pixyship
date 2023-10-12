@@ -904,6 +904,7 @@ class PixyShip(metaclass=Singleton):
                 'capacity': int(room['Capacity']) / CAPACITY_RATIO_MAP.get(room['RoomType'], 1),
                 'capacity_label': LABEL_CAPACITY_MAP.get(room['RoomType'], 'Capacity'),
                 'range': int(room['Range']),
+                'min_range': int(room['MinRange']),
                 'height': int(room['Rows']),
                 'width': int(room['Columns']),
                 'sprite': self.get_sprite_infos(int(room['ImageSpriteId'])),

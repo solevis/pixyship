@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	@npx browserslist@latest --update-db
+	@npx update-browserslist-db@latest
 	@npm run build
 
 .PHONY: deploy
@@ -9,7 +9,7 @@ deploy:
 
 .PHONY: build-staging
 build-staging:
-	@npx browserslist@latest --update-db
+	@npx update-browserslist-db@latest
 	@npm run build-staging
 
 .PHONY: deploy-staging
@@ -18,7 +18,7 @@ deploy-staging:
 
 .PHONY: build-beta
 build-beta:
-	@npx browserslist@latest --update-db
+	@npx update-browserslist-db@latest
 	@npm run build-beta
 
 .PHONY: deploy-beta
