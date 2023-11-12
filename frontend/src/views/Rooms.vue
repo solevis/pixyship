@@ -145,13 +145,7 @@
               <td>{{ item.min_ship_level }}</td>
               
               <td>
-                <div
-                  :class="[
-                    item.power_diff >= 0
-                      ? 'positive'
-                      : 'negative',
-                  ]"
-                >
+                <div :class="formatPowerStyleClass(item)">
                   {{ formatPower(item) }}
                 </div>
               </td>
@@ -525,7 +519,7 @@ export default {
           },
         },
         { 
-          text: "Power", 
+          text: "(+/-)Power/HP",
           align: "center",
           value: "power_diff",
           filterable: false 
@@ -745,10 +739,16 @@ export default {
 
     formatPower(item) {
       if (!item.power_diff) { return '' }
+      if (item.not_powered) { return Math.abs(item.power_diff) }
 
       let sign = item.power_diff >= 0 ? '+' : '-'
       return sign + Math.abs(item.power_diff)
-    }
+    },
+
+    formatPowerStyleClass(item) {
+      if (item.not_powered) { return 'hp' }
+      return item.power_diff > 0 ? 'positive' : 'negative'
+    },
   },
 }
 </script>

@@ -47,6 +47,7 @@ init-nix-db:
 	initdb -D .pg/pixyship
 	pg_ctl -D .pg/pixyship -l .pg/log start
 	createdb pixyship
+	createdb pixyship-staging
 
 .PHONY=start-nix-db
 start-nix-db:

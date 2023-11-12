@@ -895,6 +895,9 @@ class PixyShip(metaclass=Singleton):
             room_price, room_price_currency = self._parse_price_from_pricestring(room['PriceString'])
             room_type = ROOM_TYPE_MAP.get(room['RoomType'], room['RoomType'])
 
+            # ask Savy why...
+            not_powered = int(room['MaxSystemPower']) != 0 and int(room['ReloadTime']) == 0 and int(room['ManufactureCapacity']) == 0
+
             rooms[record.type_id] = {
                 'id': record.type_id,
                 'name': room['RoomName'],
@@ -911,7 +914,7 @@ class PixyShip(metaclass=Singleton):
                 'construction_sprite': self.get_sprite_infos(int(room['ConstructionSpriteId'])),
                 'power_use': int(room['MaxSystemPower']),
                 'power_gen': int(room['MaxPowerGenerated']),
-                'power_diff': int(room['MaxPowerGenerated']) - int(room['MaxSystemPower']),
+                'power_diff': int(room['MaxSystemPower']) if not_powered else int(room['MaxPowerGenerated']) - int(room['MaxSystemPower']),
                 'min_ship_level': int(room['MinShipLevel']),
                 'upgrade_from_id': int(room['UpgradeFromRoomDesignId']),
                 'defense': int(room['DefaultDefenceBonus']),
@@ -953,6 +956,7 @@ class PixyShip(metaclass=Singleton):
                 'skin': False,
                 'base_room_id': None,
                 'base_room_name': None,
+                'not_powered': not_powered
             }
 
         upgrades = {
