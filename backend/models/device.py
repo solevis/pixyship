@@ -6,6 +6,7 @@ from db import db
 class Device(db.Model):
     key = db.Column('key', db.TEXT, primary_key=True)
     checksum = db.Column('checksum', db.TEXT, nullable=False)
+    client_datetime = db.Column('client_datetime', db.TEXT, nullable=False)
     token = db.Column('token', db.TEXT)
     expires_at = db.Column('expires_at', db.TEXT)
 
@@ -22,7 +23,7 @@ class Device(db.Model):
         from pixelstarshipsapi import PixelStarshipsApi
 
         pixel_starships_api = PixelStarshipsApi()
-        self.token = pixel_starships_api.get_device_token(self.key, self.checksum)
+        self.token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
         self.expires_at = datetime.now() + timedelta(hours=12)
 
         db.session.commit()

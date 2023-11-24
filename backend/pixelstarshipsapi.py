@@ -78,8 +78,11 @@ class PixelStarshipsApi:
         devices = Device.query.all()
         if len(devices) < MIN_DEVICES:
             for x in range(0, MIN_DEVICES - len(devices)):
-                device_key, device_checksum = self.generate_device()
-                new_device = Device(key=device_key, checksum=device_checksum)
+                utc_now = datetime.datetime.utcnow()
+                client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
+
+                device_key, device_checksum = self.generate_device(client_datetime)
+                new_device = Device(key=device_key, client_datetime=client_datetime, checksum=device_checksum)
                 db.session.add(new_device)
 
             db.session.commit()
@@ -182,11 +185,14 @@ class PixelStarshipsApi:
             + random.choice(sequence)
         )
 
-    def generate_device(self):
+    def generate_device(self, client_datetime):
         """Generate new device key/checksum."""
 
         device_key = self.create_device_key()
-        device_checksum = hashlib.md5((device_key + 'DeviceTypeMac' + 'savysoda').encode('utf-8')).hexdigest()
+        device_type = 'DeviceTypeMac'
+        checksum_key = CONFIG['DEVICE_LOGIN_CHECKSUM_KEY']
+
+        device_checksum = hashlib.md5(f'{device_key}{client_datetime}{device_type}{checksum_key}savysoda'.encode('utf-8')).hexdigest()
 
         return device_key, device_checksum
 
@@ -209,7 +215,7 @@ class PixelStarshipsApi:
 
         return device
 
-    def get_device_token(self, device_key, device_checksum):
+    def get_device_token(self, device_key, client_datetime, device_checksum):
         """Get device token from API for the given generated device."""
 
         params = {
@@ -219,9 +225,10 @@ class PixelStarshipsApi:
             'deviceType': 'DeviceTypeMac',
             'languagekey': 'en',
             'advertisingKey': '""',
+            'clientDateTime': client_datetime
         }
 
-        endpoint = f'https://{self.server}/UserService/DeviceLogin8'
+        endpoint = f'https://{self.server}/UserService/DeviceLogin11'
         response = requests.post(endpoint, params=params)
 
         root = ElementTree.fromstring(response.content.decode('utf-8'))
