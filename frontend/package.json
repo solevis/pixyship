@@ -10,7 +10,6 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "caniuse-lite": "^1.0.30001564",
     "core-js": "^3.6.5",
     "lodash.debounce": "^4.0.8",
     "lodash.isempty": "^4.4.0",

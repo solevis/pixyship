@@ -266,7 +266,6 @@ export default {
       let reload = entity.reload / 40
       let cooldown = entity.cooldown_time ? entity.cooldown_time / 40 : 0
 
-      console.log(damage, volley, reload, volley_delay, cooldown)
       let dps = (damage * volley) / (reload + (volley - 1) * volley_delay + cooldown)
       return Math.ceil((dps * 100).toFixed(2)) / 100
     },

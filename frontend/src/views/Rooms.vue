@@ -462,13 +462,12 @@ export default {
           text: "Short", 
           align: "left", 
           value: "short_name",
-          filterable: true
+          filterable: false
         },
         { 
           text: "Skin", 
           align: "left", 
           value: "skin",
-          filterable: true,
           filter: (value) => {
             if (this.searchSkin !== null) {
               return value === this.searchSkin
