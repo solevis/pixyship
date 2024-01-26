@@ -392,6 +392,7 @@ export default {
       showShip: false,
       shipLoading: false,
       ship: {},
+      title: this.$route.name,
     }
   },
 
@@ -409,7 +410,7 @@ export default {
 
   metaInfo () {
     return {
-      title: this.$route.name,
+      title: this.title,
       meta: [
         {
           vmid: 'google-title',
@@ -520,6 +521,7 @@ export default {
 
         this.shipLoading = false
         this.showShip = true
+        this.title = searchName
 
         window.history.pushState('', '', '/players?player=' + searchName)
       }
