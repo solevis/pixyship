@@ -213,6 +213,67 @@
       </svg>
     </div>
 
+    <div id="ship-canva-wrapper"
+         v-if="loaded && selectedShip"
+         :style="`width: ${selectedShipColumns * 25}px; height: ${selectedShip.selectedShipRows * 25}px;`"
+    >
+      <v-stage v-if="loaded && selectedShip" :config="configKonva">
+
+        <v-layer>
+          <v-rect
+              :config="konvaBackgroundConfig"
+          ></v-rect>
+        </v-layer>
+
+        <v-layer>
+          <template v-for="r in selectedShipRows">
+            <template v-for="c in selectedShipColumns">
+              <v-rect
+                  :key="'grid-1-' + r + '-' + c"
+                  :config="getDefaultGridKonvaConfig(r, c)"
+              >
+              </v-rect>
+            </template>
+          </template>
+        </v-layer>
+
+        <v-layer :config="{x:25, y:25}">
+          <v-image :config="konvaShipBackgroundConfig" :key="konvaShipBackgroundKey"></v-image>
+        </v-layer>
+
+        <v-layer :config="{x:25, y:25}">
+          <template v-for="r in selectedShip.rows">
+            <template v-for="c in selectedShip.columns">
+              <v-rect
+                  :key="'grid-2-' + r + '-' + c"
+                  v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '1' || selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '2'"
+                  :config="getGridKonvaConfig(r, c)"
+              >
+              </v-rect>
+            </template>
+          </template>
+        </v-layer>
+
+        <v-layer ref="roomlayer">
+          <v-rect
+              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white', stroke: '#ddd'}"
+              v-on:dragstart="moveRoomStart"
+              v-on:dragend="moveRoomEnd"
+              v-on:dragmove="moveRoom"
+              roomid="45"
+          ></v-rect>
+
+          <v-rect
+              :config="{width: 25*3, height: 25*2, draggable: true, fill: 'white', stroke: '#ddd'}"
+              v-on:dragstart="moveRoomStart"
+              v-on:dragend="moveRoomEnd"
+              v-on:dragmove="moveRoom"
+              roomid="56"
+          ></v-rect>
+        </v-layer>
+      </v-stage>
+    </div>
+
     <v-row justify="center" v-if="loaded">
       <v-col cols="1">
         <v-btn v-if="selectedShip" @click="copyUrl">Copy Link</v-btn>
@@ -351,9 +412,10 @@ import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import "@/assets/css/override.css"
-
+import VueKonva from 'vue-konva'
 require('../js/DragDropTouch')
 
+Vue.use(VueKonva)
 Vue.use(VueClipboard)
 
 export default {
@@ -363,6 +425,45 @@ export default {
     isLoading: function () {
       return !this.loaded
     },
+
+    configKonva: function () {
+      return {
+        width: this.selectedShipColumns * 25,
+        height: this.selectedShipRows * 25
+      }
+    },
+
+    konvaShipBackgroundConfig() {
+      return {
+        x: 0,
+        y: 0,
+        width: this.selectedShip.interior_sprite.width,
+        height: this.selectedShip.interior_sprite.height,
+        image: this.konvaShipBackground
+      }
+    },
+
+    konvaBackgroundConfig() {
+      return {
+        x: 0,
+        y: 0,
+        width: this.selectedShipColumns * 25,
+        height: this.selectedShipRows * 25,
+        fill: '#3057E1',
+      }
+    },
+
+    selectedShipColumns() {
+      return this.selectedShip.columns + 3
+    },
+
+    selectedShipRows() {
+      return this.selectedShip.rows + 3
+    }
+  },
+
+  created() {
+    document.title = 'PixyShip - ' + this.$route.name
   },
 
   metaInfo () {
@@ -422,7 +523,9 @@ export default {
       selectedRoomType: null,
       selectedRoom: null,
       loaded: false,
-      occupied: [0],
+      occupied: null,
+      shipMask: null,
+      roomStartLocation: null,
       shipRooms: [],
       dropLoc: null,
       undropLoc: null,
@@ -450,6 +553,9 @@ export default {
       storageCapacity: 0,
       armor: 0,
       effectiveArmor: 0,
+      konvaStageKey: 0,
+      konvaShipBackground: new Image(),
+      konvaShipBackgroundKey: 0
     }
   },
 
@@ -543,6 +649,9 @@ export default {
       // by default, select the first type of room
       this.selectedRoomType = this.roomTypeList[0]
 
+      // remove all rooms
+      this.clearOccupied()
+
       // if there's a rooms param, now we process it
       const query = this.$route.query
       if (query && query.rooms) {
@@ -558,9 +667,6 @@ export default {
           }
         })
       }
-
-      // remove all rooms
-      this.clearOccupied()
 
       // add rooms on ship
       for (let room = 0; room < this.shipRooms.length; room++) {
@@ -580,9 +686,29 @@ export default {
 
     clearOccupied () {
       if (this.selectedShip) {
-        for (let row = 0; row < this.selectedShip.rows; row++) {
-          for (let column = 0; column < this.selectedShip.columns; column++) {
-            this.occupied[this.selectedShip.columns * row + column] = 0
+        this.occupied = new Array(this.selectedShipRows);
+        this.shipMask = new Array(this.selectedShipRows);
+
+        for (let i = 0; i < this.occupied.length; i++) {
+          this.occupied[i] = new Array(this.selectedShipColumns).fill(0);
+          this.shipMask[i] = new Array(this.selectedShipColumns).fill(0);
+
+          for (let j = 0; j < this.shipMask[i].length; j++) {
+            // outside ship
+            if (i < 1 || j < 1) {
+              this.shipMask[i][j] = 0
+              continue
+            }
+
+            const serialInd = this.selectedShip.columns * (i - 1) + (j - 1)
+
+            // outside ship too
+            if (serialInd >= this.selectedShip.mask.length) {
+              this.shipMask[i][j] = 0
+              continue
+            }
+
+            this.shipMask[i][j] = parseInt(this.selectedShip.mask[serialInd])
           }
         }
       }
@@ -591,7 +717,7 @@ export default {
     setOccupied (x, y, room, occupied) {
       for (let row = 0; row < room.height; row++) {
         for (let column = 0; column < room.width; column++) {
-          this.occupied[this.selectedShip.columns * (row + y) + (column + x)] = occupied
+          this.occupied[row + y][column + x] = occupied
         }
       }
     },
@@ -599,7 +725,7 @@ export default {
     isOccupied (x, y, room) {
       for (let row = 0; row < room.height; row++) {
         for (let column = 0; column < room.width; column++) {
-          if  (this.occupied[this.selectedShip.columns * (row + y) + (column + x)] == 1) {
+          if  (this.occupied[row + y][column + x] !== 0) {
             return true
           }
         }
@@ -609,7 +735,14 @@ export default {
     },
 
     update () {
-      this.usedSpace = this.occupied.reduce((a, s) => a + s, 0)
+      this.usedSpace = 0
+      if (this.selectedShip) {
+        for (var i = 0; i < this.selectedShipRows.length; i++) {
+          for (var j = 0; j < this.selectedShipColumns; j++) {
+            this.usedSpace += this.occupied[i][j] === 2 ? 1 : 0
+          }
+        }
+      }
       this.powerGen = this.shipRooms.map(location => location.room.power_gen).reduce((a, s) => a + s, 0)
       this.powerUsed = this.shipRooms.map(location => location.room.power_use).reduce((a, s) => a + s, 0)
       this.shieldCapacity = this.shipRooms
@@ -668,6 +801,9 @@ export default {
         this.storageCapacity = Number(this.selectedShip.equipment_capacity) + this.shipRooms
           .map(location => location.room.type === 'Storage' && location.room.manufacture_type === 'Equipment' ? location.room.capacity : 0)
           .reduce((a, s) => a + s, 0)
+
+        this.konvaShipBackground.src = this.getSpriteUrl(this.selectedShip.interior_sprite)
+        this.konvaShipBackgroundKey += 1
       }
 
       this.effectiveArmor = this.calcRoomArmor()
@@ -820,19 +956,19 @@ export default {
     },
 
     removeRoom () {
-      if (!this.toRemove) {
+      if (!this.roomStartLocation) {
         return
-      } 
+      }
 
-      const x = this.toRemove.dataset.x
-      const y = this.toRemove.dataset.y
-      this.toRemove = null
+      let x = this.roomStartLocation.x
+      let y = this.roomStartLocation.y
+      this.roomStartLocation = null
 
       // look for room coord in list and remove it
       if (x != null && y != null) {
         // find the room with the given coord in the list and remove it
         const ind = this.shipRooms.findIndex(location => {
-          return location.x == x && location.y == y
+          return location.x === x && location.y === y
         })
 
         if (ind >= 0) {
@@ -850,8 +986,7 @@ export default {
     doesRoomFit (x, y, room) {
       for (let row = 0; row < room.height; row++) {
         for (let column = 0; column < room.width; column++) {
-          const serialInd = this.selectedShip.columns * (row + y) + (column + x)
-          if (this.selectedShip.mask[serialInd] === '0' || this.occupied[serialInd]) {
+          if  (this.shipMask[row + y][column + x] !== 1) {
             return false
           }
         }
@@ -888,6 +1023,104 @@ export default {
 
     copyUrl () {
       this.$copyText(window.location.href)
+    },
+
+    getDefaultGridKonvaConfig(row, column) {
+      return {
+        x: 25 * column - 25,
+        y: 25 * row - 25,
+        width: 25,
+        height: 25,
+        stroke: "#4A6DE5",
+        fill: "#0004",
+      }
+    },
+
+    getGridKonvaConfig(row, column) {
+      let insideShip = this.selectedShip.mask[this.selectedShip.columns * (row - 1) + (column - 1)] === '1'
+      return {
+        x: 25 * column - 25,
+        y: 25 * row - 25,
+        width: 25,
+        height: 25,
+        stroke: insideShip ? "rgba(180,180,180,0.51)" : "#b94848",
+        fill: "#0004",
+      }
+    },
+
+    moveRoomStart(event) {
+      event.target.moveToTop()
+
+      const id = parseInt(event.target.attrs.roomid)
+      this.draggedRoom = this.rooms[id]
+
+      let canvasX = Math.round(event.target.x() / 25) * 25;
+      let canvasY = Math.round(event.target.y() / 25) * 25;
+
+      let x = Math.abs(canvasX) / 25
+      let y = Math.abs(canvasY) / 25
+
+      this.roomStartLocation = {
+        x: x,
+        y: y
+      }
+    },
+
+    moveRoomEnd(event) {
+      let canvasX = Math.round(event.target.x() / 25) * 25;
+      let canvasY = Math.round(event.target.y() / 25) * 25;
+
+      event.target.position({
+        x: canvasX,
+        y: canvasY
+      })
+
+      let x = Math.abs(canvasX) / 25
+      let y = Math.abs(canvasY) / 25
+
+      if (!this.doesRoomFit(x, y, this.draggedRoom)) {
+        event.target.fill('red')
+      } else if (this.isOccupied(x, y, this.draggedRoom)) {
+        event.target.fill('orange')
+      } else {
+        event.target.fill('white')
+      }
+
+      const roomId = this.draggedRoom.id
+      const room = this.rooms[roomId]
+
+      // place the new room
+      const location = {
+        room: room,
+        x: x,
+        y: y,
+        roomId: roomId,
+        allowed: this.doesRoomFit(x, y, room)
+      }
+
+      this.removeRoom()
+      this.addRoomToShip(location)
+    },
+
+    moveRoom(event) {
+      let canvasX = Math.round(event.target.x() / 25) * 25;
+      let canvasY = Math.round(event.target.y() / 25) * 25;
+
+      event.target.position({
+        x: canvasX,
+        y: canvasY
+      })
+
+      let x = Math.abs(canvasX) / 25
+      let y = Math.abs(canvasY) / 25
+
+      if (!this.doesRoomFit(x, y, this.draggedRoom)) {
+        event.target.fill('red')
+      } else if (this.isOccupied(x, y, this.draggedRoom)) {
+        event.target.fill('orange')
+      } else {
+        event.target.fill('green')
+      }
     },
   }
 }
@@ -934,5 +1167,9 @@ export default {
     fill: yellow;
     font-weight: 700;
     font-size: 8px;
+  }
+
+  #ship-canva-wrapper {
+    margin: 0 auto;
   }
 </style>
