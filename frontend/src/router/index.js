@@ -105,6 +105,11 @@ const routes = [
     component: () => import('../views/Missiles.vue')
   },
   {
+    path: '/skins',
+    name: 'Skins',
+    component: () => import('../views/Skins.vue')
+  },
+  {
     path: '*',
     component: () => import('../views/Home.vue')
   }

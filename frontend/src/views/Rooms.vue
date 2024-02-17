@@ -6,7 +6,7 @@
     <!-- Filters -->
     <v-card-subtitle v-if="loaded">
       <v-row>
-        <v-col cols="12" sm="12" md="2">
+        <v-col cols="12" sm="12" md="4">
           <v-text-field
             v-model="searchName"
             append-icon="mdi-magnify"
@@ -50,18 +50,6 @@
             clearable
             outlined
             multiple
-            small-chips
-            hide-details
-            :value-comparator="filterValueComparator"
-          ></v-autocomplete>
-        </v-col>
-        <v-col cols="12" sm="6" md="2">
-          <v-autocomplete
-            v-model="searchSkin"
-            :items="skins"
-            label="Skin"
-            clearable
-            outlined
             small-chips
             hide-details
             :value-comparator="filterValueComparator"
@@ -126,10 +114,6 @@
                 <div :class="[item.rarity, 'lh-9', 'name']">
                   <span>{{ item.short_name }}</span>
                 </div>
-              </td>
-
-              <td>
-                {{ item.skin }}
               </td>
 
               <td>{{ item.type }}</td>
@@ -417,12 +401,10 @@ export default {
       searchSize: [],
       searchType: [],
       searchShopType: [],
-      searchSkin: null,
       levels: [],
       shipLevels: [],
       types: [],
       sizes: [],
-      skins: [],
       shopTypes: [],
       loaded: false,
       rooms: [],
@@ -463,18 +445,6 @@ export default {
           align: "left", 
           value: "short_name",
           filterable: false
-        },
-        { 
-          text: "Skin", 
-          align: "left", 
-          value: "skin",
-          filter: (value) => {
-            if (this.searchSkin !== null) {
-              return value === this.searchSkin
-            }
-
-            return true
-          },
         },
         {
           text: "Type",
@@ -559,7 +529,6 @@ export default {
         || this.searchSize.length > 0
         || this.searchType.length > 0
         || this.searchShopType.length > 0
-        || this.searchSkin
     }
   },
 
@@ -624,10 +593,6 @@ export default {
       this.updateQueryFromFilter('shoptype', value)
     },
 
-    searchSkin(value) {
-      this.updateQueryFromFilter('skin', value)
-    },
-
     searchLevel(value) {
       this.updateQueryFromFilter('level', value)
     },
@@ -674,12 +639,6 @@ export default {
           return value.trim()
         })
       }
-
-      if (this.$route.query.skin) {
-        this.searchSkin = this.$route.query.skin.split(',').map(function(value) {
-          return value.trim()
-        })
-      }
     },
 
     getRooms: async function () {
@@ -694,7 +653,6 @@ export default {
           room.upgrade_cost = 0
         }
 
-        room.skin = room.skin ? 'Yes' : 'No'
         rooms.push(room)
       }
 
@@ -730,10 +688,6 @@ export default {
 
       let values = this.rooms.map((room) => Object.keys(room.shop_type).length === 0 ? ['None'] : Object.values(room.shop_type))
       this.shopTypes =  Array.from(new Set(values.flat())).sort(this.sortAlphabeticallyExceptNone)
-
-      this.skins = Array.from(
-        new Set(this.rooms.map((room) => (room.skin)))
-      ).sort(this.sortAlphabeticallyExceptNone)
     },
 
     formatPower(item) {

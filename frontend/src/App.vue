@@ -37,6 +37,7 @@
         <v-btn text small to="/crews">Crews</v-btn>
         <v-btn text small to="/items">Items</v-btn>
         <v-btn text small to="/rooms">Rooms</v-btn>
+        <v-btn text small to="/skins">Skins</v-btn>
         <v-btn text small to="/crafts">Crafts</v-btn>
         <v-btn text small to="/missiles">Missiles</v-btn>
         <v-btn text small to="/ships">Ships</v-btn>
@@ -93,6 +94,7 @@
             <v-list-item to="/crews"><v-list-item-title>Crews</v-list-item-title></v-list-item>
             <v-list-item to="/items"><v-list-item-title>Items</v-list-item-title></v-list-item>
             <v-list-item to="/rooms"><v-list-item-title>Rooms</v-list-item-title></v-list-item>
+            <v-list-item to="/skins"><v-list-item-title>Skins</v-list-item-title></v-list-item>
             <v-list-item to="/crafts"><v-list-item-title>Crafts</v-list-item-title></v-list-item>
             <v-list-item to="/missiles"><v-list-item-title>Missiles</v-list-item-title></v-list-item>
             <v-list-item to="/ships"><v-list-item-title>Ships</v-list-item-title></v-list-item>

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2024-02-17
+
+### Added
+
+- Skins page
+
+### Changed
+
+- Skins are no longer displayed in Rooms page
+
 ## [2.8.0] - 2023-02-19
 
 ### Added
@@ -219,7 +229,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add PSS Api URL in config.py (cannot trust ProductionServer from API for now) 
+- Add PSS Api URL in config.py (cannot trust ProductionServer from API for now)
 
 ### Fixed
 
@@ -307,7 +317,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last Jeff commit
 
 [unreleased]: https://github.com/solevis/pixyship/compare/main...develop
-[rolling]: https://github.com/solevis/pixyship/compare/2.8.0...main
+[rolling]: https://github.com/solevis/pixyship/compare/2.9.0...main
+[2.9.0]: https://github.com/solevis/pixyship/compare/2.8.0...2.9.0
 [2.8.0]: https://github.com/solevis/pixyship/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/solevis/pixyship/compare/2.6.0...2.7.0
 [2.6.0]: https://github.com/solevis/pixyship/compare/2.5.0...2.6.0

@@ -153,11 +153,10 @@
 
                 <!-- Content -->
                 <td class="pa-2">
-                  <template v-if="item.content.length === 1  && item.content[0].type === 'skin'">
-                    <a :href="makeLink(item.content[0].type, item.content[0].id)">Skin</a>
-                  </template>
-                  <template v-else-if="item.content.length > 0">
+                  <template v-if="item.content.length > 0">
+                    <template v-if="item.number_of_rewards > 0">
                     {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
+                    </template>
                     <table style="margin: 0 auto;" class="mt-1">
                       <tr
                           v-for="(content_item, index) in item.content"
@@ -174,6 +173,12 @@
 
                           <template v-else-if="content_item.type === 'points' || content_item.type === 'purchasePoints'">
                             <div class="d-inline-block middle mr-1" :style="doveSprite()"></div>
+                          </template>
+
+                          <template v-else-if="content_item.type === 'skin'">
+                            <a :href="makeLink(content_item.type, content_item.id)">
+                              <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                            </a>
                           </template>
                         </td>
                         <td>x{{ content_item.count }}</td>
@@ -309,6 +314,11 @@
 
                   <template v-else-if="content_item.type === 'points' || content_item.type === 'purchasePoints'">
                     <div class="d-inline-block middle mr-1" :style="doveSprite()"></div>
+                    <div class="d-inline-block middle">x{{ content_item.count }}</div>
+                  </template>
+
+                  <template v-else-if="content_item.type === 'skin'">
+                    <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
                     <div class="d-inline-block middle">x{{ content_item.count }}</div>
                   </template>
                 </li>

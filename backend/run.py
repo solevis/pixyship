@@ -249,11 +249,23 @@ def api_tournament():
 @enforce_source
 def api_rooms():
     rooms = pixyship.rooms
-    rooms_skins = pixyship.rooms_skins
-    data = pixyship.merge_rooms_and_skins(rooms, rooms_skins)
 
     return jsonify({
-        'data': data,
+        'data': rooms,
+        'status': 'success',
+    })
+
+
+@app.route('/api/skins')
+@enforce_source
+def api_skins():
+    skins = pixyship.skins
+
+    # keep only skins with sprite_type = "Interior"
+    skins = [skin for skin in skins.values() if skin['sprite_type'] == 'Interior']
+
+    return jsonify({
+        'data': skins,
         'status': 'success',
     })
 

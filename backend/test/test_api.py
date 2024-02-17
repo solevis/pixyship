@@ -1,3 +1,5 @@
+import datetime
+
 from pixelstarshipsapi import PixelStarshipsApi
 from run import push_context
 
@@ -5,8 +7,11 @@ from run import push_context
 def test_login():
     pixel_starships_api = PixelStarshipsApi()
 
-    device_key, device_checksum = pixel_starships_api.generate_device()
-    token = pixel_starships_api.get_device_token(device_key, device_checksum)
+    utc_now = datetime.datetime.utcnow()
+    client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
+
+    device_key, device_checksum = pixel_starships_api.generate_device(client_datetime)
+    token = pixel_starships_api.get_device_token(device_key, client_datetime, device_checksum)
 
     assert isinstance(token, str)
     assert len(token) == 36
@@ -630,3 +635,25 @@ def test_missiles():
     assert 'EMPLength' in missile['MissileDesign']
     assert 'StunLength' in missile['MissileDesign']
     assert 'HullPercentageDamage' in missile['MissileDesign']
+
+
+def test_skins():
+    pixel_starships_api = PixelStarshipsApi()
+    skinsets, skins = pixel_starships_api.get_skins()
+
+    assert len(skinsets) > 0
+    assert len(skins) > 0
+
+    skinset = skinsets[0]
+    assert 'SkinSetName' in skinset
+    assert 'SkinSetDescription' in skinset
+    assert 'SkinSetId' in skinset
+    assert 'SpriteId' in skinset
+
+    skin = skins[0]
+    assert 'SkinSetId' in skin
+    assert 'SkinType' in skin
+    assert 'SpriteType' in skin
+    assert 'RootId' in skin
+    assert 'RaceId' in skin
+    assert 'SpriteId' in skin

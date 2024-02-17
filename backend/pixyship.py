@@ -35,12 +35,12 @@ class PixyShip(metaclass=Singleton):
         self._trainings = None
         self._achievements = None
         self._rooms = None
-        self._rooms_skins = None
+        self._skins = None
+        self._skinsets = None
         self._crafts = None
         self._missiles = None
         self._ships = None
         self._sprites = None
-        self._rooms_sprites = None
         self._upgrades = None
         self._rooms_by_name = None
         self._pixel_starships_api = None
@@ -63,29 +63,20 @@ class PixyShip(metaclass=Singleton):
         return self._sprites
 
     @property
-    def rooms_sprites(self):
-        if self._rooms_sprites is None or self.expired('room_sprite'):
-            self._rooms_sprites = self._get_room_sprites_from_db()
-            self.expire_at('room_sprite', DEFAULT_EXPIRATION_DURATION)
+    def skins(self):
+        if self._skins is None or self.expired('skin'):
+            self._skins = self._get_skins_from_db()
+            self.expire_at('skin', DEFAULT_EXPIRATION_DURATION)
 
-        return self._rooms_sprites
+        return self._skins
 
     @property
-    def rooms_skins(self):
-        if self._rooms_skins is None or self.expired('room_skin'):
-            filtered_rooms_sprites = self._get_rooms_skins()
-            self._rooms_skins = filtered_rooms_sprites
-            self.expire_at('room_skin', DEFAULT_EXPIRATION_DURATION)
+    def skinsets(self):
+        if self._skinsets is None or self.expired('skinset'):
+            self._skinsets = self._get_skinsets_from_db()
+            self.expire_at('skinset', DEFAULT_EXPIRATION_DURATION)
 
-        return self._rooms_skins
-
-    def _get_rooms_skins(self):
-        # skins are RoomSprite with a SkinName and we just want Interior sprite
-        filtered_rooms_sprites = {}
-        for room_sprite_id, room_sprite in self.rooms_sprites.items():
-            if room_sprite['skin_name'] and room_sprite['type'] == 'Interior':
-                filtered_rooms_sprites[room_sprite['skin_key']] = room_sprite
-        return filtered_rooms_sprites
+        return self._skinsets
 
     @property
     def prices(self):
@@ -282,6 +273,10 @@ class PixyShip(metaclass=Singleton):
                 return self.researches[object_id]
             elif object_type == 'Craft':
                 return self.crafts[object_id]
+            elif object_type == 'Skinset':
+                return self.skinsets[object_id]
+            elif object_type == 'Skin':
+                return self.skins[object_id]
             else:
                 return None
         except KeyError:
@@ -292,6 +287,9 @@ class PixyShip(metaclass=Singleton):
                 self._items = None
                 self._ships = None
                 self._researches = None
+                self._crafts = None
+                self._skinsets = None
+                self._skins = None
                 return self.get_object(object_type, object_id, False)
             else:
                 current_app.logger.error('Cannot find object of type %s with id %d', object_type, object_id)
@@ -348,7 +346,7 @@ class PixyShip(metaclass=Singleton):
                 room = room.copy()
                 sprite = room['sprite'].copy()
 
-                sprite['source'] = RACE_SPECIFIC_SPRITE_MAP[room['sprite']['source']][ship['race']]
+                sprite['source'] = RACE_SPECIFIC_SPRITE_MAP[room['sprite']['source']][ship['race_id']]
                 room['sprite'] = sprite
 
         return room
@@ -359,11 +357,12 @@ class PixyShip(metaclass=Singleton):
         ship = self.get_object('Ship', ship_id)
         exterior_sprite = None
 
-        for _, room_sprite in self.rooms_sprites.items():
-            if room_sprite['room_id'] == room_id \
-                    and room_sprite['race'] == ship['race'] \
-                    and room_sprite['type'] == 'Exterior':
-                exterior_sprite = self.get_sprite_infos(room_sprite['sprite_id'])
+        for _, skin in self.skins.items():
+            if skin['root_id'] == room_id \
+                    and skin['race_id'] == ship['race_id'] \
+                    and skin['skin_type'] == 'RoomSkin' \
+                    and skin['sprite_type'] == 'Exterior':
+                exterior_sprite = skin['sprite']
 
         return exterior_sprite
 
@@ -410,40 +409,79 @@ class PixyShip(metaclass=Singleton):
 
         Record.purge_old_records('sprite', still_presents_ids)
 
-    def _get_room_sprites_from_db(self):
-        """Load sprites from database."""
+    def _get_skins_from_db(self):
+        """Load skins from database."""
 
-        records = Record.query.filter_by(type='room_sprite', current=True).all()
+        skin_records = Record.query.filter_by(type='skin', current=True).all()
+        skins = {}
 
-        room_sprites = {}
-        for record in records:
-            room_sprite = self.pixel_starships_api.parse_room_sprite_node(ElementTree.fromstring(record.data))
+        # for each skin, find the skinset and add name and description
+        for skin_record in skin_records:
+            skin = self.pixel_starships_api.parse_skin_node(ElementTree.fromstring(skin_record.data))
+            skinset_id = int(skin['SkinSetId'])
 
-            room_sprites[record.type_id] = {
-                'room_id': int(room_sprite['RoomDesignId']),
-                'race': int(room_sprite['RaceId']),
-                'sprite_id': int(room_sprite['SpriteId']),
-                'type': room_sprite['RoomSpriteType'],
-                'skin_name': room_sprite['SkinName'],
-                'skin_key': int(room_sprite['SkinKey']),
-                'skin_description': room_sprite['SkinDescription'],
-                'requirement': self._parse_requirement(room_sprite['RequirementString']),
+            # if skinset is not in the skinsets, skip
+            if skinset_id not in self.skinsets:
+                continue
+
+            skinset = self.skinsets[skinset_id]
+            skin_id = int(skin['SkinId'])
+            skins[skin_id] = {
+                'id': skin_id,
+                'skinset_id': skinset_id,
+                'name': skinset['name'],
+                'description': skinset['description'],
+                'sprite': self.get_sprite_infos(int(skin['SpriteId'])),
+                'root_id': int(skin['RootId']),
+                'skin_type': skin['SkinType'],
+                'sprite_type': skin['SpriteType'],
+                'race_id': int(skin['RaceId']),
+                'race': RACES.get(int(skin['RaceId']), RACES.get(0)),
             }
 
-        return room_sprites
+        return skins
 
-    def update_room_sprites(self):
+    def _get_skinsets_from_db(self):
+        """Load skinsets from database."""
+
+        skinset_records = Record.query.filter_by(type='skinset', current=True).all()
+
+        skinsets = {}
+
+        # retrieve all skinsets
+        for skinset_record in skinset_records:
+            skinset = self.pixel_starships_api.parse_skinset_node(ElementTree.fromstring(skinset_record.data))
+
+            skinsets[skinset_record.type_id] = {
+                'id': int(skinset['SkinSetId']),
+                'name': skinset['SkinSetName'],
+                'description': skinset['SkinSetDescription'],
+                'sprite': self.get_sprite_infos(int(skinset['SpriteId'])),
+            }
+
+        return skinsets
+
+    def update_skins(self):
         """Update data and save records."""
 
-        room_sprites = self.pixel_starships_api.get_rooms_sprites()
+        skinsets, skins = self.pixel_starships_api.get_skins()
         still_presents_ids = []
 
-        for room_sprite in room_sprites:
-            record_id = room_sprite['RoomDesignSpriteId']
-            Record.update_data('room_sprite', record_id, room_sprite['pixyship_xml_element'], self.pixel_starships_api.server)
+        for skinset in skinsets:
+            record_id = skinset['SkinSetId']
+            Record.update_data('skinset', record_id, skinset['pixyship_xml_element'], self.pixel_starships_api.server)
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records('room_sprite', still_presents_ids)
+        Record.purge_old_records('skinset', still_presents_ids)
+
+        still_presents_ids = []
+
+        for skin in skins:
+            record_id = skin['SkinId']
+            Record.update_data('skin', record_id, skin['pixyship_xml_element'], self.pixel_starships_api.server)
+            still_presents_ids.append(int(record_id))
+
+        Record.purge_old_records('skin', still_presents_ids)
 
     def _get_trainings_from_db(self):
         """Load trainings from database."""
@@ -799,7 +837,7 @@ class PixyShip(metaclass=Singleton):
                 'right_door_sprite': self.get_sprite_infos(int(ship['DoorFrameRightSpriteId'])),
                 'rows': int(ship['Rows']),
                 'columns': int(ship['Columns']),
-                'race': int(ship['RaceId']),
+                'race_id': int(ship['RaceId']),
                 'mask': ship['Mask'],
                 'mineral_cost': mineral_cost,
                 'starbux_cost': starbux_cost,
@@ -1310,8 +1348,12 @@ class PixyShip(metaclass=Singleton):
 
                 # if content's is Skin
                 elif content_item_type == 'skin':
-                    # TODO: get rooms_skins entity, but need to fix infinite recursion first (item -> content -> skin -> requirement -> item)
-                    content_item_data = None
+                    try:
+                        content_item_data = self.skinsets[int(content_item_id)]
+                        if len(content_item_id_count_unpacked) > 1:
+                            content_item_count = int(content_item_id_count_unpacked[1])
+                    except KeyError:
+                        continue
 
                 # Unknown type
                 else:
@@ -1587,7 +1629,7 @@ class PixyShip(metaclass=Singleton):
         min_changes_dates_sql = """
             SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
             FROM record
-            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite', 'craft')
+            WHERE type IN ('item', 'ship', 'char', 'room', 'sprite', 'craft', 'skinset')
             GROUP BY type
         """
 
@@ -2038,6 +2080,14 @@ class PixyShip(metaclass=Singleton):
                         or asset_item_type == 'mineral':
                     data = int(asset_item_data)
 
+                # if change's a Skin, get all infos of the crew
+                if asset_item_type == 'skin':
+                    try:
+                        asset_item_type_id = int(asset_item_data)
+                        data = self.skinsets[asset_item_type_id]
+                    except KeyError:
+                        continue
+
                 # Unknown type
                 else:
                     continue
@@ -2099,6 +2149,10 @@ class PixyShip(metaclass=Singleton):
                 return self.get_sprite_infos(type_id)
             elif record_type == 'craft':
                 return self.crafts[type_id]['sprite']
+            elif record_type == 'skinset':
+                return self.skinsets[type_id]['sprite']
+            elif record_type == 'skin':
+                return self.skins[type_id]['sprite']
             else:
                 return None
         except KeyError:
@@ -2108,6 +2162,9 @@ class PixyShip(metaclass=Singleton):
                 self._characters = None
                 self._rooms = None
                 self._ships = None
+                self._crafts = None
+                self._skinsets = None
+                self._skins = None
                 return self.get_record_sprite(record_type, type_id, False)
             else:
                 current_app.logger.error('Cannot find object of type %s with id %d', record_type, type_id)
@@ -2129,6 +2186,10 @@ class PixyShip(metaclass=Singleton):
                 return self.get_sprite_infos(type_id)['source']
             elif record_type == 'craft':
                 return self.crafts[type_id]['name']
+            elif record_type == 'skin':
+                return self.skins[type_id]['name']
+            elif record_type == 'skinset':
+                return self.skinsets[type_id]['name']
             else:
                 return None
         except KeyError:
@@ -2138,6 +2199,9 @@ class PixyShip(metaclass=Singleton):
                 self._characters = None
                 self._rooms = None
                 self._ships = None
+                self._crafts = None
+                self._skins = None
+                self._skinsets = None
                 return self.get_record_sprite(record_type, type_id, False)
             else:
                 current_app.logger.error('Cannot find object of type %s with id %d', record_type, type_id)
@@ -2224,7 +2288,7 @@ class PixyShip(metaclass=Singleton):
             alliance_sprite=self.get_sprite_infos(int(user_data.get('AllianceSpriteId'))),
             trophies=int(user_data['Trophy']),
             last_date=user_data['LastAlertDate'],
-            race=RACES.get(int(ship_data['OriginalRaceId']), 'Unknown'),
+            race=RACES.get(int(ship_data['OriginalRaceId']), RACES.get(0)),
         )
 
         searched_users = self.pixel_starships_api.search_users(user_data['Name'], True)
@@ -2437,27 +2501,6 @@ class PixyShip(metaclass=Singleton):
                     upgrades.append(PixyShip._create_light_item(item))
 
         return upgrades
-
-    def merge_rooms_and_skins(self, rooms, rooms_sprites):
-        merged_rooms = rooms
-
-        for room_sprite_id, room_sprite in rooms_sprites.items():
-            new_room = rooms[room_sprite['room_id']].copy()
-
-            new_room['base_room_id'] = room_sprite['room_id']
-            new_room['base_room_name'] = new_room['name']
-
-            new_room['name'] = room_sprite['skin_name']
-            new_room['description'] = room_sprite['skin_description']
-            new_room['sprite'] = self.get_sprite_infos(room_sprite['sprite_id'])
-            new_room['requirement'] = room_sprite['requirement']
-            new_room['skin_key'] = room_sprite['skin_key']
-            new_room['skin'] = True
-
-            new_room['id'] = -1 * new_room['skin_key']
-            merged_rooms[new_room['id']] = new_room
-
-        return merged_rooms
 
     @staticmethod
     def has_offstat(type, slot, rarity_order, bonus, disp_enhancement):

@@ -128,7 +128,9 @@
 
         <tr v-if="item.content && item.content.length > 0">
           <td class="text-xs" style="vertical-align: top;">
+            <template v-if="item.number_of_rewards > 0">
             Content, {{ item.number_of_rewards }} reward{{ item.number_of_rewards > 1 ? 's' : '' }} from:
+            </template>
             <ul>
               <li v-for="(content_item, index) in item.content"
                   :key="'item-cmp-' + item.id + '-content-' + index"
@@ -149,6 +151,10 @@
 
                 <template v-else-if="content_item.type === 'points' || content_item.type === 'purchasePoints'">
                   <div class="d-inline-block middle mr-1" :style="doveSprite()"></div>
+                </template>
+
+                <template v-else-if="content_item.type === 'skin'">
+                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
                 </template>
 
                 <div class="d-inline-block middle">x{{ content_item.count }}</div>

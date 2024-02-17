@@ -381,6 +381,51 @@ class PixelStarshipsApi:
 
         return room_sprite_node.attrib.copy()
 
+    def get_skins(self):
+        """Get skins from API."""
+
+        params = {
+            'designVersion': self.__api_settings['SkinVersion'],
+            'languageKey': 'en'
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/UserService/ListSkins'
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
+        skinsets = []
+        skinset_nodes = root.find('.//SkinSets')
+
+        for skinset_node in skinset_nodes:
+            skinset = self.parse_skinset_node(skinset_node)
+            skinset['pixyship_xml_element'] = skinset_node
+
+            skinsets.append(skinset)
+
+        skins = []
+        skin_nodes = root.find('.//Skins')
+
+        for skinset_node in skin_nodes:
+            skin = self.parse_skin_node(skinset_node)
+            skin['pixyship_xml_element'] = skinset_node
+
+            skins.append(skin)
+
+        return skinsets, skins
+
+    @staticmethod
+    def parse_skinset_node(skinset_node):
+        """Extract skinset data from XML node."""
+
+        return skinset_node.attrib.copy()
+
+    @staticmethod
+    def parse_skin_node(skin_node):
+        """Extract skin data from XML node."""
+
+        return skin_node.attrib.copy()
+
     def get_ships(self):
         """Get ships designs from API."""
 

@@ -141,7 +141,7 @@ IAP_NAMES = {
     14000: 'Vault'
 }
 
-# 0 - Rock?
+# 0 - Unknown
 # 1 - Pirate/Dark
 # 2 - Fed/Blue
 # 3 - Qtari/Gold
@@ -149,6 +149,8 @@ IAP_NAMES = {
 # 5 - UFO/Green
 # 6 - Starbase
 RACES = {
+    None: 'None',
+    0: "Unknown",
     1: "Pirate",
     2: "Federation",
     3: "Qtarian",

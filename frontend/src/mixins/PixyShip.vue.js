@@ -29,6 +29,7 @@ export default {
       lastSalesBySaleFromEndpoint: (sale_from) => apiServer + `api/lastsalesbysalefrom/${sale_from}`,
       craftsEndpoint: apiServer + 'api/crafts',
       missilesEndpoint: apiServer + 'api/missiles',
+      skinsEndpoint: apiServer + 'api/skins',
     }
   },
 
@@ -252,7 +253,7 @@ export default {
       }
 
       if (type === 'skin') {
-        return `/rooms?ids=${-1 * id}`
+        return `/skins?ids=${id}`
       }
     },
 
