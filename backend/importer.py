@@ -114,9 +114,6 @@ def import_assets():
     logger.info('Importing sprites...')
     pixyship.update_sprites()
 
-    logger.info('Importing rooms sprites')
-    pixyship.update_room_sprites()
-
     logger.info('Importing skins...')
     pixyship.update_skins()
 
