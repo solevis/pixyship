@@ -2081,7 +2081,7 @@ class PixyShip(metaclass=Singleton):
                     data = int(asset_item_data)
 
                 # if change's a Skin, get all infos of the crew
-                if asset_item_type == 'skin':
+                elif asset_item_type == 'skin':
                     try:
                         asset_item_type_id = int(asset_item_data)
                         data = self.skinsets[asset_item_type_id]
