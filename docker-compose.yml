@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   pixyship-frontend:
@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
       target: development-stage
     ports:
-      - '8080:8080'
+      - "8080:8080"
     volumes:
-      - './frontend/:/app'
-      - '/app/node_modules'
+      - "./frontend/:/app"
+      - "/app/node_modules"
 
   pixyship-backend:
     build:
@@ -18,14 +18,14 @@ services:
       dockerfile: Dockerfile
       target: development-stage
     ports:
-      - '5000:5000'
+      - "5000:5000"
     volumes:
-      - './backend/:/app'
+      - "./backend/:/app"
     depends_on:
       - pixyship-database
 
   pixyship-database:
-    image: postgres:11
+    image: postgres:15
     ports:
       - "5432:5432"
     environment:

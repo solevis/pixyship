@@ -1,10 +1,10 @@
-![Python 3.7](https://github.com/solevis/pixyship/actions/workflows/python.yml/badge.svg?branch=main) 
-![Node.js 15.x](https://github.com/solevis/pixyship/actions/workflows/nodejs.yml/badge.svg?branch=main)
+![Python 3.11](https://github.com/solevis/pixyship/actions/workflows/python.yml/badge.svg?branch=main)
+![Node.js 16](https://github.com/solevis/pixyship/actions/workflows/nodejs.yml/badge.svg?branch=main)
 [![CodeQL](https://github.com/solevis/pixyship/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/solevis/pixyship/actions/workflows/codeql-analysis.yml)
 
 # PixyShip
 
-![Pixyship logo](./pixyship.png) 
+![Pixyship logo](./pixyship.png)
 
 Created by [Sokitume](https://github.com/JThinkable/pixyship)
 
@@ -12,9 +12,9 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 
 ## Requirements
 
-* Python 3.7
-* Node.js 15
-* npm 7.7
+* Python 3.11
+* Node.js 16
+* PostgreSQL 15
 
 ## Getting Started locally with Docker
 
@@ -27,26 +27,26 @@ cp config.py.dist config.py
 ${EDITOR} config.py
 
 # Launch the stack
-docker-compose up --build
+docker compose up --build
 
 # Initialize the database
-docker-compose exec  -w /app pixyship-backend alembic upgrade head
+docker compose exec  -w /app pixyship-backend alembic upgrade head
 
 # Initial data load
-docker-compose exec  -w /app pixyship-backend python importer.py --assets
-docker-compose exec  -w /app pixyship-backend python importer.py --players
-docker-compose exec  -w /app pixyship-backend python importer.py --market-one-item 73
+docker compose exec  -w /app pixyship-backend python importer.py --assets
+docker compose exec  -w /app pixyship-backend python importer.py --players
+docker compose exec  -w /app pixyship-backend python importer.py --market-one-item 73
 
 # PEP-8 linter
-docker-compose exec  -w /app pixyship-backend pycodestyle
+docker compose exec  -w /app pixyship-backend pycodestyle
 
 # Units tests
-docker-compose exec  -w /app pixyship-backend python -m pytest
+docker compose exec  -w /app pixyship-backend python -m pytest
 
 # Build frontend for deployment
 cp ./frontend/.env.development ./frontend/.env.production.local
 ${EDITOR} ./frontend/.env.production.local
-docker-compose exec  -w /app pixyship-frontend npm run build
+docker compose exec  -w /app pixyship-frontend npm run build
 ```
 
 Access the local PixyShip at [http://localhost:8080](http://localhost:8080).

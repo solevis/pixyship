@@ -1,4 +1,6 @@
-FROM node:16-alpine AS build-stage
+ARG NODE_VERSION=16
+
+FROM node:${NODE_VERSION}-alpine AS build-stage
 
 # set working directory
 WORKDIR /app
