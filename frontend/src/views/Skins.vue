@@ -71,8 +71,8 @@
           </td>
           <td class="name">{{ item.name }}</td>
           <td class="name">{{ item.description }}</td>
-          <td class="name">{{ item.skin_type }}</td>
           <td class="name">{{ item.race }}</td>
+          <td class="name">{{ item.skin_type }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -139,21 +139,21 @@ export default {
           filterable: true
         },
         {
-          text: "Skin Type",
-          align: "left",
-          value: "skin_type",
-          width: 150,
-          filter: (value) => {
-            return this.filterCombobox(value, this.searchSkinType)
-          },
-        },
-        {
           text: "Race",
           align: "left",
           value: "race",
           width: 150,
           filter: (value) => {
             return this.filterCombobox(value, this.searchRace)
+          },
+        },
+        {
+          text: "Skin Type",
+          align: "left",
+          value: "skin_type",
+          width: 150,
+          filter: (value) => {
+            return this.filterCombobox(value, this.searchSkinType)
           },
         },
       ],
