@@ -56,6 +56,11 @@ export default {
     },
 
     spriteStyle(sprite, color = '', border = 0) {
+      if (sprite === null) {
+        console.debug('sprite is null', sprite);
+        return {}
+      }
+
       if (Object.keys(sprite).length === 0) {
         return {}
       }
@@ -70,6 +75,11 @@ export default {
     },
 
     spriteStyleScaled(sprite, maxSize, color = '', border = 0) {
+      if (sprite === null) {
+        console.debug('sprite is null', sprite);
+        return {}
+      }
+
       if (Object.keys(sprite).length === 0) {
         return {}
       }
@@ -89,6 +99,11 @@ export default {
     },
 
     spriteStyleScaledWrapper(sprite, maxSize) {
+      if (sprite === null) {
+        console.debug('sprite is null', sprite);
+        return {}
+      }
+
       if (Object.keys(sprite).length === 0) {
         return {}
       }
@@ -105,6 +120,11 @@ export default {
     },
 
     styleFromSprite(sprite, color = '', border = 0, scale = 1, portScale = 1) {
+      if (sprite === null) {
+        console.debug('sprite is null', sprite);
+        return {}
+      }
+
       if (Object.keys(sprite).length === 0) {
         return {}
       }

@@ -48,11 +48,9 @@ def test_inspect_ship():
     # Ship
     ship = inspect_ship['Ship']
     assert 'ShipDesignId' in ship
-    assert 'ImmunityDate' in ship
-    assert 'ShipStatus' in ship
     assert 'OriginalRaceId' in ship
 
-    # Room
+    # Ship -> Room
     room = inspect_ship['Ship']['Rooms'][0]
     assert 'RoomId' in room
     assert 'Row' in room

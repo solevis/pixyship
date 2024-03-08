@@ -94,7 +94,7 @@
           <td>
             <crew v-if="item.type === 'char'" :char="item.char" tipPosition="right"/>
             <item v-else-if="item.type === 'item'" :item="item.item"/>
-            <div v-else :style="spriteStyleScaledWrapper(item.sprite, 300)">
+            <div v-else-if="item.sprite !== null" :style="spriteStyleScaledWrapper(item.sprite, 300)">
               <div class="block my-1 ma-auto" :style="spriteStyleScaled(item.sprite, 300)"></div>
             </div>
           </td>
