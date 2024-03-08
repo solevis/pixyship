@@ -275,6 +275,10 @@ export default {
       if (type === 'skin') {
         return `/skins?ids=${id}`
       }
+
+      if (type === 'skinset') {
+        return `/skins?ids=${id}`
+      }
     },
 
     computeDps(damage, entity) {
