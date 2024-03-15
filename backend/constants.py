@@ -36,6 +36,17 @@ COLLECTION_ABILITY_MAP = {
     'MedicalSkill': 'Combat Medic',
     'FreezeAttackSkill': 'Cryo Field',
     'InstantKillSkill': 'Headshot',
+    'RefreshAbility': 'Refresh',
+    'CastAbilitySkill': 'Cast',
+    'CastAssignedAbilitySkill': 'Cast Assigned',
+    'ApplyArmorSkill': 'Apply Armor',
+    'PreventDamageSkill': 'Prevent Damage',
+    'GainItemSkill': 'Gain Item',
+    'DamageReductionTimeSkill': 'Damage Reduction Time',
+    'Repair': 'Repair',
+    'MoveSpeedBoostSkill': 'Move Speed Boost',
+    'FireSkill': 'Fire',
+    'ReduceStatusSkill': 'Reduce Status',
     'None': 'None'
 }
 
