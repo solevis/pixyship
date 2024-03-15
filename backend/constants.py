@@ -44,7 +44,7 @@ COLLECTION_ABILITY_MAP = {
     'GainItemSkill': 'Gain Item',
     'DamageReductionTimeSkill': 'Damage Reduction Time',
     'Repair': 'Repair',
-    'MoveSpeedBoostSkill': 'Move Speed Boost',
+    'MoveSpeedBoost': 'Move Speed Boost',
     'FireSkill': 'Fire',
     'ReduceStatusSkill': 'Reduce Status',
     'None': 'None'
