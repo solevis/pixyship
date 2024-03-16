@@ -1229,7 +1229,7 @@ class PixyShip(metaclass=Singleton):
             collection_node = ElementTree.fromstring(record.data)
             collection = self.pixel_starships_api.parse_collection_node(collection_node)
 
-            collection.update({
+            collections[record.type_id] = {
                 'id': int(collection['CollectionDesignId']),
                 'name': collection['CollectionName'],
                 'min': int(collection['MinCombo']),
@@ -1244,8 +1244,8 @@ class PixyShip(metaclass=Singleton):
                 'base_chance': int(collection['BaseChance']),
                 'step_chance': int(collection['StepChance']),
                 'max_use': int(collection['MaxUse']),
-            })
-            collections[record.type_id] = collection
+                'description': collection['CollectionDescription'],
+            }
 
         return collections
 
