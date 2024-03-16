@@ -58,6 +58,8 @@
           </td>
           <td class="name">{{ item.name }}</td>
           <td>{{ item.ability_name }}</td>
+          <td>{{ item.trigger }}</td>
+          <td>{{ item.max_use }}</td>
           <td>
             <div v-if="item.chars.length > 0">
               <div
@@ -71,7 +73,9 @@
           </td>
           <td>{{ `${item.min} - ${item.max}` }}</td>
           <td>{{ item.base_enhancement }}</td>
+          <td>{{ item.base_chance }}</td>
           <td>{{ item.step_enhancement }}</td>
+          <td>{{ item.step_chance }}</td>
           <td>{{ item.CollectionDescription }}</td>
         </tr>
       </template>
@@ -140,6 +144,19 @@ export default {
           },
         },
         {
+          text: "Trigger",
+          align: "left",
+          value: "trigger",
+          sortable: false,
+          filterable: false
+        },
+        {
+          text: "Max Use",
+          align: "right",
+          value: "max_use",
+          filterable: false,
+        },
+        {
           text: "Chars",
           align: "left",
           sortable: false,
@@ -158,9 +175,22 @@ export default {
           filterable: false,
         },
         {
+          text: "Base Chance",
+          align: "right",
+          value: "base_chance",
+          filterable: false,
+        },
+        {
           text: "Step Bonus",
           align: "right",
           value: "step_enhancement",
+          filterable: false,
+        },
+
+        {
+          text: "Step Chance",
+          align: "right",
+          value: "step_chance",
           filterable: false,
         },
         {

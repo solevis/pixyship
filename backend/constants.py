@@ -50,6 +50,21 @@ COLLECTION_ABILITY_MAP = {
     'None': 'None'
 }
 
+COLLECTION_ABILITY_TRIGGER_MAP = {
+    'AbilityUsed': 'Ability Used',
+    'AttackCrew': 'Attack Crew',
+    'Death': 'Death',
+    'Repair': 'Repair',
+    'RoomDestruction': 'Room Destruction',
+    'Constant': 'Constant',
+    'Start': 'Start',
+    'TakeCrewDamage': 'Take Crew Damage',
+    'Stun': 'Stun',
+    'DamageTaken': 'Damage Taken',
+    'Teleport': 'Teleport',
+    'None': 'None'
+}
+
 RARITY_MAP = {
     'Legendary': 7,
     'Special': 6,

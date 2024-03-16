@@ -1240,6 +1240,10 @@ class PixyShip(metaclass=Singleton):
                 'icon_sprite': self.get_sprite_infos(int(collection['IconSpriteId'])),
                 'chars': [],
                 'ability_name': COLLECTION_ABILITY_MAP[collection['EnhancementType']],
+                'trigger': COLLECTION_ABILITY_TRIGGER_MAP[collection['TriggerType']],
+                'base_chance': int(collection['BaseChance']),
+                'step_chance': int(collection['StepChance']),
+                'max_use': int(collection['MaxUse']),
             })
             collections[record.type_id] = collection
 

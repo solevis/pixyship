@@ -290,6 +290,10 @@ def test_collections():
     assert 'SpriteId' in collection
     assert 'StepEnhancementValue' in collection
     assert 'IconSpriteId' in collection
+    assert 'TriggerType' in collection
+    assert 'BaseChance' in collection
+    assert 'StepChance' in collection
+    assert 'MaxUse' in collection
 
 
 def test_items():
