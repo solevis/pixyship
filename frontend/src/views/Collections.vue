@@ -73,9 +73,9 @@
           </td>
           <td>{{ `${item.min} - ${item.max}` }}</td>
           <td>{{ item.base_enhancement === 999999 ? '∞' : item.base_enhancement }}</td>
-          <td>{{ item.base_chance === 999999 ? '∞' : item.base_chance }}</td>
+          <td>{{ item.base_chance }}%</td>
           <td>{{ item.step_enhancement === 999999 ? '∞' : item.step_enhancement }}</td>
-          <td>{{ item.step_chance === 999999 ? '∞' : item.step_chance }}</td>
+          <td>{{ item.step_chance }}%</td>
           <td>{{ item.description }}</td>
         </tr>
       </template>
