@@ -59,7 +59,7 @@
           <td class="name">{{ item.name }}</td>
           <td>{{ item.ability_name }}</td>
           <td>{{ item.trigger }}</td>
-          <td>{{ item.max_use }}</td>
+          <td>{{ item.max_use === 999999 ? '∞' : item.max_use }}</td>
           <td>
             <div v-if="item.chars.length > 0">
               <div
