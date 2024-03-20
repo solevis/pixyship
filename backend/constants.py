@@ -62,6 +62,7 @@ COLLECTION_ABILITY_TRIGGER_MAP = {
     'Stun': 'Stun',
     'DamageTaken': 'Damage Taken',
     'Teleport': 'Teleport',
+    'DirectDamage': 'Direct Damage',
     'None': 'None'
 }
 
