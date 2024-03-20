@@ -47,6 +47,7 @@ COLLECTION_ABILITY_MAP = {
     'MoveSpeedBoost': 'Move Speed Boost',
     'FireSkill': 'Fire',
     'ReduceStatusSkill': 'Reduce Status',
+    'DirectDamage': 'Direct Damage',
     'None': 'None'
 }
 
@@ -62,7 +63,6 @@ COLLECTION_ABILITY_TRIGGER_MAP = {
     'Stun': 'Stun',
     'DamageTaken': 'Damage Taken',
     'Teleport': 'Teleport',
-    'DirectDamage': 'Direct Damage',
     'None': 'None'
 }
 
