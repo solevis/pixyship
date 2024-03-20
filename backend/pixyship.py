@@ -1787,6 +1787,10 @@ class PixyShip(metaclass=Singleton):
         splitted_prices = [i.split(':') for i in cost_list_string.split('|')]
         prices = []
         for splitted_price in splitted_prices:
+            if len(splitted_price) < 2:
+                current_app.logger.error('Cannot parse cost_list_string %s', splitted_price)
+                continue
+
             price = {
                 'currency': splitted_price[0]
             }
