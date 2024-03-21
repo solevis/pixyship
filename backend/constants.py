@@ -48,6 +48,7 @@ COLLECTION_ABILITY_MAP = {
     'FireSkill': 'Fire',
     'ReduceStatusSkill': 'Reduce Status',
     'DirectDamage': 'Direct Damage',
+    'ReduceRoomStatusSkill': 'Reduce Room Status',
     'None': 'None'
 }
 
