@@ -60,6 +60,11 @@
           <td>{{ item.ability_name }}</td>
           <td>{{ item.trigger }}</td>
           <td>{{ item.max_use === 999999 ? '∞' : item.max_use }}</td>
+          <td>{{ `${item.min} - ${item.max}` }}</td>
+          <td>{{ item.base_enhancement === 999999 ? '∞' : item.base_enhancement }}</td>
+          <td>{{ item.base_chance }}%</td>
+          <td>{{ item.step_enhancement === 999999 ? '∞' : item.step_enhancement }}</td>
+          <td>{{ item.step_chance }}%</td>
           <td>
             <div v-if="item.chars.length > 0">
               <div
@@ -71,11 +76,6 @@
               </div>
             </div>
           </td>
-          <td>{{ `${item.min} - ${item.max}` }}</td>
-          <td>{{ item.base_enhancement === 999999 ? '∞' : item.base_enhancement }}</td>
-          <td>{{ item.base_chance }}%</td>
-          <td>{{ item.step_enhancement === 999999 ? '∞' : item.step_enhancement }}</td>
-          <td>{{ item.step_chance }}%</td>
           <td>{{ item.description }}</td>
         </tr>
       </template>
@@ -157,12 +157,6 @@ export default {
           filterable: false,
         },
         {
-          text: "Chars",
-          align: "left",
-          sortable: false,
-          filterable: false
-        },
-        {
           text: "Required (Min - Max)",
           align: "center",
           value: "min",
@@ -192,6 +186,12 @@ export default {
           align: "right",
           value: "step_chance",
           filterable: false,
+        },
+        {
+          text: "Chars",
+          align: "left",
+          sortable: false,
+          filterable: false
         },
         {
           text: "Description",
