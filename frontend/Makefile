@@ -4,8 +4,11 @@ build:
 	@npm run build
 
 .PHONY: deploy
-deploy:
+rsync:
 	@rsync -av --delete ./dist/ pixyship:/opt/pixyship.com/uploaded-dist
+
+.PHONY: deploy
+deploy: build rsync
 
 .PHONY: build-staging
 build-staging:
@@ -13,14 +16,23 @@ build-staging:
 	@npm run build-staging
 
 .PHONY: deploy-staging
-deploy-staging:
+rsync-staging:
 	@rsync -av --delete ./dist/ pixyship:/opt/staging.pixyship.com/uploaded-dist
+
+.PHONY: deploy-staging
+deploy-staging: build-staging rsync-staging
 
 .PHONY: build-beta
 build-beta:
 	@npx update-browserslist-db@latest
 	@npm run build-beta
 
-.PHONY: deploy-beta
-deploy-beta:
+.PHONY: rsync-beta
+rsync-beta:
 	@rsync -av --delete ./dist/ pixyship:/opt/beta.pixyship.com/uploaded-dist
+
+.PHONY: deploy-beta
+deploy-beta: build-beta rsync-beta
+
+.PHONY: deploy-all
+deploy-all: deploy deploy-staging deploy-beta
