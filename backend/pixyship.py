@@ -1041,6 +1041,7 @@ class PixyShip(metaclass=Singleton):
                 'craft_volley': int(craft['Volley']),
                 'craft_volley_delay': int(craft['VolleyDelay']),
                 'attack_distance': int(craft['AttackDistance']),
+                'attack_range': int(craft['AttackRange']),
                 'hp': int(craft['Hp']),
                 'craft_attack_type': craft['CraftAttackType'],
                 'craft_target_type': craft['CraftTargetType'],

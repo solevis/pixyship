@@ -595,6 +595,8 @@ def test_crafts():
     assert 'ReloadModifier' in craft
     assert 'Volley' in craft
     assert 'VolleyDelay' in craft
+    assert 'AttackDistance' in craft
+    assert 'AttackRange' in craft
     assert 'Hp' in craft
     assert 'CraftAttackType' in craft
     assert 'SpriteId' in craft
