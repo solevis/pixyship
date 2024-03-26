@@ -626,7 +626,6 @@ def test_missiles():
     assert 'ManufactureCost' in missile
     assert 'ReloadModifier' in missile
     assert 'ImageSpriteId' in missile
-    assert 'ReloadModifier' in missile
     assert 'SystemDamage' in missile['MissileDesign']
     assert 'HullDamage' in missile['MissileDesign']
     assert 'CharacterDamage' in missile['MissileDesign']
