@@ -58,6 +58,47 @@ def test_inspect_ship():
     assert 'ConstructionStartDate' in room
 
 
+def test_ship_details():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+
+    user_id = 6635604  # Solevis
+    ship, user = pixel_starships_api.ship_details(user_id)
+
+    assert 'ShipDesignId' in ship
+    assert 'OriginalRaceId' in ship
+
+    assert 'Id' in user
+    assert 'Name' in user
+    assert 'IconSpriteId' in user
+    assert 'AllianceName' in user
+    assert 'Trophy' in user
+    assert 'AllianceSpriteId' in user
+    assert 'LastAlertDate' in user
+
+
+def test_ship_room_details():
+    # avoid Flask RuntimeError: No application found
+    push_context()
+
+    pixel_starships_api = PixelStarshipsApi()
+
+    user_id = 6635604  # Solevis
+    ship_room_details = pixel_starships_api.ship_room_details(user_id)
+
+    assert len(ship_room_details) > 0
+
+    ship_room_detail = ship_room_details[0]
+
+    assert 'RoomDesignId' in ship_room_detail
+    assert 'CurrentSkinKey' in ship_room_detail
+    assert 'Row' in ship_room_detail
+    assert 'Column' in ship_room_detail
+    assert 'ConstructionStartDate' in ship_room_detail
+
+
 def test_dailies():
     pixel_starships_api = PixelStarshipsApi()
     dailies = pixel_starships_api.get_dailies()

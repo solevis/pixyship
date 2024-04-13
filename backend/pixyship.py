@@ -2275,18 +2275,19 @@ class PixyShip(metaclass=Singleton):
         """Get ship, user, rooms and upgrade from given player name."""
 
         user_id = self.find_user_id(player_name)
-
         if not user_id:
+            current_app.logger.error('Cannot find user %s', player_name)
             return None, None, None, None, None
 
-        inspect_ship = self.pixel_starships_api.inspect_ship(user_id)
-
-        # only seen on admin players so far
-        if not inspect_ship:
+        ship_data, user_data = self.pixel_starships_api.ship_details(user_id)
+        if not ship_data or not user_data:
+            current_app.logger.error('Cannot find ship data for user %s', player_name)
             return None, None, None, None, None
 
-        user_data = inspect_ship['User']
-        ship_data = inspect_ship['Ship']
+        room_data = self.pixel_starships_api.ship_room_details(user_id)
+        if not room_data:
+            current_app.logger.error('Cannot find room data for user %s', player_name)
+            return None, None, None, None, None
 
         user = dict(
             id=user_data['Id'],
@@ -2345,17 +2346,16 @@ class PixyShip(metaclass=Singleton):
         ship_id = int(ship_data['ShipDesignId'])
 
         rooms = []
-        for room_data in ship_data['Rooms']:
+        for current_room_data in room_data:
             room = dict(
-                self.convert_room_sprite_to_race_sprite(int(room_data['RoomDesignId']), ship_id),
-                design_id=int(room_data['RoomDesignId']),
-                id=int(room_data['RoomId']),
-                row=int(room_data['Row']),
-                column=int(room_data['Column']),
-                construction=bool(room_data['ConstructionStartDate']),
+                self.convert_room_sprite_to_race_sprite(int(current_room_data['RoomDesignId']), ship_id),
+                design_id=int(current_room_data['RoomDesignId']),
+                row=int(current_room_data['Row']),
+                column=int(current_room_data['Column']),
+                construction=bool(current_room_data['ConstructionStartDate']),
             )
 
-            room['exterior_sprite'] = self.get_exterior_sprite(int(room_data['RoomDesignId']), ship_id)
+            room['exterior_sprite'] = self.get_exterior_sprite(int(current_room_data['RoomDesignId']), ship_id)
 
             rooms.append(room)
 

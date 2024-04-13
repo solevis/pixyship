@@ -138,7 +138,7 @@
               />
 
               <!-- Rooms -->
-              <g v-for="room in rooms" :key="room.id">
+              <g v-for="(room, index) in rooms" :key="'room1-' + index">
                 <svg 
                   :x="`${room.column * 25}px`" 
                   :y="`${room.row * 25}px`"
@@ -187,7 +187,7 @@
               />
 
               <!-- Rooms -->
-              <g v-for="room in rooms" :key="room.id">
+              <g v-for="(room, index) in rooms" :key="'room2-' + index">
                 <svg 
                   :x="`${room.column * 25}px`" 
                   :y="`${room.row * 25}px`"
@@ -246,7 +246,7 @@
               />
 
               <!-- Rooms -->
-              <g v-for="room in rooms" :key="room.id">
+              <g v-for="(room, index) in rooms" :key="'room3-' + index">
                 <svg 
                   v-if="room.exterior_sprite"
                   :x="`${room.column * 25}px`" 
@@ -275,7 +275,7 @@
               />
 
               <!-- Rooms -->
-              <g v-for="room in rooms" :key="room.id">
+              <g v-for="(room, index) in rooms" :key="'room4-' + index">
                 <svg 
                   v-if="room.exterior_sprite"
                   :x="`${room.column * 25}px`" 

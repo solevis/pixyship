@@ -97,8 +97,8 @@ def test_collections():
     collections = pixyship._get_collections_from_db()
 
     assert len(collections) > 0
-    assert collections[7]['CollectionDesignId'] == '7'
-    assert collections[7]['CollectionName'] == 'Federation'
+    assert collections[7]['id'] == 7
+    assert collections[7]['name'] == 'Federation'
 
 
 def test_researches():

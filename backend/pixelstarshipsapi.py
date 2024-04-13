@@ -267,6 +267,49 @@ class PixelStarshipsApi:
 
         return inspect_ship
 
+    def ship_details(self, user_id):
+        """Get player ship details from API."""
+
+        params = {
+            'UserId': user_id,
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/PublicService/GetShipDetails'
+        response = self.call(endpoint, params=params, need_token=True)
+        root = ElementTree.fromstring(response.text)
+
+        ship_node = root.find('.//Ship')
+        ship = ship_node.attrib.copy()
+        ship['pixyship_xml_element'] = ship_node
+
+        user_node = root.find('.//User')
+        user = user_node.attrib.copy()
+        user['pixyship_xml_element'] = user_node
+
+        return ship, user
+
+    def ship_room_details(self, user_id):
+        """Get player ship room details from API."""
+
+        params = {
+            'UserId': user_id,
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f'https://{self.server}/PublicService/GetShipRoomDetails'
+        response = self.call(endpoint, params=params, need_token=True)
+        root = ElementTree.fromstring(response.text)
+
+        ship_room_details_node = root.find('.//Rooms')
+        ship_room_details = []
+        for room_node in ship_room_details_node:
+            room = room_node.attrib.copy()
+            room['pixyship_xml_element'] = room_node
+            ship_room_details.append(room)
+
+        return ship_room_details
+
     def search_users(self, user_name, exact_match=False):
         """Get player ship data from API."""
 
