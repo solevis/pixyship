@@ -28,7 +28,7 @@ def int_range(values, start_key, end_key):
 
 
 def api_sleep(secs, force_sleep=False):
-    if not CONFIG['SAVY_PUBLIC_API_TOKEN'] or CONFIG['USE_STAGING_API'] or force_sleep:
+    if not CONFIG["SAVY_PUBLIC_API_TOKEN"] or CONFIG["USE_STAGING_API"] or force_sleep:
         time.sleep(secs)
 
 

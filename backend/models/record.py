@@ -9,14 +9,14 @@ from utils import sort_attributes
 
 
 class Record(db.Model):
-    id = db.Column('id', db.INT, primary_key=True)
-    type = db.Column('type', db.TEXT, nullable=False)
-    type_id = db.Column('type_id', db.INT, nullable=False)
-    current = db.Column('current', db.BOOLEAN, nullable=False)
-    md5_hash = db.Column('md5_hash', UUID, nullable=False)
-    data = db.Column('data', db.TEXT, nullable=False)
-    created_at = db.Column('created_at', db.TIMESTAMP, server_default=func.now())
-    url = db.Column('url', db.TEXT, nullable=False)
+    id = db.Column("id", db.INT, primary_key=True)
+    type = db.Column("type", db.TEXT, nullable=False)
+    type_id = db.Column("type_id", db.INT, nullable=False)
+    current = db.Column("current", db.BOOLEAN, nullable=False)
+    md5_hash = db.Column("md5_hash", UUID, nullable=False)
+    data = db.Column("data", db.TEXT, nullable=False)
+    created_at = db.Column("created_at", db.TIMESTAMP, server_default=func.now())
+    url = db.Column("url", db.TEXT, nullable=False)
 
     @classmethod
     def update_data(cls, record_type, record_id, raw_data, url, ignore_list=None, data_as_xml=True):
@@ -40,14 +40,14 @@ class Record(db.Model):
             data = raw_data
             md5_str = data
 
-        md5_hash = hashlib.md5(md5_str.encode('utf-8')).hexdigest()
+        md5_hash = hashlib.md5(md5_str.encode("utf-8")).hexdigest()
 
         # check if this is already in the db as the current
         existing = Record.query.filter_by(type=record_type, type_id=record_id, current=True).first()
 
         if existing:
             # hash is stored as uuid with extra dashes, remove them when comparing hashes
-            if str(existing.md5_hash).replace('-', '') == md5_hash:
+            if str(existing.md5_hash).replace("-", "") == md5_hash:
                 # if we ignored fields, update them, but don't make a new record.
                 if ignore_list:
                     if existing.data != data:

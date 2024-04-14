@@ -8,33 +8,29 @@ from config import CONFIG
 from db import db
 from pixyship import PixyShip
 
-APP_NAME = 'pixyship'
+APP_NAME = "pixyship"
 
 app = Flask(APP_NAME)
 
 # a secret key that will be used for securely signing the session cookie
-app.secret_key = CONFIG['SECRET_KEY']
+app.secret_key = CONFIG["SECRET_KEY"]
 
 # configure cookie security
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Strict',
+    SESSION_COOKIE_SAMESITE="Strict",
 )
 
 # database settings
-app.config['SQLALCHEMY_DATABASE_URI'] = CONFIG['DATABASE_URI']
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = CONFIG["DATABASE_URI"]
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
 # configure cors (Cross-Origin Resource Sharing)
-if CONFIG['DEV_MODE']:
-    cors = CORS(
-        app,
-        supports_credentials=True,
-        resources={r"/api/*": {"origins": "*"}}
-    )
+if CONFIG["DEV_MODE"]:
+    cors = CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 else:
     cors = CORS(
         app,
@@ -42,11 +38,11 @@ else:
         resources={
             r"/api/*": {
                 "origins": [
-                    "https://{}".format(CONFIG['DOMAIN']),
-                    "http://{}".format(CONFIG['DOMAIN'])
+                    "https://{}".format(CONFIG["DOMAIN"]),
+                    "http://{}".format(CONFIG["DOMAIN"]),
                 ]
             }
-        }
+        },
     )
 
 # helpers, cached data, etc.
@@ -67,7 +63,7 @@ def enforce_source(func):
 
     def wrapper(*args, **kwargs):
         # no need to check referrer on DEV
-        if CONFIG['DEV_MODE']:
+        if CONFIG["DEV_MODE"]:
             return func(*args, **kwargs)
 
         # no referrer ?
@@ -75,7 +71,7 @@ def enforce_source(func):
             flask.abort(404)
 
         # referrer is PixyShip ?
-        if '//{}/'.format(CONFIG['DOMAIN']) not in flask.request.referrer:
+        if "//{}/".format(CONFIG["DOMAIN"]) not in flask.request.referrer:
             flask.abort(404)
 
         # everything is ok, continue
@@ -115,18 +111,18 @@ def after_request(response):
 @app.errorhandler(503)
 def error_503(_):
     """Maintenance."""
-    return 'PixyShip is down for maintenance', 503
+    return "PixyShip is down for maintenance", 503
 
 
-@app.route('/api/players')
+@app.route("/api/players")
 def api_players():
-    search = request.args.get('search') or ''
+    search = request.args.get("search") or ""
     response = jsonify(pixyship.get_player_data(search))
     response.cache_control.max_age = 300
     return response
 
 
-@app.route('/api/user/<path:name>')
+@app.route("/api/user/<path:name>")
 @enforce_source
 def api_ship(name):
     if not name:
@@ -137,200 +133,236 @@ def api_ship(name):
     return jsonify(ship_data)
 
 
-@app.route('/api/daily')
+@app.route("/api/daily")
 @enforce_source
 def api_daily():
-    return jsonify({
-        'data': pixyship.dailies,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.dailies,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/changes')
+@app.route("/api/changes")
 @enforce_source
 def api_changes():
     last_prestiges_changes = pixyship.last_prestiges_changes
 
-    return jsonify({
-        'data': pixyship.changes,
-        'lastprestigeschanges': last_prestiges_changes,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.changes,
+            "lastprestigeschanges": last_prestiges_changes,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/collections')
+@app.route("/api/collections")
 @enforce_source
 def api_collections():
-    return jsonify({
-        'data': pixyship.collections,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.collections,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/achievements')
+@app.route("/api/achievements")
 @enforce_source
 def api_achievements():
-    return jsonify({
-        'data': pixyship.achievements,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.achievements,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/research')
+@app.route("/api/research")
 @enforce_source
 def api_research():
-    return jsonify({
-        'data': pixyship.get_researches_and_ship_min_level(),
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.get_researches_and_ship_min_level(),
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/prestige/<int:char_id>')
+@app.route("/api/prestige/<int:char_id>")
 @enforce_source
 def api_prestige(char_id):
-    return jsonify({
-        'data': pixyship.get_prestiges_from_api(char_id),
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.get_prestiges_from_api(char_id),
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/crew')
+@app.route("/api/crew")
 @enforce_source
 def api_crew():
-    return jsonify({
-        'data': pixyship.characters,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.characters,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/items')
+@app.route("/api/items")
 @enforce_source
 def api_items():
-    return jsonify({
-        'data': pixyship.items,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.items,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/item/<int:item_id>/prices')
+@app.route("/api/item/<int:item_id>/prices")
 @enforce_source
 def api_item_prices(item_id):
     data = pixyship.get_item_prices_from_db(item_id)
-    return jsonify({
-        'data': data,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": data,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/item/<int:item_id>/detail')
+@app.route("/api/item/<int:item_id>/detail")
 @enforce_source
 def api_item_detail(item_id):
     item = pixyship.items[item_id]
     last_players_sales = pixyship.get_item_last_players_sales_from_db(item_id, 5000)
-    upgrades = pixyship.get_item_upgrades(item['id'])
-    return jsonify({
-        'data': item,
-        'lastPlayersSales': last_players_sales,
-        'upgrades': upgrades,
-        'status': 'success',
-    })
+    upgrades = pixyship.get_item_upgrades(item["id"])
+    return jsonify(
+        {
+            "data": item,
+            "lastPlayersSales": last_players_sales,
+            "upgrades": upgrades,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/tournament')
+@app.route("/api/tournament")
 @enforce_source
 def api_tournament():
-    return jsonify({
-        'data': pixyship.get_tournament_infos(),
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.get_tournament_infos(),
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/rooms')
+@app.route("/api/rooms")
 @enforce_source
 def api_rooms():
     rooms = pixyship.rooms
 
-    return jsonify({
-        'data': rooms,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": rooms,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/skins')
+@app.route("/api/skins")
 @enforce_source
 def api_skins():
     skins = pixyship.skins
 
     # keep only skins with sprite_type = "Interior"
-    skins = [skin for skin in skins.values() if skin['sprite_type'] == 'Interior']
+    skins = [skin for skin in skins.values() if skin["sprite_type"] == "Interior"]
 
-    return jsonify({
-        'data': skins,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": skins,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/ships')
+@app.route("/api/ships")
 @enforce_source
 def api_ships():
-    return jsonify({
-        'data': pixyship.ships,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": pixyship.ships,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/lastsales/<path:type>/<int:type_id>')
+@app.route("/api/lastsales/<path:type>/<int:type_id>")
 @enforce_source
 def api_last_sales(type, type_id):
     last_sales = pixyship.get_last_sales_from_db(type, type_id, 1000)
-    return jsonify({
-        'data': last_sales,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": last_sales,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/lastsalesbysalefrom/<path:sale_from>')
+@app.route("/api/lastsalesbysalefrom/<path:sale_from>")
 @enforce_source
 def api_last_sales_by_type(sale_from):
     last_sales = pixyship.get_last_sales_by_sale_from_from_db(sale_from, 5000)
-    return jsonify({
-        'data': last_sales,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": last_sales,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/crafts')
+@app.route("/api/crafts")
 @enforce_source
 def api_crafts():
     crafts = pixyship.crafts
 
-    return jsonify({
-        'data': crafts,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": crafts,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/missiles')
+@app.route("/api/missiles")
 @enforce_source
 def api_missiles():
     missiles = pixyship.missiles
 
-    return jsonify({
-        'data': missiles,
-        'status': 'success',
-    })
+    return jsonify(
+        {
+            "data": missiles,
+            "status": "success",
+        }
+    )
 
 
-@app.route('/api/<path:path>')
+@app.route("/api/<path:path>")
 def bad_api(_):
     """Places you shouldn't go"""
     return flask.abort(404)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Launch the built-in server.
     Do not use in production.
     """
 
-    app.config['DEBUG'] = True
-    app.run(host='0.0.0.0', threaded=True)
+    app.config["DEBUG"] = True
+    app.run(host="0.0.0.0", threaded=True)

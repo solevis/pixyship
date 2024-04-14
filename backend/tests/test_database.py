@@ -10,8 +10,8 @@ def test_crews():
     crews = pixyship._get_characters_from_db()
 
     assert len(crews) > 0
-    assert crews[392]['id'] == 392
-    assert crews[392]['name'] == 'Polaran Pilgrim'
+    assert crews[392]["id"] == 392
+    assert crews[392]["name"] == "Polaran Pilgrim"
 
 
 def test_items():
@@ -22,8 +22,8 @@ def test_items():
     items = pixyship._get_items_from_db()
 
     assert len(items) > 0
-    assert items[600]['id'] == 600
-    assert items[600]['name'] == 'Federation Officer Armor'
+    assert items[600]["id"] == 600
+    assert items[600]["name"] == "Federation Officer Armor"
 
 
 def test_rooms():
@@ -34,9 +34,9 @@ def test_rooms():
     rooms, _, _ = pixyship._get_rooms_from_db()
 
     assert len(rooms) > 0
-    assert rooms[10]['id'] == 10
-    assert rooms[10]['name'] == 'Bedroom Lv2'
-    assert rooms[10]['level'] == 2
+    assert rooms[10]["id"] == 10
+    assert rooms[10]["name"] == "Bedroom Lv2"
+    assert rooms[10]["level"] == 2
 
 
 def test_crafts():
@@ -47,9 +47,9 @@ def test_crafts():
     crafts = pixyship._get_crafts_from_db()
 
     assert len(crafts) > 0
-    assert crafts[10]['id'] == 10
-    assert crafts[10]['name'] == 'Interceptor Lv7'
-    assert crafts[10]['hp'] == 5
+    assert crafts[10]["id"] == 10
+    assert crafts[10]["name"] == "Interceptor Lv7"
+    assert crafts[10]["hp"] == 5
 
 
 def test_missiles():
@@ -60,9 +60,9 @@ def test_missiles():
     missiles = pixyship._get_missiles_from_db()
 
     assert len(missiles) > 0
-    assert missiles[40]['id'] == 40
-    assert missiles[40]['name'] == 'Penetrator Lv5'
-    assert missiles[40]['volley'] == 1.0
+    assert missiles[40]["id"] == 40
+    assert missiles[40]["name"] == "Penetrator Lv5"
+    assert missiles[40]["volley"] == 1.0
 
 
 def test_upgrades():
@@ -84,9 +84,9 @@ def test_ships():
     ships = pixyship._get_ships_from_db()
 
     assert len(ships) > 0
-    assert ships[129]['id'] == 129
-    assert ships[129]['name'] == 'Oumaumau Invader'
-    assert ships[129]['level'] == 11
+    assert ships[129]["id"] == 129
+    assert ships[129]["name"] == "Oumaumau Invader"
+    assert ships[129]["level"] == 11
 
 
 def test_collections():
@@ -97,8 +97,8 @@ def test_collections():
     collections = pixyship._get_collections_from_db()
 
     assert len(collections) > 0
-    assert collections[7]['id'] == 7
-    assert collections[7]['name'] == 'Federation'
+    assert collections[7]["id"] == 7
+    assert collections[7]["name"] == "Federation"
 
 
 def test_researches():
@@ -109,8 +109,8 @@ def test_researches():
     researches = pixyship._get_researches_from_db()
 
     assert len(researches) > 0
-    assert researches[42]['ResearchDesignId'] == '42'
-    assert researches[42]['ResearchName'] == 'Advanced Training Lv5'
+    assert researches[42]["ResearchDesignId"] == "42"
+    assert researches[42]["ResearchName"] == "Advanced Training Lv5"
 
 
 def test_prices():
@@ -138,10 +138,10 @@ def test_search_player():
     push_context()
 
     pixyship = PixyShip()
-    players = pixyship.get_player_data('MiniSolevis')
+    players = pixyship.get_player_data("MiniSolevis")
 
     assert len(players) == 1
-    assert players[0]['name'] == 'MiniSolevis'
+    assert players[0]["name"] == "MiniSolevis"
 
 
 def test_changes():
@@ -159,6 +159,6 @@ def test_user_id():
     push_context()
 
     pixyship = PixyShip()
-    user_id = pixyship.find_user_id('Solevis')
+    user_id = pixyship.find_user_id("Solevis")
 
     assert user_id == 6635604
