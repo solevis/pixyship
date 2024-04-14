@@ -5,6 +5,7 @@ __pycache__
 .pytest_cache
 .python-version
 .pg/
+pgdata/
 
 .vscode
 .idea

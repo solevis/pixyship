@@ -1,54 +1,35 @@
-FROM python:3.11-alpine AS build-stage
+FROM python:3.11-alpine
 
-# install image dependencies
-RUN apk add gcc build-base linux-headers
+# Install cURL and tzdata
+RUN apk --no-cache add curl tzdata
 
-## Add the wait script to the image
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
-RUN chmod +x /wait
+# Set the timezone
+ENV TZ=UTC
 
-# set environment variables
+# Set working directory
+WORKDIR /app
+
+# Prevent Python from writing pyc files to disc
 ENV PYTHONDONTWRITEBYTECODE 1
+
+# Prevent Python from buffering stdout and stderr
 ENV PYTHONUNBUFFERED 1
 
-# set working directory
-WORKDIR /app
+# Upgrading pip version
+RUN pip install --no-cache-dir --upgrade pip
 
-# install dependencies
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Install app dependencies
+COPY ./requirements.lock /app/requirements.lock
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.lock
 
-# copy files
-COPY . .
+# Install gunicorn
+RUN pip install --no-cache-dir gunicorn
 
-FROM build-stage AS development-stage
+# Copy app source code
+COPY . /app
 
-# set working directory
-WORKDIR /app
+# Expose port
+EXPOSE 8000
 
-# copy files
-COPY --from=build-stage /app .
-
-ENV FLASK_ENV=development
-ENV WAIT_HOSTS=pixyship-database:5432
-
-# serve app
-EXPOSE 5000
-CMD /wait && python run.py
-
-FROM build-stage AS production-stage
-
-# install gunicorn wsgi server
-RUN pip install gunicorn[gevent]
-
-# set working directory
-WORKDIR /app
-
-# copy files
-COPY --from=build-stage /app .
-
-ENV FLASK_ENV=production
-
-# serve app
-EXPOSE 5000
-CMD gunicorn --worker-class gevent --workers 8 --bind 0.0.0.0:5000 run:app --max-requests 10000 --timeout 5 --keep-alive 5 --log-level info
+# Run the app
+CMD [ "gunicorn", "run:app", "--bind", "0.0.0.0:8000" ]

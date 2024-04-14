@@ -36,3 +36,7 @@ deploy-beta: build-beta rsync-beta
 
 .PHONY: deploy-all
 deploy-all: deploy deploy-staging deploy-beta
+
+.PHONY: update-browsers
+update-browsers:
+	@dnpx browserslist@latest --update-db

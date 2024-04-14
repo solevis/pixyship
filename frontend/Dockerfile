@@ -1,30 +1,15 @@
-ARG NODE_VERSION=16
-
-FROM node:${NODE_VERSION}-alpine AS build-stage
-
-# set working directory
+FROM node:16-alpine AS base-stage
 WORKDIR /app
-
-# install dependencies
 COPY package*.json ./
 RUN npm install
-RUN npm install -g @vue/cli
-
-# copy files
 COPY . .
 
-FROM build-stage AS development-stage
-
-ENV NODE_ENV=development
-ENV CHOKIDAR_USEPOLLING=true
-
-# serve app
-EXPOSE 8080
-CMD npm run serve
-
-FROM build-stage AS production-stage
-
-ENV NODE_ENV=production
-
-# generate app
+FROM node:16-alpine AS build-stage
+WORKDIR /app
+COPY --from=base-stage /app /app
 RUN npm run build
+
+FROM nginx:alpine
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
