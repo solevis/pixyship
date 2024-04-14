@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column
 import datetime
 
-from db import db
+from app.ext.db import db
 
 
 class Device(db.Model):
@@ -23,7 +23,7 @@ class Device(db.Model):
         return self.token
 
     def cycle_token(self):
-        from pixelstarshipsapi import PixelStarshipsApi
+        from app.pixelstarshipsapi import PixelStarshipsApi
 
         pixel_starships_api = PixelStarshipsApi()
         self.token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)

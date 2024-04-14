@@ -1,6 +1,6 @@
 import datetime
 
-from pixelstarshipsapi import PixelStarshipsApi
+from app.pixelstarshipsapi import PixelStarshipsApi
 from run import push_context
 
 

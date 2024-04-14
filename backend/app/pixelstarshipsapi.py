@@ -1,54 +1,35 @@
 import datetime
-import getpass
 import hashlib
-import logging
 import random
 import re
-import socket
-import sys
-from logging.handlers import SMTPHandler
 from typing import Tuple
 from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree
 
 import requests
+from flask import current_app
 
-from api_errors import TOKEN_EXPIRED_REGEX
-from config import CONFIG
-from constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP, API_URLS
-from db import db
-from models import Device
-from utils import api_sleep
-
-logging.basicConfig(
-    stream=sys.stdout,
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
-
-mail_handler = SMTPHandler(
-    mailhost=("localhost", 25),
-    fromaddr="{}@{}".format(getpass.getuser(), socket.gethostname()),
-    toaddrs=[CONFIG["EMAIL"]],
-    subject="Error on PixyShip!",
-)
-
-mail_handler.setLevel(logging.ERROR)
-logger.addHandler(mail_handler)
+from app.api_errors import TOKEN_EXPIRED_REGEX
+from app.constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP, API_URLS
+from app.ext.db import db
+from app.models import Device
+from app.utils import api_sleep
 
 
 class PixelStarshipsApi:
-    """Manage Pixel Starships API."""
+    """
+    Manage Pixel Starships API.
+    TODO: migrate to pssapi library.
+    """
 
     def __init__(self):
-        if CONFIG.get("USE_STAGING_API"):
+        if current_app.config.get("USE_STAGING_API"):
             self._main_pixelstarships_api_url = API_URLS.get("STAGING")
             # force staging URL and not get automatic ProductionServer from API
             self._forced_pixelstarships_api_url = API_URLS.get("STAGING")
         else:
             self._main_pixelstarships_api_url = API_URLS.get("MAIN")
-            self._forced_pixelstarships_api_url = CONFIG.get("FORCED_PIXELSTARSHIPS_API_URL")
+            self._forced_pixelstarships_api_url = current_app.config.get("FORCED_PIXELSTARSHIPS_API_URL")
 
         self._device_next_index = 0
         self._devices = None
@@ -142,16 +123,16 @@ class PixelStarshipsApi:
         token = None
 
         # don't use SAVY_PUBLIC_API_TOKEN on staging (it doesn't work)
-        if CONFIG.get("USE_STAGING_API"):
+        if current_app.config.get("USE_STAGING_API"):
             force_token_generation = True
 
-        if need_token and (not CONFIG["SAVY_PUBLIC_API_TOKEN"] or force_token_generation):
+        if need_token and (not current_app.config["SAVY_PUBLIC_API_TOKEN"] or force_token_generation):
             # protected endpoint, add device access token...
             device = self.get_device()
             token = device.get_token()
-        elif CONFIG["SAVY_PUBLIC_API_TOKEN"]:
+        elif current_app.config["SAVY_PUBLIC_API_TOKEN"]:
             # ...otherwise use Savy provided token if present
-            token = CONFIG["SAVY_PUBLIC_API_TOKEN"]
+            token = current_app.config["SAVY_PUBLIC_API_TOKEN"]
 
         if token:
             params["accessToken"] = token
@@ -194,7 +175,7 @@ class PixelStarshipsApi:
 
         device_key = self.create_device_key()
         device_type = "DeviceTypeMac"
-        checksum_key = CONFIG["DEVICE_LOGIN_CHECKSUM_KEY"]
+        checksum_key = current_app.config["DEVICE_LOGIN_CHECKSUM_KEY"]
 
         device_checksum = hashlib.md5(
             f"{device_key}{client_datetime}{device_type}{checksum_key}savysoda".encode("utf-8")
@@ -646,7 +627,7 @@ class PixelStarshipsApi:
             )
 
             if not missile_design:
-                logger.error(
+                current_app.logger.error(
                     "Cannot retrieve craft MissileDesign for MissileDesignId {}".format(
                         craft_node.attrib["MissileDesignId"]
                     )
@@ -720,7 +701,7 @@ class PixelStarshipsApi:
             )
 
             if not missile_design:
-                logger.error(
+                current_app.logger.error(
                     "Cannot retrieve missile MissileDesign for MissileDesignId {}".format(
                         item_node.attrib["MissileDesignId"]
                     )
@@ -931,14 +912,14 @@ class PixelStarshipsApi:
                 "to": end,
             }
 
-            logger.info("retrieve sales of {} from {} to {}".format(item_id, start, end))
+            current_app.logger.info("retrieve sales of {} from {} to {}".format(item_id, start, end))
 
             # retrieve data as XML from Pixel Starships API
             endpoint = f"https://{self.server}/MarketService/ListSalesByItemDesignId"
             response = self.call(endpoint, params=params)
 
             if response.status_code == 400:
-                logger.error("Response in error: {}".format(response.text))
+                current_app.logger.error("Response in error: {}".format(response.text))
                 errors += 1
 
                 if errors == 3:
@@ -958,7 +939,7 @@ class PixelStarshipsApi:
 
             # error when parsing the response
             if sale_nodes is None:
-                logger.error("Error when parsing response: {}".format(response.text))
+                current_app.logger.error("Error when parsing response: {}".format(response.text))
                 errors += 1
 
                 if errors == 3:
@@ -1026,7 +1007,7 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
 
         if response.status_code == 400:
-            logger.error("Response in error: {}".format(response.text))
+            current_app.logger.error("Response in error: {}".format(response.text))
 
             # too many request, wait a little, and try again
             api_sleep(10, force_sleep=True)
@@ -1040,7 +1021,7 @@ class PixelStarshipsApi:
 
         # error when parsing the response
         if market_messsage_nodes is None:
-            logger.error("Error when parsing response: {}".format(response.text))
+            current_app.logger.error("Error when parsing response: {}".format(response.text))
 
             return []
 

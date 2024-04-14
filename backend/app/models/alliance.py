@@ -1,6 +1,6 @@
 from sqlalchemy.orm import mapped_column, Mapped
 
-from db import db
+from app.ext.db import db
 
 
 class Alliance(db.Model):

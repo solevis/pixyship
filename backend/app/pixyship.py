@@ -9,8 +9,7 @@ from xml.etree import ElementTree
 
 from sqlalchemy import desc, func, text
 
-from config import CONFIG
-from constants import (
+from app.constants import (
     DEFAULT_EXPIRATION_DURATION,
     RACE_SPECIFIC_SPRITE_MAP,
     RACES,
@@ -41,14 +40,19 @@ from constants import (
     MODULE_ENHANCEMENT_MAP,
     MODULE_BONUS_RATIO_MAP,
 )
-from db import db
-from models import Player, Record, Listing, Alliance
-from pixelstarshipsapi import PixelStarshipsApi
-from utils import float_range, int_range, Singleton
+from app.ext.db import db
+from app.models import Player, Record, Listing, Alliance
+from app.pixelstarshipsapi import PixelStarshipsApi
+from app.utils import float_range, int_range, Singleton
 from flask import current_app
 
 
 class PixyShip(metaclass=Singleton):
+    """
+    PixyShip class to handle all data from Pixel Starships.
+    TODO: refactor this class to split the code into smaller classes.
+    """
+
     def __init__(self):
         self._changes = None
         self._last_prestiges_changes = None
@@ -1801,7 +1805,7 @@ class PixyShip(metaclass=Singleton):
             LIMIT {}
         """.format(
             " OR ".join(min_changes_dates_conditions),
-            CONFIG.get("CHANGES_MAX_ASSETS", 5000),
+            current_app.config.get("CHANGES_MAX_ASSETS", 5000),
         )
 
         result = db.session.execute(text(sql)).fetchall()

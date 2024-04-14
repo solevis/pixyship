@@ -1,4 +1,4 @@
-from pixyship import PixyShip
+from app.pixyship import PixyShip
 from run import push_context
 
 

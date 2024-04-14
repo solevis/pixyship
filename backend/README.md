@@ -15,12 +15,9 @@ Install :
 rye pin 3.11
 rye sync
 
-# Configure database
-cp alembic.ini.dist alembic.ini
-${EDITOR} alembic.ini # update sqlalchemy.url, user must be SUPERUSER
-
-cp config.py.dist config.py
-${EDITOR} config.py # update DATABASE_URI
+# Configure database and other settings, see app/config.py for available settings
+mkdir -p instance
+${EDITOR} instance/config.cfg
 
 # Create database
 rye run alembic upgrade head
@@ -35,11 +32,10 @@ rye run python importer.py --market-one-item 73  # retrieve market history for o
 Run :
 
 ```bash
-# Serve backend API
-rye run python run.py
+rye run flask --debug run
 ```
 
-Access the backend at [http://localhost:8080](http://localhost:8080).
+Access the backend at [http://localhost:5000](http://localhost:5000).
 
 Linter :
 
@@ -56,12 +52,9 @@ rye test
 ## Getting Started locally with Docker
 
 ```bash
-# Configure database connection
-cp alembic.ini.dist alembic.ini
-${EDITOR} alembic.ini
-
-cp config.py.dist config.py
-${EDITOR} config.py
+# Configure database and other settings, see app/config.py for available settings
+mkdir -p instance
+${EDITOR} instance/config.cfg
 
 # Launch the stack
 docker compose up --build

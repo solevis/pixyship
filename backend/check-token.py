@@ -4,9 +4,9 @@ import socket
 import sys
 from logging.handlers import SMTPHandler
 
-from api_errors import EXPIRED_TOKEN_RESP2
+from app.api_errors import EXPIRED_TOKEN_RESP2
 from config import CONFIG
-from pixelstarshipsapi import PixelStarshipsApi
+from app.pixelstarshipsapi import PixelStarshipsApi
 from run import push_context
 
 logging.basicConfig(

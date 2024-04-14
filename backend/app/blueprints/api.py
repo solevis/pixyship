@@ -1,120 +1,14 @@
-import os
-
 import flask
-from flask import Flask, jsonify, session, request
-from flask_cors import CORS
+from flask import Blueprint, jsonify, request
 
-from config import CONFIG
-from db import db
-from pixyship import PixyShip
+from app.pixyship import PixyShip
+from app.security import enforce_source
 
-APP_NAME = "pixyship"
-
-app = Flask(APP_NAME)
-
-# a secret key that will be used for securely signing the session cookie
-app.secret_key = CONFIG["SECRET_KEY"]
-
-# configure cookie security
-app.config.update(
-    SESSION_COOKIE_SECURE=True,
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Strict",
-)
-
-# database settings
-app.config["SQLALCHEMY_DATABASE_URI"] = CONFIG["DATABASE_URI"]
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-db.init_app(app)
-
-# configure cors (Cross-Origin Resource Sharing)
-if CONFIG["DEV_MODE"]:
-    cors = CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
-else:
-    cors = CORS(
-        app,
-        supports_credentials=True,
-        resources={
-            r"/api/*": {
-                "origins": [
-                    "https://{}".format(CONFIG["DOMAIN"]),
-                    "http://{}".format(CONFIG["DOMAIN"]),
-                ]
-            }
-        },
-    )
-
-# helpers, cached data, etc.
+api_blueprint = Blueprint("api", __name__)
 pixyship = PixyShip()
 
 
-def push_context():
-    """Set the app context for repl environments like ipython.
-
-    Do not use in the app.
-    See https://flask.palletsprojects.com/en/1.1.x/appcontext/#manually-push-a-context
-    """
-    app.app_context().push()
-
-
-def enforce_source(func):
-    """Decorator checking in production if the referrer is really PixyShip."""
-
-    def wrapper(*args, **kwargs):
-        # no need to check referrer on DEV
-        if CONFIG["DEV_MODE"]:
-            return func(*args, **kwargs)
-
-        # no referrer ?
-        if not flask.request.referrer:
-            flask.abort(404)
-
-        # referrer is PixyShip ?
-        if "//{}/".format(CONFIG["DOMAIN"]) not in flask.request.referrer:
-            flask.abort(404)
-
-        # everything is ok, continue
-        return func(*args, **kwargs)
-
-    # lets flask see the underlying function
-    wrapper.__name__ = func.__name__
-
-    return wrapper
-
-
-@app.before_request
-def before_request():
-    """Before each request."""
-
-    # manage session timeout
-    session.permanent = False
-
-    # check if a "maintenance" file exists, if it's the case, enable maintenance mode
-    if os.path.exists("maintenance"):
-        flask.abort(503)
-
-
-@app.after_request
-def after_request(response):
-    """Before sending the request to the client."""
-
-    # security headers for API
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
-
-    return response
-
-
-@app.errorhandler(503)
-def error_503(_):
-    """Maintenance."""
-    return "PixyShip is down for maintenance", 503
-
-
-@app.route("/api/players")
+@api_blueprint.route("/players")
 def api_players():
     search = request.args.get("search") or ""
     response = jsonify(pixyship.get_player_data(search))
@@ -122,7 +16,7 @@ def api_players():
     return response
 
 
-@app.route("/api/user/<path:name>")
+@api_blueprint.route("/user/<path:name>")
 @enforce_source
 def api_ship(name):
     if not name:
@@ -133,7 +27,7 @@ def api_ship(name):
     return jsonify(ship_data)
 
 
-@app.route("/api/daily")
+@api_blueprint.route("/daily")
 @enforce_source
 def api_daily():
     return jsonify(
@@ -144,7 +38,7 @@ def api_daily():
     )
 
 
-@app.route("/api/changes")
+@api_blueprint.route("/changes")
 @enforce_source
 def api_changes():
     last_prestiges_changes = pixyship.last_prestiges_changes
@@ -158,7 +52,7 @@ def api_changes():
     )
 
 
-@app.route("/api/collections")
+@api_blueprint.route("/collections")
 @enforce_source
 def api_collections():
     return jsonify(
@@ -169,7 +63,7 @@ def api_collections():
     )
 
 
-@app.route("/api/achievements")
+@api_blueprint.route("/achievements")
 @enforce_source
 def api_achievements():
     return jsonify(
@@ -180,7 +74,7 @@ def api_achievements():
     )
 
 
-@app.route("/api/research")
+@api_blueprint.route("/research")
 @enforce_source
 def api_research():
     return jsonify(
@@ -191,7 +85,7 @@ def api_research():
     )
 
 
-@app.route("/api/prestige/<int:char_id>")
+@api_blueprint.route("/prestige/<int:char_id>")
 @enforce_source
 def api_prestige(char_id):
     return jsonify(
@@ -202,7 +96,7 @@ def api_prestige(char_id):
     )
 
 
-@app.route("/api/crew")
+@api_blueprint.route("/crew")
 @enforce_source
 def api_crew():
     return jsonify(
@@ -213,7 +107,7 @@ def api_crew():
     )
 
 
-@app.route("/api/items")
+@api_blueprint.route("/items")
 @enforce_source
 def api_items():
     return jsonify(
@@ -224,7 +118,7 @@ def api_items():
     )
 
 
-@app.route("/api/item/<int:item_id>/prices")
+@api_blueprint.route("/item/<int:item_id>/prices")
 @enforce_source
 def api_item_prices(item_id):
     data = pixyship.get_item_prices_from_db(item_id)
@@ -236,7 +130,7 @@ def api_item_prices(item_id):
     )
 
 
-@app.route("/api/item/<int:item_id>/detail")
+@api_blueprint.route("/item/<int:item_id>/detail")
 @enforce_source
 def api_item_detail(item_id):
     item = pixyship.items[item_id]
@@ -252,7 +146,7 @@ def api_item_detail(item_id):
     )
 
 
-@app.route("/api/tournament")
+@api_blueprint.route("/tournament")
 @enforce_source
 def api_tournament():
     return jsonify(
@@ -263,7 +157,7 @@ def api_tournament():
     )
 
 
-@app.route("/api/rooms")
+@api_blueprint.route("/rooms")
 @enforce_source
 def api_rooms():
     rooms = pixyship.rooms
@@ -276,7 +170,7 @@ def api_rooms():
     )
 
 
-@app.route("/api/skins")
+@api_blueprint.route("/skins")
 @enforce_source
 def api_skins():
     skins = pixyship.skins
@@ -292,7 +186,7 @@ def api_skins():
     )
 
 
-@app.route("/api/ships")
+@api_blueprint.route("/ships")
 @enforce_source
 def api_ships():
     return jsonify(
@@ -303,10 +197,10 @@ def api_ships():
     )
 
 
-@app.route("/api/lastsales/<path:type>/<int:type_id>")
+@api_blueprint.route("/lastsales/<path:sale_type>/<int:sale_type_id>")
 @enforce_source
-def api_last_sales(type, type_id):
-    last_sales = pixyship.get_last_sales_from_db(type, type_id, 1000)
+def api_last_sales(sale_type, sale_type_id):
+    last_sales = pixyship.get_last_sales_from_db(sale_type, sale_type_id, 1000)
     return jsonify(
         {
             "data": last_sales,
@@ -315,7 +209,7 @@ def api_last_sales(type, type_id):
     )
 
 
-@app.route("/api/lastsalesbysalefrom/<path:sale_from>")
+@api_blueprint.route("/lastsalesbysalefrom/<path:sale_from>")
 @enforce_source
 def api_last_sales_by_type(sale_from):
     last_sales = pixyship.get_last_sales_by_sale_from_from_db(sale_from, 5000)
@@ -327,7 +221,7 @@ def api_last_sales_by_type(sale_from):
     )
 
 
-@app.route("/api/crafts")
+@api_blueprint.route("/crafts")
 @enforce_source
 def api_crafts():
     crafts = pixyship.crafts
@@ -340,7 +234,7 @@ def api_crafts():
     )
 
 
-@app.route("/api/missiles")
+@api_blueprint.route("/missiles")
 @enforce_source
 def api_missiles():
     missiles = pixyship.missiles
@@ -353,16 +247,7 @@ def api_missiles():
     )
 
 
-@app.route("/api/<path:path>")
+@api_blueprint.route("/<path:path>")
 def bad_api(_):
     """Places you shouldn't go"""
     return flask.abort(404)
-
-
-if __name__ == "__main__":
-    """Launch the built-in server.
-    Do not use in production.
-    """
-
-    app.config["DEBUG"] = True
-    app.run(host="0.0.0.0", threaded=True)

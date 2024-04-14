@@ -6,8 +6,8 @@ from xml.etree import ElementTree
 from sqlalchemy import func
 from sqlalchemy.orm import mapped_column, Mapped
 
-from db import db
-from utils import sort_attributes
+from app.ext.db import db
+from app.utils import sort_attributes
 
 
 class Record(db.Model):

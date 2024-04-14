@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.dialects.postgresql import insert
 
-from db import db
-from models import DailySale
+from app.ext.db import db
+from app.models import DailySale
 from run import push_context
 
 logging.basicConfig(
