@@ -13,8 +13,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: eifinger/setup-rye@v2
       - name: Pin python-version ${{ matrix.python-version }}
+        working-directory: ./backend
         run: rye pin ${{ matrix.python-version }}
       - name: Install dependencies
+        working-directory: ./backend
         run: rye sync --no-lock
       - name: Lint
+        working-directory: ./backend
         run: rye lint
