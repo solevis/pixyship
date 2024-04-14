@@ -11,17 +11,14 @@ from schedule import Scheduler
 from config import CONFIG
 from importer import import_market, import_assets, import_players, import_daily_sales
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 mail_handler = SMTPHandler(
     mailhost=("localhost", 25),
-    fromaddr='{}@{}'.format(getpass.getuser(), socket.gethostname()),
-    toaddrs=[CONFIG['EMAIL']],
-    subject="Error on PixyShip sheduled worker!"
+    fromaddr="{}@{}".format(getpass.getuser(), socket.gethostname()),
+    toaddrs=[CONFIG["EMAIL"]],
+    subject="Error on PixyShip sheduled worker!",
 )
 
 mail_handler.setLevel(logging.ERROR)
@@ -50,13 +47,13 @@ class SafeScheduler(Scheduler):
         try:
             super()._run_job(job)
         except Exception:
-            logger.exception('Uncaught scheduler exception', exc_info=True)
+            logger.exception("Uncaught scheduler exception", exc_info=True)
 
             if self.reschedule_on_failure:
                 job.last_run = datetime.datetime.now()
                 job._schedule_next_run()
             else:
-                logger.error('Exit scheduler')
+                logger.error("Exit scheduler")
                 sys.exit(1)  # the whole script will be restarted by supervisor, circus or whatever
 
 

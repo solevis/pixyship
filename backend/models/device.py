@@ -4,14 +4,14 @@ from db import db
 
 
 class Device(db.Model):
-    key = db.Column('key', db.TEXT, primary_key=True)
-    checksum = db.Column('checksum', db.TEXT, nullable=False)
-    client_datetime = db.Column('client_datetime', db.TEXT, nullable=False)
-    token = db.Column('token', db.TEXT)
-    expires_at = db.Column('expires_at', db.TEXT)
+    key = db.Column("key", db.TEXT, primary_key=True)
+    checksum = db.Column("checksum", db.TEXT, nullable=False)
+    client_datetime = db.Column("client_datetime", db.TEXT, nullable=False)
+    token = db.Column("token", db.TEXT)
+    expires_at = db.Column("expires_at", db.TEXT)
 
     def __repr__(self):
-        return '<Device {} {} {}>'.format(self.key, self.token, self.expires_at)
+        return "<Device {} {} {}>".format(self.key, self.token, self.expires_at)
 
     def get_token(self):
         if not self.token or self.expires_at < datetime.now():
