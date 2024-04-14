@@ -1,3 +1,11 @@
+# Description: Makefile for the PixyShip's frontend project
+
+# Set default shell
+SHELL:=/bin/bash
+
+# Set default environment variables
+export NODE_OPTIONS:= --openssl-legacy-provider
+
 .PHONY: build
 build:
 	@npx update-browserslist-db@latest
