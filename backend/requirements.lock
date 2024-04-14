@@ -7,7 +7,7 @@
 #   all-features: false
 #   with-sources: false
 
-alembic==1.11.1
+alembic==1.13.1
 blinker==1.7.0
     # via flask
 certifi==2024.2.2
@@ -17,11 +17,11 @@ charset-normalizer==3.3.2
 click==8.1.7
     # via flask
 contexttimer==0.3.3
-flask==2.3.2
+flask==3.0.3
     # via flask-cors
     # via flask-sqlalchemy
 flask-cors==4.0.0
-flask-sqlalchemy==3.0.5
+flask-sqlalchemy==3.1.1
 idna==3.7
     # via requests
 itsdangerous==2.1.2
@@ -34,9 +34,9 @@ markupsafe==2.1.5
     # via jinja2
     # via mako
     # via werkzeug
-psycopg2-binary==2.9.6
+psycopg2-binary==2.9.9
 requests==2.31.0
-schedule==1.2.0
+schedule==1.2.1
 sqlalchemy==2.0.29
     # via alembic
     # via flask-sqlalchemy
