@@ -1,20 +1,23 @@
-from datetime import datetime, timedelta
+from typing import Optional
+
+from sqlalchemy.orm import Mapped, mapped_column
+import datetime
 
 from db import db
 
 
 class Device(db.Model):
-    key = db.Column("key", db.TEXT, primary_key=True)
-    checksum = db.Column("checksum", db.TEXT, nullable=False)
-    client_datetime = db.Column("client_datetime", db.TEXT, nullable=False)
-    token = db.Column("token", db.TEXT)
-    expires_at = db.Column("expires_at", db.TEXT)
+    key: Mapped[str] = mapped_column(primary_key=True)
+    checksum: Mapped[str]
+    client_datetime: Mapped[datetime.datetime]
+    token: Mapped[Optional[str]]
+    expires_at: Mapped[datetime.datetime]
 
-    def __repr__(self):
-        return "<Device {} {} {}>".format(self.key, self.token, self.expires_at)
+    def __repr__(self) -> str:
+        return f"<Device {self.key} {self.token} {self.expires_at}>"
 
-    def get_token(self):
-        if not self.token or self.expires_at < datetime.now():
+    def get_token(self) -> str:
+        if not self.token or self.expires_at < datetime.datetime.now():
             self.cycle_token()
 
         return self.token
@@ -24,6 +27,6 @@ class Device(db.Model):
 
         pixel_starships_api = PixelStarshipsApi()
         self.token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
-        self.expires_at = datetime.now() + timedelta(hours=12)
+        self.expires_at = datetime.datetime.now() + datetime.timedelta(hours=12)
 
         db.session.commit()

@@ -48,6 +48,8 @@ def check_savy_token():
 
     if response.text == EXPIRED_TOKEN_RESP2:
         logger.error("Savy Token has expired: {}".format(response.text))
+    else:
+        logger.info("Savy Token is still valid.")
 
 
 if __name__ == "__main__":

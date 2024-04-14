@@ -1,22 +1,27 @@
+import datetime
 import hashlib
+import uuid
 from xml.etree import ElementTree
 
 from sqlalchemy import func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import mapped_column, Mapped
 
 from db import db
 from utils import sort_attributes
 
 
 class Record(db.Model):
-    id = db.Column("id", db.INT, primary_key=True)
-    type = db.Column("type", db.TEXT, nullable=False)
-    type_id = db.Column("type_id", db.INT, nullable=False)
-    current = db.Column("current", db.BOOLEAN, nullable=False)
-    md5_hash = db.Column("md5_hash", UUID, nullable=False)
-    data = db.Column("data", db.TEXT, nullable=False)
-    created_at = db.Column("created_at", db.TIMESTAMP, server_default=func.now())
-    url = db.Column("url", db.TEXT, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str]
+    type_id: Mapped[int]
+    current: Mapped[bool]
+    md5_hash: Mapped[uuid.UUID]
+    data: Mapped[str]
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
+    url: Mapped[str]
+
+    def __repr__(self) -> str:
+        return f"<Record {self.type} {self.type_id}>"
 
     @classmethod
     def update_data(cls, record_type, record_id, raw_data, url, ignore_list=None, data_as_xml=True):

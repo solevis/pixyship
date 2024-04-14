@@ -179,7 +179,7 @@ def import_daily_sales():
 
             _save_daily_sale(daily_sale)
 
-    logger.info("Importing daily shop...")
+    logger.info("Importing daily offers...")
     dailies_offers = pixyship.dailies["offers"]
     if not dailies_offers:
         logger.error("Empty dailies_offers")
@@ -188,106 +188,106 @@ def import_daily_sales():
     daily_shop_offer = dailies_offers["shop"]["object"]
     if not daily_shop_offer:
         logger.error("Empty daily_shop_offer")
-        return
+    else:
+        logger.info("Importing daily shop...")
+        daily_sale = DailySale(
+            type=daily_shop_offer["type"],
+            type_id=daily_shop_offer["id"],
+            sale_at=today,
+            sale_from="shop",
+            currency=dailies_offers["shop"]["cost"]["currency"].lower(),
+            price=dailies_offers["shop"]["cost"]["price"],
+        )
 
-    daily_sale = DailySale(
-        type=daily_shop_offer["type"],
-        type_id=daily_shop_offer["id"],
-        sale_at=today,
-        sale_from="shop",
-        currency=dailies_offers["shop"]["cost"]["currency"].lower(),
-        price=dailies_offers["shop"]["cost"]["price"],
-    )
-
-    _save_daily_sale(daily_sale)
+        _save_daily_sale(daily_sale)
 
     daily_bank_offer = dailies_offers["sale"]["object"]
     if not daily_bank_offer:
         logger.error("Empty daily_bank_offer")
-        return
-
-    daily_sale = DailySale(
-        type=daily_bank_offer["type"],
-        type_id=daily_bank_offer["id"],
-        sale_at=today,
-        sale_from="sale",
-        currency=None,
-        price=None,
-    )
-
-    _save_daily_sale(daily_sale)
-
-    daily_rewards_offers = dailies_offers["dailyRewards"]["objects"]
-    if not daily_rewards_offers:
-        logger.error("Empty daily_rewards_offers")
-        return
-
-    for daily_rewards_offer in daily_rewards_offers:
-        if daily_rewards_offer["type"] in ["currency", "starbux", "purchasePoints"]:
-            continue
-
+    else:
+        logger.info("Importing daily bank...")
         daily_sale = DailySale(
-            type=daily_rewards_offer["type"],
-            type_id=daily_rewards_offer["id"],
+            type=daily_bank_offer["type"],
+            type_id=daily_bank_offer["id"],
             sale_at=today,
-            sale_from="daily_rewards",
+            sale_from="sale",
             currency=None,
             price=None,
         )
 
         _save_daily_sale(daily_sale)
 
+    daily_rewards_offers = dailies_offers["dailyRewards"]["objects"]
+    if not daily_rewards_offers:
+        logger.error("Empty daily_rewards_offers")
+    else:
+        logger.info("Importing daily rewards...")
+        for daily_rewards_offer in daily_rewards_offers:
+            if daily_rewards_offer["type"] in ["currency", "starbux", "purchasePoints"]:
+                continue
+
+            daily_sale = DailySale(
+                type=daily_rewards_offer["type"],
+                type_id=daily_rewards_offer["id"],
+                sale_at=today,
+                sale_from="daily_rewards",
+                currency=None,
+                price=None,
+            )
+
+            _save_daily_sale(daily_sale)
+
     daily_bluecargo_mineral_offer = dailies_offers["blueCargo"]["mineralCrew"]
     if not daily_bluecargo_mineral_offer:
         logger.error("Empty daily_bluecargo_mineral_offer")
-        return
+    else:
+        logger.info("Importing daily blue cargo mineral...")
+        daily_sale = DailySale(
+            type=daily_bluecargo_mineral_offer["type"],
+            type_id=daily_bluecargo_mineral_offer["id"],
+            sale_at=today,
+            sale_from="blue_cargo_mineral",
+            currency="mineral",
+            price=None,
+        )
 
-    daily_sale = DailySale(
-        type=daily_bluecargo_mineral_offer["type"],
-        type_id=daily_bluecargo_mineral_offer["id"],
-        sale_at=today,
-        sale_from="blue_cargo_mineral",
-        currency="mineral",
-        price=None,
-    )
-
-    _save_daily_sale(daily_sale)
+        _save_daily_sale(daily_sale)
 
     daily_bluecargo_starbux_offer = dailies_offers["blueCargo"]["starbuxCrew"]
     if not daily_bluecargo_starbux_offer:
         logger.error("Empty daily_bluecargo_starbux_offer")
-        return
+    else:
+        logger.info("Importing daily blue cargo starbux...")
+        daily_sale = DailySale(
+            type=daily_bluecargo_starbux_offer["type"],
+            type_id=daily_bluecargo_starbux_offer["id"],
+            sale_at=today,
+            sale_from="blue_cargo_starbux",
+            currency="starbux",
+            price=None,
+        )
 
-    daily_sale = DailySale(
-        type=daily_bluecargo_starbux_offer["type"],
-        type_id=daily_bluecargo_starbux_offer["id"],
-        sale_at=today,
-        sale_from="blue_cargo_starbux",
-        currency="starbux",
-        price=None,
-    )
-
-    _save_daily_sale(daily_sale)
+        _save_daily_sale(daily_sale)
 
     daily_greencargo_offers = dailies_offers["greenCargo"]["items"]
     if not daily_greencargo_offers:
         logger.error("Empty daily_greencargo_offers")
-        return
+    else:
+        logger.info("Importing daily green cargo...")
+        for daily_greencargo_offer in daily_greencargo_offers:
+            if daily_greencargo_offer["object"]["type"] in ["starbux", "purchasePoints"]:
+                continue
 
-    for daily_greencargo_offer in daily_greencargo_offers:
-        if daily_greencargo_offer["object"]["type"] in ["starbux", "purchasePoints"]:
-            continue
+            daily_sale = DailySale(
+                type=daily_greencargo_offer["object"]["type"],
+                type_id=daily_greencargo_offer["object"]["id"],
+                sale_at=today,
+                sale_from="green_cargo",
+                currency=daily_greencargo_offer["cost"]["currency"],
+                price=daily_greencargo_offer["cost"]["price"],
+            )
 
-        daily_sale = DailySale(
-            type=daily_greencargo_offer["object"]["type"],
-            type_id=daily_greencargo_offer["object"]["id"],
-            sale_at=today,
-            sale_from="green_cargo",
-            currency=daily_greencargo_offer["cost"]["currency"],
-            price=daily_greencargo_offer["cost"]["price"],
-        )
-
-        _save_daily_sale(daily_sale)
+            _save_daily_sale(daily_sale)
 
 
 def _save_daily_sale(daily_sale):

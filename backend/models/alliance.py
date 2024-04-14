@@ -1,10 +1,12 @@
+from sqlalchemy.orm import mapped_column, Mapped
+
 from db import db
 
 
 class Alliance(db.Model):
-    id = db.Column("id", db.INT, primary_key=True)
-    name = db.Column("name", db.TEXT, nullable=False)
-    sprite_id = db.Column("sprite_id", db.INT, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    sprite_id: Mapped[int]
 
-    def __repr__(self):
-        return "<Alliance %r>" % self.name
+    def __repr__(self) -> str:
+        return f"<Alliance {self.name}>"

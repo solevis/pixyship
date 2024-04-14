@@ -437,7 +437,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for sprite in sprites:
-            record_id = sprite["SpriteId"]
+            record_id = int(sprite["SpriteId"])
             Record.update_data(
                 "sprite",
                 record_id,
@@ -507,7 +507,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for skinset in skinsets:
-            record_id = skinset["SkinSetId"]
+            record_id = int(skinset["SkinSetId"])
             Record.update_data(
                 "skinset",
                 record_id,
@@ -521,7 +521,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for skin in skins:
-            record_id = skin["SkinId"]
+            record_id = int(skin["SkinId"])
             Record.update_data(
                 "skin",
                 record_id,
@@ -867,7 +867,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for ship in ships:
-            record_id = ship["ShipDesignId"]
+            record_id = int(ship["ShipDesignId"])
             Record.update_data(
                 "ship",
                 record_id,
@@ -929,7 +929,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for research in researches:
-            record_id = research["ResearchDesignId"]
+            record_id = int(research["ResearchDesignId"])
             Record.update_data(
                 "research",
                 record_id,
@@ -987,7 +987,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for room in rooms:
-            record_id = room["RoomDesignId"]
+            record_id = int(room["RoomDesignId"])
             Record.update_data(
                 "room",
                 record_id,
@@ -1097,7 +1097,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for craft in crafts:
-            record_id = craft["CraftDesignId"]
+            record_id = int(craft["CraftDesignId"])
             Record.update_data(
                 "craft",
                 record_id,
@@ -1156,7 +1156,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for missile in missiles:
-            record_id = missile["ItemDesignId"]
+            record_id = int(missile["ItemDesignId"])
             Record.update_data(
                 "missile",
                 record_id,
@@ -1218,7 +1218,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for character in characters:
-            record_id = character["CharacterDesignId"]
+            record_id = int(character["CharacterDesignId"])
             Record.update_data(
                 "char",
                 record_id,
@@ -1303,7 +1303,7 @@ class PixyShip(metaclass=Singleton):
                 sort_keys=True,
             )
 
-            record_id = character["id"]
+            record_id = int(character["id"])
             Record.update_data(
                 "prestige",
                 record_id,
@@ -1322,7 +1322,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for collection in collections:
-            record_id = collection["CollectionDesignId"]
+            record_id = int(collection["CollectionDesignId"])
             Record.update_data(
                 "collection",
                 record_id,
@@ -1535,7 +1535,7 @@ class PixyShip(metaclass=Singleton):
         still_presents_ids = []
 
         for item in items:
-            record_id = item["ItemDesignId"]
+            record_id = int(item["ItemDesignId"])
             Record.update_data(
                 "item",
                 record_id,

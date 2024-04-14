@@ -40,7 +40,8 @@ packaging==24.0
     # via pytest
 pluggy==1.4.0
     # via pytest
-psycopg2-binary==2.9.9
+psycopg==3.1.18
+psycopg-binary==3.1.18
 pytest==8.1.1
 requests==2.31.0
 schedule==1.2.1
@@ -49,6 +50,7 @@ sqlalchemy==2.0.29
     # via flask-sqlalchemy
 typing-extensions==4.11.0
     # via alembic
+    # via psycopg
     # via sqlalchemy
 urllib3==2.2.1
     # via requests

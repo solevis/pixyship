@@ -1,13 +1,9 @@
-from flask_sqlalchemy import SQLAlchemy as _BaseSQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 
 
-class SQLAlchemy(_BaseSQLAlchemy):
-    def apply_pool_defaults(self, app, options):
-        options = super().apply_pool_defaults(app, options)
-        options = options or {}
-
-        options["pool_pre_ping"] = True
-        return options
+class Base(DeclarativeBase):
+    pass
 
 
-db = SQLAlchemy()
+db = SQLAlchemy(model_class=Base)

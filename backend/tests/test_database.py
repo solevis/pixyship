@@ -138,10 +138,10 @@ def test_search_player():
     push_context()
 
     pixyship = PixyShip()
-    players = pixyship.get_player_data("MiniSolevis")
+    players = pixyship.get_player_data("Solevis")
 
     assert len(players) == 1
-    assert players[0]["name"] == "MiniSolevis"
+    assert players[0]["name"] == "Solevis"
 
 
 def test_changes():

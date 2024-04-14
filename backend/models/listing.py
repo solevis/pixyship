@@ -1,15 +1,22 @@
+import datetime
+
+from sqlalchemy.orm import mapped_column, Mapped
+
 from db import db
 
 
 class Listing(db.Model):
-    id = db.Column("id", db.INT, primary_key=True)
-    sale_at = db.Column("sale_at", db.TIMESTAMP, nullable=False)
-    item_name = db.Column("item_name", db.TEXT, nullable=False)
-    item_id = db.Column("item_id", db.INT, nullable=False)
-    amount = db.Column("amount", db.INT, nullable=False)
-    currency = db.Column("currency", db.TEXT, nullable=False)
-    price = db.Column("price", db.INT, nullable=False)
-    user_id = db.Column("user_id", db.INT, nullable=False)
-    user_name = db.Column("user_name", db.TEXT, nullable=False)
-    seller_id = db.Column("seller_id", db.INT, nullable=False)
-    seller_name = db.Column("seller_name", db.TEXT, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    sale_at: Mapped[datetime.datetime]
+    item_name: Mapped[str]
+    item_id: Mapped[int]
+    amount: Mapped[int]
+    currency: Mapped[str]
+    price: Mapped[int]
+    user_id: Mapped[int]
+    user_name: Mapped[str]
+    seller_id: Mapped[int]
+    seller_name: Mapped[str]
+
+    def __repr__(self) -> str:
+        return f"<Listing {self.id}>"
