@@ -1,50 +1,50 @@
+import datetime
 import html
 import json
 import math
 import re
 import time
-import datetime
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from xml.etree import ElementTree
 
+from flask import current_app
 from sqlalchemy import desc, func, text
 
 from app.constants import (
-    DEFAULT_EXPIRATION_DURATION,
-    RACE_SPECIFIC_SPRITE_MAP,
-    RACES,
-    SALE_FROM_MAP,
-    RESEARCH_TYPE_MAP,
-    ROOM_TYPE_MAP,
-    CAPACITY_RATIO_MAP,
-    LABEL_CAPACITY_MAP,
-    MANUFACTURE_RATE_MAP,
-    MANUFACTURE_RATE_PER_HOUR_MAP,
-    MANUFACTURE_CAPACITY_RATIO_MAP,
-    MANUFACTURE_CAPACITY_MAP,
-    ROOM_SHOP_TYPE_MASK,
-    EQUIPMENT_SLOTS,
-    RARITY_MAP,
     ABILITY_MAP,
+    BLUE_CARGO_SPRITE_ID,
+    CAPACITY_RATIO_MAP,
     COLLECTION_ABILITY_MAP,
     COLLECTION_ABILITY_TRIGGER_MAP,
-    SLOT_MAP,
-    ENHANCE_MAP,
-    SHORT_ENHANCE_MAP,
-    SHOP_SPRITE_ID,
-    BLUE_CARGO_SPRITE_ID,
-    GREEN_CARGO_SPRITE_ID,
     DAILY_REWARDS_SPRITE_ID,
     DAILY_SALE_SPRITE_ID,
+    DEFAULT_EXPIRATION_DURATION,
+    ENHANCE_MAP,
+    EQUIPMENT_SLOTS,
+    GREEN_CARGO_SPRITE_ID,
     IAP_NAMES,
-    MODULE_ENHANCEMENT_MAP,
+    LABEL_CAPACITY_MAP,
+    MANUFACTURE_CAPACITY_MAP,
+    MANUFACTURE_CAPACITY_RATIO_MAP,
+    MANUFACTURE_RATE_MAP,
+    MANUFACTURE_RATE_PER_HOUR_MAP,
     MODULE_BONUS_RATIO_MAP,
+    MODULE_ENHANCEMENT_MAP,
+    RACE_SPECIFIC_SPRITE_MAP,
+    RACES,
+    RARITY_MAP,
+    RESEARCH_TYPE_MAP,
+    ROOM_SHOP_TYPE_MASK,
+    ROOM_TYPE_MAP,
+    SALE_FROM_MAP,
+    SHOP_SPRITE_ID,
+    SHORT_ENHANCE_MAP,
+    SLOT_MAP,
 )
 from app.ext.db import db
-from app.models import Player, Record, Listing, Alliance
+from app.models import Alliance, Listing, Player, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
-from app.utils import float_range, int_range, Singleton
-from flask import current_app
+from app.utils import Singleton, float_range, int_range
 
 
 class PixyShip(metaclass=Singleton):
@@ -1949,7 +1949,7 @@ class PixyShip(metaclass=Singleton):
                 "details": None,
                 "expires": None,
             }
-            for item, price in zip(items, prices)
+            for item, price in zip(items, prices, strict=True)
         ]
 
         return cargo
@@ -2070,7 +2070,8 @@ class PixyShip(metaclass=Singleton):
             "news": {
                 "news": dailies["News"],
                 "news_date": dailies["NewsUpdateDate"],
-                "maintenance": self.pixel_starships_api.maintenance_message,  # not any more available with the new API endpoint
+                # not any more available with the new API endpoint
+                "maintenance": self.pixel_starships_api.maintenance_message,
                 "sprite": self.get_sprite_infos(dailies["NewsSpriteId"]),
             },
             "tournament_news": dailies["TournamentNews"],

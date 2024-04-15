@@ -7,10 +7,11 @@ Create Date: 2018-09-24 21:49:20.811276
 """
 
 import sqlalchemy as sa
-from alembic import op
 
 # revision identifiers, used by Alembic.
 from sqlalchemy.dialects.postgresql import UUID
+
+from alembic import op
 
 revision = "e98016f3cfec"
 down_revision = "a2ac148441cf"

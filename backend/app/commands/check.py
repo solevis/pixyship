@@ -12,7 +12,8 @@ check_cli = AppGroup("check", help="Check various aspects of the app.")
 def config():
     """Print the current app's configuration."""
 
-    # current_app.config is a dictionary-like object that holds the configuration for the application. print it line by line
+    # current_app.config is a dictionary-like object that holds the configuration for the application.
+    # print it line by line
     for key, value in current_app.config.items():
         print(f"{key} = {value}")
 

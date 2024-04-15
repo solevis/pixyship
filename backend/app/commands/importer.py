@@ -2,7 +2,7 @@ import datetime
 import os
 import random
 import time
-from typing import Callable, Any, Tuple, Dict
+from typing import Any, Callable, Dict, Tuple
 from urllib import request
 
 import click
@@ -12,8 +12,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from app.constants import PSS_SPRITES_URL
 from app.ext.db import db
-from app.models import Listing, Alliance, Player, DailySale
-from app.models import MarketMessage
+from app.models import Alliance, DailySale, Listing, MarketMessage, Player
 from app.pixyship import PixyShip
 from app.utils import api_sleep
 

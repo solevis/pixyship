@@ -34,3 +34,7 @@ pythonpath = "."
 addopts = [
     "--import-mode=importlib",
 ]
+
+[tool.ruff.lint]
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I']
+unfixable = ["B"]

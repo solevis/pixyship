@@ -10,7 +10,7 @@ import requests
 from flask import current_app
 
 from app.api_errors import TOKEN_EXPIRED_REGEX
-from app.constants import MIN_DEVICES, PSS_START_DATE, IAP_OPTIONS_MASK_LOOKUP, API_URLS
+from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, MIN_DEVICES, PSS_START_DATE
 from app.ext.db import db
 from app.models import Device
 from app.utils import api_sleep
@@ -58,7 +58,7 @@ class PixelStarshipsApi:
 
         devices = Device.query.all()
         if len(devices) < MIN_DEVICES:
-            for x in range(0, MIN_DEVICES - len(devices)):
+            for _x in range(0, MIN_DEVICES - len(devices)):
                 utc_now = datetime.datetime.utcnow()
                 client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -1143,7 +1143,7 @@ class PixelStarshipsApi:
         output = [int(x) for x in "{:05b}".format(equipment_mask)]
 
         options = []
-        for index, value in enumerate(output):
+        for index, _value in enumerate(output):
             if index > 4:
                 break
             options.append(IAP_OPTIONS_MASK_LOOKUP[4 - index])
