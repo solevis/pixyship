@@ -20,7 +20,7 @@ mkdir -p instance
 ${EDITOR} instance/config.cfg
 
 # Create database
-rye run alembic upgrade head
+rye run flask db upgrade
 
 # Initial data load
 rye run flask import assets
@@ -60,7 +60,7 @@ ${EDITOR} instance/config.cfg
 docker compose up --build
 
 # Initialize the database
-docker compose exec  -w /app pixyship-backend alembic upgrade head
+docker compose exec  -w /app pixyship-backend flask db upgrade
 
 # Initial data load
 docker compose exec  -w /app pixyship-backend flask import assets

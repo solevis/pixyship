@@ -8,6 +8,7 @@
 #   with-sources: false
 
 alembic==1.13.1
+    # via flask-migrate
 blinker==1.7.0
     # via flask
 certifi==2024.2.2
@@ -18,9 +19,12 @@ click==8.1.7
     # via flask
 flask==3.0.3
     # via flask-cors
+    # via flask-migrate
     # via flask-sqlalchemy
 flask-cors==4.0.0
+flask-migrate==4.0.7
 flask-sqlalchemy==3.1.1
+    # via flask-migrate
 idna==3.7
     # via requests
 iniconfig==2.0.0

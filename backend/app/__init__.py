@@ -5,7 +5,7 @@ from app.blueprints.api import api_blueprint
 from app.blueprints.root import root_blueprint
 from app.commands import check_cli, importer_cli, tools_cli
 from app.config import DefaultConfig
-from app.ext import db
+from app.ext import db, migrate
 
 
 def init_configuration(app, test_config=None):
@@ -65,6 +65,9 @@ def create_app(test_config=None):
 
     # Initialize database
     db.init_app(app)
+
+    # Initialize the database migration
+    migrate.init_app(app, db)
 
     # Initialize default headers
     init_headers(app)

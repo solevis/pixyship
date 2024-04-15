@@ -9,10 +9,10 @@ dependencies = [
     "Flask>=3.0.3",
     "Flask-Cors>=4.0.0",
     "Flask-SQLAlchemy>=3.1.1",
-    "requests>=2.31.0",
-    "alembic>=1.13.1",
+    "Flask-Migrate>=4.0.7",
     "psycopg-binary>=3.1.18",
     "psycopg>=3.1.18",
+    "requests>=2.31.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.11"
