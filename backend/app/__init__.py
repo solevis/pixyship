@@ -1,9 +1,10 @@
-from app.blueprints.api import api_blueprint
-from app.blueprints.root import root_blueprint
-from app.config import DefaultConfig
 from flask import Flask
 from flask_cors import CORS
 
+from app.blueprints.api import api_blueprint
+from app.blueprints.root import root_blueprint
+from app.commands import check_cli, tools_cli, importer_cli
+from app.config import DefaultConfig
 from app.ext import db
 
 
@@ -71,6 +72,11 @@ def create_app(test_config=None):
     # Register blueprints
     app.register_blueprint(root_blueprint, url_prefix="/")
     app.register_blueprint(api_blueprint, url_prefix="/api/")
+
+    # Register commands
+    app.cli.add_command(check_cli)
+    app.cli.add_command(importer_cli)
+    app.cli.add_command(tools_cli)
 
     # Enable CORS
     init_cors(app)

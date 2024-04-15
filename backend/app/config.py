@@ -11,9 +11,6 @@ class DefaultConfig:
     # Directory that will contain downloaded sprites, must be served by the web server as static content
     SPRITES_DIRECTORY = "../sprites"
 
-    # Used by scheduled.py to send e-mail on error, set to None if you want to use cron files to import data
-    EMAIL = None
-
     # Savy PSS API urls
     FORCED_PIXELSTARSHIPS_API_URL = None
     USE_STAGING_API = False

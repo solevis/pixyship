@@ -23,10 +23,10 @@ ${EDITOR} instance/config.cfg
 rye run alembic upgrade head
 
 # Initial data load
-rye run python importer.py --assets
-rye run python importer.py --players
-rye run python importer.py --market  # very long, several hours
-rye run python importer.py --market-one-item 73  # retrieve market history for only one item, much faster for dev
+rye run flask import assets
+rye run flask import players
+rye run flask import market  # very long, several hours
+rye run flask import market --item 73  # retrieve market history for only one item, much faster for dev
 ```
 
 Run :
@@ -63,9 +63,9 @@ docker compose up --build
 docker compose exec  -w /app pixyship-backend alembic upgrade head
 
 # Initial data load
-docker compose exec  -w /app pixyship-backend python importer.py --assets
-docker compose exec  -w /app pixyship-backend python importer.py --players
-docker compose exec  -w /app pixyship-backend python importer.py --market-one-item 73
+docker compose exec  -w /app pixyship-backend flask import assets
+docker compose exec  -w /app pixyship-backend flask import players
+docker compose exec  -w /app pixyship-backend flask import market --item 73
 ```
 
 Access the backend at [http://localhost:8080](http://localhost:8080).

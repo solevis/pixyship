@@ -16,7 +16,6 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via flask
-contexttimer==0.3.3
 flask==3.0.3
     # via flask-cors
     # via flask-sqlalchemy
@@ -37,7 +36,6 @@ markupsafe==2.1.5
 psycopg==3.1.18
 psycopg-binary==3.1.18
 requests==2.31.0
-schedule==1.2.1
 sqlalchemy==2.0.29
     # via alembic
     # via flask-sqlalchemy

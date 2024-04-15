@@ -774,7 +774,7 @@ class PixyShip(metaclass=Singleton):
         return last_sales
 
     @staticmethod
-    def get_last_sales_from_db(type, type_id, limit):
+    def get_last_sales_from_db(sale_type, sale_type_id, limit):
         """Get last sales from database."""
 
         sql = """
@@ -790,7 +790,7 @@ class PixyShip(metaclass=Singleton):
             LIMIT :limit
         """
 
-        result = db.session.execute(text(sql), {"type": type, "type_id": type_id, "limit": limit}).fetchall()
+        result = db.session.execute(text(sql), {"type": sale_type, "type_id": sale_type_id, "limit": limit}).fetchall()
         last_sales = []
 
         for row in result:
@@ -1568,11 +1568,11 @@ class PixyShip(metaclass=Singleton):
             module_extra_enhancement = self._parse_module_extra_enhancement(item)
 
             slot = SLOT_MAP.get(item["ItemSubType"], item["ItemSubType"])
-            type = item.get("ItemType")
+            item_type = item.get("ItemType")
             rarity_order = RARITY_MAP[item["Rarity"]]
             bonus = float(item.get("EnhancementValue"))
             disp_enhancement = ENHANCE_MAP.get(item["EnhancementType"], item["EnhancementType"])
-            has_offstat = PixyShip.has_offstat(type, slot, rarity_order, bonus, disp_enhancement)
+            has_offstat = PixyShip.has_offstat(item_type, slot, rarity_order, bonus, disp_enhancement)
 
             items[record.type_id] = {
                 "name": item["ItemDesignName"],
@@ -1588,7 +1588,7 @@ class PixyShip(metaclass=Singleton):
                 "module_extra_disp_enhancement": module_extra_enhancement["disp_enhancement"],
                 "module_extra_short_disp_enhancement": module_extra_enhancement["short_disp_enhancement"],
                 "module_extra_enhancement_bonus": module_extra_enhancement["bonus"],
-                "type": type,
+                "type": item_type,
                 "rarity": item.get("Rarity").lower(),
                 "rarity_order": rarity_order,
                 "has_offstat": has_offstat,
@@ -2649,19 +2649,19 @@ class PixyShip(metaclass=Singleton):
         return upgrades
 
     @staticmethod
-    def has_offstat(type, slot, rarity_order, bonus, disp_enhancement):
+    def has_offstat(item_type, item_slot, item_rarity_order, item_bonus, item_disp_enhancement):
         """Check if item have an offstat bonus."""
 
-        if type != "Equipment":
+        if item_type != "Equipment":
             return False
 
-        if slot not in ["Accessory", "Head", "Body", "Weapon", "Leg", "Pet"]:
+        if item_slot not in ["Accessory", "Head", "Body", "Weapon", "Leg", "Pet"]:
             return False
 
-        if rarity_order < RARITY_MAP.get("Hero"):
+        if item_rarity_order < RARITY_MAP.get("Hero"):
             return False
 
-        if disp_enhancement is None and bonus == 0.0:
+        if item_disp_enhancement is None and item_bonus == 0.0:
             return False
 
         return True

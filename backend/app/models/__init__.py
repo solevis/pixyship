@@ -4,12 +4,6 @@ from .device import Device
 from .listing import Listing
 from .player import Player
 from .record import Record
+from .market_message import MarketMessage
 
-__all__ = [
-    "Alliance",
-    "DailySale",
-    "Device",
-    "Listing",
-    "Player",
-    "Record",
-]
+__all__ = ["Alliance", "DailySale", "Device", "Listing", "Player", "Record", "MarketMessage"]
