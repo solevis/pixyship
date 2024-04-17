@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -59,6 +61,9 @@ def init_cors(app):
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+
+    # Set the logging level
+    app.logger.setLevel(logging.INFO)
 
     # Initialize configurations
     init_configuration(app, test_config)
