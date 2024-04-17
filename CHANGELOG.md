@@ -14,9 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reworked Backend Directory Structure
 - Integrated Flask Commands
 - Replaced Alembic with Flask-Migrate
-- Replaced Internal Caching with Flask-Caching
-- Added Flask-APScheduler
-- Backend Documentation Enhancements
 
 ## [2.9.0] - 2024-02-17
 
