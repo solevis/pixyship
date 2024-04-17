@@ -32,4 +32,7 @@ COPY . /app
 EXPOSE 8000
 
 # Run the app
-CMD [ "gunicorn", "run:app", "--bind", "0.0.0.0:8000" ]
+CMD [ "gunicorn", "app:create_app()", "--bind", "0.0.0.0:8000" ]
+
+# Healthcheck
+HEALTHCHECK CMD curl --fail http://localhost:8000/health || exit 1
