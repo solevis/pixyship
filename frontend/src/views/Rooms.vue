@@ -242,6 +242,11 @@
                         <td>{{ item.defense }} ({{ (1 - 100 / (100 + item.defense)).toLocaleString("en-US", { style: "percent", }) }})</td>
                       </tr>
 
+                      <tr v-show="item.activation_delay">
+                        <td>Charge Time</td>
+                        <td>{{ item.activation_delay }} ({{ `${Math.ceil(item.activation_delay / 40 * 100) / 100}s` }})</td>
+                      </tr>
+
                       <tr v-show="item.cooldown_time">
                         <td>Cooldown</td>
                         <td>{{ item.cooldown_time }} ({{ `${item.cooldown_time / 40}s` }})</td>

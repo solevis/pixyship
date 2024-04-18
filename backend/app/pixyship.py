@@ -1045,6 +1045,7 @@ class PixyShip(metaclass=Singleton):
                 "min_ship_level": int(room["MinShipLevel"]),
                 "upgrade_from_id": int(room["UpgradeFromRoomDesignId"]),
                 "defense": int(room["DefaultDefenceBonus"]),
+                "activation_delay": int(room["ActivationDelay"]),
                 "reload": int(room["ReloadTime"]),
                 "refill_cost": int(room["RefillUnitCost"]),
                 "show_frame": room_type not in ("Lift", "Armor", "Corridor"),

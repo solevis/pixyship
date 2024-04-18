@@ -235,6 +235,7 @@ def test_rooms(app):
         assert "ConstructionTime" in room
         assert "RoomDescription" in room
         assert "ManufactureType" in room
+        assert "ActivationDelay" in room
 
         room_with_missile_design = None
         for room in rooms:
