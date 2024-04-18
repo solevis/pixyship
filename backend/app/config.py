@@ -30,3 +30,6 @@ class DefaultConfig:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Strict"
+
+    # Sentry DSN (https://sentry.io)
+    SENTRY_DSN = None

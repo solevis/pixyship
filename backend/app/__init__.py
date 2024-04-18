@@ -60,6 +60,9 @@ def init_cors(app):
 
 
 def create_app(test_config=None):
+    """Create and configure an instance of the Flask application."""
+
+    # Create the Flask application
     app = Flask(__name__, instance_relative_config=True)
 
     # Set the logging level
@@ -67,6 +70,18 @@ def create_app(test_config=None):
 
     # Initialize configurations
     init_configuration(app, test_config)
+
+    # Initialize Sentry if DSN is provided
+    if app.config["SENTRY_DSN"]:
+        import sentry_sdk
+        from sentry_sdk.integrations.flask import FlaskIntegration
+
+        sentry_sdk.init(
+            dsn=app.config["SENTRY_DSN"],
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=1.0,
+            profiles_sample_rate=1.0,
+        )
 
     # Initialize database
     db.init_app(app)
