@@ -67,6 +67,7 @@ COLLECTION_ABILITY_TRIGGER_MAP = {
     "Teleport": "Teleport",
     "TakeDamageFromRoom": "Take Damage From Room",
     "ChangeRoom": "Change Room",
+    "ModuleTrigger": "Module Trigger",
     "None": "None",
 }
 
