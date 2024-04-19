@@ -49,6 +49,7 @@ COLLECTION_ABILITY_MAP = {
     "ReduceStatusSkill": "Reduce Status",
     "DirectDamage": "Direct Damage",
     "ReduceRoomStatusSkill": "Reduce Room Status",
+    "Cloak": "Cloak",
     "None": "None",
 }
 
