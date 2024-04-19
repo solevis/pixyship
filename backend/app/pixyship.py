@@ -42,7 +42,7 @@ from app.constants import (
     SLOT_MAP,
 )
 from app.ext.db import db
-from app.models import Alliance, Listing, Player, Record
+from app.models import Alliance, DailySale, Listing, Player, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.utils import Singleton, float_range, int_range
 
@@ -809,55 +809,43 @@ class PixyShip(metaclass=Singleton):
     def get_last_sales_by_sale_from_from_db(self, sale_from, limit):
         """Get last sales for given type from database."""
 
-        sql = """
-            SELECT ds.id,
-                   ds.sale_at,
-                   ds.type,
-                   ds.type_id,
-                   ds.currency,
-                   ds.price
-            FROM daily_sale ds
-            WHERE ds.sale_from IN :sale_from
-            ORDER BY ds.sale_at DESC
-            LIMIT :limit
-        """
-
         if sale_from == "blue_cargo":
-            sale_from = ["blue_cargo_mineral", "blue_cargo_starbux"]
+            sale_from_values = ["blue_cargo_mineral", "blue_cargo_starbux"]
         else:
-            sale_from = [sale_from]
+            sale_from_values = [sale_from]
 
-        print(sale_from)
-        result = db.session.execute(text(sql), {"sale_from": tuple(sale_from), "limit": limit}).fetchall()
+        results: list[DailySale] = (
+            DailySale.query.filter(DailySale.sale_from.in_(sale_from_values))
+            .order_by(DailySale.sale_at.desc())
+            .limit(limit)
+            .all()
+        )
+
         last_sales = []
+        for row in results:
+            if row.type == "character":
+                row.type = "char"
 
-        for row in result:
-            object_type = str(row[2])
-            if object_type == "character":
-                object_type = "char"
-
-            object_id = int(row[3])
-
-            sprite = self.get_record_sprite(object_type, object_id)
-            name = self.get_record_name(object_type, object_id)
+            sprite = self.get_record_sprite(row.type, row.type_id)
+            name = self.get_record_name(row.type, row.type_id)
 
             last_sale = {
-                "type": object_type,
-                "id": object_id,
+                "type": row.type,
+                "id": row.type_id,
                 "name": name,
                 "sprite": sprite,
-                "currency": row[4],
-                "price": row[5],
-                "date": str(row[1]),
+                "currency": row.currency,
+                "price": row.price,
+                "date": str(row.sale_at),
             }
 
             # if it's a Character, get all infos of the crew
-            if object_type == "char":
-                last_sale["char"] = self.characters[object_id]
+            if row.type == "char":
+                last_sale["char"] = self.characters[row.type_id]
 
             # if it's an Item, get all infos of the item
-            if object_type == "item":
-                item = self.items[object_id]
+            if row.type == "item":
+                item = self.items[row.type_id]
                 last_sale["item"] = PixyShip._create_light_item(item)
 
             last_sales.append(last_sale)
@@ -1766,7 +1754,6 @@ class PixyShip(metaclass=Singleton):
     def get_changes_from_db(self):
         """Get changes from database."""
 
-        # retrieve minimum dates of each types
         min_changes_dates_sql = """
             SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
             FROM record
@@ -1776,71 +1763,52 @@ class PixyShip(metaclass=Singleton):
 
         min_changes_dates_result = db.session.execute(text(min_changes_dates_sql)).fetchall()
 
-        min_changes_dates_conditions = []
-        for min_changes_dates_record in min_changes_dates_result:
-            if min_changes_dates_record[0] == "sprite":
-                # only new
-                condition = "(c.type = '{}' AND o.data IS NULL AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
-                    min_changes_dates_record[0], min_changes_dates_record[1]
-                )
-            else:
-                condition = "(c.type = '{}' AND (o.id IS NOT NULL OR c.created_at > '{}'))".format(
-                    min_changes_dates_record[0], min_changes_dates_record[1]
-                )
-            min_changes_dates_conditions.append(condition)
+        min_changes_dates_conditions = [
+            f"(c.type = '{record[0]}' AND o.data IS NULL AND (o.id IS NOT NULL OR c.created_at > '{record[1]}'))"
+            if record[0] == "sprite"
+            else f"(c.type = '{record[0]}' AND (o.id IS NOT NULL OR c.created_at > '{record[1]}'))"
+            for record in min_changes_dates_result
+        ]
 
         sql = """
             SELECT *
-            FROM (SELECT DISTINCT ON (c.id) c.id,
-                                            c.type,
-                                            c.type_id,
-                                            c.data,
-                                            c.created_at,
-                                            o.data as old_data
+            FROM (SELECT DISTINCT ON (c.id) c.id, c.type, c.type_id, c.data, c.created_at, o.data as old_data
                   FROM record c
-                           LEFT JOIN record o ON o.type = c.type AND o.type_id = c.type_id AND o.current = FALSE
+                  LEFT JOIN record o ON o.type = c.type AND o.type_id = c.type_id AND o.current = FALSE
                   WHERE c.current = TRUE
                     AND ({})
                   ORDER BY c.id, o.created_at DESC) AS sub
             ORDER BY created_at DESC
             LIMIT {}
-        """.format(
-            " OR ".join(min_changes_dates_conditions),
-            current_app.config.get("CHANGES_MAX_ASSETS", 5000),
-        )
+        """.format(" OR ".join(min_changes_dates_conditions), current_app.config.get("CHANGES_MAX_ASSETS", 5000))
 
         result = db.session.execute(text(sql)).fetchall()
-        changes = []
 
-        for record in result:
-            # data stored as JSON
-
-            sprite = self.get_record_sprite(record[1], record[2])
-            name = self.get_record_name(record[1], record[2])
-
-            change = {
-                "type": record[1],
-                "id": record[2],
-                "name": name,
-                "changed_at": record[4],
-                "data": record[3],
-                "old_data": record[5],
-                "change_type": "Changed" if record[5] else "New",
-                "sprite": sprite,
-            }
-
-            # if change's a Character, get all infos of the crew
-            if record[1] == "char":
-                change["char"] = self.characters[record[2]]
-
-            # if change's an Item, get all infos of the item
-            if record[1] == "item":
-                item = self.items[record[2]]
-                change["item"] = PixyShip._create_light_item(item)
-
-            changes.append(change)
+        changes = [self.create_change_record(record) for record in result]
 
         return changes
+
+    def create_change_record(self, record):
+        sprite = self.get_record_sprite(record[1], record[2])
+        name = self.get_record_name(record[1], record[2])
+
+        change = {
+            "type": record[1],
+            "id": record[2],
+            "name": name,
+            "changed_at": record[4],
+            "data": record[3],
+            "old_data": record[5],
+            "change_type": "Changed" if record[5] else "New",
+            "sprite": sprite,
+        }
+
+        if record[1] == "char":
+            change["char"] = self.characters[record[2]]
+        elif record[1] == "item":
+            change["item"] = self._create_light_item(self.items[record[2]])
+
+        return change
 
     @staticmethod
     def get_last_prestiges_changes_from_db():
