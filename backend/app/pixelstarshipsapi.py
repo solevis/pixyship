@@ -137,16 +137,29 @@ class PixelStarshipsApi:
         if token:
             params["accessToken"] = token
 
-        response = requests.get(endpoint, params=params)
+        response = self._get_response(endpoint, params)
 
         # expired token, regenerate tokens and retry
         if device and re.compile(TOKEN_EXPIRED_REGEX).search(response.text):
             device.cycle_token()
             params["accessToken"] = device.get_token()
-            response = requests.get(endpoint, params=params)
+            response = self._get_response(endpoint, params)
 
         if response.encoding is None:
             response.encoding = "utf-8"
+
+        return response
+
+    @staticmethod
+    def _get_response(endpoint, params):
+        """Get response from API."""
+
+        try:
+            response = requests.get(endpoint, params=params)
+        except requests.exceptions.ConnectionError as e:
+            current_app.logger.info(f"Connection error, retry: {e}")
+            api_sleep(10, force_sleep=True)
+            response = requests.get(endpoint, params=params)
 
         return response
 
