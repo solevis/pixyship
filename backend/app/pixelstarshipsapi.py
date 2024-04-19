@@ -234,6 +234,10 @@ class PixelStarshipsApi:
         root = ElementTree.fromstring(response.content.decode("utf-8"))
         user_login_node = root.find(".//UserLogin")
 
+        if user_login_node is None:
+            current_app.logger.error("Error when parsing response: {}".format(response.text))
+            return None
+
         return user_login_node.attrib["accessToken"]
 
     def inspect_ship(self, user_id):

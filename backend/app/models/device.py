@@ -27,6 +27,7 @@ class Device(db.Model):
 
         pixel_starships_api = PixelStarshipsApi()
         self.token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
-        self.expires_at = datetime.datetime.now() + datetime.timedelta(hours=12)
+        if self.token is not None:
+            self.expires_at = datetime.datetime.now() + datetime.timedelta(hours=12)
 
         db.session.commit()
