@@ -196,7 +196,8 @@ def import_daily_sales():
 
     daily_bank_offer = dailies_offers["sale"]["object"]
     if not daily_bank_offer:
-        current_app.logger.error("Empty daily_bank_offer")
+        # no sale today, no need to log an error because it's normal
+        current_app.logger.info("Empty daily_bank_offer")
     else:
         current_app.logger.info("Importing daily bank...")
         daily_sale = DailySale(
