@@ -10,7 +10,7 @@ import requests
 from flask import current_app
 
 from app.api_errors import TOKEN_EXPIRED_REGEX
-from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, MIN_DEVICES, PSS_START_DATE
+from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, PSS_START_DATE
 from app.ext.db import db
 from app.models import Device
 from app.utils import api_sleep
@@ -57,8 +57,8 @@ class PixelStarshipsApi:
         """Get generated devices from database."""
 
         devices = Device.query.all()
-        if len(devices) < MIN_DEVICES:
-            for _x in range(0, MIN_DEVICES - len(devices)):
+        if len(devices) < current_app.config["MIN_DEVICES"]:
+            for _x in range(0, current_app.config["MIN_DEVICES"] - len(devices)):
                 utc_now = datetime.datetime.utcnow()
                 client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
