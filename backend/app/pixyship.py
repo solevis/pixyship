@@ -2384,17 +2384,17 @@ class PixyShip(metaclass=Singleton):
         user_id = self.find_user_id(player_name)
         if not user_id:
             current_app.logger.error("Cannot find user %s", player_name)
-            return None, None, None, None, None
+            return None, None, None, None
 
         ship_data, user_data = self.pixel_starships_api.ship_details(user_id)
         if not ship_data or not user_data:
             current_app.logger.error("Cannot find ship data for user %s", player_name)
-            return None, None, None, None, None
+            return None, None, None, None
 
         room_data = self.pixel_starships_api.ship_room_details(user_id)
         if not room_data:
             current_app.logger.error("Cannot find room data for user %s", player_name)
-            return None, None, None, None, None
+            return None, None, None, None
 
         user = dict(
             id=user_data["Id"],
