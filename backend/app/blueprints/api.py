@@ -88,9 +88,10 @@ def api_research():
 @api_blueprint.route("/prestige/<int:char_id>")
 @enforce_source
 def api_prestige(char_id):
+    prestiges_from_api = pixyship.get_prestiges_from_api(char_id)
     return jsonify(
         {
-            "data": pixyship.get_prestiges_from_api(char_id),
+            "data": prestiges_from_api,
             "status": "success",
         }
     )
@@ -133,7 +134,11 @@ def api_item_prices(item_id):
 @api_blueprint.route("/item/<int:item_id>/detail")
 @enforce_source
 def api_item_detail(item_id):
-    item = pixyship.items[item_id]
+    try:
+        item = pixyship.items[item_id]
+    except KeyError:
+        flask.abort(404)
+
     last_players_sales = pixyship.get_item_last_players_sales_from_db(item_id, 5000)
     upgrades = pixyship.get_item_upgrades(item["id"])
     return jsonify(

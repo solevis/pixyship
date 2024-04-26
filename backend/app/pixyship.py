@@ -1755,7 +1755,7 @@ class PixyShip(metaclass=Singleton):
                 + [char_id]
             )
         )
-        all_characters = [self.characters[i] for i in all_ids]
+        all_characters = [self.characters[i] for i in all_ids if i in self.characters]
 
         return {
             "to": grouped_to,
