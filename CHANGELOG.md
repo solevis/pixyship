@@ -2,8 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Changed
+
+- Use enum for type in Record model
+
+### Fixed
+
+- Fix KeyError in item detail and prestige endpoint
 
 ## [2.10.0] - 2024-04-17
 
@@ -64,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add button to display history of each daily sale origin (cargo, shop, etc)
+- Add button to display history of each daily sale origin (cargo, shop, etc.)
 
 ### Changed
 
@@ -284,7 +294,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Remove Material icons CDN, use self hosted files (no more dependent of Google servers)
+- Remove Material icons CDN, use self-hosted files (no more dependent of Google servers)
 
 ## [2.0.3] - 2021-07-07
 
@@ -326,8 +336,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Last Jeff commit
 
-[unreleased]: https://github.com/solevis/pixyship/compare/main...develop
-[rolling]: https://github.com/solevis/pixyship/compare/2.10.0...main
+[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.10.0...HEAD
 [2.10.0]: https://github.com/solevis/pixyship/compare/2.9.0...2.10.0
 [2.9.0]: https://github.com/solevis/pixyship/compare/2.8.0...2.9.0
 [2.8.0]: https://github.com/solevis/pixyship/compare/2.7.0...2.8.0

@@ -1,18 +1,20 @@
 import datetime
 import hashlib
 import uuid
+from typing import Any
 from xml.etree import ElementTree
 
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.enums import RecordTypeEnum
 from app.ext.db import db
 from app.utils import sort_attributes
 
 
 class Record(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    type: Mapped[str]
+    type: Mapped[RecordTypeEnum]
     type_id: Mapped[int]
     current: Mapped[bool]
     md5_hash: Mapped[uuid.UUID]
@@ -24,7 +26,15 @@ class Record(db.Model):
         return f"<Record {self.type} {self.type_id}>"
 
     @classmethod
-    def update_data(cls, record_type, record_id, raw_data, url, ignore_list=None, data_as_xml=True):
+    def update_data(
+        cls,
+        record_type: RecordTypeEnum,
+        record_id: int,
+        raw_data: Any,
+        url: str,
+        ignore_list: list[str] = None,
+        data_as_xml: bool = True,
+    ):
         """Save a record to the DB with hash."""
         ignore_list = ignore_list or []
 
@@ -86,12 +96,12 @@ class Record(db.Model):
         db.session.commit()
 
     @classmethod
-    def purge_old_records(cls, type_str, still_presents_ids):
+    def purge_old_records(cls, record_type: RecordTypeEnum, still_presents_ids: list[int]):
         """Disable old records not presents in API."""
 
-        current_ids = Record.query.filter_by(type=type_str, current=True).with_entities(Record.type_id).all()
+        current_ids = Record.query.filter_by(type=record_type, current=True).with_entities(Record.type_id).all()
         current_ids = [current_id[0] for current_id in current_ids]
         no_more_presents_ids = list(set(current_ids) - set(still_presents_ids))
 
         for no_more_presents_id in no_more_presents_ids:
-            Record.set_not_current(type_str, no_more_presents_id)
+            Record.set_not_current(record_type, no_more_presents_id)
