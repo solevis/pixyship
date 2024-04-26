@@ -71,8 +71,8 @@ def create_app(test_config=None):
     # Initialize configurations
     init_configuration(app, test_config)
 
-    # Initialize Sentry if DSN is provided
-    if app.config["SENTRY_DSN"]:
+    # Initialize Sentry if DSN is provided, only in production
+    if app.config["SENTRY_DSN"] and not app.config["DEV_MODE"]:
         import sentry_sdk
         from sentry_sdk.integrations.flask import FlaskIntegration
 

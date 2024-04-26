@@ -93,3 +93,4 @@ venv/
 instance/
 pixyship.png
 data/
+postgresql.dumps.*
