@@ -1343,7 +1343,7 @@ class PixyShip(metaclass=Singleton):
                 "max": int(collection["MaxCombo"]),
                 "base_enhancement": int(collection["BaseEnhancementValue"]),
                 "sprite": self.get_sprite_infos(int(collection["SpriteId"])),
-                "step_enhancement": int(collection["StepEnhancementValue"]),
+                "step_enhancement": float(collection["StepEnhancementValue"]),
                 "icon_sprite": self.get_sprite_infos(int(collection["IconSpriteId"])),
                 "chars": [],
                 "ability_name": COLLECTION_ABILITY_MAP[collection["EnhancementType"]],
