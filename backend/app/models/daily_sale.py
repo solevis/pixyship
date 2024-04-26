@@ -5,7 +5,6 @@ from sqlalchemy import UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.ext.db import db
-from app.enums import RecordTypeEnum
 
 
 class DailySale(db.Model):

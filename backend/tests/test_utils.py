@@ -2,7 +2,16 @@ import datetime
 from xml.etree.ElementTree import Element
 
 from app.enums import RecordTypeEnum
-from app.utils import get_type_enum_from_string, float_range, int_range, sort_attributes, parse_assets_string, format_delta_time, compute_pvp_ratio, has_offstat
+from app.utils import (
+    compute_pvp_ratio,
+    float_range,
+    format_delta_time,
+    get_type_enum_from_string,
+    has_offstat,
+    int_range,
+    parse_assets_string,
+    sort_attributes,
+)
 
 
 def test_get_type_enum_from_string_with_known_type(app):
@@ -55,31 +64,31 @@ def int_range_handles_non_empty_values(app):
 
 def sort_attributes_preserves_single_attribute(app):
     with app.app_context():
-        root = Element('root', {'a': '1'})
+        root = Element("root", {"a": "1"})
         sort_attributes(root)
-        assert root.attrib == {'a': '1'}
+        assert root.attrib == {"a": "1"}
 
 
 def sort_attributes_sorts_multiple_attributes(app):
     with app.app_context():
-        root = Element('root', {'b': '2', 'a': '1'})
+        root = Element("root", {"b": "2", "a": "1"})
         sort_attributes(root)
-        assert root.attrib == {'a': '1', 'b': '2'}
+        assert root.attrib == {"a": "1", "b": "2"}
 
 
 def sort_attributes_sorts_nested_elements(app):
     with app.app_context():
-        root = Element('root', {'b': '2', 'a': '1'})
-        child = Element('child', {'d': '4', 'c': '3'})
+        root = Element("root", {"b": "2", "a": "1"})
+        child = Element("child", {"d": "4", "c": "3"})
         root.append(child)
         sort_attributes(root)
-        assert root.attrib == {'a': '1', 'b': '2'}
-        assert child.attrib == {'c': '3', 'd': '4'}
+        assert root.attrib == {"a": "1", "b": "2"}
+        assert child.attrib == {"c": "3", "d": "4"}
 
 
 def sort_attributes_handles_empty_attributes(app):
     with app.app_context():
-        root = Element('root')
+        root = Element("root")
         sort_attributes(root)
         assert root.attrib == {}
 

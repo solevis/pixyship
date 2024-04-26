@@ -7,8 +7,8 @@ from xml.etree import ElementTree
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.ext.db import db
 from app.enums import RecordTypeEnum
+from app.ext.db import db
 from app.utils import sort_attributes
 
 
@@ -26,7 +26,15 @@ class Record(db.Model):
         return f"<Record {self.type} {self.type_id}>"
 
     @classmethod
-    def update_data(cls, record_type: RecordTypeEnum, record_id: int, raw_data: Any, url: str, ignore_list: list[str] = None, data_as_xml: bool = True):
+    def update_data(
+        cls,
+        record_type: RecordTypeEnum,
+        record_id: int,
+        raw_data: Any,
+        url: str,
+        ignore_list: list[str] = None,
+        data_as_xml: bool = True,
+    ):
         """Save a record to the DB with hash."""
         ignore_list = ignore_list or []
 

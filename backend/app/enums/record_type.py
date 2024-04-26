@@ -1,4 +1,4 @@
-from enum import unique, StrEnum, auto
+from enum import StrEnum, unique
 
 
 @unique

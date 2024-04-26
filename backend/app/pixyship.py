@@ -1,12 +1,12 @@
 import datetime
 import html
 import json
+import math
 import re
 import time
 from collections import Counter, defaultdict
 from xml.etree import ElementTree
 
-import math
 from flask import current_app
 from sqlalchemy import desc, func, text
 
@@ -45,7 +45,7 @@ from app.enums import RecordTypeEnum
 from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, Player, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
-from app.utils import Singleton, float_range, int_range, get_type_enum_from_string, parse_assets_string
+from app.utils import Singleton, float_range, get_type_enum_from_string, int_range
 
 
 class PixyShip(metaclass=Singleton):
@@ -402,10 +402,10 @@ class PixyShip(metaclass=Singleton):
 
         for _, skin in self.skins.items():
             if (
-                    skin["root_id"] == room_id
-                    and skin["race_id"] == ship["race_id"]
-                    and skin["skin_type"] == "RoomSkin"
-                    and skin["sprite_type"] == "Exterior"
+                skin["root_id"] == room_id
+                and skin["race_id"] == ship["race_id"]
+                and skin["skin_type"] == "RoomSkin"
+                and skin["sprite_type"] == "Exterior"
             ):
                 exterior_sprite = skin["sprite"]
 
@@ -1011,9 +1011,9 @@ class PixyShip(metaclass=Singleton):
 
             # ask Savy why...
             not_powered = (
-                    int(room["MaxSystemPower"]) != 0
-                    and int(room["ReloadTime"]) == 0
-                    and int(room["ManufactureCapacity"]) == 0
+                int(room["MaxSystemPower"]) != 0
+                and int(room["ReloadTime"]) == 0
+                and int(room["ManufactureCapacity"]) == 0
             )
 
             rooms[record.type_id] = {
@@ -1054,7 +1054,7 @@ class PixyShip(metaclass=Singleton):
                 if MANUFACTURE_RATE_PER_HOUR_MAP.get(room["RoomType"], False)
                 else None,
                 "manufacture_capacity": int(room["ManufactureCapacity"])
-                                        / MANUFACTURE_CAPACITY_RATIO_MAP.get(room["RoomType"], 1),
+                / MANUFACTURE_CAPACITY_RATIO_MAP.get(room["RoomType"], 1),
                 "manufacture_capacity_label": MANUFACTURE_CAPACITY_MAP.get(room["RoomType"], None),
                 "cooldown_time": int(room["CooldownTime"]),
                 "requirement": self._parse_requirement(room["RequirementString"]),
@@ -1762,7 +1762,15 @@ class PixyShip(metaclass=Singleton):
         min_changes_dates_sql = f"""
             SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
             FROM record
-            WHERE type IN ('{RecordTypeEnum.ITEM}', '{RecordTypeEnum.SHIP}', '{RecordTypeEnum.CHARACTER}', '{RecordTypeEnum.ROOM}', '{RecordTypeEnum.SPRITE}', '{RecordTypeEnum.CRAFT}', '{RecordTypeEnum.SKINSET}')
+            WHERE type IN (
+                '{RecordTypeEnum.ITEM}',
+                '{RecordTypeEnum.SHIP}',
+                '{RecordTypeEnum.CHARACTER}',
+                '{RecordTypeEnum.ROOM}',
+                '{RecordTypeEnum.SPRITE}',
+                '{RecordTypeEnum.CRAFT}',
+                '{RecordTypeEnum.SKINSET}'
+            )
             GROUP BY type
         """
 
@@ -1820,7 +1828,9 @@ class PixyShip(metaclass=Singleton):
     def get_last_prestiges_changes_from_db():
         """Get last prestiges changes date."""
 
-        result = db.session.query(func.max(Record.created_at)).filter_by(type=RecordTypeEnum.PRESTIGE, current=True).first()
+        result = (
+            db.session.query(func.max(Record.created_at)).filter_by(type=RecordTypeEnum.PRESTIGE, current=True).first()
+        )
 
         if result:
             return result[0]
@@ -2017,17 +2027,17 @@ class PixyShip(metaclass=Singleton):
             "dailyRewards": {
                 "sprite": self.get_sprite_infos(DAILY_REWARDS_SPRITE_ID),
                 "objects": [
-                               self._format_daily_object(
-                                   int(dailies["DailyRewardArgument"]),
-                                   "currency",
-                                   self._format_daily_price(
-                                       int(dailies["DailyRewardArgument"]),
-                                       dailies["DailyRewardType"],
-                                   ),
-                                   None,
-                               )
-                           ]
-                           + self._parse_daily_items(dailies["DailyItemRewards"]),
+                    self._format_daily_object(
+                        int(dailies["DailyRewardArgument"]),
+                        "currency",
+                        self._format_daily_price(
+                            int(dailies["DailyRewardArgument"]),
+                            dailies["DailyRewardType"],
+                        ),
+                        None,
+                    )
+                ]
+                + self._parse_daily_items(dailies["DailyItemRewards"]),
             },
             "sale": {
                 "sprite": self.get_sprite_infos(DAILY_SALE_SPRITE_ID),
@@ -2203,11 +2213,11 @@ class PixyShip(metaclass=Singleton):
 
                 # if change's is Starbux, Dove, Gas or Mineral
                 elif (
-                        asset_item_type == "starbux"
-                        or asset_item_type == "purchasePoints"
-                        or asset_item_type == "points"
-                        or asset_item_type == "gas"
-                        or asset_item_type == "mineral"
+                    asset_item_type == "starbux"
+                    or asset_item_type == "purchasePoints"
+                    or asset_item_type == "points"
+                    or asset_item_type == "gas"
+                    or asset_item_type == "mineral"
                 ):
                     data = int(asset_item_data)
 
@@ -2554,7 +2564,6 @@ class PixyShip(metaclass=Singleton):
                 research["min_ship_level"] = room["min_ship_level"]
 
         return researches
-
 
     @staticmethod
     def _parse_module_extra_enhancement(item):
