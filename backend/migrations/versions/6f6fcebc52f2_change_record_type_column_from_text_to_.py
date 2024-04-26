@@ -11,28 +11,28 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "6f6fcebc52f2"
-down_revision = "7b4cf67136ba"
+down_revision = "ed521b4cb886"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
     type_enum = sa.Enum(
-        "achievement",
-        "character",
-        "collection",
-        "craft",
-        "item",
-        "missile",
-        "prestige",
-        "research",
-        "room",
-        "room_sprite",
-        "ship",
-        "skin",
-        "skinset",
-        "sprite",
-        "training",
+        "ACHIEVEMENT",
+        "CHARACTER",
+        "COLLECTION",
+        "CRAFT",
+        "ITEM",
+        "MISSILE",
+        "PRESTIGE",
+        "RESEARCH",
+        "ROOM",
+        "ROOM_SPRITE",
+        "SHIP",
+        "SKIN",
+        "SKINSET",
+        "SPRITE",
+        "TRAINING",
         name="type_enum",
     )
     type_enum.create(op.get_bind(), checkfirst=False)

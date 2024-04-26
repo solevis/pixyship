@@ -52,7 +52,7 @@ def get_type_enum_from_string(type_string: str) -> RecordTypeEnum | None:
         type_string = "room"
 
     try:
-        return RecordTypeEnum(type_string)
+        return RecordTypeEnum(type_string.upper())
     except ValueError:
         return None
 
@@ -105,7 +105,9 @@ def compute_pvp_ratio(wins, losses, draws):
     return round(ratio, 2)
 
 
-def has_offstat(item_type, item_slot, item_rarity_order, item_bonus, item_disp_enhancement):
+def has_offstat(
+    item_type: str, item_slot: str, item_rarity_order: int, item_bonus: float, item_disp_enhancement: str | None
+) -> bool:
     """Check if item have an offstat bonus."""
 
     if item_type != "Equipment":

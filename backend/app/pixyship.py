@@ -45,7 +45,15 @@ from app.enums import RecordTypeEnum
 from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, Player, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
-from app.utils import Singleton, float_range, get_type_enum_from_string, int_range
+from app.utils import (
+    Singleton,
+    compute_pvp_ratio,
+    float_range,
+    format_delta_time,
+    get_type_enum_from_string,
+    has_offstat,
+    int_range,
+)
 
 
 class PixyShip(metaclass=Singleton):
@@ -1566,7 +1574,7 @@ class PixyShip(metaclass=Singleton):
             rarity_order = RARITY_MAP[item["Rarity"]]
             bonus = float(item.get("EnhancementValue"))
             disp_enhancement = ENHANCE_MAP.get(item["EnhancementType"], item["EnhancementType"])
-            has_offstat = PixyShip.has_offstat(item_type, slot, rarity_order, bonus, disp_enhancement)
+            offstat = has_offstat(item_type, slot, rarity_order, bonus, disp_enhancement)
 
             items[record.type_id] = {
                 "name": item["ItemDesignName"],
@@ -1585,7 +1593,7 @@ class PixyShip(metaclass=Singleton):
                 "type": item_type,
                 "rarity": item.get("Rarity").lower(),
                 "rarity_order": rarity_order,
-                "has_offstat": has_offstat,
+                "has_offstat": offstat,
                 "ingredients": item["Ingredients"],
                 "content_string": item["Content"],
                 "number_of_rewards": number_of_rewards,
@@ -1807,7 +1815,7 @@ class PixyShip(metaclass=Singleton):
         name = self.get_record_name(record_type_enum, record[2])
 
         change = {
-            "type": record[1],
+            "type": record[1].lower(),
             "id": record[2],
             "name": name,
             "changed_at": record[4],
@@ -2100,7 +2108,7 @@ class PixyShip(metaclass=Singleton):
             end_date = datetime.datetime.strptime(situation["end"], "%Y-%m-%dT%H:%M:%S")
             if from_date <= utc_now <= end_date:
                 situation_left_delta = end_date - utc_now
-                situation["left"] = PixyShip.format_delta_time(situation_left_delta)
+                situation["left"] = format_delta_time(situation_left_delta)
 
                 return situation
 
@@ -2270,7 +2278,7 @@ class PixyShip(metaclass=Singleton):
             end_date = datetime.datetime.strptime(promotion["end"], "%Y-%m-%dT%H:%M:%S")
             if from_date <= utc_now <= end_date:
                 promotion_left_delta = end_date - utc_now
-                promotion["left"] = PixyShip.format_delta_time(promotion_left_delta)
+                promotion["left"] = format_delta_time(promotion_left_delta)
 
                 promotions.append(promotion)
 
@@ -2345,7 +2353,7 @@ class PixyShip(metaclass=Singleton):
                 self._crafts = None
                 self._skins = None
                 self._skinsets = None
-                return self.get_record_sprite(record_type, type_id, False)
+                return self.get_record_name(record_type, type_id, False)
             else:
                 current_app.logger.error("Cannot find object of type %s with id %d", record_type, type_id)
                 return None
@@ -2435,7 +2443,7 @@ class PixyShip(metaclass=Singleton):
             user["pvpattack_wins"] = int(more_user_data["PVPAttackWins"])
             user["pvpattack_losses"] = int(more_user_data["PVPAttackLosses"])
             user["pvpattack_draws"] = int(more_user_data["PVPAttackDraws"])
-            user["pvpattack_ratio"] = self._compute_pvp_ratio(
+            user["pvpattack_ratio"] = compute_pvp_ratio(
                 int(more_user_data["PVPAttackWins"]),
                 int(more_user_data["PVPAttackLosses"]),
                 int(more_user_data["PVPAttackDraws"]),
@@ -2443,7 +2451,7 @@ class PixyShip(metaclass=Singleton):
             user["pvpdefence_draws"] = int(more_user_data["PVPDefenceDraws"])
             user["pvpdefence_wins"] = int(more_user_data["PVPDefenceWins"])
             user["pvpdefence_losses"] = int(more_user_data["PVPDefenceLosses"])
-            user["pvpdefence_ratio"] = self._compute_pvp_ratio(
+            user["pvpdefence_ratio"] = compute_pvp_ratio(
                 int(more_user_data["PVPDefenceWins"]),
                 int(more_user_data["PVPDefenceLosses"]),
                 int(more_user_data["PVPDefenceDraws"]),
@@ -2503,7 +2511,7 @@ class PixyShip(metaclass=Singleton):
         tournament_start = first_day_next_month - datetime.timedelta(days=7)
         tournament_start_time = datetime.datetime(tournament_start.year, tournament_start.month, tournament_start.day)
         tournament_left_delta = tournament_start_time - utc_now
-        tournament_left_formatted = PixyShip.format_delta_time(tournament_left_delta)
+        tournament_left_formatted = format_delta_time(tournament_left_delta)
 
         infos = {
             "start": tournament_start,
@@ -2590,7 +2598,7 @@ class PixyShip(metaclass=Singleton):
             "bonus": bonus,
         }
 
-    def get_item_upgrades(self, item_id):
+    def get_item_upgrades(self, item_id: int):
         upgrades = []
 
         for current_item_id in self.items.keys():
