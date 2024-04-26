@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix KeyError in item detail and prestige endpoint
+- Fix searching for a player with a quote in the name
 
 ## [2.10.0] - 2024-04-17
 
