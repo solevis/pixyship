@@ -18,7 +18,6 @@ from app.constants import (
     COLLECTION_ABILITY_TRIGGER_MAP,
     DAILY_REWARDS_SPRITE_ID,
     DAILY_SALE_SPRITE_ID,
-    DEFAULT_EXPIRATION_DURATION,
     ENHANCE_MAP,
     EQUIPMENT_SLOTS,
     GREEN_CARGO_SPRITE_ID,
@@ -42,11 +41,11 @@ from app.constants import (
     SLOT_MAP,
 )
 from app.enums import RecordTypeEnum
+from app.ext import cache
 from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, Player, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.utils import (
-    Singleton,
     compute_pvp_ratio,
     float_range,
     format_delta_time,
@@ -56,14 +55,14 @@ from app.utils import (
 )
 
 
-class PixyShip(metaclass=Singleton):
+class PixyShip:
     """
     PixyShip class to handle all data from Pixel Starships.
     TODO: refactor this class to split the code into smaller classes.
     """
 
     def __init__(self):
-        self.__records: list[Record] = []
+        self._records: list[Record] = []
         self._changes = None
         self._last_prestiges_changes = None
         self._characters = None
@@ -88,223 +87,182 @@ class PixyShip(metaclass=Singleton):
         self._upgrades = None
         self._rooms_by_name = None
         self._pixel_starships_api = None
-        self._data_expiration = {}
 
     @property
+    @cache.cached(key_prefix="records")
     def records(self) -> list[Record]:
-        if not self.__records or self.expired("record"):
-            self.__records = Record.query.filter_by(current=True).all()
-            self.expire_at("record", DEFAULT_EXPIRATION_DURATION)
+        if not self._records:
+            self._records = Record.query.filter_by(current=True).all()
 
-        return self.__records
+        return self._records
 
     @property
+    @cache.cached(timeout=60 * 60 * 12, key_prefix="api")
     def pixel_starships_api(self):
-        if self._pixel_starships_api is None or self.expired("api"):
+        if self._pixel_starships_api is None:
             self._pixel_starships_api = PixelStarshipsApi()
-            self.expire_at("api", 60 * 60 * 12)  # 12h
 
         return self._pixel_starships_api
 
     @property
     def sprites(self):
-        if self._sprites is None or self.expired("sprite"):
+        if self._sprites is None:
             self._sprites = self._get_sprites_from_db()
-            self.expire_at("sprite", DEFAULT_EXPIRATION_DURATION)
 
         return self._sprites
 
     @property
     def skins(self):
-        if self._skins is None or self.expired("skin"):
+        if self._skins is None:
             self._skins = self._get_skins_from_db()
-            self.expire_at("skin", DEFAULT_EXPIRATION_DURATION)
 
         return self._skins
 
     @property
     def skinsets(self):
-        if self._skinsets is None or self.expired("skinset"):
+        if self._skinsets is None:
             self._skinsets = self._get_skinsets_from_db()
-            self.expire_at("skinset", DEFAULT_EXPIRATION_DURATION)
 
         return self._skinsets
 
     @property
     def prices(self):
-        if self._prices is None or self.expired("prices"):
+        if self._prices is None:
             self._prices = self._get_prices_from_db()
-            self.expire_at("prices", DEFAULT_EXPIRATION_DURATION)
 
         return self._prices
 
     @property
     def trainings(self):
-        if self._trainings is None or self.expired("trainings"):
+        if self._trainings is None:
             self._trainings = self._get_trainings_from_db()
-            self.expire_at("trainings", DEFAULT_EXPIRATION_DURATION)
 
         return self._trainings
 
     @property
     def achievements(self):
-        if self._achievements is None or self.expired("achievements"):
+        if self._achievements is None:
             self._achievements = self._get_achievements_from_db()
-            self.expire_at("achievements", DEFAULT_EXPIRATION_DURATION)
 
         return self._achievements
 
     @property
     def ships(self):
-        if self._ships is None or self.expired("ship"):
+        if self._ships is None:
             self._ships = self._get_ships_from_db()
-            self.expire_at("ship", DEFAULT_EXPIRATION_DURATION)
 
         return self._ships
 
     @property
     def rooms(self):
-        if self._rooms is None or self.expired("room"):
+        if self._rooms is None:
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
-            self.expire_at("room", DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms
 
     @property
     def rooms_by_name(self):
-        if self._rooms_by_name is None or self.expired("room"):
+        if self._rooms_by_name is None:
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
-            self.expire_at("room", DEFAULT_EXPIRATION_DURATION)
 
         return self._rooms_by_name
 
     @property
     def crafts(self):
-        if self._crafts is None or self.expired("craft"):
+        if self._crafts is None:
             self._crafts = self._get_crafts_from_db()
-            self.expire_at("craft", DEFAULT_EXPIRATION_DURATION)
 
         return self._crafts
 
     @property
     def missiles(self):
-        if self._missiles is None or self.expired("missile"):
+        if self._missiles is None:
             self._missiles = self._get_missiles_from_db()
-            self.expire_at("craft", DEFAULT_EXPIRATION_DURATION)
 
         return self._missiles
 
     @property
     def researches(self):
-        if self._researches is None or self.expired("room"):
+        if self._researches is None:
             self._researches = self._get_researches_from_db()
-            self.expire_at("research", DEFAULT_EXPIRATION_DURATION)
 
         return self._researches
 
     @property
     def upgrades(self):
-        if self._upgrades is None or self.expired("room"):
+        if self._upgrades is None:
             self._rooms, self._upgrades, self._rooms_by_name = self._get_rooms_from_db()
-            self.expire_at("room", DEFAULT_EXPIRATION_DURATION)
 
         return self._upgrades
 
     @property
     def characters(self):
-        if self._characters is None or self.expired("char"):
+        if self._characters is None:
             self._characters = self._get_characters_from_db()
 
             if self._characters:
-                self.expire_at("char", DEFAULT_EXPIRATION_DURATION)
                 self.update_character_with_collection_data()
 
         return self._characters
 
     @property
     def collections(self):
-        if self._collections is None or self.expired("collection"):
+        if self._collections is None:
             self._collections = self._get_collections_from_db()
 
             if self._collections:
-                self.expire_at("collection", DEFAULT_EXPIRATION_DURATION)
                 self.update_character_with_collection_data()
 
         return self._collections
 
     @property
     def items(self):
-        if self._items is None or self.expired("item"):
+        if self._items is None:
             self._items = self._get_items_from_db()
-            self.expire_at("item", DEFAULT_EXPIRATION_DURATION)
 
         return self._items
 
     @property
     def dailies(self):
-        if self._dailies is None or self.expired("daily"):
+        if self._dailies is None:
             self._dailies = self._get_dailies_from_api()
-            self.expire_at("daily", DEFAULT_EXPIRATION_DURATION)
 
         return self._dailies
 
     @property
     def star_system_merchant_markers(self):
-        if self._star_system_merchant_markers is None or self.expired("star_system_merchant_marker"):
+        if self._star_system_merchant_markers is None:
             self._star_system_merchant_markers = self._get_star_system_merchant_markers_from_api()
-            self.expire_at("star_system_merchant_marker", DEFAULT_EXPIRATION_DURATION)
 
         return self._star_system_merchant_markers
 
     @property
     def changes(self):
-        if self._changes is None or self.expired("change"):
+        if self._changes is None:
             self._changes = self.get_changes_from_db()
-            self.expire_at("change", DEFAULT_EXPIRATION_DURATION)
 
         return self._changes
 
     @property
     def last_prestiges_changes(self):
-        if self._last_prestiges_changes is None or self.expired("last_prestiges_changes"):
+        if self._last_prestiges_changes is None:
             self._last_prestiges_changes = self.get_last_prestiges_changes_from_db()
-            self.expire_at("last_prestiges_changes", DEFAULT_EXPIRATION_DURATION)
 
         return self._last_prestiges_changes
 
     @property
     def situations(self):
-        if self._situations is None or self.expired("situation"):
+        if self._situations is None:
             self._situations = self._get_situations_from_api()
-            self.expire_at("situation", DEFAULT_EXPIRATION_DURATION)
 
         return self._situations
 
     @property
     def promotions(self):
-        if self._promotions is None or self.expired("promotion"):
+        if self._promotions is None:
             self._promotions = self._get_promotions_from_api()
-            self.expire_at("promotion", DEFAULT_EXPIRATION_DURATION)
 
         return self._promotions
-
-    def expired(self, key):
-        """Check if cached data has expired."""
-
-        if key not in self._data_expiration:
-            return True
-
-        data_expiration = self._data_expiration[key]
-        if not data_expiration:
-            return True
-
-        return datetime.datetime.utcnow().timestamp() - data_expiration > 0
-
-    def expire_at(self, key, secs):
-        """Set expiration duration date."""
-
-        now = datetime.datetime.utcnow().timestamp()
-        self._data_expiration[key] = now + secs
 
     def get_record(self, record_type: RecordTypeEnum | str, record_id: int, reload_on_error: bool = True):
         """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
@@ -2390,6 +2348,7 @@ class PixyShip(metaclass=Singleton):
 
         ship, user, rooms, stickers = self.summarize_ship(player_name)
 
+        data = None
         if user:
             data = {
                 "rooms": rooms,
@@ -2398,12 +2357,8 @@ class PixyShip(metaclass=Singleton):
                 "stickers": stickers,
                 "status": "found",
             }
-        else:
-            data = {"status": "not found"}
 
-        response = {"data": data, "status": "success"}
-
-        return response
+        return data
 
     def summarize_ship(self, player_name):
         """Get ship, user, rooms and upgrade from given player name."""

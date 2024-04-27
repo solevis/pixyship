@@ -34,3 +34,7 @@ class DefaultConfig:
 
     # Sentry DSN (https://sentry.io)
     SENTRY_DSN = None
+
+    # Cache configuration
+    CACHE_TYPE = "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = 300

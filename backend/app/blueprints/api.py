@@ -1,6 +1,7 @@
 import flask
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
+from app.ext import cache
 from app.pixyship import PixyShip
 from app.security import enforce_source
 
@@ -9,27 +10,48 @@ pixyship = PixyShip()
 
 
 @api_blueprint.route("/players")
+@enforce_source
+@cache.cached()
 def api_players():
+    """Returns all players."""
+
     search = request.args.get("search") or ""
-    response = jsonify(pixyship.get_player_data(search))
-    response.cache_control.max_age = 300
-    return response
+    return jsonify(
+        {
+            "data": pixyship.get_player_data(search),
+            "status": "success",
+        }
+    )
 
 
 @api_blueprint.route("/user/<path:name>")
 @enforce_source
+@cache.cached()
 def api_ship(name):
+    """Returns the ship data of a player."""
+
     if not name:
         flask.abort(400)
 
     ship_data = pixyship.get_ship_data(name)
 
-    return jsonify(ship_data)
+    if ship_data is None:
+        flask.abort(404)
+
+    return jsonify(
+        {
+            "data": ship_data,
+            "status": "success",
+        }
+    )
 
 
 @api_blueprint.route("/daily")
 @enforce_source
+@cache.cached()
 def api_daily():
+    """Returns daily offers."""
+
     return jsonify(
         {
             "data": pixyship.dailies,
@@ -40,13 +62,14 @@ def api_daily():
 
 @api_blueprint.route("/changes")
 @enforce_source
+@cache.cached()
 def api_changes():
-    last_prestiges_changes = pixyship.last_prestiges_changes
+    """Returns the changes and the last prestiges changes."""
 
     return jsonify(
         {
             "data": pixyship.changes,
-            "lastprestigeschanges": last_prestiges_changes,
+            "lastprestigeschanges": pixyship.last_prestiges_changes,
             "status": "success",
         }
     )
@@ -54,7 +77,10 @@ def api_changes():
 
 @api_blueprint.route("/collections")
 @enforce_source
+@cache.cached()
 def api_collections():
+    """Returns the collections."""
+
     return jsonify(
         {
             "data": pixyship.collections,
@@ -65,7 +91,10 @@ def api_collections():
 
 @api_blueprint.route("/achievements")
 @enforce_source
+@cache.cached()
 def api_achievements():
+    """Returns the achievements."""
+
     return jsonify(
         {
             "data": pixyship.achievements,
@@ -76,7 +105,10 @@ def api_achievements():
 
 @api_blueprint.route("/research")
 @enforce_source
+@cache.cached()
 def api_research():
+    """Returns the researches and the ship min level."""
+
     return jsonify(
         {
             "data": pixyship.get_researches_and_ship_min_level(),
@@ -87,11 +119,18 @@ def api_research():
 
 @api_blueprint.route("/prestige/<int:char_id>")
 @enforce_source
+@cache.cached()
 def api_prestige(char_id):
-    prestiges_from_api = pixyship.get_prestiges_from_api(char_id)
+    """Returns the prestiges of a character."""
+
+    try:
+        character = pixyship.characters[char_id]
+    except KeyError:
+        flask.abort(404)
+
     return jsonify(
         {
-            "data": prestiges_from_api,
+            "data": pixyship.get_prestiges_from_api(character["id"]),
             "status": "success",
         }
     )
@@ -99,7 +138,10 @@ def api_prestige(char_id):
 
 @api_blueprint.route("/crew")
 @enforce_source
+@cache.cached()
 def api_crew():
+    """Returns all crew."""
+
     return jsonify(
         {
             "data": pixyship.characters,
@@ -110,7 +152,10 @@ def api_crew():
 
 @api_blueprint.route("/items")
 @enforce_source
+@cache.cached()
 def api_items():
+    """Returns all items."""
+
     return jsonify(
         {
             "data": pixyship.items,
@@ -121,11 +166,18 @@ def api_items():
 
 @api_blueprint.route("/item/<int:item_id>/prices")
 @enforce_source
+@cache.cached()
 def api_item_prices(item_id):
-    data = pixyship.get_item_prices_from_db(item_id)
+    """Returns the item prices."""
+
+    try:
+        item = pixyship.items[item_id]
+    except KeyError:
+        flask.abort(404)
+
     return jsonify(
         {
-            "data": data,
+            "data": pixyship.get_item_prices_from_db(item["id"]),
             "status": "success",
         }
     )
@@ -133,14 +185,18 @@ def api_item_prices(item_id):
 
 @api_blueprint.route("/item/<int:item_id>/detail")
 @enforce_source
+@cache.cached()
 def api_item_detail(item_id):
+    """Returns the item details."""
+
     try:
         item = pixyship.items[item_id]
     except KeyError:
         flask.abort(404)
 
-    last_players_sales = pixyship.get_item_last_players_sales_from_db(item_id, 5000)
+    last_players_sales = pixyship.get_item_last_players_sales_from_db(item["id"], 5000)
     upgrades = pixyship.get_item_upgrades(item["id"])
+
     return jsonify(
         {
             "data": item,
@@ -153,7 +209,10 @@ def api_item_detail(item_id):
 
 @api_blueprint.route("/tournament")
 @enforce_source
+@cache.cached()
 def api_tournament():
+    """Returns the tournament infos."""
+
     return jsonify(
         {
             "data": pixyship.get_tournament_infos(),
@@ -164,12 +223,13 @@ def api_tournament():
 
 @api_blueprint.route("/rooms")
 @enforce_source
+@cache.cached()
 def api_rooms():
-    rooms = pixyship.rooms
+    """Returns all rooms."""
 
     return jsonify(
         {
-            "data": rooms,
+            "data": pixyship.rooms,
             "status": "success",
         }
     )
@@ -177,11 +237,12 @@ def api_rooms():
 
 @api_blueprint.route("/skins")
 @enforce_source
+@cache.cached()
 def api_skins():
-    skins = pixyship.skins
+    """Returns all skins."""
 
     # keep only skins with sprite_type = "Interior"
-    skins = [skin for skin in skins.values() if skin["sprite_type"] == "Interior"]
+    skins = [skin for skin in pixyship.skins.values() if skin["sprite_type"] == "Interior"]
 
     return jsonify(
         {
@@ -193,7 +254,10 @@ def api_skins():
 
 @api_blueprint.route("/ships")
 @enforce_source
+@cache.cached()
 def api_ships():
+    """Returns all ships."""
+
     return jsonify(
         {
             "data": pixyship.ships,
@@ -204,11 +268,13 @@ def api_ships():
 
 @api_blueprint.route("/lastsales/<path:sale_type>/<int:sale_type_id>")
 @enforce_source
+@cache.cached()
 def api_last_sales(sale_type, sale_type_id):
-    last_sales = pixyship.get_last_sales_from_db(sale_type, sale_type_id, 1000)
+    """Returns the last sales of a given type."""
+
     return jsonify(
         {
-            "data": last_sales,
+            "data": pixyship.get_last_sales_from_db(sale_type, sale_type_id, 1000),
             "status": "success",
         }
     )
@@ -216,11 +282,13 @@ def api_last_sales(sale_type, sale_type_id):
 
 @api_blueprint.route("/lastsalesbysalefrom/<path:sale_from>")
 @enforce_source
+@cache.cached()
 def api_last_sales_by_type(sale_from):
-    last_sales = pixyship.get_last_sales_by_sale_from_from_db(sale_from, 5000)
+    """Returns the last sales by sale_from."""
+
     return jsonify(
         {
-            "data": last_sales,
+            "data": pixyship.get_last_sales_by_sale_from_from_db(sale_from, 5000),
             "status": "success",
         }
     )
@@ -228,12 +296,13 @@ def api_last_sales_by_type(sale_from):
 
 @api_blueprint.route("/crafts")
 @enforce_source
+@cache.cached()
 def api_crafts():
-    crafts = pixyship.crafts
+    """Returns all crafts."""
 
     return jsonify(
         {
-            "data": crafts,
+            "data": pixyship.crafts,
             "status": "success",
         }
     )
@@ -241,18 +310,21 @@ def api_crafts():
 
 @api_blueprint.route("/missiles")
 @enforce_source
+@cache.cached()
 def api_missiles():
-    missiles = pixyship.missiles
+    """Returns all missiles."""
 
     return jsonify(
         {
-            "data": missiles,
+            "data": pixyship.missiles,
             "status": "success",
         }
     )
 
 
 @api_blueprint.route("/<path:path>")
-def bad_api(_):
+@enforce_source
+def bad_api(path):
     """Places you shouldn't go"""
+    current_app.logger.warning("Bad API request: %s", path)
     return flask.abort(404)

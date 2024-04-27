@@ -7,7 +7,7 @@ from app.blueprints.api import api_blueprint
 from app.blueprints.root import root_blueprint
 from app.commands import check_cli, importer_cli, tools_cli
 from app.config import DefaultConfig
-from app.ext import db, migrate
+from app.ext import cache, db, migrate
 
 
 def init_configuration(app, test_config=None):
@@ -35,6 +35,9 @@ def init_headers(app):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+
+        # Default cache control
+        response.cache_control.max_age = 300
 
         return response
 
@@ -88,6 +91,9 @@ def create_app(test_config=None):
 
     # Initialize the database migration
     migrate.init_app(app, db)
+
+    # Initialize the cache
+    cache.init_app(app)
 
     # Initialize default headers
     init_headers(app)

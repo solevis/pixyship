@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use enum for type in Record model
+- Remove internal caching system and replace it by Flask-Caching
 
 ### Fixed
 
