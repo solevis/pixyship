@@ -45,6 +45,7 @@ from app.ext import cache
 from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, Player, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
+from app.services.record import RecordService
 from app.utils import (
     compute_pvp_ratio,
     float_range,
@@ -62,7 +63,8 @@ class PixyShip:
     """
 
     def __init__(self):
-        self._records: list[Record] = []
+        self.record_service = RecordService()
+
         self._changes = None
         self._last_prestiges_changes = None
         self._characters = None
@@ -87,14 +89,6 @@ class PixyShip:
         self._upgrades = None
         self._rooms_by_name = None
         self._pixel_starships_api = None
-
-    @property
-    @cache.cached(key_prefix="records")
-    def records(self) -> list[Record]:
-        if not self._records:
-            self._records = Record.query.filter_by(current=True).all()
-
-        return self._records
 
     @property
     @cache.cached(timeout=60 * 60 * 12, key_prefix="api")
@@ -264,44 +258,6 @@ class PixyShip:
 
         return self._promotions
 
-    def get_record(self, record_type: RecordTypeEnum | str, record_id: int, reload_on_error: bool = True):
-        """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
-
-        try:
-            if record_type == RecordTypeEnum.ITEM:
-                return self.items[record_id]
-            elif record_type == RecordTypeEnum.CHARACTER:
-                return self.characters[record_id]
-            elif record_type == RecordTypeEnum.ROOM:
-                return self.rooms[record_id]
-            elif record_type == RecordTypeEnum.SHIP:
-                return self.ships[record_id]
-            elif record_type == RecordTypeEnum.RESEARCH:
-                return self.researches[record_id]
-            elif record_type == RecordTypeEnum.CRAFT:
-                return self.crafts[record_id]
-            elif record_type == RecordTypeEnum.SKINSET:
-                return self.skinsets[record_id]
-            elif record_type == RecordTypeEnum.SKIN:
-                return self.skins[record_id]
-            else:
-                return None
-        except KeyError:
-            # happens when there's new things, reload
-            if reload_on_error:
-                self._items = None
-                self._characters = None
-                self._items = None
-                self._ships = None
-                self._researches = None
-                self._crafts = None
-                self._skinsets = None
-                self._skins = None
-                return self.get_record(record_type, record_id, False)
-            else:
-                current_app.logger.error("Cannot find record of type %s with id %d", record_type, record_id)
-                return None
-
     def update_character_with_collection_data(self):
         """Updata character data with collection."""
 
@@ -345,10 +301,10 @@ class PixyShip:
     def convert_room_sprite_to_race_sprite(self, room_id, ship_id):
         """Convert rooms to the correct interior depending on ship race."""
 
-        room = self.get_record(RecordTypeEnum.ROOM, room_id)
+        room = self.record_service.get_record(RecordTypeEnum.ROOM, room_id)
 
         if room["type"] in ("Armor", "Lift"):
-            ship = self.get_record(RecordTypeEnum.SHIP, ship_id)
+            ship = self.record_service.get_record(RecordTypeEnum.SHIP, ship_id)
 
             if room["sprite"]["source"] in RACE_SPECIFIC_SPRITE_MAP:
                 # make a new sprite in a new room to keep from overwriting original data
@@ -363,7 +319,7 @@ class PixyShip:
     def get_exterior_sprite(self, room_id, ship_id):
         """Retrieve exterior sprite if existing"""
 
-        ship = self.get_record(RecordTypeEnum.SHIP, ship_id)
+        ship = self.record_service.get_record(RecordTypeEnum.SHIP, ship_id)
         exterior_sprite = None
 
         for _, skin in self.skins.items():
@@ -390,10 +346,10 @@ class PixyShip:
     def _get_sprites_from_db(self):
         """Load sprites from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.SPRITE]
+        records = self.record_service.records[RecordTypeEnum.SPRITE]
 
         sprites = {}
-        for record in records:
+        for record in records.values():
             sprite = self.pixel_starships_api.parse_sprite_node(ElementTree.fromstring(record.data))
 
             sprites[record.type_id] = {
@@ -415,24 +371,25 @@ class PixyShip:
 
         for sprite in sprites:
             record_id = int(sprite["SpriteId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.SPRITE,
                 record_id,
+                sprite["ImageFileId"],
                 sprite["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.SPRITE, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.SPRITE, still_presents_ids)
 
     def _get_skins_from_db(self):
         """Load skins from database."""
 
-        skin_records = [record for record in self.records if record.type == RecordTypeEnum.SKIN]
+        skin_records = self.record_service.records[RecordTypeEnum.SKIN]
         skins = {}
 
         # for each skin, find the skinset and add name and description
-        for skin_record in skin_records:
+        for skin_record in skin_records.values():
             skin = self.pixel_starships_api.parse_skin_node(ElementTree.fromstring(skin_record.data))
             skinset_id = int(skin["SkinSetId"])
 
@@ -460,12 +417,12 @@ class PixyShip:
     def _get_skinsets_from_db(self):
         """Load skinsets from database."""
 
-        skinset_records = [record for record in self.records if record.type == RecordTypeEnum.SKINSET]
+        skinset_records = self.record_service.records[RecordTypeEnum.SKINSET]
 
         skinsets = {}
 
         # retrieve all skinsets
-        for skinset_record in skinset_records:
+        for skinset_record in skinset_records.values():
             skinset = self.pixel_starships_api.parse_skinset_node(ElementTree.fromstring(skinset_record.data))
 
             skinsets[skinset_record.type_id] = {
@@ -485,37 +442,39 @@ class PixyShip:
 
         for skinset in skinsets:
             record_id = int(skinset["SkinSetId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.SKINSET,
                 record_id,
+                skinset["SkinSetName"],
                 skinset["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.SKINSET, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.SKINSET, still_presents_ids)
 
         still_presents_ids = []
 
         for skin in skins:
             record_id = int(skin["SkinId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.SKIN,
                 record_id,
+                skin["SkinName"],
                 skin["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.SKIN, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.SKIN, still_presents_ids)
 
     def _get_trainings_from_db(self):
         """Load trainings from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.TRAINING]
+        records = self.record_service.records[RecordTypeEnum.TRAINING]
 
         trainings = {}
-        for record in records:
+        for record in records.values():
             training = self.pixel_starships_api.parse_training_node(ElementTree.fromstring(record.data))
 
             trainings[record.type_id] = {
@@ -545,25 +504,26 @@ class PixyShip:
 
         for training in trainings:
             record_id = int(training["TrainingDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.TRAINING,
                 record_id,
+                training["TrainingName"],
                 training["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.TRAINING, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.TRAINING, still_presents_ids)
 
     def _get_achievements_from_db(self):
         """Load achievements from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.ACHIEVEMENT]
+        records = self.record_service.records[RecordTypeEnum.ACHIEVEMENT]
 
         achievements = {}
         all_parent_achievement_design_id = []
 
-        for record in records:
+        for record in records.values():
             achievement = self.pixel_starships_api.parse_achievement_node(ElementTree.fromstring(record.data))
 
             starbux_reward = 0
@@ -609,15 +569,16 @@ class PixyShip:
 
         for achievement in achievements:
             record_id = int(achievement["AchievementDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.ACHIEVEMENT,
                 record_id,
+                achievement["AchievementTitle"],
                 achievement["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.ACHIEVEMENT, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.ACHIEVEMENT, still_presents_ids)
 
     @staticmethod
     def _get_prices_from_db():
@@ -798,7 +759,7 @@ class PixyShip:
         for row in results:
             record_type = get_type_enum_from_string(row.type)
             sprite = self.get_record_sprite(record_type, row.type_id)
-            name = self.get_record_name(record_type, row.type_id)
+            name = self.record_service.get_record_name(record_type, row.type_id)
 
             last_sale = {
                 "type": row.type,
@@ -831,23 +792,24 @@ class PixyShip:
 
         for ship in ships:
             record_id = int(ship["ShipDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.SHIP,
                 record_id,
+                ship["ShipDesignName"],
                 ship["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.SHIP, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.SHIP, still_presents_ids)
 
     def _get_ships_from_db(self):
         """Load ships from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.SHIP]
+        records = self.record_service.records.get(RecordTypeEnum.SHIP, {})
 
         ships = {}
-        for record in records:
+        for record in records.values():
             ship = self.pixel_starships_api.parse_ship_node(ElementTree.fromstring(record.data))
             starbux_cost, mineral_cost, points_cost, items_cost = self._parse_ship_unlock_costs(
                 ship["MineralCost"], ship["StarbuxCost"], ship["UnlockCost"]
@@ -893,23 +855,24 @@ class PixyShip:
 
         for research in researches:
             record_id = int(research["ResearchDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.RESEARCH,
                 record_id,
+                research["ResearchName"],
                 research["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.RESEARCH, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.RESEARCH, still_presents_ids)
 
     def _get_researches_from_db(self):
         """Load researches from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.RESEARCH]
+        records = self.record_service.records[RecordTypeEnum.RESEARCH]
 
         researches = {}
-        for record in records:
+        for record in records.values():
             research = self.pixel_starships_api.parse_research_node(ElementTree.fromstring(record.data))
             researches[record.type_id] = {
                 **research,
@@ -951,24 +914,25 @@ class PixyShip:
 
         for room in rooms:
             record_id = int(room["RoomDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.ROOM,
                 record_id,
+                room["RoomName"],
                 room["pixyship_xml_element"],
                 self.pixel_starships_api.server,
                 ["AvailabilityMask"],
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.ROOM, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.ROOM, still_presents_ids)
 
     def _get_rooms_from_db(self):
         """Load rooms from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.ROOM]
+        records = self.record_service.records[RecordTypeEnum.ROOM]
 
         rooms = {}
-        for record in records:
+        for record in records.values():
             room = self.pixel_starships_api.parse_room_node(ElementTree.fromstring(record.data))
             missile_design = room["MissileDesign"]
 
@@ -1062,24 +1026,25 @@ class PixyShip:
 
         for craft in crafts:
             record_id = int(craft["CraftDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.CRAFT,
                 record_id,
+                craft["CraftName"],
                 craft["pixyship_xml_element"],
                 self.pixel_starships_api.server,
                 ["ReloadModifier"],
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.CRAFT, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.CRAFT, still_presents_ids)
 
     def _get_crafts_from_db(self):
         """Load crafts from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.CRAFT]
+        records = self.record_service.records[RecordTypeEnum.CRAFT]
 
         crafts = {}
-        for record in records:
+        for record in records.values():
             craft = self.pixel_starships_api.parse_craft_node(ElementTree.fromstring(record.data))
             missile_design = craft["MissileDesign"]
 
@@ -1121,24 +1086,25 @@ class PixyShip:
 
         for missile in missiles:
             record_id = int(missile["ItemDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.MISSILE,
                 record_id,
+                missile["ItemDesignName"],
                 missile["pixyship_xml_element"],
                 self.pixel_starships_api.server,
                 ["ReloadModifier"],
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.MISSILE, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.MISSILE, still_presents_ids)
 
     def _get_missiles_from_db(self):
         """Load missiles from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.MISSILE]
+        records = self.record_service.records[RecordTypeEnum.MISSILE]
 
         missiles = {}
-        for record in records:
+        for record in records.values():
             missile = self.pixel_starships_api.parse_missile_node(ElementTree.fromstring(record.data))
             missile_design = missile["MissileDesign"]
 
@@ -1183,23 +1149,24 @@ class PixyShip:
 
         for character in characters:
             record_id = int(character["CharacterDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.CHARACTER,
                 record_id,
+                character["CharacterDesignName"],
                 character["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.CHARACTER, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.CHARACTER, still_presents_ids)
 
     def _get_characters_from_db(self):
         """Load crews from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.CHARACTER]
+        records = self.record_service.records[RecordTypeEnum.CHARACTER]
 
         characters = {}
-        for record in records:
+        for record in records.values():
             character_node = ElementTree.fromstring(record.data)
             character = self.pixel_starships_api.parse_character_node(character_node)
 
@@ -1268,16 +1235,17 @@ class PixyShip:
             )
 
             record_id = int(character["id"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.PRESTIGE,
                 record_id,
+                character["name"],
                 json_content,
                 self.pixel_starships_api.server,
                 data_as_xml=False,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.PRESTIGE, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.PRESTIGE, still_presents_ids)
 
     def update_collections(self):
         """Get collections from API and save them in database."""
@@ -1287,23 +1255,24 @@ class PixyShip:
 
         for collection in collections:
             record_id = int(collection["CollectionDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.COLLECTION,
                 record_id,
+                collection["CollectionName"],
                 collection["pixyship_xml_element"],
                 self.pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.COLLECTION, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.COLLECTION, still_presents_ids)
 
     def _get_collections_from_db(self):
         """Load collections from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.COLLECTION]
+        records = self.record_service.records[RecordTypeEnum.COLLECTION]
 
         collections = {}
-        for record in records:
+        for record in records.values():
             collection_node = ElementTree.fromstring(record.data)
             collection = self.pixel_starships_api.parse_collection_node(collection_node)
 
@@ -1500,24 +1469,25 @@ class PixyShip:
 
         for item in items:
             record_id = int(item["ItemDesignId"])
-            Record.update_data(
+            self.record_service.add_record(
                 RecordTypeEnum.ITEM,
                 record_id,
+                item["ItemDesignName"],
                 item["pixyship_xml_element"],
                 self.pixel_starships_api.server,
                 ["FairPrice", "MarketPrice", "BuildPrice"],
             )
             still_presents_ids.append(int(record_id))
 
-        Record.purge_old_records(RecordTypeEnum.ITEM, still_presents_ids)
+        self.record_service.purge_old_records(RecordTypeEnum.ITEM, still_presents_ids)
 
     def _get_items_from_db(self):
         """Get items from database."""
 
-        records = [record for record in self.records if record.type == RecordTypeEnum.ITEM]
+        records = self.record_service.records[RecordTypeEnum.ITEM]
 
         items = {}
-        for record in records:
+        for record in records.values():
             item_node = ElementTree.fromstring(record.data)
             item = self.pixel_starships_api.parse_item_node(item_node)
 
@@ -1770,7 +1740,7 @@ class PixyShip:
     def create_change_record(self, record):
         record_type_enum = get_type_enum_from_string(record[1])
         sprite = self.get_record_sprite(record_type_enum, int(record[2]))
-        name = self.get_record_name(record_type_enum, record[2])
+        name = self.record_service.get_record_name(record_type_enum, record[2])
 
         change = {
             "type": record[1].lower(),
@@ -1863,7 +1833,7 @@ class PixyShip:
         requirement_object = {
             "count": requirement_count,
             "type": requirement_type,
-            "object": self.get_record(record_type, requirement_id),
+            "object": self.record_service.get_record(record_type, requirement_id),
         }
 
         return requirement_object
@@ -1944,7 +1914,7 @@ class PixyShip:
             daily_object = self._format_daily_object(
                 1,
                 dailies["SaleType"],
-                self.get_record(record_type, int(dailies["SaleArgument"])),
+                self.record_service.get_record(record_type, int(dailies["SaleArgument"])),
                 int(dailies["SaleArgument"]),
             )
 
@@ -1955,7 +1925,7 @@ class PixyShip:
                 "object": self._format_daily_object(
                     1,
                     dailies["LimitedCatalogType"],
-                    self.get_record(
+                    self.record_service.get_record(
                         record_type,
                         int(dailies["LimitedCatalogArgument"]),
                     ),
@@ -1976,13 +1946,13 @@ class PixyShip:
                 "mineralCrew": self._format_daily_object(
                     1,
                     "Character",
-                    self.get_record(RecordTypeEnum.CHARACTER, int(dailies["CommonCrewId"])),
+                    self.record_service.get_record(RecordTypeEnum.CHARACTER, int(dailies["CommonCrewId"])),
                     int(dailies["CommonCrewId"]),
                 ),
                 "starbuxCrew": self._format_daily_object(
                     1,
                     "Character",
-                    self.get_record(RecordTypeEnum.CHARACTER, int(dailies["HeroCrewId"])),
+                    self.record_service.get_record(RecordTypeEnum.CHARACTER, int(dailies["HeroCrewId"])),
                     int(dailies["HeroCrewId"]),
                 ),
             },
@@ -2275,43 +2245,6 @@ class PixyShip:
                 self._skinsets = None
                 self._skins = None
                 return self.get_record_sprite(record_type, type_id, False)
-            else:
-                current_app.logger.error("Cannot find object of type %s with id %d", record_type, type_id)
-                return None
-
-    def get_record_name(self, record_type: RecordTypeEnum, type_id: int, reload_on_error: bool = True):
-        """Get sprite date for the given record ID."""
-
-        try:
-            if record_type == RecordTypeEnum.ITEM:
-                return self.items[type_id]["name"]
-            elif record_type == RecordTypeEnum.CHARACTER or record_type == RecordTypeEnum.PRESTIGE:
-                return self.characters[type_id]["name"]
-            elif record_type == RecordTypeEnum.ROOM:
-                return self.rooms[type_id]["name"]
-            elif record_type == RecordTypeEnum.SHIP:
-                return self.ships[type_id]["name"]
-            elif record_type == RecordTypeEnum.SPRITE:
-                return self.get_sprite_infos(type_id)["source"]
-            elif record_type == RecordTypeEnum.CRAFT:
-                return self.crafts[type_id]["name"]
-            elif record_type == RecordTypeEnum.SKIN:
-                return self.skins[type_id]["name"]
-            elif record_type == RecordTypeEnum.SKINSET:
-                return self.skinsets[type_id]["name"]
-            else:
-                return None
-        except KeyError:
-            # happens when there's new things, reload
-            if reload_on_error:
-                self._items = None
-                self._characters = None
-                self._rooms = None
-                self._ships = None
-                self._crafts = None
-                self._skins = None
-                self._skinsets = None
-                return self.get_record_name(record_type, type_id, False)
             else:
                 current_app.logger.error("Cannot find object of type %s with id %d", record_type, type_id)
                 return None
