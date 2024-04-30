@@ -52,6 +52,7 @@ COLLECTION_ABILITY_MAP = {
     "Cloak": "Cloak",
     "DamageReductionSkill": "Damage Reduction",
     "RoomDamageBoostInstance": "Room Damage Boost",
+    "ReduceFutureDamageInstance": "Reduce Future Damage",
     "None": "None",
 }
 
