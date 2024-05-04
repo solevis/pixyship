@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.ext.db import db
 
 
-class Listing(db.Model):
+class Listing(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     sale_at: Mapped[datetime.datetime]
     item_name: Mapped[str]

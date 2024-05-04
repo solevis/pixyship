@@ -2,16 +2,9 @@ import datetime
 from xml.etree.ElementTree import Element
 
 from app.enums import RecordTypeEnum
-from app.utils import (
-    compute_pvp_ratio,
-    float_range,
-    format_delta_time,
-    get_type_enum_from_string,
-    has_offstat,
-    int_range,
-    parse_assets_string,
-    sort_attributes,
-)
+from app.utils.math import float_range, format_delta_time, int_range
+from app.utils.pss import compute_pvp_ratio, get_type_enum_from_string, has_offstat, parse_assets_string
+from app.utils.xml import sort_attributes
 
 
 def test_get_type_enum_from_string_with_known_type(app):

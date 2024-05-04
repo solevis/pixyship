@@ -24,3 +24,10 @@ def runner(app):
     """A test runner for the app's Click commands."""
 
     return app.test_cli_runner()
+
+
+@pytest.fixture
+def service_factory():
+    from app.services.factory import ServiceFactory
+
+    return ServiceFactory()

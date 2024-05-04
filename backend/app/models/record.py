@@ -8,9 +8,10 @@ from app.enums import RecordTypeEnum
 from app.ext.db import db
 
 
-class Record(db.Model):
+class Record(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=True)
+    sprite_id: Mapped[int] = mapped_column(nullable=True)
     type: Mapped[RecordTypeEnum]
     type_id: Mapped[int]
     current: Mapped[bool]

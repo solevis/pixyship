@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.ext.db import db
 
 
-class Alliance(db.Model):
+class Alliance(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     sprite_id: Mapped[int]

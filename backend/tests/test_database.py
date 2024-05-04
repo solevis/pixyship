@@ -1,30 +1,24 @@
-from app.pixyship import PixyShip
-
-
-def test_crews(app):
+def test_crews(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        crews = pixyship._get_characters_from_db()
+        crews = service_factory.character_service.get_characters_from_records()
 
         assert len(crews) > 0
         assert crews[392]["id"] == 392
         assert crews[392]["name"] == "Polaran Pilgrim"
 
 
-def test_items(app):
+def test_items(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        items = pixyship._get_items_from_db()
+        items = service_factory.item_service.get_items_from_records()
 
         assert len(items) > 0
         assert items[600]["id"] == 600
     assert items[600]["name"] == "Federation Officer Armor"
 
 
-def test_rooms(app):
+def test_rooms(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        rooms, _, _ = pixyship._get_rooms_from_db()
+        rooms, _, _ = service_factory.room_service.get_rooms_from_records()
 
         assert len(rooms) > 0
         assert rooms[10]["id"] == 10
@@ -32,10 +26,9 @@ def test_rooms(app):
         assert rooms[10]["level"] == 2
 
 
-def test_crafts(app):
+def test_crafts(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        crafts = pixyship._get_crafts_from_db()
+        crafts = service_factory.craft_service.get_crafts_from_records()
 
         assert len(crafts) > 0
         assert crafts[10]["id"] == 10
@@ -43,10 +36,9 @@ def test_crafts(app):
         assert crafts[10]["hp"] == 5
 
 
-def test_missiles(app):
+def test_missiles(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        missiles = pixyship._get_missiles_from_db()
+        missiles = service_factory.missile_service.get_missiles_from_records()
 
         assert len(missiles) > 0
         assert missiles[40]["id"] == 40
@@ -54,19 +46,17 @@ def test_missiles(app):
         assert missiles[40]["volley"] == 1.0
 
 
-def test_upgrades(app):
+def test_upgrades(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        _, upgrades, _ = pixyship._get_rooms_from_db()
+        _, upgrades, _ = service_factory.room_service.get_rooms_from_records()
 
         assert len(upgrades) > 0
         assert upgrades[10] == 20
 
 
-def test_ships(app):
+def test_ships(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        ships = pixyship._get_ships_from_db()
+        ships = service_factory.ship_service.get_ships_from_records()
 
         assert len(ships) > 0
         assert ships[129]["id"] == 129
@@ -74,62 +64,55 @@ def test_ships(app):
         assert ships[129]["level"] == 11
 
 
-def test_collections(app):
+def test_collections(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        collections = pixyship._get_collections_from_db()
+        collections = service_factory.collection_service.get_collections_from_records()
 
         assert len(collections) > 0
         assert collections[7]["id"] == 7
         assert collections[7]["name"] == "Federation"
 
 
-def test_researches(app):
+def test_researches(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        researches = pixyship._get_researches_from_db()
+        researches = service_factory.research_service.get_researches_from_records()
 
         assert len(researches) > 0
         assert researches[42]["ResearchDesignId"] == "42"
         assert researches[42]["ResearchName"] == "Advanced Training Lv5"
 
 
-def test_prices(app):
+def test_prices(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        prices = pixyship._get_prices_from_db()
+        prices = service_factory.market_service.get_prices_from_db()
 
         assert len(prices) > 0
 
 
-def test_sprites(app):
+def test_sprites(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        sprites = pixyship._get_sprites_from_db()
+        sprites = service_factory.sprite_service.get_sprites_from_records()
 
         assert len(sprites) > 0
 
 
-def test_search_player(app):
+def test_search_player(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        players = pixyship.get_player_data("Solevis")
+        players = service_factory.player_service.get_player_data("Solevis")
 
         assert len(players) == 1
         assert players[0]["name"] == "Solevis"
 
 
-def test_changes(app):
+def test_changes(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        changes = pixyship.get_changes_from_db()
+        changes = service_factory.changes_service.get_changes_from_db()
 
         assert len(changes) > 0
 
 
-def test_user_id(app):
+def test_user_id(app, service_factory):
     with app.app_context():
-        pixyship = PixyShip()
-        user_id = pixyship.find_user_id("Solevis")
+        user_id = service_factory.player_service.find_user_id("Solevis")
 
         assert user_id == 6635604

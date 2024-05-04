@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.ext.db import db
 
 
-class MarketMessage(db.Model):
+class MarketMessage(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     message: Mapped[str]
     sale_id: Mapped[int] = mapped_column(unique=True)

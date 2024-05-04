@@ -12,15 +12,15 @@ from app.models import DailySale
 tools_cli = AppGroup("tools", help="Tools for the app.")
 
 
-def _translate_limitedcatalogtype(limitedcatalogtype):
+def translate_limitedcatalogtype(limitedcatalogtype):
     return limitedcatalogtype.lower()
 
 
-def _translate_limitedcatalogcurrencytype(limitedcatalogcurrencytype):
+def translate_limitedcatalogcurrencytype(limitedcatalogcurrencytype):
     return limitedcatalogcurrencytype.lower()
 
 
-def _save_daily_sale(daily_sale):
+def save_daily_sale(daily_sale):
     try:
         insert_command = (
             insert(DailySale.__table__)
@@ -57,12 +57,12 @@ def import_dolores_sales_history(json_input):
         sale_at = expiry_date - datetime.timedelta(1)
 
         daily_sale = DailySale(
-            type=_translate_limitedcatalogtype(sale["limitedcatalogtype"]),
+            type=translate_limitedcatalogtype(sale["limitedcatalogtype"]),
             type_id=int(sale["limitedcatalogargument"]),
             sale_at=sale_at,
             sale_from="shop",
-            currency=_translate_limitedcatalogcurrencytype(sale["limitedcatalogcurrencytype"]),
+            currency=translate_limitedcatalogcurrencytype(sale["limitedcatalogcurrencytype"]),
             price=sale["limitedcatalogcurrencyamount"],
         )
 
-        _save_daily_sale(daily_sale)
+        save_daily_sale(daily_sale)

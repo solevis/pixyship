@@ -82,7 +82,7 @@
             <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
               <!-- Image -->
               <td>
-                <div :style="spriteStyle(item.mini_ship_sprite)"></div>
+                <div :style="spriteStyle(item.sprite)"></div>
               </td>
 
               <!-- Name -->

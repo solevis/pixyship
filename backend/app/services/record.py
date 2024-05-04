@@ -3,16 +3,19 @@ from typing import Any
 from xml.etree import ElementTree
 
 from flask import current_app
+from sqlalchemy import func
 
 from app.enums import RecordTypeEnum
 from app.ext import cache
 from app.ext.db import db
 from app.models import Record
-from app.utils import sort_attributes
+from app.services.base import BaseService
+from app.utils.xml import sort_attributes
 
 
-class RecordService:
+class RecordService(BaseService):
     def __init__(self):
+        super().__init__()
         self._records: dict[RecordTypeEnum, dict[int, Record]] = {}
 
     @property
@@ -28,6 +31,11 @@ class RecordService:
                 self._records[record.type][record.type_id] = record
 
         return self._records
+
+    def get_records_from_type(self, record_type: RecordTypeEnum) -> dict[int, Record]:
+        """Get records from given PSS API type (LimitedCatalogType for example)."""
+
+        return self.records.get(record_type, {})
 
     def get_record(self, record_type: RecordTypeEnum, record_id: int, reload_on_error: bool = True) -> Record | None:
         """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
@@ -58,6 +66,7 @@ class RecordService:
         record_type: RecordTypeEnum,
         record_id: int,
         record_name: str,
+        record_sprite_id: int,
         raw_data: Any,
         url: str,
         ignore_list: list[str] = None,
@@ -97,8 +106,13 @@ class RecordService:
                     db.session.commit()
 
                 # if we haven't a name, add it
-                if not existing.name:
+                if not existing.name or existing.name != record_name:
                     existing.name = record_name
+                    db.session.commit()
+
+                # if we haven't a sprite id, add it
+                if not existing.sprite_id or existing.sprite_id != record_sprite_id:
+                    existing.sprite_id = record_sprite_id
                     db.session.commit()
 
                 return
@@ -132,3 +146,22 @@ class RecordService:
 
         for no_more_presents_id in no_more_presents_ids:
             RecordService.set_not_current(record_type, no_more_presents_id)
+
+    def get_record_sprite_id(self, record_type_enum, param) -> int | None:
+        """Get sprite date for the given record ID."""
+
+        record = self.get_record(record_type_enum, param)
+        if record is None:
+            return None
+
+        return record.sprite_id
+
+    @staticmethod
+    def get_last_prestige_record() -> Record | None:
+        """Get last prestige record."""
+
+        record = (
+            db.session.query(func.max(Record.created_at)).filter_by(type=RecordTypeEnum.PRESTIGE, current=True).first()
+        )
+
+        return record
