@@ -499,7 +499,7 @@ export default {
 
       this.shipLoading = true
       this.showShip = false
-      const endpoint = this.shipEndpoint + encodeURIComponent(searchName)
+      const endpoint = this.playerEndpoint + encodeURIComponent(searchName)
 
       const response = await axios.get(
         endpoint,
