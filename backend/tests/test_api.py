@@ -543,6 +543,7 @@ def test_trainings(app):
         assert "XpChance" in training
         assert "Fatigue" in training
         assert "MinimumGuarantee" in training
+        assert "TrainingName" in training
 
 
 def test_achievements(app):

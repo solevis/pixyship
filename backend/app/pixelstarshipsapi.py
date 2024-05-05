@@ -11,9 +11,10 @@ from flask import current_app
 
 from app.api_errors import TOKEN_EXPIRED_REGEX
 from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, PSS_START_DATE
+from app.ext import cache
 from app.ext.db import db
 from app.models import Device
-from app.utils import api_sleep
+from app.utils.pss import api_sleep
 
 
 class PixelStarshipsApi:
@@ -34,17 +35,17 @@ class PixelStarshipsApi:
         self._device_next_index = 0
         self._devices = None
 
-        self.__api_settings = self.get_api_settings()
+        self._api_settings = self.get_api_settings()
 
         if not self._forced_pixelstarships_api_url:
-            self.server = self.__api_settings["ProductionServer"]
+            self.server = self._api_settings["ProductionServer"]
         else:
             o = urlparse(self._forced_pixelstarships_api_url)
             self.server = o.hostname
 
     @property
     def maintenance_message(self):
-        return self.__api_settings["MaintenanceMessage"]
+        return self._api_settings["MaintenanceMessage"]
 
     @property
     def devices(self):
@@ -75,6 +76,7 @@ class PixelStarshipsApi:
 
         return devices
 
+    @cache.cached(timeout=60 * 60 * 12, key_prefix="api_settings")
     def get_api_settings(self):
         """Get last game settings from API."""
 
@@ -85,7 +87,11 @@ class PixelStarshipsApi:
             endpoint = urljoin(self._forced_pixelstarships_api_url, "SettingService/GetLatestVersion3")
             response = self.call(endpoint, params=params)
             root = ElementTree.fromstring(response.text)
-            settings = root.find(".//Setting").attrib
+            setting_element = root.find(".//Setting")
+            if setting_element is None:
+                current_app.logger.error("Error when parsing response: {}".format(response.text))
+                return {}
+            settings = setting_element.attrib
 
             return settings
 
@@ -94,7 +100,12 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params)
         root = ElementTree.fromstring(response.text)
 
-        settings = root.find(".//Setting").attrib
+        setting_element = root.find(".//Setting")
+        if setting_element is None:
+            current_app.logger.error("Error when parsing response: {}".format(response.text))
+            return {}
+
+        settings = setting_element.attrib
         fixed_endpoint = urljoin(
             f'https://{settings["ProductionServer"]}',
             "SettingService/GetLatestVersion3",
@@ -107,12 +118,12 @@ class PixelStarshipsApi:
 
         return settings
 
-    def api_url(self, path: Tuple[str, str], server: str = None, **params):
+    def api_url(self, path: Tuple[str, str], server: str | None = None, **params):
         """Compute endpoint URL with parameters."""
 
         # if url need version, get it from settings (retrieved from API)
         if path[1]:
-            params["version"] = self.__api_settings[path[1]] if hasattr(self, "settings") else 1
+            params["version"] = self._api_settings[path[1]] if hasattr(self, "settings") else 1
 
         return (server or self.server) + path[0].format(**params)
 
@@ -137,13 +148,13 @@ class PixelStarshipsApi:
         if token:
             params["accessToken"] = token
 
-        response = self._get_response(endpoint, params)
+        response = self.get_response(endpoint, params)
 
         # expired token, regenerate tokens and retry
         if device and re.compile(TOKEN_EXPIRED_REGEX).search(response.text):
             device.cycle_token()
             params["accessToken"] = device.get_token()
-            response = self._get_response(endpoint, params)
+            response = self.get_response(endpoint, params)
 
         if response.encoding is None:
             response.encoding = "utf-8"
@@ -151,7 +162,7 @@ class PixelStarshipsApi:
         return response
 
     @staticmethod
-    def _get_response(endpoint, params):
+    def get_response(endpoint, params):
         """Get response from API."""
 
         try:
@@ -245,7 +256,7 @@ class PixelStarshipsApi:
 
         params = {
             "userId": user_id,
-            "designVersion": self.__api_settings["ShipDesignVersion"],
+            "designVersion": self._api_settings["ShipDesignVersion"],
         }
 
         # retrieve data as XML from Pixel Starships API
@@ -372,7 +383,7 @@ class PixelStarshipsApi:
         """Get sprites from API."""
 
         params = {
-            "designVersion": self.__api_settings["FileVersion"],
+            "designVersion": self._api_settings["FileVersion"],
             "deviceType": "DeviceTypeAndroid",
         }
 
@@ -400,7 +411,7 @@ class PixelStarshipsApi:
     def get_rooms_sprites(self):
         """Get rooms sprites from API."""
 
-        params = {"designVersion": self.__api_settings["RoomDesignSpriteVersion"]}
+        params = {"designVersion": self._api_settings["RoomDesignSpriteVersion"]}
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/RoomDesignSpriteService/ListRoomDesignSprites"
@@ -427,7 +438,7 @@ class PixelStarshipsApi:
         """Get skins from API."""
 
         params = {
-            "designVersion": self.__api_settings["SkinVersion"],
+            "designVersion": self._api_settings["SkinVersion"],
             "languageKey": "en",
         }
 
@@ -472,7 +483,7 @@ class PixelStarshipsApi:
         """Get ships designs from API."""
 
         params = {
-            "designVersion": self.__api_settings["ShipDesignVersion"],
+            "designVersion": self._api_settings["ShipDesignVersion"],
             "languageKey": "en",
         }
 
@@ -501,7 +512,7 @@ class PixelStarshipsApi:
         """Get research designs from API."""
 
         params = {
-            "designVersion": self.__api_settings["ResearchDesignVersion"],
+            "designVersion": self._api_settings["ResearchDesignVersion"],
             "languageKey": "en",
         }
 
@@ -533,7 +544,7 @@ class PixelStarshipsApi:
         rooms_purchase = self.get_rooms_purchase()
 
         params = {
-            "designVersion": self.__api_settings["RoomDesignSpriteVersion"],
+            "designVersion": self._api_settings["RoomDesignSpriteVersion"],
             "languageKey": "en",
         }
 
@@ -584,7 +595,7 @@ class PixelStarshipsApi:
         """Get missile designs from API."""
 
         params = {
-            "designVersion": self.__api_settings["MissileDesignVersion"],
+            "designVersion": self._api_settings["MissileDesignVersion"],
             "languageKey": "en",
         }
 
@@ -621,7 +632,7 @@ class PixelStarshipsApi:
         item_designs = self.get_items()
 
         params = {
-            "designVersion": self.__api_settings["CraftDesignVersion"],
+            "designVersion": self._api_settings["CraftDesignVersion"],
             "languageKey": "en",
         }
 
@@ -692,7 +703,7 @@ class PixelStarshipsApi:
         item_designs = self.get_items()
 
         params = {
-            "designVersion": self.__api_settings["ItemDesignVersion"],
+            "designVersion": self._api_settings["ItemDesignVersion"],
             "languageKey": "en",
         }
 
@@ -760,7 +771,7 @@ class PixelStarshipsApi:
         """Get room designs from API."""
 
         params = {
-            "designVersion": self.__api_settings["RoomDesignPurchaseVersion"],
+            "designVersion": self._api_settings["RoomDesignPurchaseVersion"],
             "languageKey": "en",
         }
 
@@ -789,7 +800,7 @@ class PixelStarshipsApi:
         """Get character designs from API."""
 
         params = {
-            "designVersion": self.__api_settings["CharacterDesignVersion"],
+            "designVersion": self._api_settings["CharacterDesignVersion"],
             "languageKey": "en",
         }
 
@@ -826,7 +837,7 @@ class PixelStarshipsApi:
         """Get collection designs from API."""
 
         params = {
-            "designVersion": self.__api_settings["CollectionDesignVersion"],
+            "designVersion": self._api_settings["CollectionDesignVersion"],
             "languageKey": "en",
         }
 
@@ -855,7 +866,7 @@ class PixelStarshipsApi:
         """Get item designs from API."""
 
         params = {
-            "designVersion": self.__api_settings["ItemDesignVersion"],
+            "designVersion": self._api_settings["ItemDesignVersion"],
             "languageKey": "en",
         }
 
@@ -884,7 +895,7 @@ class PixelStarshipsApi:
         """Get alliances from API, top 100 by default."""
 
         params = {
-            "designVersion": self.__api_settings["ItemDesignVersion"],
+            "designVersion": self._api_settings["ItemDesignVersion"],
             "take": take,
         }
 
@@ -1174,7 +1185,7 @@ class PixelStarshipsApi:
         """Get trainings data from API."""
 
         params = {
-            "designVersion": self.__api_settings["TrainingDesignVersion"],
+            "designVersion": self._api_settings["TrainingDesignVersion"],
             "languageKey": "en",
         }
 
@@ -1204,7 +1215,7 @@ class PixelStarshipsApi:
         """Get achievements data from API."""
 
         params = {
-            "designVersion": self.__api_settings["AchievementDesignVersion"],
+            "designVersion": self._api_settings["AchievementDesignVersion"],
             "languageKey": "en",
         }
 
@@ -1234,7 +1245,7 @@ class PixelStarshipsApi:
         """Get situations data from API."""
 
         params = {
-            "designVersion": self.__api_settings["SituationDesignVersion"],
+            "designVersion": self._api_settings["SituationDesignVersion"],
             "languageKey": "en",
         }
 
@@ -1264,7 +1275,7 @@ class PixelStarshipsApi:
         """Get promotions data from API."""
 
         params = {
-            "designVersion": self.__api_settings["PromotionDesignVersion"],
+            "designVersion": self._api_settings["PromotionDesignVersion"],
             "languageKey": "en",
         }
 

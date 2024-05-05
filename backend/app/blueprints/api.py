@@ -2,11 +2,11 @@ import flask
 from flask import Blueprint, current_app, jsonify, request
 
 from app.ext import cache
-from app.pixyship import PixyShip
 from app.security import enforce_source
+from app.services.factory import ServiceFactory
 
 api_blueprint = Blueprint("api", __name__)
-pixyship = PixyShip()
+service_factory = ServiceFactory()
 
 
 @api_blueprint.route("/players")
@@ -15,10 +15,12 @@ pixyship = PixyShip()
 def api_players():
     """Returns all players."""
 
+    player_service = service_factory.player_service
     search = request.args.get("search") or ""
+
     return jsonify(
         {
-            "data": pixyship.get_player_data(search),
+            "data": player_service.get_player_data(search),
             "status": "success",
         }
     )
@@ -33,7 +35,7 @@ def api_ship(name):
     if not name:
         flask.abort(400)
 
-    ship_data = pixyship.get_ship_data(name)
+    ship_data = service_factory.player_service.get_ship_data(name)
 
     if ship_data is None:
         flask.abort(404)
@@ -54,7 +56,7 @@ def api_daily():
 
     return jsonify(
         {
-            "data": pixyship.dailies,
+            "data": service_factory.daily_offer_service.daily_offers,
             "status": "success",
         }
     )
@@ -68,8 +70,8 @@ def api_changes():
 
     return jsonify(
         {
-            "data": pixyship.changes,
-            "lastprestigeschanges": pixyship.last_prestiges_changes,
+            "data": service_factory.changes_service.changes,
+            "lastprestigeschanges": service_factory.changes_service.last_prestiges_changes,
             "status": "success",
         }
     )
@@ -81,9 +83,17 @@ def api_changes():
 def api_collections():
     """Returns the collections."""
 
+    collections = service_factory.collection_service.collections
+    characters = service_factory.character_service.characters
+
+    for collection_id, collection in collections.items():
+        collection["chars"] = [
+            character for character in characters.values() if character["collection"] == collection_id
+        ]
+
     return jsonify(
         {
-            "data": pixyship.collections,
+            "data": collections,
             "status": "success",
         }
     )
@@ -97,7 +107,7 @@ def api_achievements():
 
     return jsonify(
         {
-            "data": pixyship.achievements,
+            "data": service_factory.achievement_service.achievements,
             "status": "success",
         }
     )
@@ -111,7 +121,7 @@ def api_research():
 
     return jsonify(
         {
-            "data": pixyship.get_researches_and_ship_min_level(),
+            "data": service_factory.research_service.get_researches_and_ship_min_level(),
             "status": "success",
         }
     )
@@ -124,13 +134,13 @@ def api_prestige(char_id):
     """Returns the prestiges of a character."""
 
     try:
-        character = pixyship.characters[char_id]
+        character = service_factory.character_service.characters[char_id]
     except KeyError:
         flask.abort(404)
 
     return jsonify(
         {
-            "data": pixyship.get_prestiges_from_api(character["id"]),
+            "data": service_factory.prestige_service.get_prestiges_from_api(character["id"]),
             "status": "success",
         }
     )
@@ -144,7 +154,7 @@ def api_crew():
 
     return jsonify(
         {
-            "data": pixyship.characters,
+            "data": service_factory.character_service.characters,
             "status": "success",
         }
     )
@@ -158,7 +168,7 @@ def api_items():
 
     return jsonify(
         {
-            "data": pixyship.items,
+            "data": service_factory.item_service.items,
             "status": "success",
         }
     )
@@ -167,17 +177,17 @@ def api_items():
 @api_blueprint.route("/item/<int:item_id>/prices")
 @enforce_source
 @cache.cached()
-def api_item_prices(item_id):
+def api_item_prices(item_id: int):
     """Returns the item prices."""
 
     try:
-        item = pixyship.items[item_id]
+        item = service_factory.item_service.items[item_id]
     except KeyError:
         flask.abort(404)
 
     return jsonify(
         {
-            "data": pixyship.get_item_prices_from_db(item["id"]),
+            "data": service_factory.market_service.get_item_prices(item["id"]),
             "status": "success",
         }
     )
@@ -190,12 +200,12 @@ def api_item_detail(item_id):
     """Returns the item details."""
 
     try:
-        item = pixyship.items[item_id]
+        item = service_factory.item_service.items[item_id]
     except KeyError:
         flask.abort(404)
 
-    last_players_sales = pixyship.get_item_last_players_sales_from_db(item["id"], 5000)
-    upgrades = pixyship.get_item_upgrades(item["id"])
+    last_players_sales = service_factory.market_service.get_item_last_players_sales_from_db(item["id"], 5000)
+    upgrades = service_factory.item_service.get_item_upgrades(item["id"])
 
     return jsonify(
         {
@@ -215,7 +225,7 @@ def api_tournament():
 
     return jsonify(
         {
-            "data": pixyship.get_tournament_infos(),
+            "data": service_factory.pixyship_service.get_tournament_infos(),
             "status": "success",
         }
     )
@@ -229,7 +239,7 @@ def api_rooms():
 
     return jsonify(
         {
-            "data": pixyship.rooms,
+            "data": service_factory.room_service.rooms,
             "status": "success",
         }
     )
@@ -242,7 +252,7 @@ def api_skins():
     """Returns all skins."""
 
     # keep only skins with sprite_type = "Interior"
-    skins = [skin for skin in pixyship.skins.values() if skin["sprite_type"] == "Interior"]
+    skins = [skin for skin in service_factory.skin_service.skins.values() if skin["sprite_type"] == "Interior"]
 
     return jsonify(
         {
@@ -260,7 +270,7 @@ def api_ships():
 
     return jsonify(
         {
-            "data": pixyship.ships,
+            "data": service_factory.ship_service.ships,
             "status": "success",
         }
     )
@@ -274,7 +284,7 @@ def api_last_sales(sale_type, sale_type_id):
 
     return jsonify(
         {
-            "data": pixyship.get_last_sales_from_db(sale_type, sale_type_id, 1000),
+            "data": service_factory.daily_offer_service.get_last_sales_from_db(sale_type, sale_type_id, 1000),
             "status": "success",
         }
     )
@@ -288,7 +298,7 @@ def api_last_sales_by_type(sale_from):
 
     return jsonify(
         {
-            "data": pixyship.get_last_sales_by_sale_from_from_db(sale_from, 5000),
+            "data": service_factory.daily_offer_service.get_last_sales_by_sale_from_from_db(sale_from, 5000),
             "status": "success",
         }
     )
@@ -302,7 +312,7 @@ def api_crafts():
 
     return jsonify(
         {
-            "data": pixyship.crafts,
+            "data": service_factory.craft_service.crafts,
             "status": "success",
         }
     )
@@ -316,7 +326,7 @@ def api_missiles():
 
     return jsonify(
         {
-            "data": pixyship.missiles,
+            "data": service_factory.missile_service.missiles,
             "status": "success",
         }
     )

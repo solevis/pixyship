@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.ext.db import db
 
 
-class Device(db.Model):
+class Device(db.Model):  # type: ignore[name-defined]
     key: Mapped[str] = mapped_column(primary_key=True)
     checksum: Mapped[str]
     client_datetime: Mapped[datetime.datetime]
@@ -16,7 +16,7 @@ class Device(db.Model):
     def __repr__(self) -> str:
         return f"<Device {self.key} {self.token} {self.expires_at}>"
 
-    def get_token(self) -> str:
+    def get_token(self) -> str | None:
         if not self.token or self.expires_at < datetime.datetime.now():
             self.cycle_token()
 

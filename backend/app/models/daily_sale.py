@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.ext.db import db
 
 
-class DailySale(db.Model):
+class DailySale(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     type: Mapped[str]
     type_id: Mapped[int]
