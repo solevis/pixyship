@@ -4,14 +4,20 @@ from flask import Blueprint, current_app, jsonify, request
 from app.ext import cache
 from app.security import enforce_source
 from app.services.factory import ServiceFactory
+from app.utils.pss import get_type_enum_from_string
 
 api_blueprint = Blueprint("api", __name__)
 service_factory = ServiceFactory()
 
 
+def make_players_search_key():
+    search = request.args.get("search") or ""
+    return f"api_players_{search}"
+
+
 @api_blueprint.route("/players")
 @enforce_source
-@cache.cached()
+@cache.cached(make_cache_key=make_players_search_key)
 def api_players():
     """Returns all players."""
 
@@ -26,10 +32,10 @@ def api_players():
     )
 
 
-@api_blueprint.route("/user/<path:name>")
+@api_blueprint.route("/players/<path:name>")
 @enforce_source
 @cache.cached()
-def api_ship(name):
+def api_player(name):
     """Returns the ship data of a player."""
 
     if not name:
@@ -282,9 +288,10 @@ def api_ships():
 def api_last_sales(sale_type, sale_type_id):
     """Returns the last sales of a given type."""
 
+    type_enum = get_type_enum_from_string(sale_type)
     return jsonify(
         {
-            "data": service_factory.daily_offer_service.get_last_sales_from_db(sale_type, sale_type_id, 1000),
+            "data": service_factory.daily_offer_service.get_last_sales_from_db(type_enum, sale_type_id, 1000),
             "status": "success",
         }
     )

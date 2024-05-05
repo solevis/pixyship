@@ -18,7 +18,7 @@ export default {
       roomsEndpoint: apiServer + 'api/rooms',
       roomEndpoint: apiServer + 'api/room/',
       shipsEndpoint: apiServer + 'api/ships',
-      shipEndpoint: apiServer + 'api/user/',
+      playerEndpoint: apiServer + 'api/players/',
       verifyEndpoint: apiServer + 'api/verify/',
       typeaheadEndpoint: apiServer + 'api/name_typeahead',
       dailyEndpoint: apiServer + 'api/daily',
@@ -240,7 +240,7 @@ export default {
     },
 
     makeLink(type, id) {
-      if (type === 'char') {
+      if (type === 'character') {
         return `/crew/${id}`
       }
 

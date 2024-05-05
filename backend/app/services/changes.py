@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import current_app
 from sqlalchemy import text
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.ext import cache, db
 from app.services.base import BaseService
 from app.services.item import ItemService
@@ -40,13 +40,13 @@ class ChangesService(BaseService):
             SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
             FROM record
             WHERE type IN (
-                           '{RecordTypeEnum.ITEM}',
-                           '{RecordTypeEnum.SHIP}',
-                           '{RecordTypeEnum.CHARACTER}',
-                           '{RecordTypeEnum.ROOM}',
-                           '{RecordTypeEnum.SPRITE}',
-                           '{RecordTypeEnum.CRAFT}',
-                           '{RecordTypeEnum.SKINSET}'
+                           '{TypeEnum.ITEM}',
+                           '{TypeEnum.SHIP}',
+                           '{TypeEnum.CHARACTER}',
+                           '{TypeEnum.ROOM}',
+                           '{TypeEnum.SPRITE}',
+                           '{TypeEnum.CRAFT}',
+                           '{TypeEnum.SKINSET}'
                 )
             GROUP BY type
         """
@@ -107,9 +107,9 @@ class ChangesService(BaseService):
             "sprite": record_sprite,
         }
 
-        if record_type == RecordTypeEnum.CHARACTER:
+        if record_type == TypeEnum.CHARACTER:
             change["char"] = self.character_service.characters[record_type_id]
-        elif record_type == RecordTypeEnum.ITEM:
+        elif record_type == TypeEnum.ITEM:
             change["item"] = ItemService.create_light_item(self.item_service.items[record_type_id])
 
         return change

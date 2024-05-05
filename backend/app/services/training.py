@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -21,7 +21,7 @@ class TrainingService(BaseService):
     def get_trainings_from_records(self):
         """Load trainings from database."""
 
-        records = self.record_service.records[RecordTypeEnum.TRAINING]
+        records = self.record_service.records[TypeEnum.TRAINING]
 
         trainings = {}
         for record in records.values():
@@ -55,7 +55,7 @@ class TrainingService(BaseService):
         for training in trainings:
             record_id = int(training["TrainingDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.TRAINING,
+                TypeEnum.TRAINING,
                 record_id,
                 training["TrainingName"],
                 int(training["TrainingSpriteId"]),
@@ -64,4 +64,4 @@ class TrainingService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.TRAINING, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.TRAINING, still_presents_ids)

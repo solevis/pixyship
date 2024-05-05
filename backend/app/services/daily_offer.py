@@ -1,7 +1,7 @@
 import datetime
 
 from flask import current_app
-from sqlalchemy import text
+from sqlalchemy import and_, desc
 
 from app.constants import (
     BLUE_CARGO_SPRITE_ID,
@@ -12,11 +12,12 @@ from app.constants import (
     SALE_FROM_MAP,
     SHOP_SPRITE_ID,
 )
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.ext import db
-from app.models import DailySale
+from app.models import DailySale, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
+from app.services.item import ItemService
 from app.utils.math import format_delta_time
 from app.utils.pss import get_type_enum_from_string
 
@@ -380,30 +381,22 @@ class DailyOfferService(BaseService):
     def get_last_sales_from_db(sale_type, sale_type_id, limit):
         """Get last sales from database."""
 
-        sql = """
-                SELECT ds.id,
-                       ds.sale_at,
-                       ds.sale_from,
-                       ds.currency,
-                       ds.price
-                FROM daily_sale ds
-                WHERE ds.type_id = :type_id
-                  AND ds.type = :type
-                ORDER BY ds.sale_at DESC
-                LIMIT :limit
-            """
+        result: list[DailySale] = (
+            DailySale.query.filter_by(type_id=sale_type_id, type=sale_type)
+            .order_by(desc(DailySale.sale_at))
+            .limit(limit)
+            .all()
+        )
 
-        result = db.session.execute(text(sql), {"type": sale_type, "type_id": sale_type_id, "limit": limit}).fetchall()
         last_sales = []
-
         for row in result:
             last_sales.append(
                 {
-                    "id": int(row[0]),
-                    "date": str(row[1]),
-                    "sale_from": SALE_FROM_MAP.get(row[2]),
-                    "currency": row[3],
-                    "price": row[4],
+                    "id": row.id,
+                    "date": row.sale_at,
+                    "sale_from": SALE_FROM_MAP.get(row.sale_from, row.sale_from),
+                    "currency": row.currency,
+                    "price": row.price,
                 }
             )
 
@@ -417,8 +410,13 @@ class DailyOfferService(BaseService):
         else:
             sale_from_values = [sale_from]
 
-        results: list[DailySale] = (
-            DailySale.query.filter(DailySale.sale_from.in_(sale_from_values))
+        results: list[tuple[DailySale, Record]] = (
+            db.session.query(DailySale, Record)
+            .join(
+                Record,
+                and_(DailySale.type == Record.type, DailySale.type_id == Record.type_id, Record.current == True),  # noqa: E712
+            )
+            .filter(DailySale.sale_from.in_(sale_from_values))
             .order_by(DailySale.sale_at.desc())
             .limit(limit)
             .all()
@@ -426,29 +424,26 @@ class DailyOfferService(BaseService):
 
         last_sales = []
         for row in results:
-            record_type = get_type_enum_from_string(row.type)
-            sprite_id = self.record_service.get_record_sprite_id(record_type, row.type_id)
-            sprite = self.sprite_service.get_sprite_infos(sprite_id)
-            name = self.record_service.get_record_name(record_type, row.type_id)
+            daily_sale = row[0]
+            record = row[1]
+
+            sprite = self.sprite_service.get_sprite_infos(record.sprite_id)
 
             last_sale = {
-                "type": row.type,
-                "id": row.type_id,
-                "name": name,
+                "type": record.type.lower(),
+                "id": record.type_id,
+                "name": record.name,
                 "sprite": sprite,
-                "currency": row.currency,
-                "price": row.price,
-                "date": str(row.sale_at),
+                "currency": daily_sale.currency,
+                "price": daily_sale.price,
+                "date": str(daily_sale.sale_at),
             }
 
-            # if it's a Character, get all infos of the crew
-            if record_type == RecordTypeEnum.CHARACTER:
-                last_sale["char"] = self.character_service.characters[row.type_id]
-
-            # if it's an Item, get all infos of the item
-            if record_type == RecordTypeEnum.ITEM:
-                item = self.item_service.items[row.type_id]
-                last_sale["item"] = self.item_service.create_light_item(item)
+            if record.type == TypeEnum.CHARACTER:
+                last_sale["char"] = self.character_service.characters[record.type_id]
+            elif record.type == TypeEnum.ITEM:
+                item = self.item_service.items[record.type_id]
+                last_sale["item"] = ItemService.create_light_item(item)
 
             last_sales.append(last_sale)
 

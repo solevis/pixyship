@@ -14,7 +14,7 @@ from app.constants import (
     ROOM_SHOP_TYPE_MASK,
     ROOM_TYPE_MAP,
 )
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import parse_price_from_pricestring, parse_requirement
@@ -55,7 +55,7 @@ class RoomService(BaseService):
     def get_rooms_from_records(self) -> (dict[int, dict], dict[int, dict], dict[int, dict]):
         """Load rooms from database."""
 
-        records = self.record_service.records[RecordTypeEnum.ROOM]
+        records = self.record_service.records[TypeEnum.ROOM]
 
         rooms = {}
         for record in records.values():
@@ -74,9 +74,9 @@ class RoomService(BaseService):
 
             requirement = parse_requirement(room["RequirementString"])
             if requirement:
-                if requirement["type"] == RecordTypeEnum.ITEM:
+                if requirement["type"] == TypeEnum.ITEM:
                     requirement["object"] = self.item_service.items[requirement["id"]]
-                elif requirement["type"] == RecordTypeEnum.RESEARCH:
+                elif requirement["type"] == TypeEnum.RESEARCH:
                     requirement["object"] = self.research_service.researches[requirement["id"]]
                 else:
                     requirement["object"] = self.record_service.get_record(requirement["type"], requirement["id"])
@@ -162,7 +162,7 @@ class RoomService(BaseService):
         for room in rooms:
             record_id = int(room["RoomDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.ROOM,
+                TypeEnum.ROOM,
                 record_id,
                 room["RoomName"],
                 int(room["ImageSpriteId"]),
@@ -172,4 +172,4 @@ class RoomService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.ROOM, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.ROOM, still_presents_ids)

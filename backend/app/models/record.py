@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.ext.db import db
 
 
@@ -12,7 +12,7 @@ class Record(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=True)
     sprite_id: Mapped[int] = mapped_column(nullable=True)
-    type: Mapped[RecordTypeEnum]
+    type: Mapped[TypeEnum]
     type_id: Mapped[int]
     current: Mapped[bool]
     md5_hash: Mapped[uuid.UUID]

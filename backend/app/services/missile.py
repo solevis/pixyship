@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -21,7 +21,7 @@ class MissileService(BaseService):
     def get_missiles_from_records(self):
         """Load missiles from database."""
 
-        records = self.record_service.records[RecordTypeEnum.MISSILE]
+        records = self.record_service.records[TypeEnum.MISSILE]
 
         missiles = {}
         for record in records.values():
@@ -60,7 +60,7 @@ class MissileService(BaseService):
         for missile in missiles:
             record_id = int(missile["ItemDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.MISSILE,
+                TypeEnum.MISSILE,
                 record_id,
                 missile["ItemDesignName"],
                 int(missile["ImageSpriteId"]),
@@ -70,4 +70,4 @@ class MissileService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.MISSILE, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.MISSILE, still_presents_ids)

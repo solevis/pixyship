@@ -1,7 +1,7 @@
 from xml.etree import ElementTree
 
 from app.constants import RESEARCH_TYPE_MAP
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -22,7 +22,7 @@ class ResearchService(BaseService):
     def get_researches_from_records(self):
         """Load researches from database."""
 
-        records = self.record_service.records[RecordTypeEnum.RESEARCH]
+        records = self.record_service.records[TypeEnum.RESEARCH]
 
         researches = {}
         for record in records.values():
@@ -73,7 +73,7 @@ class ResearchService(BaseService):
         for research in researches:
             record_id = int(research["ResearchDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.RESEARCH,
+                TypeEnum.RESEARCH,
                 record_id,
                 research["ResearchName"],
                 int(research["ImageSpriteId"]),
@@ -82,4 +82,4 @@ class ResearchService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.RESEARCH, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.RESEARCH, still_presents_ids)

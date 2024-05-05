@@ -5,7 +5,7 @@ from app.constants import (
     EQUIPMENT_SLOTS,
     RARITY_MAP,
 )
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.math import float_range, int_range
@@ -28,7 +28,7 @@ class CharacterService(BaseService):
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""
 
-        records = self.record_service.records[RecordTypeEnum.CHARACTER]
+        records = self.record_service.records[TypeEnum.CHARACTER]
 
         characters = {}
         for record in records.values():
@@ -115,7 +115,7 @@ class CharacterService(BaseService):
         for character in characters:
             record_id = int(character["CharacterDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.CHARACTER,
+                TypeEnum.CHARACTER,
                 record_id,
                 character["CharacterDesignName"],
                 int(character["ProfileSpriteId"]),
@@ -124,4 +124,4 @@ class CharacterService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.CHARACTER, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.CHARACTER, still_presents_ids)

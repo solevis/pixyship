@@ -1,7 +1,7 @@
 from xml.etree import ElementTree
 
 from app.constants import COLLECTION_ABILITY_MAP, COLLECTION_ABILITY_TRIGGER_MAP
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -22,7 +22,7 @@ class CollectionService(BaseService):
     def get_collections_from_records(self):
         """Load collections from database."""
 
-        records = self.record_service.records[RecordTypeEnum.COLLECTION]
+        records = self.record_service.records[TypeEnum.COLLECTION]
 
         collections = {}
         for record in records.values():
@@ -58,7 +58,7 @@ class CollectionService(BaseService):
         for collection in collections:
             record_id = int(collection["CollectionDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.COLLECTION,
+                TypeEnum.COLLECTION,
                 record_id,
                 collection["CollectionName"],
                 int(collection["SpriteId"]),
@@ -67,4 +67,4 @@ class CollectionService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.COLLECTION, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.COLLECTION, still_presents_ids)

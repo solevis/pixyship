@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -46,7 +46,7 @@ class SpriteService(BaseService):
     def get_sprites_from_records(self):
         """Load sprites from database."""
 
-        records = self.record_service.records[RecordTypeEnum.SPRITE]
+        records = self.record_service.records[TypeEnum.SPRITE]
 
         sprites = {}
         for record in records.values():
@@ -72,7 +72,7 @@ class SpriteService(BaseService):
         for sprite in sprites:
             record_id = int(sprite["SpriteId"])
             self.record_service.add_record(
-                RecordTypeEnum.SPRITE,
+                TypeEnum.SPRITE,
                 record_id,
                 sprite["ImageFileId"],
                 int(sprite["SpriteId"]),
@@ -81,4 +81,4 @@ class SpriteService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.SPRITE, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.SPRITE, still_presents_ids)

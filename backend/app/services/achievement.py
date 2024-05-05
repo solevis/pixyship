@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -21,7 +21,7 @@ class AchievementService(BaseService):
     def get_achievements_from_db(self):
         """Load achievements from database."""
 
-        records = self.record_service.records[RecordTypeEnum.ACHIEVEMENT]
+        records = self.record_service.records[TypeEnum.ACHIEVEMENT]
 
         achievements = {}
         all_parent_achievement_design_id = []
@@ -73,7 +73,7 @@ class AchievementService(BaseService):
         for achievement in achievements:
             record_id = int(achievement["AchievementDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.ACHIEVEMENT,
+                TypeEnum.ACHIEVEMENT,
                 record_id,
                 achievement["AchievementTitle"],
                 int(achievement["SpriteId"]),
@@ -82,4 +82,4 @@ class AchievementService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.ACHIEVEMENT, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.ACHIEVEMENT, still_presents_ids)

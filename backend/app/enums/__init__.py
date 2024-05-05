@@ -1,3 +1,3 @@
-from .record_type import RecordTypeEnum
+from .type import TypeEnum
 
-__all__ = ["RecordTypeEnum"]
+__all__ = ["TypeEnum"]

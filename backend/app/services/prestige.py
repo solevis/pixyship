@@ -2,7 +2,7 @@ import datetime
 import json
 from collections import Counter, defaultdict
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -116,7 +116,7 @@ class PrestigeService(BaseService):
 
             record_id = int(character["id"])
             self.record_service.add_record(
-                RecordTypeEnum.PRESTIGE,
+                TypeEnum.PRESTIGE,
                 record_id,
                 character["name"],
                 int(character["sprite"]["id"]),
@@ -126,4 +126,4 @@ class PrestigeService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.PRESTIGE, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.PRESTIGE, still_presents_ids)

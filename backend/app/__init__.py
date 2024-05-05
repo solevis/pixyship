@@ -36,8 +36,9 @@ def init_headers(app):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
 
-        # Default cache control
-        response.cache_control.max_age = 300
+        # Default cache control (only in production)
+        if not app.config["DEV_MODE"]:
+            response.cache_control.max_age = 300
 
         return response
 

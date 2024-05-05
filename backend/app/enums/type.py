@@ -2,7 +2,7 @@ from enum import StrEnum, unique
 
 
 @unique
-class RecordTypeEnum(StrEnum):
+class TypeEnum(StrEnum):
     ACHIEVEMENT = "ACHIEVEMENT"
     CHARACTER = "CHARACTER"
     COLLECTION = "COLLECTION"
@@ -18,3 +18,6 @@ class RecordTypeEnum(StrEnum):
     SKINSET = "SKINSET"
     SPRITE = "SPRITE"
     TRAINING = "TRAINING"
+    FLEETGIFT = "FLEETGIFT"
+    NONE = "NONE"
+    BONUS = "BONUS"

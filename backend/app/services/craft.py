@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -21,7 +21,7 @@ class CraftService(BaseService):
     def get_crafts_from_records(self):
         """Load crafts from database."""
 
-        records = self.record_service.records[RecordTypeEnum.CRAFT]
+        records = self.record_service.records[TypeEnum.CRAFT]
 
         crafts = {}
         for record in records.values():
@@ -67,7 +67,7 @@ class CraftService(BaseService):
         for craft in crafts:
             record_id = int(craft["CraftDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.CRAFT,
+                TypeEnum.CRAFT,
                 record_id,
                 craft["CraftName"],
                 int(craft["SpriteId"]),
@@ -77,4 +77,4 @@ class CraftService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.CRAFT, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.CRAFT, still_presents_ids)

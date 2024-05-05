@@ -7,9 +7,9 @@ def test_api_players(client, app):
     assert response.status_code == 200
 
 
-def test_api_ship(client, app):
+def test_api_player(client, app):
     with app.test_request_context():
-        response = client.get(url_for("api.api_ship", name="Solevis"))
+        response = client.get(url_for("api.api_player", name="Solevis"))
     assert response.status_code == 200
 
 
@@ -99,14 +99,32 @@ def test_api_ships(client, app):
 
 def test_api_last_sales(client, app):
     with app.test_request_context():
-        response = client.get(url_for("api.api_last_sales", sale_type="item", sale_type_id=73))
-    assert response.status_code == 200
+        response = client.get(url_for("api.api_last_sales", sale_type="item", sale_type_id=106))
+        assert response.status_code == 200
+
+        response = client.get(url_for("api.api_last_sales", sale_type="character", sale_type_id=120))
+        assert response.status_code == 200
 
 
 def test_api_last_sales_by_type(client, app):
     with app.test_request_context():
-        response = client.get(url_for("api.api_last_sales_by_type", sale_from="market"))
-    assert response.status_code == 200
+        response = client.get(url_for("api.api_last_sales_by_type", sale_from="blue_cargo"))
+        assert response.status_code == 200
+
+        response = client.get(url_for("api.api_last_sales_by_type", sale_from="shop"))
+        assert response.status_code == 200
+
+        response = client.get(url_for("api.api_last_sales_by_type", sale_from="daily_rewards"))
+        assert response.status_code == 200
+
+        response = client.get(url_for("api.api_last_sales_by_type", sale_from="green_cargo"))
+        assert response.status_code == 200
+
+        response = client.get(url_for("api.api_last_sales_by_type", sale_from="promotion_dailydealoffer"))
+        assert response.status_code == 200
+
+        response = client.get(url_for("api.api_last_sales_by_type", sale_from="sale"))
+        assert response.status_code == 200
 
 
 def test_api_crafts(client, app):

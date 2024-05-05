@@ -1,7 +1,7 @@
 import datetime
 from xml.etree.ElementTree import Element
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.utils.math import float_range, format_delta_time, int_range
 from app.utils.pss import compute_pvp_ratio, get_type_enum_from_string, has_offstat, parse_assets_string
 from app.utils.xml import sort_attributes
@@ -10,13 +10,13 @@ from app.utils.xml import sort_attributes
 def test_get_type_enum_from_string_with_known_type(app):
     with app.app_context():
         result = get_type_enum_from_string("room")
-        assert result == RecordTypeEnum.ROOM
+        assert result == TypeEnum.ROOM
 
 
 def test_get_type_enum_from_string_with_allrooms_type(app):
     with app.app_context():
         result = get_type_enum_from_string("allrooms")
-        assert result == RecordTypeEnum.ROOM
+        assert result == TypeEnum.ROOM
 
 
 def test_get_type_enum_from_string_with_unknown_type(app):

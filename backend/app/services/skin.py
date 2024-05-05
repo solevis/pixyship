@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 from app.constants import (
     RACES,
 )
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -30,7 +30,7 @@ class SkinService(BaseService):
     def get_skins_from_records(self):
         """Load skins from database."""
 
-        skin_records = self.record_service.records[RecordTypeEnum.SKIN]
+        skin_records = self.record_service.records[TypeEnum.SKIN]
         skins = {}
 
         # for each skin, find the skinset and add name and description
@@ -62,7 +62,7 @@ class SkinService(BaseService):
     def get_skinsets_from_db(self):
         """Load skinsets from database."""
 
-        skinset_records = self.record_service.records[RecordTypeEnum.SKINSET]
+        skinset_records = self.record_service.records[TypeEnum.SKINSET]
 
         skinsets = {}
 
@@ -88,7 +88,7 @@ class SkinService(BaseService):
         for skinset in skinsets:
             record_id = int(skinset["SkinSetId"])
             self.record_service.add_record(
-                RecordTypeEnum.SKINSET,
+                TypeEnum.SKINSET,
                 record_id,
                 skinset["SkinSetName"],
                 int(skinset["SpriteId"]),
@@ -97,14 +97,14 @@ class SkinService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.SKINSET, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.SKINSET, still_presents_ids)
 
         still_presents_ids = []
 
         for skin in skins:
             record_id = int(skin["SkinId"])
             self.record_service.add_record(
-                RecordTypeEnum.SKIN,
+                TypeEnum.SKIN,
                 record_id,
                 skin["SkinName"],
                 int(skin["SpriteId"]),
@@ -113,4 +113,4 @@ class SkinService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.SKIN, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.SKIN, still_presents_ids)

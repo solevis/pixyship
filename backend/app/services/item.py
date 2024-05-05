@@ -10,7 +10,7 @@ from app.constants import (
     SHORT_ENHANCE_MAP,
     SLOT_MAP,
 )
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import has_offstat
@@ -32,7 +32,7 @@ class ItemService(BaseService):
     def get_items_from_records(self):
         """Get items from database."""
 
-        records = self.record_service.get_records_from_type(RecordTypeEnum.ITEM)
+        records = self.record_service.get_records_from_type(TypeEnum.ITEM)
 
         items = {}
         for record in records.values():
@@ -268,7 +268,7 @@ class ItemService(BaseService):
         for item in items:
             record_id = int(item["ItemDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.ITEM,
+                TypeEnum.ITEM,
                 record_id,
                 item["ItemDesignName"],
                 int(item["ImageSpriteId"]),
@@ -278,4 +278,4 @@ class ItemService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.ITEM, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.ITEM, still_presents_ids)

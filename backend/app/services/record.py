@@ -5,7 +5,7 @@ from xml.etree import ElementTree
 from flask import current_app
 from sqlalchemy import func
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.ext import cache
 from app.ext.db import db
 from app.models import Record
@@ -16,11 +16,11 @@ from app.utils.xml import sort_attributes
 class RecordService(BaseService):
     def __init__(self):
         super().__init__()
-        self._records: dict[RecordTypeEnum, dict[int, Record]] = {}
+        self._records: dict[TypeEnum, dict[int, Record]] = {}
 
     @property
     @cache.cached(key_prefix="records")
-    def records(self) -> dict[RecordTypeEnum, dict[int, Record]]:
+    def records(self) -> dict[TypeEnum, dict[int, Record]]:
         if not self._records:
             current_records = Record.query.filter_by(current=True).all()
 
@@ -32,12 +32,12 @@ class RecordService(BaseService):
 
         return self._records
 
-    def get_records_from_type(self, record_type: RecordTypeEnum) -> dict[int, Record]:
+    def get_records_from_type(self, record_type: TypeEnum) -> dict[int, Record]:
         """Get records from given PSS API type (LimitedCatalogType for example)."""
 
         return self.records.get(record_type, {})
 
-    def get_record(self, record_type: RecordTypeEnum, record_id: int, reload_on_error: bool = True) -> Record | None:
+    def get_record(self, record_type: TypeEnum, record_id: int, reload_on_error: bool = True) -> Record | None:
         """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
 
         try:
@@ -52,7 +52,7 @@ class RecordService(BaseService):
                 current_app.logger.error("Cannot find record of type %s with id %d", record_type, record_id)
                 return None
 
-    def get_record_name(self, record_type: RecordTypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:
+    def get_record_name(self, record_type: TypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:
         """Get sprite date for the given record ID."""
 
         record = self.get_record(record_type, type_id, reload_on_error)
@@ -63,7 +63,7 @@ class RecordService(BaseService):
 
     @staticmethod
     def add_record(
-        record_type: RecordTypeEnum,
+        record_type: TypeEnum,
         record_id: int,
         record_name: str,
         record_sprite_id: int,
@@ -137,7 +137,7 @@ class RecordService(BaseService):
         db.session.commit()
 
     @staticmethod
-    def purge_old_records(record_type: RecordTypeEnum, still_presents_ids: list[int]):
+    def purge_old_records(record_type: TypeEnum, still_presents_ids: list[int]):
         """Disable old records not presents in API."""
 
         current_ids = Record.query.filter_by(type=record_type, current=True).with_entities(Record.type_id).all()
@@ -160,8 +160,6 @@ class RecordService(BaseService):
     def get_last_prestige_record() -> Record | None:
         """Get last prestige record."""
 
-        record = (
-            db.session.query(func.max(Record.created_at)).filter_by(type=RecordTypeEnum.PRESTIGE, current=True).first()
-        )
+        record = db.session.query(func.max(Record.created_at)).filter_by(type=TypeEnum.PRESTIGE, current=True).first()
 
         return record

@@ -3,7 +3,7 @@ import time
 from flask import current_app
 
 from app.constants import RARITY_MAP
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 
 
 def api_sleep(secs, force_sleep=False):
@@ -31,14 +31,14 @@ def has_offstat(
     return True
 
 
-def get_type_enum_from_string(type_string: str) -> RecordTypeEnum | None:
+def get_type_enum_from_string(type_string: str) -> TypeEnum | None:
     """Converts a string to a TypeEnum."""
 
     if type_string.lower() == "allrooms":
         type_string = "room"
 
     try:
-        return RecordTypeEnum(type_string.upper())
+        return TypeEnum(type_string.upper())
     except ValueError:
         return None
 

@@ -1,4 +1,4 @@
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.services.base import BaseService
 
 
@@ -6,40 +6,40 @@ class RecordDetailsService(BaseService):
     def __init__(self):
         super().__init__()
 
-    def get_record_details(self, record_type: RecordTypeEnum, record_id: int) -> dict | None:
+    def get_record_details(self, record_type: TypeEnum, record_id: int) -> dict | None:
         record = self.record_service.get_record(record_type, record_id)
         if record is None:
             return None
 
-        if record.type == RecordTypeEnum.ITEM:
+        if record.type == TypeEnum.ITEM:
             return self.item_service.items[record.type_id]
-        elif record.type == RecordTypeEnum.SHIP:
+        elif record.type == TypeEnum.SHIP:
             return self.ship_service.ships[record.type_id]
-        elif record.type == RecordTypeEnum.CHARACTER:
+        elif record.type == TypeEnum.CHARACTER:
             return self.character_service.characters[record.type_id]
-        elif record.type == RecordTypeEnum.SKIN:
+        elif record.type == TypeEnum.SKIN:
             return self.skin_service.skins[record.type_id]
-        elif record.type == RecordTypeEnum.SKINSET:
+        elif record.type == TypeEnum.SKINSET:
             return self.skin_service.skinsets[record.type_id]
-        elif record.type == RecordTypeEnum.ACHIEVEMENT:
+        elif record.type == TypeEnum.ACHIEVEMENT:
             return self.achievement_service.achievements[record.type_id]
-        elif record.type == RecordTypeEnum.COLLECTION:
+        elif record.type == TypeEnum.COLLECTION:
             return self.collection_service.collections[record.type_id]
-        elif record.type == RecordTypeEnum.CRAFT:
+        elif record.type == TypeEnum.CRAFT:
             return self.craft_service.crafts[record.type_id]
-        elif record.type == RecordTypeEnum.MISSILE:
+        elif record.type == TypeEnum.MISSILE:
             return self.missile_service.missiles[record.type_id]
-        elif record.type == RecordTypeEnum.PRESTIGE:
+        elif record.type == TypeEnum.PRESTIGE:
             return self.character_service.characters[record.type_id]
-        elif record.type == RecordTypeEnum.RESEARCH:
+        elif record.type == TypeEnum.RESEARCH:
             return self.research_service.researches[record.type_id]
-        elif record.type == RecordTypeEnum.ROOM:
+        elif record.type == TypeEnum.ROOM:
             return self.room_service.rooms[record.type_id]
-        elif record.type == RecordTypeEnum.ROOM_SPRITE:
+        elif record.type == TypeEnum.ROOM_SPRITE:
             return self.room_service.rooms[record.type_id]
-        elif record.type == RecordTypeEnum.SPRITE:
+        elif record.type == TypeEnum.SPRITE:
             return self.sprite_service.sprites[record.type_id]
-        elif record.type == RecordTypeEnum.TRAINING:
+        elif record.type == TypeEnum.TRAINING:
             return self.training_service.trainings[record.type_id]
         else:
             return None

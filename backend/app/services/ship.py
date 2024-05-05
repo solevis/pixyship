@@ -2,7 +2,7 @@ import html
 import time
 from xml.etree import ElementTree
 
-from app.enums import RecordTypeEnum
+from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import parse_requirement
@@ -24,7 +24,7 @@ class ShipService(BaseService):
     def get_ships_from_records(self):
         """Load ships from database."""
 
-        records = self.record_service.get_records_from_type(RecordTypeEnum.SHIP)
+        records = self.record_service.get_records_from_type(TypeEnum.SHIP)
 
         ships = {}
         for record in records.values():
@@ -125,7 +125,7 @@ class ShipService(BaseService):
         for ship in ships:
             record_id = int(ship["ShipDesignId"])
             self.record_service.add_record(
-                RecordTypeEnum.SHIP,
+                TypeEnum.SHIP,
                 record_id,
                 ship["ShipDesignName"],
                 int(ship["MiniShipSpriteId"]),
@@ -134,13 +134,13 @@ class ShipService(BaseService):
             )
             still_presents_ids.append(int(record_id))
 
-        self.record_service.purge_old_records(RecordTypeEnum.SHIP, still_presents_ids)
+        self.record_service.purge_old_records(TypeEnum.SHIP, still_presents_ids)
 
     def parse_requirement(self, param):
         requirement = parse_requirement(param)
 
         if requirement:
-            if requirement["type"] == RecordTypeEnum.ROOM:
+            if requirement["type"] == TypeEnum.ROOM:
                 requirement["object"] = self.room_service.rooms[requirement["id"]]
             else:
                 requirement["object"] = self.record_service.get_record(requirement["type"], requirement["id"])

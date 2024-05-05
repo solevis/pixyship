@@ -261,11 +261,11 @@ class PlayerService(BaseService):
         results = query.all()
         return [
             {
-                "name": player.name,
-                "lower": player.name.lower(),
-                "trophies": player.trophies,
-                "alliance": player.alliance_name,
-                "alliance_sprite": self.sprite_service.get_sprite_infos(player.sprite_id),
+                "name": row[0],
+                "lower": row[0].lower(),
+                "trophies": row[1],
+                "alliance": row[2],
+                "alliance_sprite": self.sprite_service.get_sprite_infos(row[3]),
             }
-            for player in results
+            for row in results
         ]
