@@ -187,7 +187,7 @@ class PlayerService(BaseService):
         ship = self.ship_service.ships[ship_id]
         exterior_sprite = None
 
-        for _, skin in self.skin_service.skins.items():
+        for skin in self.skin_service.skins.values():
             if (
                 skin["root_id"] == room_id
                 and skin["race_id"] == ship["race_id"]

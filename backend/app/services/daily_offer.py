@@ -65,10 +65,7 @@ class DailyOfferService(BaseService):
         dailies = self.pixel_starships_api.get_dailies()
         promotions = self.get_current_promotions()
 
-        daily_promotions = []
-        for promotion in promotions:
-            if promotion["type"] == "DailyDealOffer":
-                daily_promotions.append(promotion)
+        daily_promotions = [promotion for promotion in promotions if promotion["type"] == "DailyDealOffer"]
 
         daily_object = None
         if dailies["SaleType"] == "FleetGift":
@@ -388,18 +385,16 @@ class DailyOfferService(BaseService):
             .all()
         )
 
-        last_sales = []
-        for row in result:
-            last_sales.append(
-                {
-                    "id": row.id,
-                    "date": row.sale_at,
-                    "sale_from": SALE_FROM_MAP.get(row.sale_from, row.sale_from),
-                    "currency": row.currency,
-                    "price": row.price,
-                }
-            )
-
+        last_sales = [
+            {
+                "id": row.id,
+                "date": row.sale_at,
+                "sale_from": SALE_FROM_MAP.get(row.sale_from, row.sale_from),
+                "currency": row.currency,
+                "price": row.price,
+            }
+            for row in result
+        ]
         return last_sales
 
     def get_last_sales_by_sale_from_from_db(self, sale_from, limit):

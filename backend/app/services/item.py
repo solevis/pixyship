@@ -245,19 +245,11 @@ class ItemService(BaseService):
         }
 
     def get_item_upgrades(self, item_id: int):
-        upgrades = []
-
-        for current_item_id in self.items.keys():
-            item = self.items[current_item_id]
-
-            if not item["recipe"]:
-                continue
-
-            for recipe_item in item["recipe"]:
-                if recipe_item["id"] == item_id:
-                    upgrades.append(ItemService.create_light_item(item))
-
-        return upgrades
+        return [
+            ItemService.create_light_item(item)
+            for item in self.items.values()
+            if item["recipe"] and any(recipe_item["id"] == item_id for recipe_item in item["recipe"])
+        ]
 
     def update_items(self):
         """Get items from API and save them in database."""

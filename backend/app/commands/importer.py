@@ -502,7 +502,7 @@ def dowload_sprites():
 
     sprites = sprite_service.sprites
 
-    for _, sprite in sprites.items():
+    for sprite in sprites.values():
         image_number = sprite["image_file"]
         filename = current_app.config["SPRITES_DIRECTORY"] + f"/{image_number}.png"
 
