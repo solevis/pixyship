@@ -175,7 +175,7 @@ class DailyOfferService(BaseService):
     def get_current_promotions(self):
         """Get running promotions depending on the current date."""
 
-        utc_now = datetime.datetime.utcnow()
+        utc_now = datetime.datetime.now(tz=datetime.UTC)
 
         promotions = []
 
@@ -184,8 +184,8 @@ class DailyOfferService(BaseService):
             if promotion["from"] == "2000-01-01T00:00:00":
                 continue
 
-            from_date = datetime.datetime.strptime(promotion["from"], "%Y-%m-%dT%H:%M:%S")
-            end_date = datetime.datetime.strptime(promotion["end"], "%Y-%m-%dT%H:%M:%S")
+            from_date = datetime.datetime.strptime(promotion["from"], "%Y-%m-%dT%H:%M:%S").astimezone(datetime.UTC)
+            end_date = datetime.datetime.strptime(promotion["end"], "%Y-%m-%dT%H:%M:%S").astimezone(datetime.UTC)
             if from_date <= utc_now <= end_date:
                 promotion_left_delta = end_date - utc_now
                 promotion["left"] = format_delta_time(promotion_left_delta)
@@ -312,11 +312,11 @@ class DailyOfferService(BaseService):
     def get_current_situation(self):
         """Get running situation depending on the current date."""
 
-        utc_now = datetime.datetime.utcnow()
+        utc_now = datetime.datetime.now(tz=datetime.UTC)
 
         for situation in self.situations:
-            from_date = datetime.datetime.strptime(situation["from"], "%Y-%m-%dT%H:%M:%S")
-            end_date = datetime.datetime.strptime(situation["end"], "%Y-%m-%dT%H:%M:%S")
+            from_date = datetime.datetime.strptime(situation["from"], "%Y-%m-%dT%H:%M:%S").astimezone(datetime.UTC)
+            end_date = datetime.datetime.strptime(situation["end"], "%Y-%m-%dT%H:%M:%S").astimezone(datetime.UTC)
             if from_date <= utc_now <= end_date:
                 situation_left_delta = end_date - utc_now
                 situation["left"] = format_delta_time(situation_left_delta)
@@ -348,7 +348,7 @@ class DailyOfferService(BaseService):
 
             # hack, Savy don't put midnight but 5s before...
             if expiry_date.endswith("T23:59:55"):
-                next_utc = datetime.datetime.utcnow().date() + datetime.timedelta(days=1)
+                next_utc = datetime.datetime.now(tz=datetime.UTC).date() + datetime.timedelta(days=1)
                 expiry_date = next_utc.strftime("%Y-%m-%dT%H:%M:%S")
 
             marker = {

@@ -7,7 +7,7 @@ def test_login(app):
     with app.app_context():
         pixel_starships_api = PixelStarshipsApi()
 
-        utc_now = datetime.datetime.utcnow()
+        utc_now = datetime.datetime.now(tz=datetime.UTC)
         client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
         device_key, device_checksum = pixel_starships_api.generate_device(client_datetime)

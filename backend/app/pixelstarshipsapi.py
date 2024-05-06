@@ -59,7 +59,7 @@ class PixelStarshipsApi:
         devices = Device.query.all()
         if len(devices) < current_app.config["MIN_DEVICES"]:
             for _x in range(0, current_app.config["MIN_DEVICES"] - len(devices)):
-                utc_now = datetime.datetime.utcnow()
+                utc_now = datetime.datetime.now(tz=datetime.UTC)
                 client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
                 device_key, device_checksum = self.generate_device(client_datetime)
@@ -1173,7 +1173,7 @@ class PixelStarshipsApi:
     def get_stardate():
         """Compute Stardate."""
 
-        utc_now = datetime.datetime.utcnow()
+        utc_now = datetime.datetime.now(tz=datetime.UTC)
         today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
         return (today - PSS_START_DATE).days
 

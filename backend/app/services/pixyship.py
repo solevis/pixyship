@@ -100,10 +100,12 @@ class PixyShipService(BaseService):
 
     @staticmethod
     def get_tournament_infos():
-        utc_now = datetime.datetime.utcnow()
+        utc_now = datetime.datetime.now(tz=datetime.UTC)
         first_day_next_month = (utc_now.date().replace(day=1) + datetime.timedelta(days=32)).replace(day=1)
         tournament_start = first_day_next_month - datetime.timedelta(days=7)
-        tournament_start_time = datetime.datetime(tournament_start.year, tournament_start.month, tournament_start.day)
+        tournament_start_time = datetime.datetime(
+            tournament_start.year, tournament_start.month, tournament_start.day, tzinfo=datetime.UTC
+        )
         tournament_left_delta = tournament_start_time - utc_now
         tournament_left_formatted = format_delta_time(tournament_left_delta)
 

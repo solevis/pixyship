@@ -47,7 +47,7 @@ class PrestigeService(BaseService):
             "to": grouped_to,
             "from": grouped_from,
             "chars": all_characters,
-            "expires_at": datetime.datetime.now() + datetime.timedelta(minutes=1),
+            "expires_at": datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=1),
         }
 
     def get_prestige_to_from_api(self, character_id):

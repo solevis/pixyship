@@ -53,7 +53,7 @@ def import_dolores_sales_history(json_input):
 
     for sale in sales:
         expiry_date_as_string = sale["limitedcatalogexpirydate"]["__value__"]
-        expiry_date = datetime.datetime.strptime(expiry_date_as_string, "%Y-%m-%d")
+        expiry_date = datetime.datetime.strptime(expiry_date_as_string, "%Y-%m-%d").astimezone(datetime.UTC)
         sale_at = expiry_date - datetime.timedelta(1)
 
         daily_sale = DailySale(

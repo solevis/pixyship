@@ -16,7 +16,7 @@ class Device(db.Model):  # type: ignore[name-defined]
         return f"<Device {self.key} {self.token} {self.expires_at}>"
 
     def get_token(self) -> str | None:
-        if not self.token or self.expires_at < datetime.datetime.now():
+        if not self.token or self.expires_at < datetime.datetime.now(tz=datetime.UTC):
             self.cycle_token()
 
         return self.token
@@ -27,6 +27,6 @@ class Device(db.Model):  # type: ignore[name-defined]
         pixel_starships_api = PixelStarshipsApi()
         self.token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
         if self.token is not None:
-            self.expires_at = datetime.datetime.now() + datetime.timedelta(hours=12)
+            self.expires_at = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(hours=12)
 
         db.session.commit()

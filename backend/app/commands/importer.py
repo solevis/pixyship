@@ -166,7 +166,7 @@ def import_daily_sales():
         current_app.logger.info("In staging mode, no daily sales to import")
         return
 
-    utc_now = datetime.datetime.utcnow()
+    utc_now = datetime.datetime.now(tz=datetime.UTC)
     today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
 
     current_app.logger.info("Importing promotions...")
