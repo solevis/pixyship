@@ -43,7 +43,7 @@ addopts = [
 ]
 
 [tool.ruff.lint]
-select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF', 'YTT', 'ASYNC', 'BLE', 'COM', 'C4', 'DTZ']
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF', 'YTT', 'ASYNC', 'BLE', 'COM', 'C4', 'DTZ', 'T10', 'EM']
 unfixable = ['B']
 ignore = ['COM812']
 
