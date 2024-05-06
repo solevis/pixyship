@@ -2,7 +2,8 @@ import datetime
 import os
 import random
 import time
-from typing import Any, Callable, Dict, Tuple
+from collections.abc import Callable
+from typing import Any
 from urllib import request
 
 import click
@@ -21,7 +22,7 @@ service_factory = ServiceFactory()
 
 
 def log_command(func: Callable) -> Callable:
-    def wrapper(*func_args: Tuple[Any], **func_kwargs: Dict[str, Any]) -> Any:
+    def wrapper(*func_args: tuple[Any], **func_kwargs: dict[str, Any]) -> Any:
         start_time = time.time()
         current_app.logger.info("START")
         result = func(*func_args, **func_kwargs)
@@ -62,7 +63,7 @@ def import_players():
             top_users += list(player_service.get_alliance_users_from_api(alliance_id).items())
             api_sleep(5)
         except Exception as e:
-            current_app.logger.exception("Error when importing alliance ({}) users: {}".format(alliance_id, e))
+            current_app.logger.exception(f"Error when importing alliance ({alliance_id}) users: {e}")
 
     try:
         # purge old data
@@ -70,7 +71,7 @@ def import_players():
         db.session.query(Alliance).delete()
         db.session.commit()
     except Exception as e:
-        current_app.logger.exception("Error when saving players in database: {}".format(e))
+        current_app.logger.exception(f"Error when saving players in database: {e}")
         db.session.rollback()
 
     # save new data
@@ -318,7 +319,7 @@ def save_daily_sale(daily_sale):
         db.session.execute(insert_command)
         db.session.commit()
     except Exception as e:
-        current_app.logger.exception("Error when saving Daily Sale in database: {}".format(e))
+        current_app.logger.exception(f"Error when saving Daily Sale in database: {e}")
         db.session.rollback()
 
 
@@ -347,7 +348,7 @@ def import_market(one_item_only: bool, item: int):
         try:
             saleable_items = {item: saleable_items[item]}
         except KeyError:
-            current_app.logger.error("Unknown item {}".format(item))
+            current_app.logger.error(f"Unknown item {item}")
             return
 
     count = 0
@@ -363,7 +364,7 @@ def import_market(one_item_only: bool, item: int):
         current_app.logger.info("[{}/{}] item: {} ({})".format(count, total, item["name"], item_id))
 
         sales = market_service.get_sales_from_api(item_id)
-        current_app.logger.info("[{}/{}] retrieved: {}".format(count, total, len(sales)))
+        current_app.logger.info(f"[{count}/{total}] retrieved: {len(sales)}")
 
         for sale in sales:
             listing = Listing(
@@ -382,7 +383,7 @@ def import_market(one_item_only: bool, item: int):
 
             db.session.merge(listing)
 
-        current_app.logger.info("[{}/{}] saved: {}".format(count, total, len(sales)))
+        current_app.logger.info(f"[{count}/{total}] saved: {len(sales)}")
         db.session.commit()
 
         if one_item_only:
@@ -418,7 +419,7 @@ def import_market_messages(one_item_only: bool, item: int):
         try:
             items_with_offstat = {item: items_with_offstat[item]}
         except KeyError:
-            current_app.logger.error("Unknown item {}".format(item))
+            current_app.logger.error(f"Unknown item {item}")
             return
 
     count = 0
@@ -434,7 +435,7 @@ def import_market_messages(one_item_only: bool, item: int):
         current_app.logger.info("[{}/{}] item: {} ({})".format(count, total, item["name"], item_id))
 
         messages = market_service.get_market_messages_from_api(item_id)
-        current_app.logger.info("[{}/{}] retrieved: {}".format(count, total, len(messages)))
+        current_app.logger.info(f"[{count}/{total}] retrieved: {len(messages)}")
 
         for message in messages:
             market_message = MarketMessage(
@@ -484,7 +485,7 @@ def save_market_message(market_message):
         db.session.execute(insert_command)
         db.session.commit()
     except Exception as e:
-        current_app.logger.exception("Error when saving Market Message in database: {}".format(e))
+        current_app.logger.exception(f"Error when saving Market Message in database: {e}")
         db.session.rollback()
 
 
@@ -503,15 +504,15 @@ def dowload_sprites():
 
     for _, sprite in sprites.items():
         image_number = sprite["image_file"]
-        filename = current_app.config["SPRITES_DIRECTORY"] + "/{}.png".format(image_number)
+        filename = current_app.config["SPRITES_DIRECTORY"] + f"/{image_number}.png"
 
         if not os.path.isfile(filename):
-            current_app.logger.info("getting {}".format(filename))
+            current_app.logger.info(f"getting {filename}")
             url = PSS_SPRITES_URL.format(image_number)
             try:
                 request.urlretrieve(url, filename)
             except Exception as e:
-                current_app.logger.exception("Error when downloading sprite ({}): {}".format(url, e))
+                current_app.logger.exception(f"Error when downloading sprite ({url}): {e}")
 
 
 def save_users(users):

@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.services.achievement import AchievementService
@@ -26,26 +26,26 @@ if TYPE_CHECKING:
 
 class BaseService(ABC):
     def __init__(self):
-        self._record_service: Optional[RecordService] = None
-        self._sprite_service: Optional[SpriteService] = None
-        self._market_service: Optional[MarketService] = None
-        self._training_service: Optional[TrainingService] = None
-        self._skin_service: Optional[SkinService] = None
-        self._collection_service: Optional[CollectionService] = None
-        self._character_service: Optional[CharacterService] = None
-        self._item_service: Optional[ItemService] = None
-        self._research_service: Optional[ResearchService] = None
-        self._room_service: Optional[RoomService] = None
-        self._ship_service: Optional[ShipService] = None
-        self._achievement_service: Optional[AchievementService] = None
-        self._craft_service: Optional[CraftService] = None
-        self._pixyship_service: Optional[PixyShipService] = None
-        self._missile_service: Optional[MissileService] = None
-        self._prestige_service: Optional[PrestigeService] = None
-        self._changes_service: Optional[ChangesService] = None
-        self._record_details_service: Optional[RecordDetailsService] = None
-        self._daily_offer_service: Optional[DailyOfferService] = None
-        self._player_service: Optional[PlayerService] = None
+        self._record_service: RecordService | None = None
+        self._sprite_service: SpriteService | None = None
+        self._market_service: MarketService | None = None
+        self._training_service: TrainingService | None = None
+        self._skin_service: SkinService | None = None
+        self._collection_service: CollectionService | None = None
+        self._character_service: CharacterService | None = None
+        self._item_service: ItemService | None = None
+        self._research_service: ResearchService | None = None
+        self._room_service: RoomService | None = None
+        self._ship_service: ShipService | None = None
+        self._achievement_service: AchievementService | None = None
+        self._craft_service: CraftService | None = None
+        self._pixyship_service: PixyShipService | None = None
+        self._missile_service: MissileService | None = None
+        self._prestige_service: PrestigeService | None = None
+        self._changes_service: ChangesService | None = None
+        self._record_details_service: RecordDetailsService | None = None
+        self._daily_offer_service: DailyOfferService | None = None
+        self._player_service: PlayerService | None = None
 
     @property
     def record_service(self):

@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 from sqlalchemy import UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -14,8 +13,8 @@ class DailySale(db.Model):  # type: ignore[name-defined]
     type_id: Mapped[int]
     sale_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
     sale_from: Mapped[str]
-    currency: Mapped[Optional[str]]
-    price: Mapped[Optional[int]]
+    currency: Mapped[str | None]
+    price: Mapped[int | None]
 
     __table_args__ = (UniqueConstraint("type", "type_id", "sale_at", "sale_from", name="uq_daily_sale"),)
 

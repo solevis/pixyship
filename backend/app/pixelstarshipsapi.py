@@ -2,7 +2,6 @@ import datetime
 import hashlib
 import random
 import re
-from typing import Tuple
 from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree
 
@@ -89,7 +88,7 @@ class PixelStarshipsApi:
             root = ElementTree.fromstring(response.text)
             setting_element = root.find(".//Setting")
             if setting_element is None:
-                current_app.logger.error("Error when parsing response: {}".format(response.text))
+                current_app.logger.error(f"Error when parsing response: {response.text}")
                 return {}
             settings = setting_element.attrib
 
@@ -102,7 +101,7 @@ class PixelStarshipsApi:
 
         setting_element = root.find(".//Setting")
         if setting_element is None:
-            current_app.logger.error("Error when parsing response: {}".format(response.text))
+            current_app.logger.error(f"Error when parsing response: {response.text}")
             return {}
 
         settings = setting_element.attrib
@@ -118,7 +117,7 @@ class PixelStarshipsApi:
 
         return settings
 
-    def api_url(self, path: Tuple[str, str], server: str | None = None, **params):
+    def api_url(self, path: tuple[str, str], server: str | None = None, **params):
         """Compute endpoint URL with parameters."""
 
         # if url need version, get it from settings (retrieved from API)
@@ -202,7 +201,7 @@ class PixelStarshipsApi:
         checksum_key = current_app.config["DEVICE_LOGIN_CHECKSUM_KEY"]
 
         device_checksum = hashlib.md5(
-            f"{device_key}{client_datetime}{device_type}{checksum_key}savysoda".encode("utf-8")
+            f"{device_key}{client_datetime}{device_type}{checksum_key}savysoda".encode()
         ).hexdigest()
 
         return device_key, device_checksum
@@ -246,7 +245,7 @@ class PixelStarshipsApi:
         user_login_node = root.find(".//UserLogin")
 
         if user_login_node is None:
-            current_app.logger.error("Error when parsing response: {}".format(response.text))
+            current_app.logger.error(f"Error when parsing response: {response.text}")
             return None
 
         return user_login_node.attrib["accessToken"]
@@ -340,7 +339,7 @@ class PixelStarshipsApi:
         users = []
 
         if exact_match:
-            user_node = root.find(".//User[@Name={}]".format(repr(user_name)))
+            user_node = root.find(f".//User[@Name={repr(user_name)}]")
 
             if user_node:
                 user = self.parse_user_node(user_node)
@@ -955,14 +954,14 @@ class PixelStarshipsApi:
                 "to": end,
             }
 
-            current_app.logger.info("retrieve sales of {} from {} to {}".format(item_id, start, end))
+            current_app.logger.info(f"retrieve sales of {item_id} from {start} to {end}")
 
             # retrieve data as XML from Pixel Starships API
             endpoint = f"https://{self.server}/MarketService/ListSalesByItemDesignId"
             response = self.call(endpoint, params=params)
 
             if response.status_code == 400:
-                current_app.logger.error("Response in error: {}".format(response.text))
+                current_app.logger.error(f"Response in error: {response.text}")
                 errors += 1
 
                 if errors == 3:
@@ -982,7 +981,7 @@ class PixelStarshipsApi:
 
             # error when parsing the response
             if sale_nodes is None:
-                current_app.logger.error("Error when parsing response: {}".format(response.text))
+                current_app.logger.error(f"Error when parsing response: {response.text}")
                 errors += 1
 
                 if errors == 3:
@@ -1050,7 +1049,7 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
 
         if response.status_code == 400:
-            current_app.logger.error("Response in error: {}".format(response.text))
+            current_app.logger.error(f"Response in error: {response.text}")
 
             # too many request, wait a little, and try again
             api_sleep(10, force_sleep=True)
@@ -1064,7 +1063,7 @@ class PixelStarshipsApi:
 
         # error when parsing the response
         if market_messsage_nodes is None:
-            current_app.logger.error("Error when parsing response: {}".format(response.text))
+            current_app.logger.error(f"Error when parsing response: {response.text}")
 
             return []
 
@@ -1183,7 +1182,7 @@ class PixelStarshipsApi:
         """ "From SaleItemMask determine Sale options."""
 
         equipment_mask = int(sale_item_mask)
-        output = [int(x) for x in "{:05b}".format(equipment_mask)]
+        output = [int(x) for x in f"{equipment_mask:05b}"]
 
         options = []
         for index, _value in enumerate(output):

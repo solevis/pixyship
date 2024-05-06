@@ -90,7 +90,7 @@ class CharacterService(BaseService):
         """Determine equipments slots with character equipment mask."""
 
         equipment_mask = int(character["EquipmentMask"])
-        output = [int(x) for x in "{:06b}".format(equipment_mask)]
+        output = [int(x) for x in f"{equipment_mask:06b}"]
         slots = [EQUIPMENT_SLOTS[5 - i] for i, b in enumerate(output) if b]
 
         return slots

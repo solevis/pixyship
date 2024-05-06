@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -10,7 +9,7 @@ class Device(db.Model):  # type: ignore[name-defined]
     key: Mapped[str] = mapped_column(primary_key=True)
     checksum: Mapped[str]
     client_datetime: Mapped[datetime.datetime]
-    token: Mapped[Optional[str]]
+    token: Mapped[str | None]
     expires_at: Mapped[datetime.datetime]
 
     def __repr__(self) -> str:

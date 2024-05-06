@@ -38,7 +38,7 @@ def save_daily_sale(daily_sale):
         db.session.execute(insert_command)
         db.session.commit()
     except Exception as e:
-        current_app.logger.exception("Error when saving Daily Sale in database: {}".format(e))
+        current_app.logger.exception(f"Error when saving Daily Sale in database: {e}")
         db.session.rollback()
 
 

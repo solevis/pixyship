@@ -33,10 +33,10 @@ def token():
     # retrieve data as XML from Pixel Starships API
     pss_api = PixelStarshipsApi()
     endpoint = f"https://{pss_api.server}/LadderService/ListUsersByRanking"
-    current_app.logger.info("Checking {}...".format(endpoint))
+    current_app.logger.info(f"Checking {endpoint}...")
     response = pss_api.call(endpoint, params=params, need_token=True)
 
     if response.text == EXPIRED_TOKEN_RESP2:
-        current_app.logger.error("Savy Token has expired: {}".format(response.text))
+        current_app.logger.error(f"Savy Token has expired: {response.text}")
     else:
         current_app.logger.info("Savy Token is still valid.")
