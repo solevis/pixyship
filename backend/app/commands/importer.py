@@ -118,6 +118,9 @@ def import_assets():
     current_app.logger.info("Importing sprites...")
     sprite_service.update_sprites()
 
+    current_app.logger.info("Importing skinsets...")
+    skin_service.update_skinsets()
+
     current_app.logger.info("Importing skins...")
     skin_service.update_skins()
 

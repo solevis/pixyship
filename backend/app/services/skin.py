@@ -79,10 +79,10 @@ class SkinService(BaseService):
 
         return skinsets
 
-    def update_skins(self):
-        """Update data and save records."""
+    def update_skinsets(self):
+        """Update skinsets and save records."""
 
-        skinsets, skins = self.pixel_starships_api.get_skins()
+        skinsets = self.pixel_starships_api.get_skinsets()
         still_presents_ids = []
 
         for skinset in skinsets:
@@ -99,6 +99,10 @@ class SkinService(BaseService):
 
         self.record_service.purge_old_records(TypeEnum.SKINSET, still_presents_ids)
 
+    def update_skins(self):
+        """Update skins and save records."""
+
+        skins = self.pixel_starships_api.get_skins()
         still_presents_ids = []
 
         for skin in skins:

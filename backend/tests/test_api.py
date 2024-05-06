@@ -679,16 +679,9 @@ def test_missiles(app):
 def test_skins(app):
     with app.app_context():
         pixel_starships_api = PixelStarshipsApi()
-        skinsets, skins = pixel_starships_api.get_skins()
+        skins = pixel_starships_api.get_skins()
 
-        assert len(skinsets) > 0
         assert len(skins) > 0
-
-        skinset = skinsets[0]
-        assert "SkinSetName" in skinset
-        assert "SkinSetDescription" in skinset
-        assert "SkinSetId" in skinset
-        assert "SpriteId" in skinset
 
         skin = skins[0]
         assert "SkinSetId" in skin
@@ -697,3 +690,17 @@ def test_skins(app):
         assert "RootId" in skin
         assert "RaceId" in skin
         assert "SpriteId" in skin
+
+
+def test_skinsets(app):
+    with app.app_context():
+        pixel_starships_api = PixelStarshipsApi()
+        skinsets = pixel_starships_api.get_skinsets()
+
+        assert len(skinsets) > 0
+
+        skinset = skinsets[0]
+        assert "SkinSetName" in skinset
+        assert "SkinSetDescription" in skinset
+        assert "SkinSetId" in skinset
+        assert "SpriteId" in skinset

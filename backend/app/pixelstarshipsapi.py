@@ -434,16 +434,16 @@ class PixelStarshipsApi:
 
         return room_sprite_node.attrib.copy()
 
-    def get_skins(self):
-        """Get skins from API."""
+    def get_skinsets(self):
+        """Get skinsets from API."""
 
         params = {
-            "designVersion": self._api_settings["SkinVersion"],
+            "designVersion": self._api_settings["SkinSetVersion"],
             "languageKey": "en",
         }
 
         # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/UserService/ListSkins"
+        endpoint = f"https://{self.server}/UserService/ListSkinsets2"
         response = self.call(endpoint, params=params)
         root = ElementTree.fromstring(response.text)
 
@@ -456,6 +456,21 @@ class PixelStarshipsApi:
 
             skinsets.append(skinset)
 
+        return skinsets
+
+    def get_skins(self):
+        """Get skins from API."""
+
+        params = {
+            "designVersion": self._api_settings["SkinVersion"],
+            "languageKey": "en",
+        }
+
+        # retrieve data as XML from Pixel Starships API
+        endpoint = f"https://{self.server}/UserService/ListSkins2"
+        response = self.call(endpoint, params=params)
+        root = ElementTree.fromstring(response.text)
+
         skins = []
         skin_nodes = root.find(".//Skins")
 
@@ -465,7 +480,7 @@ class PixelStarshipsApi:
 
             skins.append(skin)
 
-        return skinsets, skins
+        return skins
 
     @staticmethod
     def parse_skinset_node(skinset_node):
