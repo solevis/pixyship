@@ -48,17 +48,17 @@ class PlayerService(BaseService):
             current_app.logger.error("Cannot find room data for user %s", player_name)
             return None, None, None, None
 
-        user = dict(
-            id=user_data["Id"],
-            name=user_data["Name"],
-            sprite=self.sprite_service.get_sprite_infos(int(user_data["IconSpriteId"])),
-            alliance_name=user_data.get("AllianceName"),
-            alliance_membership=user_data.get("AllianceMembership"),
-            alliance_sprite=self.sprite_service.get_sprite_infos(int(user_data.get("AllianceSpriteId"))),
-            trophies=int(user_data["Trophy"]),
-            last_date=user_data["LastAlertDate"],
-            race=RACES.get(int(ship_data["OriginalRaceId"]), RACES.get(0)),
-        )
+        user = {
+            "id": user_data["Id"],
+            "name": user_data["Name"],
+            "sprite": self.sprite_service.get_sprite_infos(int(user_data["IconSpriteId"])),
+            "alliance_name": user_data.get("AllianceName"),
+            "alliance_membership": user_data.get("AllianceMembership"),
+            "alliance_sprite": self.sprite_service.get_sprite_infos(int(user_data.get("AllianceSpriteId"))),
+            "trophies": int(user_data["Trophy"]),
+            "last_date": user_data["LastAlertDate"],
+            "race": RACES.get(int(ship_data["OriginalRaceId"]), RACES.get(0)),
+        }
 
         searched_users = self.pixel_starships_api.search_users(user_data["Name"], True)
         if searched_users:

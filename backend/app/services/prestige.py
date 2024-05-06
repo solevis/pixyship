@@ -57,21 +57,12 @@ class PrestigeService(BaseService):
 
         # if only one unique prestige, add it in list
         if not isinstance(prestiges, list):
-            prestiges = list((prestiges,))
+            prestiges = [(prestiges,)]
 
-        prestiges_to = list(
-            set(
-                tuple(
-                    sorted(
-                        [
-                            int(prestige["CharacterDesignId1"]),
-                            int(prestige["CharacterDesignId2"]),
-                        ],
-                    ),
-                )
-                for prestige in prestiges
-            ),
-        )
+        prestiges_to = {
+            tuple(sorted((int(prestige["CharacterDesignId1"]), int(prestige["CharacterDesignId2"]))))
+            for prestige in prestiges
+        }
 
         # determine which crews to group
         temp_to = prestiges_to

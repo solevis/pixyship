@@ -137,8 +137,8 @@ class DailyOfferService(BaseService):
                             dailies["DailyRewardType"],
                         ),
                         None,
-                    )
-                    , *self.parse_daily_items(dailies["DailyItemRewards"]),
+                    ),
+                    *self.parse_daily_items(dailies["DailyItemRewards"]),
                 ],
             },
             "sale": {
