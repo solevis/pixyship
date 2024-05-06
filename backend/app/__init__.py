@@ -57,8 +57,8 @@ def init_cors(app):
                     "origins": [
                         "https://{}".format(app.config["DOMAIN"]),
                         "http://{}".format(app.config["DOMAIN"]),
-                    ]
-                }
+                    ],
+                },
             },
         )
 

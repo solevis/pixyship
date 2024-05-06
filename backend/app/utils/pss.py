@@ -12,7 +12,7 @@ def api_sleep(secs, force_sleep=False):
 
 
 def has_offstat(
-    item_type: str, item_slot: str, item_rarity_order: int, item_bonus: float, item_disp_enhancement: str | None
+    item_type: str, item_slot: str, item_rarity_order: int, item_bonus: float, item_disp_enhancement: str | None,
 ) -> bool:
     """Check if item have an offstat bonus."""
 

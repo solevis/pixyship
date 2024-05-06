@@ -122,7 +122,7 @@ class RecordService(BaseService):
 
         # create the new record and save it in database
         new_record = Record(
-            type=record_type, type_id=record_id, current=True, md5_hash=md5_hash, data=data, url=url, name=record_name
+            type=record_type, type_id=record_id, current=True, md5_hash=md5_hash, data=data, url=url, name=record_name,
         )
 
         db.session.add(new_record)

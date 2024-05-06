@@ -120,7 +120,7 @@ def test_parse_assets_string():
         + "|"
         + test_cases[5]
         + "|"
-        + test_cases[6]
+        + test_cases[6],
     )
     assert isinstance(result, list)
     for asset in result:

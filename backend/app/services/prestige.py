@@ -36,8 +36,8 @@ class PrestigeService(BaseService):
             set(
                 [i for prestige in prestiges_to for i in prestige]
                 + [i for prestige in prestiges_from for i in prestige]
-                + [char_id]
-            )
+                + [char_id],
+            ),
         )
         all_characters = [
             self.character_service.characters[i] for i in all_ids if i in self.character_service.characters
@@ -66,11 +66,11 @@ class PrestigeService(BaseService):
                         [
                             int(prestige["CharacterDesignId1"]),
                             int(prestige["CharacterDesignId2"]),
-                        ]
-                    )
+                        ],
+                    ),
                 )
                 for prestige in prestiges
-            )
+            ),
         )
 
         # determine which crews to group

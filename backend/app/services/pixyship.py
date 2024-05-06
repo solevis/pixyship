@@ -91,7 +91,7 @@ class PixyShipService(BaseService):
                         "data": data,
                         "id": asset_item_type_id,
                         "type": asset_item_type,
-                    }
+                    },
                 )
 
                 assets.append(line)

@@ -28,7 +28,7 @@ def api_players():
         {
             "data": player_service.get_player_data(search),
             "status": "success",
-        }
+        },
     )
 
 
@@ -50,7 +50,7 @@ def api_player(name):
         {
             "data": ship_data,
             "status": "success",
-        }
+        },
     )
 
 
@@ -64,7 +64,7 @@ def api_daily():
         {
             "data": service_factory.daily_offer_service.daily_offers,
             "status": "success",
-        }
+        },
     )
 
 
@@ -79,7 +79,7 @@ def api_changes():
             "data": service_factory.changes_service.changes,
             "lastprestigeschanges": service_factory.changes_service.last_prestiges_changes,
             "status": "success",
-        }
+        },
     )
 
 
@@ -101,7 +101,7 @@ def api_collections():
         {
             "data": collections,
             "status": "success",
-        }
+        },
     )
 
 
@@ -115,7 +115,7 @@ def api_achievements():
         {
             "data": service_factory.achievement_service.achievements,
             "status": "success",
-        }
+        },
     )
 
 
@@ -129,7 +129,7 @@ def api_research():
         {
             "data": service_factory.research_service.get_researches_and_ship_min_level(),
             "status": "success",
-        }
+        },
     )
 
 
@@ -148,7 +148,7 @@ def api_prestige(char_id):
         {
             "data": service_factory.prestige_service.get_prestiges_from_api(character["id"]),
             "status": "success",
-        }
+        },
     )
 
 
@@ -162,7 +162,7 @@ def api_crew():
         {
             "data": service_factory.character_service.characters,
             "status": "success",
-        }
+        },
     )
 
 
@@ -176,7 +176,7 @@ def api_items():
         {
             "data": service_factory.item_service.items,
             "status": "success",
-        }
+        },
     )
 
 
@@ -195,7 +195,7 @@ def api_item_prices(item_id: int):
         {
             "data": service_factory.market_service.get_item_prices(item["id"]),
             "status": "success",
-        }
+        },
     )
 
 
@@ -219,7 +219,7 @@ def api_item_detail(item_id):
             "lastPlayersSales": last_players_sales,
             "upgrades": upgrades,
             "status": "success",
-        }
+        },
     )
 
 
@@ -233,7 +233,7 @@ def api_tournament():
         {
             "data": service_factory.pixyship_service.get_tournament_infos(),
             "status": "success",
-        }
+        },
     )
 
 
@@ -247,7 +247,7 @@ def api_rooms():
         {
             "data": service_factory.room_service.rooms,
             "status": "success",
-        }
+        },
     )
 
 
@@ -264,7 +264,7 @@ def api_skins():
         {
             "data": skins,
             "status": "success",
-        }
+        },
     )
 
 
@@ -278,7 +278,7 @@ def api_ships():
         {
             "data": service_factory.ship_service.ships,
             "status": "success",
-        }
+        },
     )
 
 
@@ -293,7 +293,7 @@ def api_last_sales(sale_type, sale_type_id):
         {
             "data": service_factory.daily_offer_service.get_last_sales_from_db(type_enum, sale_type_id, 1000),
             "status": "success",
-        }
+        },
     )
 
 
@@ -307,7 +307,7 @@ def api_last_sales_by_type(sale_from):
         {
             "data": service_factory.daily_offer_service.get_last_sales_by_sale_from_from_db(sale_from, 5000),
             "status": "success",
-        }
+        },
     )
 
 
@@ -321,7 +321,7 @@ def api_crafts():
         {
             "data": service_factory.craft_service.crafts,
             "status": "success",
-        }
+        },
     )
 
 
@@ -335,7 +335,7 @@ def api_missiles():
         {
             "data": service_factory.missile_service.missiles,
             "status": "success",
-        }
+        },
     )
 
 

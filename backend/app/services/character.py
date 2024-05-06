@@ -40,13 +40,13 @@ class CharacterService(BaseService):
                 "id": record.type_id,
                 "sprite": self.sprite_service.get_sprite_infos(int(character["ProfileSpriteId"])),
                 "head_sprite": self.sprite_service.get_sprite_infos(
-                    int(character["CharacterParts"]["Head"]["StandardSpriteId"])
+                    int(character["CharacterParts"]["Head"]["StandardSpriteId"]),
                 ),
                 "body_sprite": self.sprite_service.get_sprite_infos(
-                    int(character["CharacterParts"]["Body"]["StandardSpriteId"])
+                    int(character["CharacterParts"]["Body"]["StandardSpriteId"]),
                 ),
                 "leg_sprite": self.sprite_service.get_sprite_infos(
-                    int(character["CharacterParts"]["Leg"]["StandardSpriteId"])
+                    int(character["CharacterParts"]["Leg"]["StandardSpriteId"]),
                 ),
                 "rarity": character["Rarity"].lower(),  # Sprites for gems are 1593. 1594
                 "rarity_order": RARITY_MAP[character["Rarity"]],
@@ -61,7 +61,7 @@ class CharacterService(BaseService):
                 "ability": float_range(character, "SpecialAbilityArgument", "SpecialAbilityFinalArgument"),
                 "special_ability": ABILITY_MAP.get(character["SpecialAbilityType"], {"name": ""})["name"],
                 "ability_sprite": self.sprite_service.get_sprite_infos(
-                    ABILITY_MAP.get(character["SpecialAbilityType"], {"sprite": 110})["sprite"]
+                    ABILITY_MAP.get(character["SpecialAbilityType"], {"sprite": 110})["sprite"],
                 ),
                 "fire_resist": int(character["FireResistance"]),
                 "resurrect": 0,

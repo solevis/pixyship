@@ -147,7 +147,7 @@ class MarketService(BaseService):
                     "buyer": row[4],
                     "seller": row[5],
                     "offstat": offstat,
-                }
+                },
             )
 
         return last_sales

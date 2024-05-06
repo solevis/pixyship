@@ -138,8 +138,8 @@ class DailyOfferService(BaseService):
                         ),
                         None,
                     )
-                    , *self.parse_daily_items(dailies["DailyItemRewards"])
-                ]
+                    , *self.parse_daily_items(dailies["DailyItemRewards"]),
+                ],
             },
             "sale": {
                 "sprite": self.sprite_service.get_sprite_infos(DAILY_SALE_SPRITE_ID),

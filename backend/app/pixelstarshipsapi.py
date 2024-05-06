@@ -190,7 +190,7 @@ class PixelStarshipsApi:
             + random.choice(sequence)
             + random.choice(sequence)
             + random.choice(sequence)
-            + random.choice(sequence)
+            + random.choice(sequence),
         )
 
     def generate_device(self, client_datetime):
@@ -201,7 +201,7 @@ class PixelStarshipsApi:
         checksum_key = current_app.config["DEVICE_LOGIN_CHECKSUM_KEY"]
 
         device_checksum = hashlib.md5(
-            f"{device_key}{client_datetime}{device_type}{checksum_key}savysoda".encode()
+            f"{device_key}{client_datetime}{device_type}{checksum_key}savysoda".encode(),
         ).hexdigest()
 
         return device_key, device_checksum
@@ -671,8 +671,8 @@ class PixelStarshipsApi:
             if not missile_design:
                 current_app.logger.error(
                     "Cannot retrieve craft MissileDesign for MissileDesignId {}".format(
-                        craft_node.attrib["MissileDesignId"]
-                    )
+                        craft_node.attrib["MissileDesignId"],
+                    ),
                 )
                 continue
 
@@ -745,8 +745,8 @@ class PixelStarshipsApi:
             if not missile_design:
                 current_app.logger.error(
                     "Cannot retrieve missile MissileDesign for MissileDesignId {}".format(
-                        item_node.attrib["MissileDesignId"]
-                    )
+                        item_node.attrib["MissileDesignId"],
+                    ),
                 )
                 continue
 

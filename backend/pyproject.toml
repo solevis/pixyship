@@ -43,11 +43,12 @@ addopts = [
 ]
 
 [tool.ruff.lint]
-select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF']
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF', 'YTT', 'ASYNC', 'BLE', 'COM']
 unfixable = ['B']
 
 [tool.ruff.lint.per-file-ignores]
 "migrations/env.py" = ["ERA001"]
+"tests/**" = ["S101"]
 
 [tool.mypy]
 python_version = "3.11"
