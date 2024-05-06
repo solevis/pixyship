@@ -243,7 +243,7 @@ class PlayerService(BaseService):
             if user["UserType"] != "UserTypeDisabled"
         }
 
-    def get_player_data(self, search: str = None):
+    def get_player_data(self, search: str | None = None):
         """Retrieve all players data or players found by given search."""
 
         query = db.session.query(

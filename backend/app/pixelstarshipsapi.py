@@ -339,7 +339,7 @@ class PixelStarshipsApi:
         users = []
 
         if exact_match:
-            user_node = root.find(f".//User[@Name={repr(user_name)}]")
+            user_node = root.find(f".//User[@Name={user_name!r}]")
 
             if user_node:
                 user = self.parse_user_node(user_node)

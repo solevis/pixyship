@@ -43,8 +43,8 @@ addopts = [
 ]
 
 [tool.ruff.lint]
-select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF']
-unfixable = ["B"]
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF']
+unfixable = ['B']
 
 [tool.ruff.lint.per-file-ignores]
 "migrations/env.py" = ["ERA001"]

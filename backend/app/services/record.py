@@ -69,7 +69,7 @@ class RecordService(BaseService):
         record_sprite_id: int,
         raw_data: Any,
         url: str,
-        ignore_list: list[str] = None,
+        ignore_list: list[str] | None = None,
         data_as_xml: bool = True,
     ):
         """Save a record to the DB with hash."""
