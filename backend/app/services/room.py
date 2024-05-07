@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 from app.constants import (
@@ -18,9 +17,6 @@ from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import parse_price_from_pricestring, parse_requirement
-
-if TYPE_CHECKING:
-    pass
 
 
 class RoomService(BaseService):

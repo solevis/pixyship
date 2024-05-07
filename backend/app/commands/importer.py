@@ -1,8 +1,8 @@
 import datetime
-import os
 import random
 import time
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 from urllib import request
 
@@ -493,8 +493,8 @@ def dowload_sprites():
 
     sprite_service = service_factory.sprite_service
 
-    if not os.path.exists(current_app.config["SPRITES_DIRECTORY"]):
-        os.mkdir(current_app.config["SPRITES_DIRECTORY"])
+    if not Path.exists(current_app.config["SPRITES_DIRECTORY"]):
+        Path.mkdir(current_app.config["SPRITES_DIRECTORY"])
 
     sprites = sprite_service.sprites
 
@@ -502,7 +502,7 @@ def dowload_sprites():
         image_number = sprite["image_file"]
         filename = current_app.config["SPRITES_DIRECTORY"] + f"/{image_number}.png"
 
-        if not os.path.isfile(filename):
+        if not Path.is_file(filename):
             current_app.logger.info("Getting %s", filename)
             url = PSS_SPRITES_URL.format(image_number)
             try:

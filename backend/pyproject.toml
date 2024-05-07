@@ -43,12 +43,12 @@ addopts = [
 ]
 
 [tool.ruff.lint]
-select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF', 'YTT', 'ASYNC', 'BLE', 'COM', 'C4', 'DTZ', 'T10', 'EM', 'EXE', 'FA', 'ISC', 'ICN', 'LOG', 'G', 'INP', 'PIE', 'T20', 'PYI', 'PT', 'Q', 'RSE', 'RET', 'SLF', 'SLOT', 'SIM']
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF', 'YTT', 'ASYNC', 'BLE', 'COM', 'C4', 'DTZ', 'T10', 'EM', 'EXE', 'FA', 'ISC', 'ICN', 'LOG', 'G', 'INP', 'PIE', 'T20', 'PYI', 'PT', 'Q', 'RSE', 'RET', 'SLF', 'SLOT', 'SIM', 'TID', 'TCH', 'INT', 'ARG', 'PTH']
 unfixable = ['B']
 ignore = ['COM812', 'ISC001', 'ANN']
 
 [tool.ruff.lint.per-file-ignores]
-"migrations/env.py" = ['ERA001', 'INP001']
+"migrations/env.py" = ['ERA001', 'INP001', 'ARG001']
 "migrations/versions/**" = ['INP001']
 "tests/**" = ['S101', 'INP001']
 
