@@ -69,8 +69,8 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"migrations/**" = ['ERA001', 'INP001', 'ARG001', 'D']
-"tests/**" = ['S101', 'INP001', 'D103']
+"migrations/**" = ['ERA001', 'INP001', 'ARG001', 'D', 'ANN']
+"tests/**" = ['S101', 'INP001', 'D103', 'ANN']
 
 
 [tool.mypy]

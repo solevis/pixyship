@@ -2,7 +2,7 @@ from app import create_app
 from app.ext import cache
 
 
-def main():
+def main() -> None:
     """Clear the Flask cache."""
     app = create_app()
 

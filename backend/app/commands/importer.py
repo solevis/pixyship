@@ -15,7 +15,7 @@ from app.constants import PSS_SPRITES_URL
 from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, MarketMessage, Player
 from app.services.factory import ServiceFactory
-from app.utils.pss import api_sleep
+from app.utils.pss import api_sleep, get_type_enum_from_string
 
 importer_cli = AppGroup("import", help="Import data from PixyShip API.")
 service_factory = ServiceFactory()
@@ -300,11 +300,12 @@ def import_daily_sales():
 
 def save_daily_sale(daily_sale):
     """Save daily sale in database."""
+    daily_sale_type = get_type_enum_from_string(daily_sale.type)
     try:
         insert_command = (
             insert(DailySale.__table__)
             .values(
-                type=daily_sale.type,
+                type=daily_sale_type,
                 type_id=daily_sale.type_id,
                 sale_at=daily_sale.sale_at,
                 sale_from=daily_sale.sale_from,
@@ -423,7 +424,7 @@ def import_market_messages(one_item_only: bool, item: int):
     items_with_offstat_items = list(items_with_offstat.items())
     items_with_offstat_ordered = random.sample(items_with_offstat_items, k=len(items_with_offstat_items))
 
-    for count, (item_id, item) in enumerate(items_with_offstat_ordered):
+    for count, (item_id, item) in enumerate(items_with_offstat_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, item["name"], item_id)
 
         messages = market_service.get_market_messages_from_api(item_id)
@@ -487,8 +488,9 @@ def dowload_sprites():
     """Download sprites from PSS."""
     sprite_service = service_factory.sprite_service
 
-    if not Path.exists(current_app.config["SPRITES_DIRECTORY"]):
-        Path.mkdir(current_app.config["SPRITES_DIRECTORY"])
+    sprites_directory = Path(current_app.config["SPRITES_DIRECTORY"])
+    if not sprites_directory.exists():
+        sprites_directory.mkdir()
 
     sprites = sprite_service.sprites
 
@@ -496,13 +498,13 @@ def dowload_sprites():
         image_number = sprite["image_file"]
         filename = current_app.config["SPRITES_DIRECTORY"] + f"/{image_number}.png"
 
-        if not Path.is_file(filename):
-            current_app.logger.info("Getting %s", filename)
+        if not Path(filename).is_file():
+            current_app.logger.info("Downloading %s", filename)
             url = PSS_SPRITES_URL.format(image_number)
             try:
                 request.urlretrieve(url, filename)
             except Exception:
-                current_app.logger.exception("Error when downloading sprite: %s", url)
+                current_app.logger.exception("Error downloading sprite: %s", url)
 
 
 def save_users(users):

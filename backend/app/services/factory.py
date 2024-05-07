@@ -229,21 +229,21 @@ class ServiceFactory:
     def record_details_service(self) -> RecordDetailsService:
         """Get record details service."""
         if self._record_details_service is None:
-            self._record_details_service = RecordDetailsService()
+            self._record_details_service = RecordDetailsService(
+                item_service=self.item_service,
+                ship_service=self.ship_service,
+                character_service=self.character_service,
+                skin_service=self.skin_service,
+                achievement_service=self.achievement_service,
+                collection_service=self.collection_service,
+                craft_service=self.craft_service,
+                missile_service=self.missile_service,
+                research_service=self.research_service,
+                room_service=self.room_service,
+                sprite_service=self.sprite_service,
+                training_service=self.training_service,
+            )
             self._record_details_service.record_service = self.record_service
-            self._record_details_service.item_service = self.item_service
-            self._record_details_service.ship_service = self.ship_service
-            self._record_details_service.character_service = self.character_service
-            self._record_details_service.skin_service = self.skin_service
-            self._record_details_service.achievement_service = self.achievement_service
-            self._record_details_service.collection_service = self.collection_service
-            self._record_details_service.craft_service = self.craft_service
-            self._record_details_service.missile_service = self.missile_service
-            self._record_details_service.prestige_service = self.prestige_service
-            self._record_details_service.research_service = self.research_service
-            self._record_details_service.room_service = self.room_service
-            self._record_details_service.sprite_service = self.sprite_service
-            self._record_details_service.training_service = self.training_service
 
         return self._record_details_service
 

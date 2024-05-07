@@ -1,28 +1,54 @@
 from app.enums import TypeEnum
+from app.services.achievement import AchievementService
 from app.services.base import BaseService
+from app.services.character import CharacterService
+from app.services.collection import CollectionService
+from app.services.craft import CraftService
+from app.services.item import ItemService
+from app.services.missile import MissileService
+from app.services.reasearch import ResearchService
+from app.services.room import RoomService
+from app.services.ship import ShipService
+from app.services.skin import SkinService
+from app.services.sprite import SpriteService
+from app.services.training import TrainingService
 
 
 class RecordDetailsService(BaseService):
     """Service to get record details."""
 
-    def __init__(self):
+    def __init__(
+        self,
+        item_service: ItemService,
+        ship_service: ShipService,
+        character_service: CharacterService,
+        skin_service: SkinService,
+        achievement_service: AchievementService,
+        collection_service: CollectionService,
+        craft_service: CraftService,
+        missile_service: MissileService,
+        research_service: ResearchService,
+        room_service: RoomService,
+        sprite_service: SpriteService,
+        training_service: TrainingService,
+    ):
         super().__init__()
         self.services = {
-            TypeEnum.ITEM: self.item_service,
-            TypeEnum.SHIP: self.ship_service,
-            TypeEnum.CHARACTER: self.character_service,
-            TypeEnum.SKIN: self.skin_service,
-            TypeEnum.SKINSET: self.skin_service,
-            TypeEnum.ACHIEVEMENT: self.achievement_service,
-            TypeEnum.COLLECTION: self.collection_service,
-            TypeEnum.CRAFT: self.craft_service,
-            TypeEnum.MISSILE: self.missile_service,
-            TypeEnum.PRESTIGE: self.character_service,
-            TypeEnum.RESEARCH: self.research_service,
-            TypeEnum.ROOM: self.room_service,
-            TypeEnum.ROOM_SPRITE: self.room_service,
-            TypeEnum.SPRITE: self.sprite_service,
-            TypeEnum.TRAINING: self.training_service,
+            TypeEnum.ITEM: item_service,
+            TypeEnum.SHIP: ship_service,
+            TypeEnum.CHARACTER: character_service,
+            TypeEnum.SKIN: skin_service,
+            TypeEnum.SKINSET: skin_service,
+            TypeEnum.ACHIEVEMENT: achievement_service,
+            TypeEnum.COLLECTION: collection_service,
+            TypeEnum.CRAFT: craft_service,
+            TypeEnum.MISSILE: missile_service,
+            TypeEnum.PRESTIGE: character_service,
+            TypeEnum.RESEARCH: research_service,
+            TypeEnum.ROOM: room_service,
+            TypeEnum.ROOM_SPRITE: room_service,
+            TypeEnum.SPRITE: sprite_service,
+            TypeEnum.TRAINING: training_service,
         }
 
     def get_record_details(self, record_type: TypeEnum, record_id: int) -> dict | None:
