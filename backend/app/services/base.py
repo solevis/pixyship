@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -24,7 +23,7 @@ if TYPE_CHECKING:
     from app.services.training import TrainingService
 
 
-class BaseService(ABC):
+class BaseService:
     def __init__(self):
         self._record_service: RecordService | None = None
         self._sprite_service: SpriteService | None = None

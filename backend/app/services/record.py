@@ -49,7 +49,7 @@ class RecordService(BaseService):
                 cache.clear()
                 return self.get_record(record_type, record_id, False)
 
-            current_app.logger.error("Cannot find record of type %s with id %d", record_type, record_id)
+            current_app.logger.exception("Cannot find record of type %s with id %d", record_type, record_id)
             return None
 
     def get_record_name(self, record_type: TypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:

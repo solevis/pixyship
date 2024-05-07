@@ -668,7 +668,8 @@ class PixelStarshipsApi:
 
             if not missile_design:
                 current_app.logger.error(
-                    "Cannot retrieve craft MissileDesign for MissileDesignId %s", craft_node.attrib["MissileDesignId"]
+                    "Cannot retrieve craft MissileDesign for MissileDesignId %s",
+                    craft_node.attrib["MissileDesignId"],
                 )
                 continue
 
@@ -740,7 +741,8 @@ class PixelStarshipsApi:
 
             if not missile_design:
                 current_app.logger.error(
-                    "Cannot retrieve missile MissileDesign for MissileDesignId %s", item_node.attrib["MissileDesignId"]
+                    "Cannot retrieve missile MissileDesign for MissileDesignId %s",
+                    item_node.attrib["MissileDesignId"],
                 )
                 continue
 

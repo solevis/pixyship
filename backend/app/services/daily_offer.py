@@ -340,7 +340,7 @@ class DailyOfferService(BaseService):
 
             expiry_date = datum["ExpiryDate"]
 
-            # hack, Savy don't put midnight but 5s before...
+            # Savy don't put midnight but 5s before...
             if expiry_date.endswith("T23:59:55"):
                 next_utc = datetime.datetime.now(tz=datetime.UTC).date() + datetime.timedelta(days=1)
                 expiry_date = next_utc.strftime("%Y-%m-%dT%H:%M:%S")
