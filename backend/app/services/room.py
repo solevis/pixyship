@@ -22,7 +22,7 @@ from app.utils.pss import parse_price_from_pricestring, parse_requirement
 class RoomService(BaseService):
     """Service to manage rooms."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._rooms: dict[int, dict] = {}
@@ -30,7 +30,7 @@ class RoomService(BaseService):
         self._upgrades: dict[int, dict] = {}
 
     @property
-    def rooms(self):
+    def rooms(self) -> dict:
         """Get rooms data."""
         if not self._rooms:
             self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
@@ -38,7 +38,7 @@ class RoomService(BaseService):
         return self._rooms
 
     @property
-    def rooms_by_name(self):
+    def rooms_by_name(self) -> dict:
         """Get rooms data by name."""
         if not self._rooms_by_name:
             self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
@@ -46,14 +46,14 @@ class RoomService(BaseService):
         return self._rooms_by_name
 
     @property
-    def upgrades(self):
+    def upgrades(self) -> dict:
         """Get room upgrades data."""
         if not self._upgrades:
             self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
 
         return self._upgrades
 
-    def get_rooms_from_records(self) -> (dict[int, dict], dict[int, dict], dict[int, dict]):
+    def get_rooms_from_records(self) -> tuple[dict, dict, dict]:
         """Load rooms from database."""
         records = self.record_service.records[TypeEnum.ROOM]
 
@@ -153,7 +153,7 @@ class RoomService(BaseService):
 
         return rooms, upgrades, rooms_by_name
 
-    def update_rooms(self):
+    def update_rooms(self) -> None:
         """Get rooms from API and save them in database."""
         rooms = self.pixel_starships_api.get_rooms()
         still_presents_ids = []

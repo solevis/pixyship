@@ -10,11 +10,11 @@ from app.services.base import BaseService
 class PrestigeService(BaseService):
     """Service to manage prestiges."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
 
-    def get_prestige_from_from_api(self, character_id):
+    def get_prestige_from_from_api(self, character_id: int) -> tuple[list, dict]:
         """Get prestige paires and groups created with given char_id."""
         prestiges = self.pixel_starships_api.get_prestiges_character_from(character_id)
         prestiges_from = [
@@ -27,16 +27,16 @@ class PrestigeService(BaseService):
 
         return prestiges_from, grouped_from
 
-    def get_prestiges_from_api(self, char_id):
+    def get_prestiges_from_api(self, character_id: int) -> dict:
         """Get all prestige combinaisons."""
-        prestiges_to, grouped_to = self.get_prestige_to_from_api(char_id)
-        prestiges_from, grouped_from = self.get_prestige_from_from_api(char_id)
+        prestiges_to, grouped_to = self.get_prestige_to_from_api(character_id)
+        prestiges_from, grouped_from = self.get_prestige_from_from_api(character_id)
 
         all_ids = list(
             set(
                 [i for prestige in prestiges_to for i in prestige]
                 + [i for prestige in prestiges_from for i in prestige]
-                + [char_id],
+                + [character_id],
             ),
         )
         all_characters = [
@@ -50,7 +50,7 @@ class PrestigeService(BaseService):
             "expires_at": datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=1),
         }
 
-    def get_prestige_to_from_api(self, character_id):
+    def get_prestige_to_from_api(self, character_id: int) -> tuple[dict, dict]:
         """Get prestige paires and groups which create given char_id."""
         prestiges = self.pixel_starships_api.get_prestiges_character_to(character_id)
 
@@ -84,7 +84,7 @@ class PrestigeService(BaseService):
 
         return prestiges_to, grouped_to
 
-    def update_prestiges(self):
+    def update_prestiges(self) -> None:
         """Get prestiges from API and save them in database."""
         still_presents_ids = []
 

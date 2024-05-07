@@ -11,14 +11,14 @@ from app.services.base import BaseService
 class SkinService(BaseService):
     """Service to manage skins."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._skins = {}
         self._skinsets = {}
 
     @property
-    def skins(self):
+    def skins(self) -> dict:
         """Get skins data."""
         if not self._skins:
             self._skins = self.get_skins_from_records()
@@ -26,14 +26,14 @@ class SkinService(BaseService):
         return self._skins
 
     @property
-    def skinsets(self):
+    def skinsets(self) -> dict:
         """Get skinsets data."""
         if not self._skinsets:
             self._skinsets = self.get_skinsets_from_db()
 
         return self._skinsets
 
-    def get_skins_from_records(self):
+    def get_skins_from_records(self) -> dict:
         """Load skins from database."""
         skin_records = self.record_service.records[TypeEnum.SKIN]
         skins = {}
@@ -64,7 +64,7 @@ class SkinService(BaseService):
 
         return skins
 
-    def get_skinsets_from_db(self):
+    def get_skinsets_from_db(self) -> dict:
         """Load skinsets from database."""
         skinset_records = self.record_service.records[TypeEnum.SKINSET]
 
@@ -83,7 +83,7 @@ class SkinService(BaseService):
 
         return skinsets
 
-    def update_skinsets(self):
+    def update_skinsets(self) -> None:
         """Update skinsets and save records."""
         skinsets = self.pixel_starships_api.get_skinsets()
         still_presents_ids = []
@@ -102,7 +102,7 @@ class SkinService(BaseService):
 
         self.record_service.purge_old_records(TypeEnum.SKINSET, still_presents_ids)
 
-    def update_skins(self):
+    def update_skins(self) -> None:
         """Update skins and save records."""
         skins = self.pixel_starships_api.get_skins()
         still_presents_ids = []

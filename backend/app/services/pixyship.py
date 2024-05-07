@@ -10,7 +10,7 @@ from app.utils.math import format_delta_time
 class PixyShipService(BaseService):
     """Service to manage PixyShip specific features."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     def parse_assets_from_string(self, assets_string: str):

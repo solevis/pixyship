@@ -14,7 +14,7 @@ from app.services.base import BaseService
 class MarketService(BaseService):
     """Service to manage market."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._prices = {}

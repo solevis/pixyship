@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class BaseService:
     """Base service class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._record_service: RecordService | None = None
         self._sprite_service: SpriteService | None = None
         self._market_service: MarketService | None = None
@@ -58,7 +58,7 @@ class BaseService:
         return self._record_service
 
     @record_service.setter
-    def record_service(self, record_service):
+    def record_service(self, record_service) -> None:
         self._record_service = record_service
 
     @property
@@ -71,7 +71,7 @@ class BaseService:
         return self._sprite_service
 
     @sprite_service.setter
-    def sprite_service(self, sprite_service):
+    def sprite_service(self, sprite_service) -> None:
         self._sprite_service = sprite_service
 
     @property
@@ -84,7 +84,7 @@ class BaseService:
         return self._market_service
 
     @market_service.setter
-    def market_service(self, market_service):
+    def market_service(self, market_service) -> None:
         self._market_service = market_service
 
     @property
@@ -97,7 +97,7 @@ class BaseService:
         return self._training_service
 
     @training_service.setter
-    def training_service(self, training_service):
+    def training_service(self, training_service) -> None:
         self._training_service = training_service
 
     @property
@@ -110,7 +110,7 @@ class BaseService:
         return self._skin_service
 
     @skin_service.setter
-    def skin_service(self, skin_service):
+    def skin_service(self, skin_service) -> None:
         self._skin_service = skin_service
 
     @property
@@ -123,7 +123,7 @@ class BaseService:
         return self._collection_service
 
     @collection_service.setter
-    def collection_service(self, collection_service):
+    def collection_service(self, collection_service) -> None:
         self._collection_service = collection_service
 
     @property
@@ -136,7 +136,7 @@ class BaseService:
         return self._character_service
 
     @character_service.setter
-    def character_service(self, character_service):
+    def character_service(self, character_service) -> None:
         self._character_service = character_service
 
     @property
@@ -149,7 +149,7 @@ class BaseService:
         return self._item_service
 
     @item_service.setter
-    def item_service(self, item_service):
+    def item_service(self, item_service) -> None:
         self._item_service = item_service
 
     @property
@@ -162,7 +162,7 @@ class BaseService:
         return self._research_service
 
     @research_service.setter
-    def research_service(self, research_service):
+    def research_service(self, research_service) -> None:
         self._research_service = research_service
 
     @property
@@ -175,7 +175,7 @@ class BaseService:
         return self._room_service
 
     @room_service.setter
-    def room_service(self, room_service):
+    def room_service(self, room_service) -> None:
         self._room_service = room_service
 
     @property
@@ -188,7 +188,7 @@ class BaseService:
         return self._ship_service
 
     @ship_service.setter
-    def ship_service(self, ship_service):
+    def ship_service(self, ship_service) -> None:
         self._ship_service = ship_service
 
     @property
@@ -201,7 +201,7 @@ class BaseService:
         return self._achievement_service
 
     @achievement_service.setter
-    def achievement_service(self, achievement_service):
+    def achievement_service(self, achievement_service) -> None:
         self._achievement_service = achievement_service
 
     @property
@@ -214,7 +214,7 @@ class BaseService:
         return self._craft_service
 
     @craft_service.setter
-    def craft_service(self, craft_service):
+    def craft_service(self, craft_service) -> None:
         self._craft_service = craft_service
 
     @property
@@ -227,7 +227,7 @@ class BaseService:
         return self._pixyship_service
 
     @pixyship_service.setter
-    def pixyship_service(self, pixyship_service):
+    def pixyship_service(self, pixyship_service) -> None:
         self._pixyship_service = pixyship_service
 
     @property
@@ -240,7 +240,7 @@ class BaseService:
         return self._missile_service
 
     @missile_service.setter
-    def missile_service(self, missile_service):
+    def missile_service(self, missile_service) -> None:
         self._missile_service = missile_service
 
     @property
@@ -253,7 +253,7 @@ class BaseService:
         return self._prestige_service
 
     @prestige_service.setter
-    def prestige_service(self, prestige_service):
+    def prestige_service(self, prestige_service) -> None:
         self._prestige_service = prestige_service
 
     @property
@@ -266,7 +266,7 @@ class BaseService:
         return self._changes_service
 
     @changes_service.setter
-    def changes_service(self, changes_service):
+    def changes_service(self, changes_service) -> None:
         self._changes_service = changes_service
 
     @property
@@ -279,7 +279,7 @@ class BaseService:
         return self._record_details_service
 
     @record_details_service.setter
-    def record_details_service(self, record_details_service):
+    def record_details_service(self, record_details_service) -> None:
         self._record_details_service = record_details_service
 
     @property
@@ -292,7 +292,7 @@ class BaseService:
         return self._daily_offer_service
 
     @daily_offer_service.setter
-    def daily_offer_service(self, daily_offer_service):
+    def daily_offer_service(self, daily_offer_service) -> None:
         self._daily_offer_service = daily_offer_service
 
     @property
@@ -305,5 +305,5 @@ class BaseService:
         return self._player_service
 
     @player_service.setter
-    def player_service(self, player_service):
+    def player_service(self, player_service) -> None:
         self._player_service = player_service

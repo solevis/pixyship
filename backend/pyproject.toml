@@ -35,6 +35,7 @@ dev-dependencies = [
 target-version = "py311"
 line-length = 120
 indent-width = 4
+unsafe-fixes = true
 
 [tool.pytest.ini_options]
 pythonpath = "."
@@ -46,8 +47,6 @@ addopts = [
 select = ['ALL']
 unfixable = ['B']
 ignore = [
-    # flake8-annotations
-    'ANN',
     # flake8-boolean-trap
     'FBT',
     # flake8-bandit
@@ -65,7 +64,9 @@ ignore = [
     'D104',
     'D107',
     'D203',
-    'D213'
+    'D213',
+    'ANN101',
+    'COM812',
 ]
 
 [tool.ruff.lint.per-file-ignores]

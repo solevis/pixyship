@@ -25,7 +25,7 @@ class Device(db.Model):  # type: ignore[name-defined]
 
         return self.token
 
-    def renew_token(self):
+    def renew_token(self) -> None:
         """Renew the device token."""
         from app.pixelstarshipsapi import PixelStarshipsApi
 

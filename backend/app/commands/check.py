@@ -10,7 +10,7 @@ check_cli = AppGroup("check", help="Check various aspects of the app.")
 
 @check_cli.command("config")
 @with_appcontext
-def config():
+def config() -> None:
     """Print the current app's configuration."""
     # current_app.config is a dictionary-like object that holds the configuration for the application.
     # print it line by line
@@ -20,7 +20,7 @@ def config():
 
 @check_cli.command("token")
 @with_appcontext
-def token():
+def token() -> None:
     """Check if the token given by Savy has expired."""
     # no need to check if token not defined
     if not current_app.config["SAVY_PUBLIC_API_TOKEN"]:

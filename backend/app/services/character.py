@@ -14,7 +14,7 @@ from app.utils.math import float_range, int_range
 class CharacterService(BaseService):
     """Service to manage characters."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._characters: dict[int, dict] = {}
@@ -105,7 +105,7 @@ class CharacterService(BaseService):
                 ]
                 character["collection_name"] = self.collection_service.collections[character["collection"]]["name"]
 
-    def update_characters(self):
+    def update_characters(self) -> None:
         """Get crews from API and save them in database."""
         characters = self.pixel_starships_api.get_characters()
         still_presents_ids = []

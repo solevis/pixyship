@@ -25,7 +25,7 @@ from app.utils.pss import get_type_enum_from_string
 class DailyOfferService(BaseService):
     """Service to manage daily offers."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._daily_offers = {}

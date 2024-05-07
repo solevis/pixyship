@@ -1,5 +1,5 @@
 import flask
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify, request
 
 from app.ext import cache
 from app.security import enforce_source
@@ -10,7 +10,7 @@ api_blueprint = Blueprint("api", __name__)
 service_factory = ServiceFactory()
 
 
-def make_players_search_key():
+def make_players_search_key() -> str:
     """Make the cache key for the players search."""
     search = request.args.get("search") or ""
     return f"api_players_{search}"
@@ -19,7 +19,7 @@ def make_players_search_key():
 @api_blueprint.route("/players")
 @enforce_source
 @cache.cached(make_cache_key=make_players_search_key)
-def api_players():
+def api_players() -> Response:
     """Return all players."""
     player_service = service_factory.player_service
     search = request.args.get("search") or ""
@@ -35,7 +35,7 @@ def api_players():
 @api_blueprint.route("/players/<path:name>")
 @enforce_source
 @cache.cached()
-def api_player(name):
+def api_player(name) -> Response:
     """Return the ship data of a player."""
     if not name:
         flask.abort(400)
@@ -56,7 +56,7 @@ def api_player(name):
 @api_blueprint.route("/daily")
 @enforce_source
 @cache.cached()
-def api_daily():
+def api_daily() -> Response:
     """Return daily offers."""
     return jsonify(
         {
@@ -69,7 +69,7 @@ def api_daily():
 @api_blueprint.route("/changes")
 @enforce_source
 @cache.cached()
-def api_changes():
+def api_changes() -> Response:
     """Return the changes and the last prestiges changes."""
     return jsonify(
         {
@@ -83,7 +83,7 @@ def api_changes():
 @api_blueprint.route("/collections")
 @enforce_source
 @cache.cached()
-def api_collections():
+def api_collections() -> Response:
     """Return the collections."""
     collections = service_factory.collection_service.collections
     characters = service_factory.character_service.characters
@@ -104,7 +104,7 @@ def api_collections():
 @api_blueprint.route("/achievements")
 @enforce_source
 @cache.cached()
-def api_achievements():
+def api_achievements() -> Response:
     """Return the achievements."""
     return jsonify(
         {
@@ -117,7 +117,7 @@ def api_achievements():
 @api_blueprint.route("/research")
 @enforce_source
 @cache.cached()
-def api_research():
+def api_research() -> Response:
     """Return the researches and the ship min level."""
     return jsonify(
         {
@@ -130,7 +130,7 @@ def api_research():
 @api_blueprint.route("/prestige/<int:char_id>")
 @enforce_source
 @cache.cached()
-def api_prestige(char_id):
+def api_prestige(char_id) -> Response:
     """Return the prestiges of a character."""
     try:
         character = service_factory.character_service.characters[char_id]
@@ -148,7 +148,7 @@ def api_prestige(char_id):
 @api_blueprint.route("/crew")
 @enforce_source
 @cache.cached()
-def api_crew():
+def api_crew() -> Response:
     """Return all crew."""
     return jsonify(
         {
@@ -161,7 +161,7 @@ def api_crew():
 @api_blueprint.route("/items")
 @enforce_source
 @cache.cached()
-def api_items():
+def api_items() -> Response:
     """Return all items."""
     return jsonify(
         {
@@ -174,7 +174,7 @@ def api_items():
 @api_blueprint.route("/item/<int:item_id>/prices")
 @enforce_source
 @cache.cached()
-def api_item_prices(item_id: int):
+def api_item_prices(item_id: int) -> Response:
     """Return the item prices."""
     try:
         item = service_factory.item_service.items[item_id]
@@ -192,7 +192,7 @@ def api_item_prices(item_id: int):
 @api_blueprint.route("/item/<int:item_id>/detail")
 @enforce_source
 @cache.cached()
-def api_item_detail(item_id):
+def api_item_detail(item_id) -> Response:
     """Return the item details."""
     try:
         item = service_factory.item_service.items[item_id]
@@ -215,7 +215,7 @@ def api_item_detail(item_id):
 @api_blueprint.route("/tournament")
 @enforce_source
 @cache.cached()
-def api_tournament():
+def api_tournament() -> Response:
     """Return the tournament infos."""
     return jsonify(
         {
@@ -228,7 +228,7 @@ def api_tournament():
 @api_blueprint.route("/rooms")
 @enforce_source
 @cache.cached()
-def api_rooms():
+def api_rooms() -> Response:
     """Return all rooms."""
     return jsonify(
         {
@@ -241,7 +241,7 @@ def api_rooms():
 @api_blueprint.route("/skins")
 @enforce_source
 @cache.cached()
-def api_skins():
+def api_skins() -> Response:
     """Return all skins."""
     # keep only skins with sprite_type = "Interior"
     skins = [skin for skin in service_factory.skin_service.skins.values() if skin["sprite_type"] == "Interior"]
@@ -257,7 +257,7 @@ def api_skins():
 @api_blueprint.route("/ships")
 @enforce_source
 @cache.cached()
-def api_ships():
+def api_ships() -> Response:
     """Return all ships."""
     return jsonify(
         {
@@ -270,7 +270,7 @@ def api_ships():
 @api_blueprint.route("/lastsales/<path:sale_type>/<int:sale_type_id>")
 @enforce_source
 @cache.cached()
-def api_last_sales(sale_type, sale_type_id):
+def api_last_sales(sale_type, sale_type_id) -> Response:
     """Return the last sales of a given type."""
     type_enum = get_type_enum_from_string(sale_type)
     return jsonify(
@@ -284,7 +284,7 @@ def api_last_sales(sale_type, sale_type_id):
 @api_blueprint.route("/lastsalesbysalefrom/<path:sale_from>")
 @enforce_source
 @cache.cached()
-def api_last_sales_by_type(sale_from):
+def api_last_sales_by_type(sale_from) -> Response:
     """Return the last sales by sale_from."""
     return jsonify(
         {
@@ -297,7 +297,7 @@ def api_last_sales_by_type(sale_from):
 @api_blueprint.route("/crafts")
 @enforce_source
 @cache.cached()
-def api_crafts():
+def api_crafts() -> Response:
     """Return all crafts."""
     return jsonify(
         {
@@ -310,7 +310,7 @@ def api_crafts():
 @api_blueprint.route("/missiles")
 @enforce_source
 @cache.cached()
-def api_missiles():
+def api_missiles() -> Response:
     """Return all missiles."""
     return jsonify(
         {
@@ -322,7 +322,7 @@ def api_missiles():
 
 @api_blueprint.route("/<path:path>")
 @enforce_source
-def bad_api(path):
+def bad_api(path) -> Response:
     """Bad API request."""
     current_app.logger.warning("Bad API request: %s", path)
     return flask.abort(404)

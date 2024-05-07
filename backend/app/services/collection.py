@@ -9,7 +9,7 @@ from app.services.base import BaseService
 class CollectionService(BaseService):
     """Service to manage collections."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._collections = {}
@@ -51,7 +51,7 @@ class CollectionService(BaseService):
 
         return collections
 
-    def update_collections(self):
+    def update_collections(self) -> None:
         """Get collections from API and save them in database."""
         collections = self.pixel_starships_api.get_collections()
         still_presents_ids = []

@@ -8,20 +8,20 @@ from app.services.base import BaseService
 class TrainingService(BaseService):
     """Service to manage trainings."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._trainings = {}
 
     @property
-    def trainings(self):
+    def trainings(self) -> dict:
         """Get trainings data."""
         if not self._trainings:
             self._trainings = self.get_trainings_from_records()
 
         return self._trainings
 
-    def get_trainings_from_records(self):
+    def get_trainings_from_records(self) -> dict:
         """Load trainings from database."""
         records = self.record_service.records[TypeEnum.TRAINING]
 
@@ -48,7 +48,7 @@ class TrainingService(BaseService):
 
         return trainings
 
-    def update_trainings(self):
+    def update_trainings(self) -> None:
         """Update data and save records."""
         trainings = self.pixel_starships_api.get_trainings()
         still_presents_ids = []

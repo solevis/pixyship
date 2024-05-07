@@ -14,7 +14,7 @@ from app.utils.pss import get_type_enum_from_string
 class ChangesService(BaseService):
     """Service to manage record changes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._changes: list[dict[str, any]] = []
         self._last_prestiges_changes = None

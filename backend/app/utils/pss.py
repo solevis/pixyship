@@ -6,7 +6,7 @@ from app.constants import RARITY_MAP
 from app.enums import TypeEnum
 
 
-def api_sleep(secs, force_sleep=False):
+def api_sleep(secs: float, force_sleep: bool = False) -> None:
     """Sleep for a certain amount of time if the public API token is not set or if the staging API is used."""
     if not current_app.config["SAVY_PUBLIC_API_TOKEN"] or current_app.config["USE_STAGING_API"] or force_sleep:
         time.sleep(secs)
@@ -46,7 +46,7 @@ def get_type_enum_from_string(type_string: str) -> TypeEnum | None:
         return None
 
 
-def compute_pvp_ratio(wins, losses, draws):
+def compute_pvp_ratio(wins: int, losses: int, draws: int) -> float:
     """Compute PVP ratio, same formula as Dolores Bot."""
     ratio = 0.0
     battles = wins + losses + draws
@@ -132,7 +132,7 @@ def parse_requirement(requirement_string: str) -> dict | None:
     }
 
 
-def parse_price_from_pricestring(pricestring):
+def parse_price_from_pricestring(pricestring: str) -> tuple[int, str | None]:
     """Split amount and currency."""
     if not pricestring:
         return 0, None

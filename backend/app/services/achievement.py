@@ -8,7 +8,7 @@ from app.services.base import BaseService
 class AchievementService(BaseService):
     """Service to manage achievements."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._achievements = {}
@@ -66,7 +66,7 @@ class AchievementService(BaseService):
 
         return achievements
 
-    def update_achievements(self):
+    def update_achievements(self) -> None:
         """Update data and save records."""
         achievements = self.pixel_starships_api.get_achievements()
         still_presents_ids = []

@@ -22,7 +22,7 @@ def translate_limitedcatalogcurrencytype(limitedcatalogcurrencytype):
     return limitedcatalogcurrencytype.lower()
 
 
-def save_daily_sale(daily_sale):
+def save_daily_sale(daily_sale) -> None:
     """Save a Daily Sale in the database."""
     try:
         insert_command = (
@@ -48,7 +48,7 @@ def save_daily_sale(daily_sale):
 @tools_cli.command("import-dolores-sales-history")
 @click.argument("json_input", type=click.File("rb"))
 @with_appcontext
-def import_dolores_sales_history(json_input):
+def import_dolores_sales_history(json_input) -> None:
     """Import sales history from Dolores."""
     sales = json.load(json_input)
     json_input.close()

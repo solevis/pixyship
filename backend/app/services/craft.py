@@ -8,7 +8,7 @@ from app.services.base import BaseService
 class CraftService(BaseService):
     """Service to manage crafts."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._crafts = {}
@@ -60,7 +60,7 @@ class CraftService(BaseService):
 
         return crafts
 
-    def update_crafts(self):
+    def update_crafts(self) -> None:
         """Get crafts from API and save them in database."""
         crafts = self.pixel_starships_api.get_crafts()
         still_presents_ids = []

@@ -19,7 +19,7 @@ from app.utils.pss import api_sleep
 class PixelStarshipsApi:
     """Manage Pixel Starships API."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         if current_app.config.get("USE_STAGING_API"):
             self._main_pixelstarships_api_url = API_URLS.get("STAGING")
             # force staging URL and not get automatic ProductionServer from API
@@ -1025,7 +1025,7 @@ class PixelStarshipsApi:
         """Extract sale data from XML node."""
         return message_node.attrib.copy()
 
-    def get_alliance_users(self, alliance_id, skip=0, take=100):
+    def get_alliance_users(self, alliance_id: int, skip: int = 0, take: int = 100) -> list:
         """Get alliance users from API, top 100 by default."""
         params = {"allianceId": alliance_id, "take": take, "skip": skip}
 
@@ -1044,7 +1044,7 @@ class PixelStarshipsApi:
 
         return users
 
-    def get_users(self, start=1, end=100):
+    def get_users(self, start: int = 1, end: int = 100) -> list:
         """Get users from API, top 100 by default."""
         params = {"from": start, "to": end}
 

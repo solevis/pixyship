@@ -19,7 +19,7 @@ from app.utils.pss import has_offstat
 class ItemService(BaseService):
     """Service to manage items."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._items = {}
@@ -248,7 +248,7 @@ class ItemService(BaseService):
             if item["recipe"] and any(recipe_item["id"] == item_id for recipe_item in item["recipe"])
         ]
 
-    def update_items(self):
+    def update_items(self) -> None:
         """Get items from API and save them in database."""
         items = self.pixel_starships_api.get_items()
         still_presents_ids = []

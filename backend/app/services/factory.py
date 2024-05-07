@@ -23,7 +23,7 @@ from app.services.training import TrainingService
 class ServiceFactory:
     """Factory to create and get services."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._record_service = None
         self._sprite_service: SpriteService | None = None
         self._market_service: MarketService | None = None

@@ -8,7 +8,7 @@ from app.services.base import BaseService
 class MissileService(BaseService):
     """Service to manage missiles."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._missiles = {}
@@ -53,7 +53,7 @@ class MissileService(BaseService):
 
         return missiles
 
-    def update_missiles(self):
+    def update_missiles(self) -> None:
         """Get missiles from API and save them in database."""
         missiles = self.pixel_starships_api.get_missiles()
         still_presents_ids = []
