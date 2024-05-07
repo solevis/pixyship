@@ -43,9 +43,9 @@ addopts = [
 ]
 
 [tool.ruff.lint]
-select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF', 'YTT', 'ASYNC', 'BLE', 'COM', 'C4', 'DTZ', 'T10', 'EM']
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'UP', 'N', 'ERA', 'FLY', 'PERF', 'RUF', 'YTT', 'ASYNC', 'BLE', 'COM', 'C4', 'DTZ', 'T10', 'EM', 'EXE', 'FA', 'ISC', 'ICN', 'LOG', 'G']
 unfixable = ['B']
-ignore = ['COM812']
+ignore = ['COM812', 'ISC001']
 
 [tool.ruff.lint.per-file-ignores]
 "migrations/env.py" = ["ERA001"]

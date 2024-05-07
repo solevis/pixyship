@@ -88,7 +88,7 @@ class PixelStarshipsApi:
             root = ElementTree.fromstring(response.text)
             setting_element = root.find(".//Setting")
             if setting_element is None:
-                current_app.logger.error(f"Error when parsing response: {response.text}")
+                current_app.logger.error("Error when parsing response: %s", response.text)
                 return {}
             settings = setting_element.attrib
 
@@ -101,7 +101,7 @@ class PixelStarshipsApi:
 
         setting_element = root.find(".//Setting")
         if setting_element is None:
-            current_app.logger.error(f"Error when parsing response: {response.text}")
+            current_app.logger.error("Error when parsing response: %s", response.text)
             return {}
 
         settings = setting_element.attrib
@@ -166,8 +166,8 @@ class PixelStarshipsApi:
 
         try:
             response = requests.get(endpoint, params=params)
-        except requests.exceptions.ConnectionError as e:
-            current_app.logger.info(f"Connection error, retry: {e}")
+        except requests.exceptions.ConnectionError:
+            current_app.logger.exception("Connection error, retry")
             api_sleep(10, force_sleep=True)
             response = requests.get(endpoint, params=params)
 
@@ -245,7 +245,7 @@ class PixelStarshipsApi:
         user_login_node = root.find(".//UserLogin")
 
         if user_login_node is None:
-            current_app.logger.error(f"Error when parsing response: {response.text}")
+            current_app.logger.error("Error when parsing response: %s", response.text)
             return None
 
         return user_login_node.attrib["accessToken"]
@@ -670,9 +670,7 @@ class PixelStarshipsApi:
 
             if not missile_design:
                 current_app.logger.error(
-                    "Cannot retrieve craft MissileDesign for MissileDesignId {}".format(
-                        craft_node.attrib["MissileDesignId"],
-                    ),
+                    "Cannot retrieve craft MissileDesign for MissileDesignId %s", craft_node.attrib["MissileDesignId"]
                 )
                 continue
 
@@ -744,9 +742,7 @@ class PixelStarshipsApi:
 
             if not missile_design:
                 current_app.logger.error(
-                    "Cannot retrieve missile MissileDesign for MissileDesignId {}".format(
-                        item_node.attrib["MissileDesignId"],
-                    ),
+                    "Cannot retrieve missile MissileDesign for MissileDesignId %s", item_node.attrib["MissileDesignId"]
                 )
                 continue
 
@@ -954,14 +950,14 @@ class PixelStarshipsApi:
                 "to": end,
             }
 
-            current_app.logger.info(f"retrieve sales of {item_id} from {start} to {end}")
+            current_app.logger.info("retrieve sales of %d from %d to %d", item_id, start, end)
 
             # retrieve data as XML from Pixel Starships API
             endpoint = f"https://{self.server}/MarketService/ListSalesByItemDesignId"
             response = self.call(endpoint, params=params)
 
             if response.status_code == 400:
-                current_app.logger.error(f"Response in error: {response.text}")
+                current_app.logger.error("Response in error: %s", response.text)
                 errors += 1
 
                 if errors == 3:
@@ -981,7 +977,7 @@ class PixelStarshipsApi:
 
             # error when parsing the response
             if sale_nodes is None:
-                current_app.logger.error(f"Error when parsing response: {response.text}")
+                current_app.logger.error("Error when parsing response: %s", response.text)
                 errors += 1
 
                 if errors == 3:
@@ -1049,7 +1045,7 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
 
         if response.status_code == 400:
-            current_app.logger.error(f"Response in error: {response.text}")
+            current_app.logger.error("Response in error: %s", response.text)
 
             # too many request, wait a little, and try again
             api_sleep(10, force_sleep=True)
@@ -1063,7 +1059,7 @@ class PixelStarshipsApi:
 
         # error when parsing the response
         if market_messsage_nodes is None:
-            current_app.logger.error(f"Error when parsing response: {response.text}")
+            current_app.logger.error("Error when parsing response: %s", response.text)
 
             return []
 

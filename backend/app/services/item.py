@@ -36,7 +36,7 @@ class ItemService(BaseService):
 
         items = {}
         for record in records.values():
-            current_app.logger.debug(f"Loading item {record.type_id} from database")
+            current_app.logger.debug("Loading item %d from database", record.type_id)
             item_node = ElementTree.fromstring(record.data)
             item = PixelStarshipsApi.parse_item_node(item_node)
 
