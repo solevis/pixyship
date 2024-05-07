@@ -79,7 +79,8 @@ class PixyShipService(BaseService):
 
                 asset_item_count = 1
                 if len(asset_item_id_count_unpacked) > 1:
-                    # TODO: handle count based in IAP value, for now ignore it
+                    # TODO @solevis: handle count based in IAP value, for now ignore it
+                    # https://github.com/solevis/pixyship/issues/114
                     asset_item_count = None if "[USD/" in assets_string else int(asset_item_id_count_unpacked[1])
 
                 line.update(

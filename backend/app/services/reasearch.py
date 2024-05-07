@@ -56,7 +56,6 @@ class ResearchService(BaseService):
 
         # get lab room and its min ship level
         for research in researches.values():
-            # TODO: don't use the name but the lab level
             lab_name = "Laboratory Lv{}".format(research["lab_level"])
             if lab_name in self.room_service.rooms_by_name:
                 room = self.room_service.rooms_by_name[lab_name]

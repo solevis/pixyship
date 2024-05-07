@@ -109,7 +109,6 @@ def parse_requirement(requirement_string: str) -> dict | None:
     if not requirement_string:
         return None
 
-    # TODO: quick fix, but I need more investigation when I will have more time
     splits = requirement_string.split(":")
     if len(splits) < 2:
         return None
