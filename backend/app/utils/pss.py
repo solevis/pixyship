@@ -130,13 +130,11 @@ def parse_requirement(requirement_string: str) -> dict | None:
     if requirement_count == 0:
         requirement_count = 1
 
-    requirement_object = {
+    return {
         "count": requirement_count,
         "type": requirement_type,
         "id": requirement_id,
     }
-
-    return requirement_object
 
 
 def parse_price_from_pricestring(pricestring):

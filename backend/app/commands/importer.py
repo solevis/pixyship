@@ -351,7 +351,6 @@ def import_market(one_item_only: bool, item: int):
             current_app.logger.exception("Unknown item %d", item)
             return
 
-    count = 0
     total = len(saleable_items)
     if one_item_only:
         total = 1
@@ -359,8 +358,7 @@ def import_market(one_item_only: bool, item: int):
     saleable_items_items = list(saleable_items.items())
     saleable_items_ordered = random.sample(saleable_items_items, k=len(saleable_items_items))
 
-    for item_id, item in saleable_items_ordered:
-        count += 1
+    for count, (item_id, item) in enumerate(saleable_items_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, item["name"], item_id)
 
         sales = market_service.get_sales_from_api(item_id)
@@ -422,7 +420,6 @@ def import_market_messages(one_item_only: bool, item: int):
             current_app.logger.exception("Unknown item %d", item)
             return
 
-    count = 0
     total = len(items_with_offstat)
     if one_item_only:
         total = 1
@@ -430,8 +427,7 @@ def import_market_messages(one_item_only: bool, item: int):
     items_with_offstat_items = list(items_with_offstat.items())
     items_with_offstat_ordered = random.sample(items_with_offstat_items, k=len(items_with_offstat_items))
 
-    for item_id, item in items_with_offstat_ordered:
-        count += 1
+    for count, (item_id, item) in enumerate(items_with_offstat_ordered):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, item["name"], item_id)
 
         messages = market_service.get_market_messages_from_api(item_id)

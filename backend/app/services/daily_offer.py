@@ -155,7 +155,7 @@ class DailyOfferService(BaseService):
             },
         }
 
-        dailies = {
+        return {
             "stardate": PixelStarshipsApi.get_stardate(),
             "news": {
                 "news": dailies["News"],
@@ -169,8 +169,6 @@ class DailyOfferService(BaseService):
             "offers": offers,
             "merchant_markers": self.star_system_merchant_markers,
         }
-
-        return dailies
 
     def get_current_promotions(self):
         """Get running promotions depending on the current date."""
@@ -262,7 +260,7 @@ class DailyOfferService(BaseService):
 
             prices.append(price)
 
-        cargo = [
+        return [
             {
                 "sprite": {},
                 "object": item,
@@ -273,11 +271,9 @@ class DailyOfferService(BaseService):
             for item, price in zip(items, prices, strict=True)
         ]
 
-        return cargo
-
     def parse_daily_items(self, item_list_string):
         items_split = [i.split("x") for i in item_list_string.split("|")]
-        items = [
+        return [
             {
                 "count": int(item[1]),
                 "type": "item",
@@ -286,8 +282,6 @@ class DailyOfferService(BaseService):
             }
             for item in items_split
         ]
-
-        return items
 
     def get_situations_from_api(self):
         """Get situations from API."""
@@ -339,7 +333,7 @@ class DailyOfferService(BaseService):
             rewards = self.pixyship_service.parse_assets_from_string(datum["RewardString"])
 
             availables_items = []
-            for i in range(0, len(rewards)):
+            for i in range(len(rewards)):
                 availables_item = {"cost": costs[i], "reward": rewards[i]}
 
                 availables_items.append(availables_item)
@@ -385,7 +379,7 @@ class DailyOfferService(BaseService):
             .all()
         )
 
-        last_sales = [
+        return [
             {
                 "id": row.id,
                 "date": row.sale_at,
@@ -395,15 +389,11 @@ class DailyOfferService(BaseService):
             }
             for row in result
         ]
-        return last_sales
 
     def get_last_sales_by_sale_from_from_db(self, sale_from, limit):
         """Get last sales for given type from database."""
 
-        if sale_from == "blue_cargo":
-            sale_from_values = ["blue_cargo_mineral", "blue_cargo_starbux"]
-        else:
-            sale_from_values = [sale_from]
+        sale_from_values = ["blue_cargo_mineral", "blue_cargo_starbux"] if sale_from == "blue_cargo" else [sale_from]
 
         results: list[tuple[DailySale, Record]] = (
             db.session.query(DailySale, Record)

@@ -80,10 +80,7 @@ class PixyShipService(BaseService):
                 asset_item_count = 1
                 if len(asset_item_id_count_unpacked) > 1:
                     # TODO: handle count based in IAP value, for now ignore it
-                    if "[USD/" in assets_string:
-                        asset_item_count = None
-                    else:
-                        asset_item_count = int(asset_item_id_count_unpacked[1])
+                    asset_item_count = None if "[USD/" in assets_string else int(asset_item_id_count_unpacked[1])
 
                 line.update(
                     {
@@ -109,11 +106,9 @@ class PixyShipService(BaseService):
         tournament_left_delta = tournament_start_time - utc_now
         tournament_left_formatted = format_delta_time(tournament_left_delta)
 
-        infos = {
+        return {
             "start": tournament_start,
             "end": first_day_next_month,
             "left": tournament_left_formatted.strip(),
             "started": tournament_left_delta.total_seconds() < 0,
         }
-
-        return infos

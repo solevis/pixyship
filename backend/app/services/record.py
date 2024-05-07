@@ -48,9 +48,9 @@ class RecordService(BaseService):
                 self._records = None
                 cache.clear()
                 return self.get_record(record_type, record_id, False)
-            else:
-                current_app.logger.error("Cannot find record of type %s with id %d", record_type, record_id)
-                return None
+
+            current_app.logger.error("Cannot find record of type %s with id %d", record_type, record_id)
+            return None
 
     def get_record_name(self, record_type: TypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:
         """Get sprite date for the given record ID."""
@@ -116,9 +116,9 @@ class RecordService(BaseService):
                     db.session.commit()
 
                 return
-            else:
-                # new hash and data, previous record is no more the current
-                existing.current = False
+
+            # new hash and data, previous record is no more the current
+            existing.current = False
 
         # create the new record and save it in database
         new_record = Record(
@@ -166,6 +166,4 @@ class RecordService(BaseService):
     def get_last_prestige_record() -> Record | None:
         """Get last prestige record."""
 
-        record = db.session.query(func.max(Record.created_at)).filter_by(type=TypeEnum.PRESTIGE, current=True).first()
-
-        return record
+        return db.session.query(func.max(Record.created_at)).filter_by(type=TypeEnum.PRESTIGE, current=True).first()

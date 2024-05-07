@@ -13,33 +13,47 @@ class RecordDetailsService(BaseService):
 
         if record.type == TypeEnum.ITEM:
             return self.item_service.items[record.type_id]
-        elif record.type == TypeEnum.SHIP:
+
+        if record.type == TypeEnum.SHIP:
             return self.ship_service.ships[record.type_id]
-        elif record.type == TypeEnum.CHARACTER:
+
+        if record.type == TypeEnum.CHARACTER:
             return self.character_service.characters[record.type_id]
-        elif record.type == TypeEnum.SKIN:
+
+        if record.type == TypeEnum.SKIN:
             return self.skin_service.skins[record.type_id]
-        elif record.type == TypeEnum.SKINSET:
+
+        if record.type == TypeEnum.SKINSET:
             return self.skin_service.skinsets[record.type_id]
-        elif record.type == TypeEnum.ACHIEVEMENT:
+
+        if record.type == TypeEnum.ACHIEVEMENT:
             return self.achievement_service.achievements[record.type_id]
-        elif record.type == TypeEnum.COLLECTION:
+
+        if record.type == TypeEnum.COLLECTION:
             return self.collection_service.collections[record.type_id]
-        elif record.type == TypeEnum.CRAFT:
+
+        if record.type == TypeEnum.CRAFT:
             return self.craft_service.crafts[record.type_id]
-        elif record.type == TypeEnum.MISSILE:
+
+        if record.type == TypeEnum.MISSILE:
             return self.missile_service.missiles[record.type_id]
-        elif record.type == TypeEnum.PRESTIGE:
+
+        if record.type == TypeEnum.PRESTIGE:
             return self.character_service.characters[record.type_id]
-        elif record.type == TypeEnum.RESEARCH:
+
+        if record.type == TypeEnum.RESEARCH:
             return self.research_service.researches[record.type_id]
-        elif record.type == TypeEnum.ROOM:
+
+        if record.type == TypeEnum.ROOM:
             return self.room_service.rooms[record.type_id]
-        elif record.type == TypeEnum.ROOM_SPRITE:
+
+        if record.type == TypeEnum.ROOM_SPRITE:
             return self.room_service.rooms[record.type_id]
-        elif record.type == TypeEnum.SPRITE:
+
+        if record.type == TypeEnum.SPRITE:
             return self.sprite_service.sprites[record.type_id]
-        elif record.type == TypeEnum.TRAINING:
+
+        if record.type == TypeEnum.TRAINING:
             return self.training_service.trainings[record.type_id]
-        else:
-            return None
+
+        return None

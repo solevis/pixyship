@@ -16,7 +16,7 @@ class Device(db.Model):  # type: ignore[name-defined]
         return f"<Device {self.key} {self.token} {self.expires_at}>"
 
     def get_token(self) -> str | None:
-        if not self.token or self.expires_at < datetime.datetime.now(tz=datetime.UTC):
+        if not self.token or self.expires_at.replace(tzinfo=datetime.UTC) < datetime.datetime.now(tz=datetime.UTC):
             self.cycle_token()
 
         return self.token

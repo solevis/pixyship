@@ -90,12 +90,10 @@ class MarketService(BaseService):
                 "p75": row[7],
             }
 
-        data = {
+        return {
             "id": item_id,
             "prices": prices,
         }
-
-        return data
 
     @staticmethod
     def get_item_last_players_sales_from_db(item_id, limit):
@@ -165,11 +163,9 @@ class MarketService(BaseService):
         else:
             max_sale_id = 0
 
-        sales = self.pixel_starships_api.get_sales(item_id, max_sale_id)
-        return sales
+        return self.pixel_starships_api.get_sales(item_id, max_sale_id)
 
     def get_market_messages_from_api(self, item_id):
         """Get market messages of item."""
 
-        sales = self.pixel_starships_api.get_market_messages(item_id)
-        return sales
+        return self.pixel_starships_api.get_market_messages(item_id)

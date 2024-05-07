@@ -58,7 +58,7 @@ class PixelStarshipsApi:
 
         devices = Device.query.all()
         if len(devices) < current_app.config["MIN_DEVICES"]:
-            for _x in range(0, current_app.config["MIN_DEVICES"] - len(devices)):
+            for _x in range(current_app.config["MIN_DEVICES"] - len(devices)):
                 utc_now = datetime.datetime.now(tz=datetime.UTC)
                 client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -90,9 +90,8 @@ class PixelStarshipsApi:
             if setting_element is None:
                 current_app.logger.error("Error when parsing response: %s", response.text)
                 return {}
-            settings = setting_element.attrib
 
-            return settings
+            return setting_element.attrib
 
         # call API with classic URL, in case of error, try with alternative
         endpoint = urljoin(self._main_pixelstarships_api_url, "SettingService/GetLatestVersion3")
@@ -633,8 +632,7 @@ class PixelStarshipsApi:
     def parse_missile_design_node(missile_design_node):
         """Extract missile design data from XML node."""
 
-        missile_design = missile_design_node.attrib.copy()
-        return missile_design
+        return missile_design_node.attrib.copy()
 
     def get_crafts(self):
         """Get crafts designs from API."""

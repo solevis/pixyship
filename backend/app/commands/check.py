@@ -1,3 +1,4 @@
+import click
 from flask import current_app
 from flask.cli import AppGroup, with_appcontext
 
@@ -15,7 +16,7 @@ def config():
     # current_app.config is a dictionary-like object that holds the configuration for the application.
     # print it line by line
     for key, value in current_app.config.items():
-        print(f"{key} = {value}")
+        click.echo(f"{key} = {value}")
 
 
 @check_cli.command("token")

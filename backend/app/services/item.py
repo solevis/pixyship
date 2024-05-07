@@ -112,7 +112,7 @@ class ItemService(BaseService):
             "module_extra_short_disp_enhancement": item["module_extra_short_disp_enhancement"],
             "module_extra_enhancement_bonus": item["module_extra_enhancement_bonus"],
             "prices": item["prices"],
-            "content": item["content"] if "content" in item else None,
+            "content": item.get("content", None),
             "recipe": item["recipe"] if not items else ItemService.parse_item_ingredients(item["ingredients"], items),
             "training": item["training"],
         }
@@ -184,13 +184,9 @@ class ItemService(BaseService):
                         content_item_data["content"] = self.parse_item_content(item["content_string"], item, items)
 
                 # if content's is Starbux
-                elif content_item_type == "starbux":
-                    content_item_data = None
-                    content_item_id = None
-                    content_item_count = int(content_item_unpacked[1])
-
-                # if content's is Dove
-                elif content_item_type == "purchasePoints" or content_item_type == "points":
+                elif content_item_type == "starbux" or (
+                    content_item_type == "purchasePoints" or content_item_type == "points"
+                ):
                     content_item_data = None
                     content_item_id = None
                     content_item_count = int(content_item_unpacked[1])
