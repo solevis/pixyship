@@ -17,6 +17,8 @@ from app.utils.pss import has_offstat
 
 
 class ItemService(BaseService):
+    """Service to manage items."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -24,6 +26,7 @@ class ItemService(BaseService):
 
     @property
     def items(self):
+        """Get items data."""
         if not self._items:
             self._items = self.get_items_from_records()
 
@@ -31,7 +34,6 @@ class ItemService(BaseService):
 
     def get_items_from_records(self):
         """Get items from database."""
-
         records = self.record_service.get_records_from_type(TypeEnum.ITEM)
 
         items = {}
@@ -96,6 +98,7 @@ class ItemService(BaseService):
 
     @staticmethod
     def create_light_item(item, items=None):
+        """Create a light item from a given item."""
         return {
             "id": item["id"],
             "name": item["name"],
@@ -120,7 +123,6 @@ class ItemService(BaseService):
     @staticmethod
     def parse_item_ingredients(ingredients_string, items):
         """Parse recipe infos from API."""
-
         recipe = []
         if ingredients_string:
             ingredients = [i.split("x") for i in ingredients_string.split("|")]
@@ -140,7 +142,6 @@ class ItemService(BaseService):
 
     def parse_item_content(self, item_content_string, last_item, items):
         """Parse content infos from API."""
-
         content = []
         if item_content_string:
             content_items = item_content_string.split("|")
@@ -218,7 +219,6 @@ class ItemService(BaseService):
     @staticmethod
     def parse_module_extra_enhancement(item):
         """Parse module extra enhancement from a given item."""
-
         module_type = item["ModuleType"]
 
         # XP books have ModuleArgument but no ModuleType
@@ -241,6 +241,7 @@ class ItemService(BaseService):
         }
 
     def get_item_upgrades(self, item_id: int):
+        """Get items that can be upgraded with a given item."""
         return [
             ItemService.create_light_item(item)
             for item in self.items.values()
@@ -249,7 +250,6 @@ class ItemService(BaseService):
 
     def update_items(self):
         """Get items from API and save them in database."""
-
         items = self.pixel_starships_api.get_items()
         still_presents_ids = []
 

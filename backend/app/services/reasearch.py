@@ -7,6 +7,8 @@ from app.services.base import BaseService
 
 
 class ResearchService(BaseService):
+    """Service to manage researches."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -14,6 +16,7 @@ class ResearchService(BaseService):
 
     @property
     def researches(self):
+        """Get researches data."""
         if not self._researches:
             self._researches = self.get_researches_from_records()
 
@@ -21,7 +24,6 @@ class ResearchService(BaseService):
 
     def get_researches_from_records(self):
         """Load researches from database."""
-
         records = self.record_service.records[TypeEnum.RESEARCH]
 
         researches = {}
@@ -51,7 +53,6 @@ class ResearchService(BaseService):
 
     def get_researches_and_ship_min_level(self):
         """Retrieve research and min ship level of the needed lab."""
-
         researches = self.researches
 
         # get lab room and its min ship level
@@ -65,7 +66,6 @@ class ResearchService(BaseService):
 
     def update_researches(self):
         """Update data and save records."""
-
         researches = self.pixel_starships_api.get_researches()
         still_presents_ids = []
 

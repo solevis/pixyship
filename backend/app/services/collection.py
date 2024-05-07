@@ -7,6 +7,8 @@ from app.services.base import BaseService
 
 
 class CollectionService(BaseService):
+    """Service to manage collections."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -14,6 +16,7 @@ class CollectionService(BaseService):
 
     @property
     def collections(self):
+        """Get collections data."""
         if not self._collections:
             self._collections = self.get_collections_from_records()
 
@@ -21,7 +24,6 @@ class CollectionService(BaseService):
 
     def get_collections_from_records(self):
         """Load collections from database."""
-
         records = self.record_service.records[TypeEnum.COLLECTION]
 
         collections = {}
@@ -51,7 +53,6 @@ class CollectionService(BaseService):
 
     def update_collections(self):
         """Get collections from API and save them in database."""
-
         collections = self.pixel_starships_api.get_collections()
         still_presents_ids = []
 

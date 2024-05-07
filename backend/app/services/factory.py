@@ -21,6 +21,8 @@ from app.services.training import TrainingService
 
 
 class ServiceFactory:
+    """Factory to create and get services."""
+
     def __init__(self):
         self._record_service = None
         self._sprite_service: SpriteService | None = None
@@ -45,6 +47,7 @@ class ServiceFactory:
 
     @property
     def record_service(self) -> RecordService:
+        """Get record service."""
         if self._record_service is None:
             self._record_service = RecordService()
 
@@ -52,6 +55,7 @@ class ServiceFactory:
 
     @property
     def sprite_service(self) -> SpriteService:
+        """Get sprite service."""
         if self._sprite_service is None:
             self._sprite_service = SpriteService()
             self._sprite_service.record_service = self.record_service
@@ -60,6 +64,7 @@ class ServiceFactory:
 
     @property
     def market_service(self) -> MarketService:
+        """Get market service."""
         if self._market_service is None:
             self._market_service = MarketService()
 
@@ -67,6 +72,7 @@ class ServiceFactory:
 
     @property
     def training_service(self) -> TrainingService:
+        """Get training service."""
         if self._training_service is None:
             self._training_service = TrainingService()
             self._training_service.record_service = self.record_service
@@ -76,6 +82,7 @@ class ServiceFactory:
 
     @property
     def skin_service(self) -> SkinService:
+        """Get skin service."""
         if self._skin_service is None:
             self._skin_service = SkinService()
             self._skin_service.record_service = self.record_service
@@ -85,6 +92,7 @@ class ServiceFactory:
 
     @property
     def collection_service(self) -> CollectionService:
+        """Get collection service."""
         if self._collection_service is None:
             self._collection_service = CollectionService()
             self._collection_service.record_service = self.record_service
@@ -94,6 +102,7 @@ class ServiceFactory:
 
     @property
     def character_service(self) -> CharacterService:
+        """Get character service."""
         if self._character_service is None:
             self._character_service = CharacterService()
             self._character_service.record_service = self.record_service
@@ -104,6 +113,7 @@ class ServiceFactory:
 
     @property
     def item_service(self) -> ItemService:
+        """Get item service."""
         if self._item_service is None:
             self._item_service = ItemService()
             self._item_service.record_service = self.record_service
@@ -117,6 +127,7 @@ class ServiceFactory:
 
     @property
     def research_service(self) -> ResearchService:
+        """Get research service."""
         if self._research_service is None:
             self._research_service = ResearchService()
             self._research_service.record_service = self.record_service
@@ -127,6 +138,7 @@ class ServiceFactory:
 
     @property
     def room_service(self) -> RoomService:
+        """Get room service."""
         if self._room_service is None:
             self._room_service = RoomService()
             self._room_service.record_service = self.record_service
@@ -138,6 +150,7 @@ class ServiceFactory:
 
     @property
     def ship_service(self) -> ShipService:
+        """Get ship service."""
         if self._ship_service is None:
             self._ship_service = ShipService()
             self._ship_service.record_service = self.record_service
@@ -149,6 +162,7 @@ class ServiceFactory:
 
     @property
     def achievement_service(self) -> AchievementService:
+        """Get achievement service."""
         if self._achievement_service is None:
             self._achievement_service = AchievementService()
             self._achievement_service.record_service = self.record_service
@@ -158,6 +172,7 @@ class ServiceFactory:
 
     @property
     def craft_service(self) -> CraftService:
+        """Get craft service."""
         if self._craft_service is None:
             self._craft_service = CraftService()
             self._craft_service.record_service = self.record_service
@@ -167,6 +182,7 @@ class ServiceFactory:
 
     @property
     def pixyship_service(self) -> PixyShipService:
+        """Get pixyship service."""
         if self._pixyship_service is None:
             self._pixyship_service = PixyShipService()
             self._pixyship_service.room_service = self.room_service
@@ -178,6 +194,7 @@ class ServiceFactory:
 
     @property
     def missile_service(self) -> MissileService:
+        """Get missile service."""
         if self._missile_service is None:
             self._missile_service = MissileService()
             self._missile_service.pixyship_service = self.pixyship_service
@@ -188,6 +205,7 @@ class ServiceFactory:
 
     @property
     def prestige_service(self) -> PrestigeService:
+        """Get prestige service."""
         if self._prestige_service is None:
             self._prestige_service = PrestigeService()
             self._prestige_service.record_service = self.record_service
@@ -197,6 +215,7 @@ class ServiceFactory:
 
     @property
     def changes_service(self) -> ChangesService:
+        """Get changes service."""
         if self._changes_service is None:
             self._changes_service = ChangesService()
             self._changes_service.record_service = self.record_service
@@ -208,6 +227,7 @@ class ServiceFactory:
 
     @property
     def record_details_service(self) -> RecordDetailsService:
+        """Get record details service."""
         if self._record_details_service is None:
             self._record_details_service = RecordDetailsService()
             self._record_details_service.record_service = self.record_service
@@ -229,6 +249,7 @@ class ServiceFactory:
 
     @property
     def daily_offer_service(self) -> DailyOfferService:
+        """Get daily offer service."""
         if self._daily_offer_service is None:
             self._daily_offer_service = DailyOfferService()
             self._daily_offer_service.pixyship_service = self.pixyship_service
@@ -242,6 +263,7 @@ class ServiceFactory:
 
     @property
     def player_service(self) -> PlayerService:
+        """Get player service."""
         if self._player_service is None:
             self._player_service = PlayerService()
             self._player_service.sprite_service = self.sprite_service

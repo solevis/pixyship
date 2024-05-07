@@ -6,6 +6,8 @@ from app.services.base import BaseService
 
 
 class CraftService(BaseService):
+    """Service to manage crafts."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -13,6 +15,7 @@ class CraftService(BaseService):
 
     @property
     def crafts(self):
+        """Get crafts data."""
         if not self._crafts:
             self._crafts = self.get_crafts_from_records()
 
@@ -20,7 +23,6 @@ class CraftService(BaseService):
 
     def get_crafts_from_records(self):
         """Load crafts from database."""
-
         records = self.record_service.records[TypeEnum.CRAFT]
 
         crafts = {}
@@ -60,7 +62,6 @@ class CraftService(BaseService):
 
     def update_crafts(self):
         """Get crafts from API and save them in database."""
-
         crafts = self.pixel_starships_api.get_crafts()
         still_presents_ids = []
 

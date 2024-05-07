@@ -46,28 +46,31 @@ addopts = [
 select = ['ALL']
 unfixable = ['B']
 ignore = [
-    # pydocstyle
-    'D',
     # flake8-annotations
     'ANN',
     # flake8-boolean-trap
     'FBT',
     # flake8-bandit
     'S',
-    # Pylint Refactor
+    # pylint refactor
     'PLR',
-    #mccabe
+    # mccabe
     'C90',
     # missing-trailing-comma
     'ISC001',
     # line-contains-todo
     'FIX002',
+    # pydocstyle
+    'D100',
+    'D104',
+    'D107',
+    'D203',
+    'D213'
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"migrations/env.py" = ['ERA001', 'INP001', 'ARG001']
-"migrations/versions/**" = ['INP001']
-"tests/**" = ['S101', 'INP001']
+"migrations/**" = ['ERA001', 'INP001', 'ARG001', 'D']
+"tests/**" = ['S101', 'INP001', 'D103']
 
 
 [tool.mypy]

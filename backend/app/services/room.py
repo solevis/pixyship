@@ -20,6 +20,8 @@ from app.utils.pss import parse_price_from_pricestring, parse_requirement
 
 
 class RoomService(BaseService):
+    """Service to manage rooms."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -29,6 +31,7 @@ class RoomService(BaseService):
 
     @property
     def rooms(self):
+        """Get rooms data."""
         if not self._rooms:
             self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
 
@@ -36,6 +39,7 @@ class RoomService(BaseService):
 
     @property
     def rooms_by_name(self):
+        """Get rooms data by name."""
         if not self._rooms_by_name:
             self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
 
@@ -43,6 +47,7 @@ class RoomService(BaseService):
 
     @property
     def upgrades(self):
+        """Get room upgrades data."""
         if not self._upgrades:
             self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
 
@@ -50,7 +55,6 @@ class RoomService(BaseService):
 
     def get_rooms_from_records(self) -> (dict[int, dict], dict[int, dict], dict[int, dict]):
         """Load rooms from database."""
-
         records = self.record_service.records[TypeEnum.ROOM]
 
         rooms = {}
@@ -151,7 +155,6 @@ class RoomService(BaseService):
 
     def update_rooms(self):
         """Get rooms from API and save them in database."""
-
         rooms = self.pixel_starships_api.get_rooms()
         still_presents_ids = []
 

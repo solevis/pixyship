@@ -1,4 +1,6 @@
 class DefaultConfig:
+    """Default configuration for PixyShip application."""
+
     # Database URI
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://postgres:postgres@localhost:5432/pixyship"
 

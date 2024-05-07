@@ -11,6 +11,7 @@ from app.ext import cache, db, migrate
 
 
 def init_configuration(app, test_config=None):
+    """Initialize the configuration."""
     # Load the default configuration
     app.config.from_object(DefaultConfig)
 
@@ -26,10 +27,11 @@ def init_configuration(app, test_config=None):
 
 
 def init_headers(app):
+    """Initialize default headers."""
+
     @app.after_request
     def after_request(response):
         """Before sending the request to the client."""
-
         # Add security headers for API
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -45,7 +47,6 @@ def init_headers(app):
 
 def init_cors(app):
     """Initialize CORS."""
-
     if app.config["DEV_MODE"]:
         CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
     else:
@@ -65,7 +66,6 @@ def init_cors(app):
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
-
     # Create the Flask application
     app = Flask(__name__, instance_relative_config=True)
 

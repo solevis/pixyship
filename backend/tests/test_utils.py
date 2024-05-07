@@ -88,7 +88,6 @@ def sort_attributes_handles_empty_attributes(app):
 
 def test_parse_assets_string():
     """Test parse_assets_string function."""
-
     test_cases = [
         "room:233|character:217|item:83x6|starbux:500|purchasePoints:7|item:1467",
         "item:1021",

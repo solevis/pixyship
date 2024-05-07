@@ -7,6 +7,7 @@ from app.enums import TypeEnum
 
 
 def api_sleep(secs, force_sleep=False):
+    """Sleep for a certain amount of time if the public API token is not set or if the staging API is used."""
     if not current_app.config["SAVY_PUBLIC_API_TOKEN"] or current_app.config["USE_STAGING_API"] or force_sleep:
         time.sleep(secs)
 
@@ -19,7 +20,6 @@ def has_offstat(
     item_disp_enhancement: str | None,
 ) -> bool:
     """Check if item have an offstat bonus."""
-
     if item_type != "Equipment":
         return False
 
@@ -36,8 +36,7 @@ def has_offstat(
 
 
 def get_type_enum_from_string(type_string: str) -> TypeEnum | None:
-    """Converts a string to a TypeEnum."""
-
+    """Convert a string to a TypeEnum."""
     if type_string.lower() == "allrooms":
         type_string = "room"
 
@@ -49,7 +48,6 @@ def get_type_enum_from_string(type_string: str) -> TypeEnum | None:
 
 def compute_pvp_ratio(wins, losses, draws):
     """Compute PVP ratio, same formula as Dolores Bot."""
-
     ratio = 0.0
     battles = wins + losses + draws
 
@@ -62,7 +60,6 @@ def compute_pvp_ratio(wins, losses, draws):
 
 def parse_assets_string(assets_string: str) -> list[dict]:
     """Parse an assets string and return a list of assets."""
-
     assets = []
     if assets_string:
         # Split the string by "|" to get individual assets
@@ -105,7 +102,6 @@ def parse_assets_string(assets_string: str) -> list[dict]:
 
 def parse_requirement(requirement_string: str) -> dict | None:
     """Parse requirement asset."""
-
     if not requirement_string:
         return None
 
@@ -138,7 +134,6 @@ def parse_requirement(requirement_string: str) -> dict | None:
 
 def parse_price_from_pricestring(pricestring):
     """Split amount and currency."""
-
     if not pricestring:
         return 0, None
 

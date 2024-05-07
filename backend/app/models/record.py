@@ -9,6 +9,8 @@ from app.ext.db import db
 
 
 class Record(db.Model):  # type: ignore[name-defined]
+    """Record model."""
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=True)
     sprite_id: Mapped[int] = mapped_column(nullable=True)
@@ -21,4 +23,5 @@ class Record(db.Model):  # type: ignore[name-defined]
     url: Mapped[str]
 
     def __repr__(self) -> str:
+        """Return a string representation of the record."""
         return f"<Record {self.type} {self.type_id}>"

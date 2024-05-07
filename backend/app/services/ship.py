@@ -9,6 +9,8 @@ from app.utils.pss import parse_requirement
 
 
 class ShipService(BaseService):
+    """Service to manage ships."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -16,6 +18,7 @@ class ShipService(BaseService):
 
     @property
     def ships(self):
+        """Get ships data."""
         if not self._ships:
             self._ships = self.get_ships_from_records()
 
@@ -23,7 +26,6 @@ class ShipService(BaseService):
 
     def get_ships_from_records(self):
         """Load ships from database."""
-
         records = self.record_service.get_records_from_type(TypeEnum.SHIP)
 
         ships = {}
@@ -69,7 +71,6 @@ class ShipService(BaseService):
 
     def parse_ship_unlock_costs(self, mineral_cost_string, starbux_cost_string, unlock_cost_string):
         """Parse ship unlock cost infos from API."""
-
         starbux_cost = 0
         mineral_cost = 0
         points_cost = 0
@@ -109,7 +110,6 @@ class ShipService(BaseService):
 
     def parse_ship_requirement(self, requirements_string):
         """Parse several requirements assets."""
-
         if not requirements_string:
             return None
 
@@ -120,7 +120,6 @@ class ShipService(BaseService):
 
     def update_ships(self):
         """Get ships from API and save them in database."""
-
         ships = self.pixel_starships_api.get_ships()
         still_presents_ids = []
 
@@ -138,13 +137,18 @@ class ShipService(BaseService):
 
         self.record_service.purge_old_records(TypeEnum.SHIP, still_presents_ids)
 
-    def parse_requirement(self, param):
-        requirement = parse_requirement(param)
+    def parse_requirement(self, requirement_string: str) -> dict:
+        """Parse requirement asset."""
+        requirement = parse_requirement(requirement_string)
 
         if requirement:
             if requirement["type"] == TypeEnum.ROOM:
                 requirement["object"] = self.room_service.rooms[requirement["id"]]
             else:
-                requirement["object"] = self.record_service.get_record(requirement["type"], requirement["id"])
+                record = self.record_service.get_record(requirement["type"], requirement["id"])
+                requirement["object"] = {
+                    "id": record.type_id,
+                    "name": record.name,
+                }
 
         return requirement

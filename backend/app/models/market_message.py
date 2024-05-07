@@ -6,6 +6,8 @@ from app.ext.db import db
 
 
 class MarketMessage(db.Model):  # type: ignore[name-defined]
+    """Market message model."""
+
     id: Mapped[int] = mapped_column(primary_key=True)
     message: Mapped[str]
     sale_id: Mapped[int] = mapped_column(unique=True)
@@ -17,4 +19,5 @@ class MarketMessage(db.Model):  # type: ignore[name-defined]
     message_date: Mapped[datetime.datetime]
 
     def __repr__(self) -> str:
+        """Return a string representation of the market message."""
         return f"<MarketMessage {self.id}>"

@@ -8,12 +8,13 @@ from app.utils.math import format_delta_time
 
 
 class PixyShipService(BaseService):
+    """Service to manage PixyShip specific features."""
+
     def __init__(self):
         super().__init__()
 
     def parse_assets_from_string(self, assets_string: str):
         """Parse RewardString from API."""
-
         assets = []
         if assets_string:
             assets_items = assets_string.split("|")
@@ -98,6 +99,7 @@ class PixyShipService(BaseService):
 
     @staticmethod
     def get_tournament_infos():
+        """Get infos about the next tournament."""
         utc_now = datetime.datetime.now(tz=datetime.UTC)
         first_day_next_month = (utc_now.date().replace(day=1) + datetime.timedelta(days=32)).replace(day=1)
         tournament_start = first_day_next_month - datetime.timedelta(days=7)

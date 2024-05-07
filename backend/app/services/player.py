@@ -9,13 +9,14 @@ from app.utils.pss import compute_pvp_ratio
 
 
 class PlayerService(BaseService):
+    """Service to manage players."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
 
     def get_ship_data(self, player_name):
         """Get user and ship data from API."""
-
         ship, user, rooms, stickers = self.summarize_ship(player_name)
 
         data = None
@@ -32,7 +33,6 @@ class PlayerService(BaseService):
 
     def summarize_ship(self, player_name):
         """Get ship, user, rooms and upgrade from given player name."""
-
         user_id = self.find_user_id(player_name)
         if not user_id:
             current_app.logger.error("Cannot find user %s", player_name)
@@ -132,7 +132,6 @@ class PlayerService(BaseService):
     @staticmethod
     def find_user_id(search_name):
         """Given a name return the user_id from database. This should only be an exact match."""
-
         result = Player.query.filter(Player.name.ilike(search_name)).limit(1).first()
         if result:
             return result.id
@@ -140,6 +139,7 @@ class PlayerService(BaseService):
         return None
 
     def parse_ship_stickers(self, ship_data):
+        """Parse stickers from ship data."""
         stickers_string = ship_data["StickerString"]
 
         if not stickers_string:
@@ -165,7 +165,6 @@ class PlayerService(BaseService):
 
     def convert_room_sprite_to_race_sprite(self, room_id, ship_id):
         """Convert rooms to the correct interior depending on ship race."""
-
         room = self.room_service.rooms[room_id]
 
         if room["type"] in ("Armor", "Lift"):
@@ -182,8 +181,7 @@ class PlayerService(BaseService):
         return room
 
     def get_exterior_sprite(self, room_id, ship_id):
-        """Retrieve exterior sprite if existing"""
-
+        """Retrieve exterior sprite if existing."""
         ship = self.ship_service.ships[ship_id]
         exterior_sprite = None
 
@@ -200,7 +198,6 @@ class PlayerService(BaseService):
 
     def get_top100_alliances_from_api(self):
         """Get the top 100 alliances."""
-
         alliances = self.pixel_starships_api.get_alliances()
 
         return {
@@ -212,20 +209,17 @@ class PlayerService(BaseService):
 
     def get_alliance_users_from_api(self, alliance_id):
         """Get the top 100 alliances."""
-
         users = self.pixel_starships_api.get_alliance_users(alliance_id)
         return self.parse_users(users)
 
     def get_top100_users_from_api(self):
         """Get the top 100 players."""
-
         users = self.pixel_starships_api.get_users(1, 100)
         return self.parse_users(users)
 
     @staticmethod
     def parse_users(users):
         """Create users dict from XML PSS API response."""
-
         # force users to be a list
         if not isinstance(users, list):
             users = [users]
@@ -245,7 +239,6 @@ class PlayerService(BaseService):
 
     def get_player_data(self, search: str | None = None):
         """Retrieve all players data or players found by given search."""
-
         query = db.session.query(
             Player.name,
             Player.trophies,

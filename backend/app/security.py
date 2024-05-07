@@ -3,7 +3,7 @@ from flask import current_app
 
 
 def enforce_source(func):
-    """Decorator checking in production if the referrer is really PixyShip."""
+    """Check in production if the referrer is really PixyShip."""
 
     def wrapper(*args, **kwargs):
         # no need to check referrer on DEV

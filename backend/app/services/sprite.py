@@ -6,6 +6,8 @@ from app.services.base import BaseService
 
 
 class SpriteService(BaseService):
+    """Service to manage sprites."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -13,6 +15,7 @@ class SpriteService(BaseService):
 
     @property
     def sprites(self):
+        """Get sprites data."""
         if not self._sprites:
             self._sprites = self.get_sprites_from_records()
 
@@ -20,7 +23,6 @@ class SpriteService(BaseService):
 
     def get_sprite_infos(self, sprite_id):
         """Get sprite infos from given id."""
-
         if not sprite_id:
             return None
 
@@ -45,7 +47,6 @@ class SpriteService(BaseService):
 
     def get_sprites_from_records(self):
         """Load sprites from database."""
-
         records = self.record_service.records[TypeEnum.SPRITE]
 
         sprites = {}
@@ -65,7 +66,6 @@ class SpriteService(BaseService):
 
     def update_sprites(self):
         """Update data and save records."""
-
         sprites = self.pixel_starships_api.get_sprites()
         still_presents_ids = []
 

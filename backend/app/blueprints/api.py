@@ -11,6 +11,7 @@ service_factory = ServiceFactory()
 
 
 def make_players_search_key():
+    """Make the cache key for the players search."""
     search = request.args.get("search") or ""
     return f"api_players_{search}"
 
@@ -19,8 +20,7 @@ def make_players_search_key():
 @enforce_source
 @cache.cached(make_cache_key=make_players_search_key)
 def api_players():
-    """Returns all players."""
-
+    """Return all players."""
     player_service = service_factory.player_service
     search = request.args.get("search") or ""
 
@@ -36,8 +36,7 @@ def api_players():
 @enforce_source
 @cache.cached()
 def api_player(name):
-    """Returns the ship data of a player."""
-
+    """Return the ship data of a player."""
     if not name:
         flask.abort(400)
 
@@ -58,8 +57,7 @@ def api_player(name):
 @enforce_source
 @cache.cached()
 def api_daily():
-    """Returns daily offers."""
-
+    """Return daily offers."""
     return jsonify(
         {
             "data": service_factory.daily_offer_service.daily_offers,
@@ -72,8 +70,7 @@ def api_daily():
 @enforce_source
 @cache.cached()
 def api_changes():
-    """Returns the changes and the last prestiges changes."""
-
+    """Return the changes and the last prestiges changes."""
     return jsonify(
         {
             "data": service_factory.changes_service.changes,
@@ -87,8 +84,7 @@ def api_changes():
 @enforce_source
 @cache.cached()
 def api_collections():
-    """Returns the collections."""
-
+    """Return the collections."""
     collections = service_factory.collection_service.collections
     characters = service_factory.character_service.characters
 
@@ -109,8 +105,7 @@ def api_collections():
 @enforce_source
 @cache.cached()
 def api_achievements():
-    """Returns the achievements."""
-
+    """Return the achievements."""
     return jsonify(
         {
             "data": service_factory.achievement_service.achievements,
@@ -123,8 +118,7 @@ def api_achievements():
 @enforce_source
 @cache.cached()
 def api_research():
-    """Returns the researches and the ship min level."""
-
+    """Return the researches and the ship min level."""
     return jsonify(
         {
             "data": service_factory.research_service.get_researches_and_ship_min_level(),
@@ -137,8 +131,7 @@ def api_research():
 @enforce_source
 @cache.cached()
 def api_prestige(char_id):
-    """Returns the prestiges of a character."""
-
+    """Return the prestiges of a character."""
     try:
         character = service_factory.character_service.characters[char_id]
     except KeyError:
@@ -156,8 +149,7 @@ def api_prestige(char_id):
 @enforce_source
 @cache.cached()
 def api_crew():
-    """Returns all crew."""
-
+    """Return all crew."""
     return jsonify(
         {
             "data": service_factory.character_service.characters,
@@ -170,8 +162,7 @@ def api_crew():
 @enforce_source
 @cache.cached()
 def api_items():
-    """Returns all items."""
-
+    """Return all items."""
     return jsonify(
         {
             "data": service_factory.item_service.items,
@@ -184,8 +175,7 @@ def api_items():
 @enforce_source
 @cache.cached()
 def api_item_prices(item_id: int):
-    """Returns the item prices."""
-
+    """Return the item prices."""
     try:
         item = service_factory.item_service.items[item_id]
     except KeyError:
@@ -203,8 +193,7 @@ def api_item_prices(item_id: int):
 @enforce_source
 @cache.cached()
 def api_item_detail(item_id):
-    """Returns the item details."""
-
+    """Return the item details."""
     try:
         item = service_factory.item_service.items[item_id]
     except KeyError:
@@ -227,8 +216,7 @@ def api_item_detail(item_id):
 @enforce_source
 @cache.cached()
 def api_tournament():
-    """Returns the tournament infos."""
-
+    """Return the tournament infos."""
     return jsonify(
         {
             "data": service_factory.pixyship_service.get_tournament_infos(),
@@ -241,8 +229,7 @@ def api_tournament():
 @enforce_source
 @cache.cached()
 def api_rooms():
-    """Returns all rooms."""
-
+    """Return all rooms."""
     return jsonify(
         {
             "data": service_factory.room_service.rooms,
@@ -255,8 +242,7 @@ def api_rooms():
 @enforce_source
 @cache.cached()
 def api_skins():
-    """Returns all skins."""
-
+    """Return all skins."""
     # keep only skins with sprite_type = "Interior"
     skins = [skin for skin in service_factory.skin_service.skins.values() if skin["sprite_type"] == "Interior"]
 
@@ -272,8 +258,7 @@ def api_skins():
 @enforce_source
 @cache.cached()
 def api_ships():
-    """Returns all ships."""
-
+    """Return all ships."""
     return jsonify(
         {
             "data": service_factory.ship_service.ships,
@@ -286,8 +271,7 @@ def api_ships():
 @enforce_source
 @cache.cached()
 def api_last_sales(sale_type, sale_type_id):
-    """Returns the last sales of a given type."""
-
+    """Return the last sales of a given type."""
     type_enum = get_type_enum_from_string(sale_type)
     return jsonify(
         {
@@ -301,8 +285,7 @@ def api_last_sales(sale_type, sale_type_id):
 @enforce_source
 @cache.cached()
 def api_last_sales_by_type(sale_from):
-    """Returns the last sales by sale_from."""
-
+    """Return the last sales by sale_from."""
     return jsonify(
         {
             "data": service_factory.daily_offer_service.get_last_sales_by_sale_from_from_db(sale_from, 5000),
@@ -315,8 +298,7 @@ def api_last_sales_by_type(sale_from):
 @enforce_source
 @cache.cached()
 def api_crafts():
-    """Returns all crafts."""
-
+    """Return all crafts."""
     return jsonify(
         {
             "data": service_factory.craft_service.crafts,
@@ -329,8 +311,7 @@ def api_crafts():
 @enforce_source
 @cache.cached()
 def api_missiles():
-    """Returns all missiles."""
-
+    """Return all missiles."""
     return jsonify(
         {
             "data": service_factory.missile_service.missiles,
@@ -342,6 +323,6 @@ def api_missiles():
 @api_blueprint.route("/<path:path>")
 @enforce_source
 def bad_api(path):
-    """Places you shouldn't go"""
+    """Bad API request."""
     current_app.logger.warning("Bad API request: %s", path)
     return flask.abort(404)

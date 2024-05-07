@@ -8,13 +8,14 @@ from app.services.base import BaseService
 
 
 class PrestigeService(BaseService):
+    """Service to manage prestiges."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
 
     def get_prestige_from_from_api(self, character_id):
         """Get prestige paires and groups created with given char_id."""
-
         prestiges = self.pixel_starships_api.get_prestiges_character_from(character_id)
         prestiges_from = [
             [int(prestige["CharacterDesignId2"]), int(prestige["ToCharacterDesignId"])] for prestige in prestiges
@@ -28,7 +29,6 @@ class PrestigeService(BaseService):
 
     def get_prestiges_from_api(self, char_id):
         """Get all prestige combinaisons."""
-
         prestiges_to, grouped_to = self.get_prestige_to_from_api(char_id)
         prestiges_from, grouped_from = self.get_prestige_from_from_api(char_id)
 
@@ -52,7 +52,6 @@ class PrestigeService(BaseService):
 
     def get_prestige_to_from_api(self, character_id):
         """Get prestige paires and groups which create given char_id."""
-
         prestiges = self.pixel_starships_api.get_prestiges_character_to(character_id)
 
         # if only one unique prestige, add it in list
@@ -87,7 +86,6 @@ class PrestigeService(BaseService):
 
     def update_prestiges(self):
         """Get prestiges from API and save them in database."""
-
         still_presents_ids = []
 
         for character in self.character_service.characters.values():

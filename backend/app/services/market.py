@@ -12,6 +12,8 @@ from app.services.base import BaseService
 
 
 class MarketService(BaseService):
+    """Service to manage market."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -20,6 +22,7 @@ class MarketService(BaseService):
     @property
     @cache.cached(key_prefix="prices")
     def prices(self):
+        """Get prices data."""
         if not self._prices:
             self._prices = self.get_prices_from_db()
 
@@ -28,7 +31,6 @@ class MarketService(BaseService):
     @staticmethod
     def get_prices_from_db():
         """Get all history market summary from database."""
-
         sql = """
                 SELECT l.item_id
                      , l.currency
@@ -59,7 +61,6 @@ class MarketService(BaseService):
     @staticmethod
     def get_item_prices(item_id):
         """Get item history market from database."""
-
         sql = """
                 SELECT item_id
                      , item_name
@@ -98,7 +99,6 @@ class MarketService(BaseService):
     @staticmethod
     def get_item_last_players_sales_from_db(item_id, limit):
         """Get item last players sales from database."""
-
         sql = """
                 SELECT l.sale_at,
                        l.amount,
@@ -152,7 +152,6 @@ class MarketService(BaseService):
 
     def get_sales_from_api(self, item_id):
         """Get market history of item."""
-
         # get max sale_id to retrieve only new sales
         max_sale_id_result = (
             Listing.query.filter(Listing.item_id == item_id).order_by(desc(Listing.id)).limit(1).first()
@@ -167,5 +166,4 @@ class MarketService(BaseService):
 
     def get_market_messages_from_api(self, item_id):
         """Get market messages of item."""
-
         return self.pixel_starships_api.get_market_messages(item_id)

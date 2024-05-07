@@ -23,6 +23,8 @@ from app.utils.pss import get_type_enum_from_string
 
 
 class DailyOfferService(BaseService):
+    """Service to manage daily offers."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -33,6 +35,7 @@ class DailyOfferService(BaseService):
 
     @property
     def daily_offers(self):
+        """Get daily offers."""
         if not self._daily_offers:
             self._daily_offers = self.get_daily_offers_from_api()
 
@@ -40,6 +43,7 @@ class DailyOfferService(BaseService):
 
     @property
     def promotions(self) -> list[dict]:
+        """Get promotions."""
         if not self._promotions:
             self._promotions = self.get_promotions_from_api()
 
@@ -47,6 +51,7 @@ class DailyOfferService(BaseService):
 
     @property
     def situations(self) -> list[dict]:
+        """Get situations."""
         if not self._situations:
             self._situations = self.get_situations_from_api()
 
@@ -54,6 +59,7 @@ class DailyOfferService(BaseService):
 
     @property
     def star_system_merchant_markers(self) -> list[dict]:
+        """Get Star System Merchant Markers."""
         if not self._star_system_merchant_markers:
             self._star_system_merchant_markers = self.get_star_system_merchant_markers_from_api()
 
@@ -61,7 +67,6 @@ class DailyOfferService(BaseService):
 
     def get_daily_offers_from_api(self):
         """Get settings service data, sales, motd from API."""
-
         dailies = self.pixel_starships_api.get_dailies()
         promotions = self.get_current_promotions()
 
@@ -172,7 +177,6 @@ class DailyOfferService(BaseService):
 
     def get_current_promotions(self):
         """Get running promotions depending on the current date."""
-
         utc_now = datetime.datetime.now(tz=datetime.UTC)
 
         promotions = []
@@ -194,7 +198,6 @@ class DailyOfferService(BaseService):
 
     def get_promotions_from_api(self):
         """Get promotions from API."""
-
         data = self.pixel_starships_api.get_promotions()
         promotions = []
 
@@ -218,6 +221,7 @@ class DailyOfferService(BaseService):
 
     @staticmethod
     def format_daily_object(count, type_str, object_str, type_id):
+        """Format daily object."""
         if type_str == "None":
             return None
 
@@ -230,6 +234,7 @@ class DailyOfferService(BaseService):
 
     @staticmethod
     def format_daily_price(amount, currency):
+        """Format daily price."""
         return {
             "price": amount,
             "currency": currency,
@@ -237,7 +242,6 @@ class DailyOfferService(BaseService):
 
     def parse_daily_cargo(self, item_list_string, cost_list_string):
         """Split daily cargo data into prices and items."""
-
         items = self.parse_daily_items(item_list_string)
 
         splitted_prices = [i.split(":") for i in cost_list_string.split("|")]
@@ -272,6 +276,7 @@ class DailyOfferService(BaseService):
         ]
 
     def parse_daily_items(self, item_list_string):
+        """Parse daily items from API."""
         items_split = [i.split("x") for i in item_list_string.split("|")]
         return [
             {
@@ -285,7 +290,6 @@ class DailyOfferService(BaseService):
 
     def get_situations_from_api(self):
         """Get situations from API."""
-
         data = self.pixel_starships_api.get_situations()
         situations = []
 
@@ -305,7 +309,6 @@ class DailyOfferService(BaseService):
 
     def get_current_situation(self):
         """Get running situation depending on the current date."""
-
         utc_now = datetime.datetime.now(tz=datetime.UTC)
 
         for situation in self.situations:
@@ -321,7 +324,6 @@ class DailyOfferService(BaseService):
 
     def get_star_system_merchant_markers_from_api(self):
         """Get Star System Merchant Markers from API."""
-
         data = self.pixel_starships_api.get_star_system_markers()
         markers = []
 
@@ -357,8 +359,7 @@ class DailyOfferService(BaseService):
         return markers
 
     def format_daily_sale_options(self, sale_item_mask):
-        """ "From flag determine Sale options."""
-
+        """From flag determine Sale options."""
         result = []
         options = self.pixel_starships_api.parse_sale_item_mask(sale_item_mask)
 
@@ -371,7 +372,6 @@ class DailyOfferService(BaseService):
     @staticmethod
     def get_last_sales_from_db(sale_type, sale_type_id, limit):
         """Get last sales from database."""
-
         result: list[DailySale] = (
             DailySale.query.filter_by(type_id=sale_type_id, type=sale_type)
             .order_by(desc(DailySale.sale_at))
@@ -392,7 +392,6 @@ class DailyOfferService(BaseService):
 
     def get_last_sales_by_sale_from_from_db(self, sale_from, limit):
         """Get last sales for given type from database."""
-
         sale_from_values = ["blue_cargo_mineral", "blue_cargo_starbux"] if sale_from == "blue_cargo" else [sale_from]
 
         results: list[tuple[DailySale, Record]] = (

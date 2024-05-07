@@ -13,14 +13,17 @@ tools_cli = AppGroup("tools", help="Tools for the app.")
 
 
 def translate_limitedcatalogtype(limitedcatalogtype):
+    """Translate a Limited Catalog Type to a valid type."""
     return limitedcatalogtype.lower()
 
 
 def translate_limitedcatalogcurrencytype(limitedcatalogcurrencytype):
+    """Translate a Limited Catalog Currency Type to a valid currency."""
     return limitedcatalogcurrencytype.lower()
 
 
 def save_daily_sale(daily_sale):
+    """Save a Daily Sale in the database."""
     try:
         insert_command = (
             insert(DailySale.__table__)
@@ -47,7 +50,6 @@ def save_daily_sale(daily_sale):
 @with_appcontext
 def import_dolores_sales_history(json_input):
     """Import sales history from Dolores."""
-
     sales = json.load(json_input)
     json_input.close()
 

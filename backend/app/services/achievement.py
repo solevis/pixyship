@@ -6,6 +6,8 @@ from app.services.base import BaseService
 
 
 class AchievementService(BaseService):
+    """Service to manage achievements."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -13,6 +15,7 @@ class AchievementService(BaseService):
 
     @property
     def achievements(self):
+        """Get achievements data."""
         if not self._achievements:
             self._achievements = self.get_achievements_from_db()
 
@@ -20,7 +23,6 @@ class AchievementService(BaseService):
 
     def get_achievements_from_db(self):
         """Load achievements from database."""
-
         records = self.record_service.records[TypeEnum.ACHIEVEMENT]
 
         achievements = {}
@@ -66,7 +68,6 @@ class AchievementService(BaseService):
 
     def update_achievements(self):
         """Update data and save records."""
-
         achievements = self.pixel_starships_api.get_achievements()
         still_presents_ids = []
 

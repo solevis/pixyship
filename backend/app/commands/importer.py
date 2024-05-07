@@ -22,6 +22,8 @@ service_factory = ServiceFactory()
 
 
 def log_command(func: Callable) -> Callable:
+    """Log the start and end of a command."""
+
     def wrapper(*func_args: tuple[Any], **func_kwargs: dict[str, Any]) -> Any:
         start_time = time.time()
         current_app.logger.info("START")
@@ -40,7 +42,6 @@ def log_command(func: Callable) -> Callable:
 @log_command
 def import_players():
     """Get all top 100 players and top 100 alliances' players and save them in database."""
-
     player_service = service_factory.player_service
 
     if current_app.config["USE_STAGING_API"]:
@@ -145,7 +146,6 @@ def import_assets():
 @log_command
 def import_prestiges():
     """Import prestiges for checking changes."""
-
     prestige_service = service_factory.prestige_service
 
     current_app.logger.info("Importing prestiges...")
@@ -159,7 +159,6 @@ def import_prestiges():
 @log_command
 def import_daily_sales():
     """Get all items, crews, rooms, ships on sale today and save them in database."""
-
     daily_offer_service = service_factory.daily_offer_service
 
     if current_app.config["USE_STAGING_API"]:
@@ -301,7 +300,6 @@ def import_daily_sales():
 
 def save_daily_sale(daily_sale):
     """Save daily sale in database."""
-
     try:
         insert_command = (
             insert(DailySale.__table__)
@@ -330,7 +328,6 @@ def save_daily_sale(daily_sale):
 @log_command
 def import_market(one_item_only: bool, item: int):
     """Get last market sales and save them in database."""
-
     item_service = service_factory.item_service
     market_service = service_factory.market_service
 
@@ -399,7 +396,6 @@ def import_market(one_item_only: bool, item: int):
 @log_command
 def import_market_messages(one_item_only: bool, item: int):
     """Get last market messages and save them in database."""
-
     item_service = service_factory.item_service
     market_service = service_factory.market_service
 
@@ -460,7 +456,6 @@ def import_market_messages(one_item_only: bool, item: int):
 
 def save_market_message(market_message):
     """Save market message in database."""
-
     try:
         insert_command = (
             insert(MarketMessage.__table__)
@@ -490,7 +485,6 @@ def save_market_message(market_message):
 @log_command
 def dowload_sprites():
     """Download sprites from PSS."""
-
     sprite_service = service_factory.sprite_service
 
     if not Path.exists(current_app.config["SPRITES_DIRECTORY"]):
@@ -513,7 +507,6 @@ def dowload_sprites():
 
 def save_users(users):
     """Save users and attached alliance in database."""
-
     for user_id, user in users:
         player = Player(
             id=user_id,

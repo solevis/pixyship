@@ -3,6 +3,8 @@ from enum import StrEnum, unique
 
 @unique
 class TypeEnum(StrEnum):
+    """Type enumeration."""
+
     ACHIEVEMENT = "ACHIEVEMENT"
     CHARACTER = "CHARACTER"
     COLLECTION = "COLLECTION"

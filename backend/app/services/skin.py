@@ -9,6 +9,8 @@ from app.services.base import BaseService
 
 
 class SkinService(BaseService):
+    """Service to manage skins."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -17,19 +19,22 @@ class SkinService(BaseService):
 
     @property
     def skins(self):
+        """Get skins data."""
         if not self._skins:
             self._skins = self.get_skins_from_records()
+
         return self._skins
 
     @property
     def skinsets(self):
+        """Get skinsets data."""
         if not self._skinsets:
             self._skinsets = self.get_skinsets_from_db()
+
         return self._skinsets
 
     def get_skins_from_records(self):
         """Load skins from database."""
-
         skin_records = self.record_service.records[TypeEnum.SKIN]
         skins = {}
 
@@ -61,7 +66,6 @@ class SkinService(BaseService):
 
     def get_skinsets_from_db(self):
         """Load skinsets from database."""
-
         skinset_records = self.record_service.records[TypeEnum.SKINSET]
 
         skinsets = {}
@@ -81,7 +85,6 @@ class SkinService(BaseService):
 
     def update_skinsets(self):
         """Update skinsets and save records."""
-
         skinsets = self.pixel_starships_api.get_skinsets()
         still_presents_ids = []
 
@@ -101,7 +104,6 @@ class SkinService(BaseService):
 
     def update_skins(self):
         """Update skins and save records."""
-
         skins = self.pixel_starships_api.get_skins()
         still_presents_ids = []
 

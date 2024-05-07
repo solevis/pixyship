@@ -14,6 +14,8 @@ from app.utils.xml import sort_attributes
 
 
 class RecordService(BaseService):
+    """Service to manage records."""
+
     def __init__(self):
         super().__init__()
         self._records: dict[TypeEnum, dict[int, Record]] = {}
@@ -21,6 +23,7 @@ class RecordService(BaseService):
     @property
     @cache.cached(key_prefix="records")
     def records(self) -> dict[TypeEnum, dict[int, Record]]:
+        """Get records data."""
         if not self._records:
             current_records = Record.query.filter_by(current=True).all()
 
@@ -34,12 +37,10 @@ class RecordService(BaseService):
 
     def get_records_from_type(self, record_type: TypeEnum) -> dict[int, Record]:
         """Get records from given PSS API type (LimitedCatalogType for example)."""
-
         return self.records.get(record_type, {})
 
     def get_record(self, record_type: TypeEnum, record_id: int, reload_on_error: bool = True) -> Record | None:
         """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
-
         try:
             return self.records[record_type][record_id]
         except KeyError:
@@ -54,7 +55,6 @@ class RecordService(BaseService):
 
     def get_record_name(self, record_type: TypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:
         """Get sprite date for the given record ID."""
-
         record = self.get_record(record_type, type_id, reload_on_error)
         if record is None:
             return None
@@ -137,7 +137,6 @@ class RecordService(BaseService):
     @staticmethod
     def set_not_current(type_str, type_id):
         """Set record's current state to False in the DB."""
-
         existing = Record.query.filter_by(type=type_str, type_id=type_id, current=True).first()
         existing.current = False
         db.session.commit()
@@ -145,7 +144,6 @@ class RecordService(BaseService):
     @staticmethod
     def purge_old_records(record_type: TypeEnum, still_presents_ids: list[int]):
         """Disable old records not presents in API."""
-
         current_ids = Record.query.filter_by(type=record_type, current=True).with_entities(Record.type_id).all()
         current_ids = [current_id[0] for current_id in current_ids]
         no_more_presents_ids = list(set(current_ids) - set(still_presents_ids))
@@ -155,7 +153,6 @@ class RecordService(BaseService):
 
     def get_record_sprite_id(self, record_type_enum, param) -> int | None:
         """Get sprite date for the given record ID."""
-
         record = self.get_record(record_type_enum, param)
         if record is None:
             return None
@@ -165,5 +162,4 @@ class RecordService(BaseService):
     @staticmethod
     def get_last_prestige_record() -> Record | None:
         """Get last prestige record."""
-
         return db.session.query(func.max(Record.created_at)).filter_by(type=TypeEnum.PRESTIGE, current=True).first()

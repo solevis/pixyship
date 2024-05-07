@@ -6,6 +6,8 @@ from app.ext.db import db
 
 
 class Listing(db.Model):  # type: ignore[name-defined]
+    """Listing model."""
+
     id: Mapped[int] = mapped_column(primary_key=True)
     sale_at: Mapped[datetime.datetime]
     item_name: Mapped[str]
@@ -19,4 +21,5 @@ class Listing(db.Model):  # type: ignore[name-defined]
     seller_name: Mapped[str]
 
     def __repr__(self) -> str:
+        """Return a string representation of the listing."""
         return f"<Listing {self.id}>"

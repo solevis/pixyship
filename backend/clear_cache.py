@@ -3,6 +3,7 @@ from app.ext import cache
 
 
 def main():
+    """Clear the Flask cache."""
     app = create_app()
 
     with app.app_context():

@@ -12,6 +12,8 @@ from app.utils.pss import get_type_enum_from_string
 
 
 class ChangesService(BaseService):
+    """Service to manage record changes."""
+
     def __init__(self):
         super().__init__()
         self._changes: list[dict[str, any]] = []
@@ -20,6 +22,7 @@ class ChangesService(BaseService):
     @property
     @cache.cached(key_prefix="changes")
     def changes(self) -> list[dict[str, any]]:
+        """Get changes data."""
         if not self._changes:
             self._changes = self.get_changes_from_db()
 
@@ -28,6 +31,7 @@ class ChangesService(BaseService):
     @property
     @cache.cached(key_prefix="last_prestiges_changes")
     def last_prestiges_changes(self):
+        """Get last prestiges changes date."""
         if self._last_prestiges_changes is None:
             self._last_prestiges_changes = self.get_last_prestiges_changes_from_db()
 
@@ -35,7 +39,6 @@ class ChangesService(BaseService):
 
     def get_changes_from_db(self) -> list[dict[str, any]]:
         """Get changes from database."""
-
         min_changes_dates_sql = f"""
             SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
             FROM record
@@ -83,6 +86,7 @@ class ChangesService(BaseService):
         return [self.create_change_record(record) for record in result]
 
     def create_change_record(self, record) -> dict[str, any]:
+        """Create change record."""
         record_name = record[0]
         record_sprite_id = record[1]
         record_type = get_type_enum_from_string(record[2])
@@ -114,7 +118,6 @@ class ChangesService(BaseService):
     @staticmethod
     def get_last_prestiges_changes_from_db() -> datetime | None:
         """Get last prestiges changes date."""
-
         record = RecordService.get_last_prestige_record()
 
         if record:

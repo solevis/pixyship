@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 
 
 class BaseService:
+    """Base service class."""
+
     def __init__(self):
         self._record_service: RecordService | None = None
         self._sprite_service: SpriteService | None = None
@@ -48,6 +50,7 @@ class BaseService:
 
     @property
     def record_service(self):
+        """Get record service."""
         if not self._record_service:
             msg = "record_service is not set"
             raise ValueError(msg)
@@ -60,6 +63,7 @@ class BaseService:
 
     @property
     def sprite_service(self):
+        """Get sprite service."""
         if not self._sprite_service:
             msg = "sprite_service is not set"
             raise ValueError(msg)
@@ -72,6 +76,7 @@ class BaseService:
 
     @property
     def market_service(self):
+        """Get market service."""
         if not self._market_service:
             msg = "market_service is not set"
             raise ValueError(msg)
@@ -84,6 +89,7 @@ class BaseService:
 
     @property
     def training_service(self):
+        """Get training service."""
         if not self._training_service:
             msg = "training_service is not set"
             raise ValueError(msg)
@@ -96,6 +102,7 @@ class BaseService:
 
     @property
     def skin_service(self):
+        """Get skin service."""
         if not self._skin_service:
             msg = "skin_service is not set"
             raise ValueError(msg)
@@ -108,6 +115,7 @@ class BaseService:
 
     @property
     def collection_service(self):
+        """Get collection service."""
         if not self._collection_service:
             msg = "collection_service is not set"
             raise ValueError(msg)
@@ -120,6 +128,7 @@ class BaseService:
 
     @property
     def character_service(self):
+        """Get character service."""
         if not self._character_service:
             msg = "character_service is not set"
             raise ValueError(msg)
@@ -132,6 +141,7 @@ class BaseService:
 
     @property
     def item_service(self):
+        """Get item service."""
         if not self._item_service:
             msg = "item_service is not set"
             raise ValueError(msg)
@@ -144,6 +154,7 @@ class BaseService:
 
     @property
     def research_service(self):
+        """Get research service."""
         if not self._research_service:
             msg = "research_service is not set"
             raise ValueError(msg)
@@ -156,6 +167,7 @@ class BaseService:
 
     @property
     def room_service(self):
+        """Get room service."""
         if not self._room_service:
             msg = "room_service is not set"
             raise ValueError(msg)
@@ -168,6 +180,7 @@ class BaseService:
 
     @property
     def ship_service(self):
+        """Get ship service."""
         if not self._ship_service:
             msg = "ship_service is not set"
             raise ValueError(msg)
@@ -180,6 +193,7 @@ class BaseService:
 
     @property
     def achievement_service(self):
+        """Get achievement service."""
         if not self._achievement_service:
             msg = "achievement_service is not set"
             raise ValueError(msg)
@@ -192,6 +206,7 @@ class BaseService:
 
     @property
     def craft_service(self):
+        """Get craft service."""
         if not self._craft_service:
             msg = "craft_service is not set"
             raise ValueError(msg)
@@ -204,6 +219,7 @@ class BaseService:
 
     @property
     def pixyship_service(self):
+        """Get pixyship service."""
         if not self._pixyship_service:
             msg = "pixyship_service is not set"
             raise ValueError(msg)
@@ -216,6 +232,7 @@ class BaseService:
 
     @property
     def missile_service(self):
+        """Get missile service."""
         if not self._missile_service:
             msg = "missile_service is not set"
             raise ValueError(msg)
@@ -228,6 +245,7 @@ class BaseService:
 
     @property
     def prestige_service(self):
+        """Get prestige service."""
         if not self._prestige_service:
             msg = "prestige_service is not set"
             raise ValueError("%s" % msg)
@@ -240,6 +258,7 @@ class BaseService:
 
     @property
     def changes_service(self):
+        """Get changes service."""
         if not self._changes_service:
             msg = "changes_service is not set"
             raise ValueError(msg)
@@ -252,6 +271,7 @@ class BaseService:
 
     @property
     def record_details_service(self):
+        """Get record details service."""
         if not self._record_details_service:
             msg = "record_details_service is not set"
             raise ValueError(msg)
@@ -264,6 +284,7 @@ class BaseService:
 
     @property
     def daily_offer_service(self):
+        """Get daily offer service."""
         if not self._daily_offer_service:
             msg = "daily_offer_service is not set"
             raise ValueError(msg)
@@ -276,6 +297,7 @@ class BaseService:
 
     @property
     def player_service(self):
+        """Get player service."""
         if not self._player_service:
             msg = "player_service is not set"
             raise ValueError(msg)

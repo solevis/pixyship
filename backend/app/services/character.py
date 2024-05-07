@@ -12,6 +12,8 @@ from app.utils.math import float_range, int_range
 
 
 class CharacterService(BaseService):
+    """Service to manage characters."""
+
     def __init__(self):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
@@ -19,6 +21,7 @@ class CharacterService(BaseService):
 
     @property
     def characters(self) -> dict[int, dict]:
+        """Get characters data."""
         if not self._characters:
             self._characters = self.get_characters_from_records()
             self.update_character_with_collection_data()
@@ -27,7 +30,6 @@ class CharacterService(BaseService):
 
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""
-
         records = self.record_service.records[TypeEnum.CHARACTER]
 
         characters = {}
@@ -88,7 +90,6 @@ class CharacterService(BaseService):
     @staticmethod
     def parse_equipment_slots(character) -> list[str]:
         """Determine equipments slots with character equipment mask."""
-
         equipment_mask = int(character["EquipmentMask"])
         output = [int(x) for x in f"{equipment_mask:06b}"]
 
@@ -96,7 +97,6 @@ class CharacterService(BaseService):
 
     def update_character_with_collection_data(self) -> None:
         """Updata character data with collection."""
-
         # update crew with collection data
         for character in self.characters.values():
             if character["collection"]:
@@ -107,7 +107,6 @@ class CharacterService(BaseService):
 
     def update_characters(self):
         """Get crews from API and save them in database."""
-
         characters = self.pixel_starships_api.get_characters()
         still_presents_ids = []
 
