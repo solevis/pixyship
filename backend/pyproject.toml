@@ -1,6 +1,5 @@
 [project]
 name = "pixyship"
-version = "2.10.0"
 description = "PixyShip is a reference site for the game Pixel Starships."
 authors = [
     { name = "solevis", email = "solevis@protonmail.com" }
