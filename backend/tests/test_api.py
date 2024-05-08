@@ -10,7 +10,7 @@ def test_login(app):
         utc_now = datetime.datetime.now(tz=datetime.UTC)
         client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
-        device_key, device_checksum = pixel_starships_api.generate_device(client_datetime)
+        device_key, device_checksum = pixel_starships_api.generate_device_key_checksum(client_datetime)
         token = pixel_starships_api.get_device_token(device_key, client_datetime, device_checksum)
 
         assert isinstance(token, str)

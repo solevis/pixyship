@@ -8,20 +8,20 @@ from app.services.base import BaseService
 class MissileService(BaseService):
     """Service to manage missiles."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._missiles = {}
+        self._missiles: dict[int, dict] = {}
 
     @property
-    def missiles(self):
+    def missiles(self) -> dict[int, dict]:
         """Get missiles data."""
         if not self._missiles:
             self._missiles = self.get_missiles_from_records()
 
         return self._missiles
 
-    def get_missiles_from_records(self):
+    def get_missiles_from_records(self) -> dict[int, dict]:
         """Load missiles from database."""
         records = self.record_service.records[TypeEnum.MISSILE]
 
@@ -53,7 +53,7 @@ class MissileService(BaseService):
 
         return missiles
 
-    def update_missiles(self):
+    def update_missiles(self) -> None:
         """Get missiles from API and save them in database."""
         missiles = self.pixel_starships_api.get_missiles()
         still_presents_ids = []

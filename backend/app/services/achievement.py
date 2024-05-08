@@ -8,20 +8,20 @@ from app.services.base import BaseService
 class AchievementService(BaseService):
     """Service to manage achievements."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._achievements = {}
+        self._achievements: dict[int, dict] = {}
 
     @property
-    def achievements(self):
+    def achievements(self) -> dict[int, dict]:
         """Get achievements data."""
         if not self._achievements:
             self._achievements = self.get_achievements_from_db()
 
         return self._achievements
 
-    def get_achievements_from_db(self):
+    def get_achievements_from_db(self) -> dict[int, dict]:
         """Load achievements from database."""
         records = self.record_service.records[TypeEnum.ACHIEVEMENT]
 
@@ -66,7 +66,7 @@ class AchievementService(BaseService):
 
         return achievements
 
-    def update_achievements(self):
+    def update_achievements(self) -> None:
         """Update data and save records."""
         achievements = self.pixel_starships_api.get_achievements()
         still_presents_ids = []

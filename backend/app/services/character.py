@@ -1,7 +1,8 @@
 from xml.etree import ElementTree
 
 from app.constants import (
-    ABILITY_MAP,
+    ABILITY_NAME_MAP,
+    ABILITY_SPRITE_MAP,
     EQUIPMENT_SLOTS,
     RARITY_MAP,
 )
@@ -14,7 +15,7 @@ from app.utils.math import float_range, int_range
 class CharacterService(BaseService):
     """Service to manage characters."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
         self._characters: dict[int, dict] = {}
@@ -61,9 +62,9 @@ class CharacterService(BaseService):
                 "research": float_range(character, "Research", "FinalResearch"),
                 "science": float_range(character, "Science", "FinalScience"),
                 "ability": float_range(character, "SpecialAbilityArgument", "SpecialAbilityFinalArgument"),
-                "special_ability": ABILITY_MAP.get(character["SpecialAbilityType"], {"name": ""})["name"],
+                "special_ability": ABILITY_NAME_MAP.get(character["SpecialAbilityType"], ""),
                 "ability_sprite": self.sprite_service.get_sprite_infos(
-                    ABILITY_MAP.get(character["SpecialAbilityType"], {"sprite": 110})["sprite"],
+                    ABILITY_SPRITE_MAP.get(character["SpecialAbilityType"], 110),
                 ),
                 "fire_resist": int(character["FireResistance"]),
                 "resurrect": 0,
@@ -88,7 +89,7 @@ class CharacterService(BaseService):
         return characters
 
     @staticmethod
-    def parse_equipment_slots(character) -> list[str]:
+    def parse_equipment_slots(character: dict) -> list[str]:
         """Determine equipments slots with character equipment mask."""
         equipment_mask = int(character["EquipmentMask"])
         output = [int(x) for x in f"{equipment_mask:06b}"]
@@ -105,7 +106,7 @@ class CharacterService(BaseService):
                 ]
                 character["collection_name"] = self.collection_service.collections[character["collection"]]["name"]
 
-    def update_characters(self):
+    def update_characters(self) -> None:
         """Get crews from API and save them in database."""
         characters = self.pixel_starships_api.get_characters()
         still_presents_ids = []

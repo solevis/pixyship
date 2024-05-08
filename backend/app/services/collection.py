@@ -9,20 +9,20 @@ from app.services.base import BaseService
 class CollectionService(BaseService):
     """Service to manage collections."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._collections = {}
+        self._collections: dict[int, dict] = {}
 
     @property
-    def collections(self):
+    def collections(self) -> dict[int, dict]:
         """Get collections data."""
         if not self._collections:
             self._collections = self.get_collections_from_records()
 
         return self._collections
 
-    def get_collections_from_records(self):
+    def get_collections_from_records(self) -> dict[int, dict]:
         """Load collections from database."""
         records = self.record_service.records[TypeEnum.COLLECTION]
 
@@ -51,7 +51,7 @@ class CollectionService(BaseService):
 
         return collections
 
-    def update_collections(self):
+    def update_collections(self) -> None:
         """Get collections from API and save them in database."""
         collections = self.pixel_starships_api.get_collections()
         still_presents_ids = []

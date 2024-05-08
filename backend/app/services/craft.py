@@ -8,20 +8,20 @@ from app.services.base import BaseService
 class CraftService(BaseService):
     """Service to manage crafts."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._crafts = {}
+        self._crafts: dict[int, dict] = {}
 
     @property
-    def crafts(self):
+    def crafts(self) -> dict[int, dict]:
         """Get crafts data."""
         if not self._crafts:
             self._crafts = self.get_crafts_from_records()
 
         return self._crafts
 
-    def get_crafts_from_records(self):
+    def get_crafts_from_records(self) -> dict[int, dict]:
         """Load crafts from database."""
         records = self.record_service.records[TypeEnum.CRAFT]
 
@@ -60,7 +60,7 @@ class CraftService(BaseService):
 
         return crafts
 
-    def update_crafts(self):
+    def update_crafts(self) -> None:
         """Get crafts from API and save them in database."""
         crafts = self.pixel_starships_api.get_crafts()
         still_presents_ids = []

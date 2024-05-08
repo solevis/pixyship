@@ -1,6 +1,7 @@
 import datetime
 import json
 from collections import Counter, defaultdict
+from typing import Any
 
 from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
@@ -10,11 +11,11 @@ from app.services.base import BaseService
 class PrestigeService(BaseService):
     """Service to manage prestiges."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
 
-    def get_prestige_from_from_api(self, character_id):
+    def get_prestige_from_from_api(self, character_id: int) -> tuple[list, dict]:
         """Get prestige paires and groups created with given char_id."""
         prestiges = self.pixel_starships_api.get_prestiges_character_from(character_id)
         prestiges_from = [
@@ -27,16 +28,16 @@ class PrestigeService(BaseService):
 
         return prestiges_from, grouped_from
 
-    def get_prestiges_from_api(self, char_id):
+    def get_prestiges_from_api(self, character_id: int) -> dict:
         """Get all prestige combinaisons."""
-        prestiges_to, grouped_to = self.get_prestige_to_from_api(char_id)
-        prestiges_from, grouped_from = self.get_prestige_from_from_api(char_id)
+        prestiges_to, grouped_to = self.get_prestige_to_from_api(character_id)
+        prestiges_from, grouped_from = self.get_prestige_from_from_api(character_id)
 
         all_ids = list(
             set(
                 [i for prestige in prestiges_to for i in prestige]
                 + [i for prestige in prestiges_from for i in prestige]
-                + [char_id],
+                + [character_id],
             ),
         )
         all_characters = [
@@ -50,21 +51,16 @@ class PrestigeService(BaseService):
             "expires_at": datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=1),
         }
 
-    def get_prestige_to_from_api(self, character_id):
+    def get_prestige_to_from_api(self, character_id: int) -> tuple[set[tuple[int, ...]], defaultdict[Any, list]]:
         """Get prestige paires and groups which create given char_id."""
-        prestiges = self.pixel_starships_api.get_prestiges_character_to(character_id)
-
-        # if only one unique prestige, add it in list
-        if not isinstance(prestiges, list):
-            prestiges = [(prestiges,)]
-
-        prestiges_to = {
+        prestiges: list[dict] = self.pixel_starships_api.get_prestiges_character_to(character_id)
+        prestiges_to: set[tuple] = {
             tuple(sorted((int(prestige["CharacterDesignId1"]), int(prestige["CharacterDesignId2"]))))
             for prestige in prestiges
         }
 
         # determine which crews to group
-        temp_to = prestiges_to
+        temp_to = list(prestiges_to)
         grouped_to = defaultdict(list)
         while len(temp_to):
             counter = Counter([x for y in temp_to for x in y])
@@ -84,7 +80,7 @@ class PrestigeService(BaseService):
 
         return prestiges_to, grouped_to
 
-    def update_prestiges(self):
+    def update_prestiges(self) -> None:
         """Get prestiges from API and save them in database."""
         still_presents_ids = []
 
@@ -111,7 +107,6 @@ class PrestigeService(BaseService):
                 int(character["sprite"]["id"]),
                 json_content,
                 self.pixel_starships_api.server,
-                data_as_xml=False,
             )
             still_presents_ids.append(int(record_id))
 

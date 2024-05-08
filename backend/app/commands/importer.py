@@ -3,7 +3,6 @@ import random
 import time
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
 from urllib import request
 
 import click
@@ -24,7 +23,7 @@ service_factory = ServiceFactory()
 def log_command(func: Callable) -> Callable:
     """Log the start and end of a command."""
 
-    def wrapper(*func_args: tuple[Any], **func_kwargs: dict[str, Any]) -> Any:
+    def wrapper(*func_args: tuple, **func_kwargs: dict) -> Callable:
         start_time = time.time()
         current_app.logger.info("START")
         result = func(*func_args, **func_kwargs)
@@ -40,7 +39,7 @@ def log_command(func: Callable) -> Callable:
 @importer_cli.command("players", help="Get top players and save them in database.")
 @with_appcontext
 @log_command
-def import_players():
+def import_players() -> None:
     """Get all top 100 players and top 100 alliances' players and save them in database."""
     player_service = service_factory.player_service
 
@@ -84,7 +83,7 @@ def import_players():
 @importer_cli.command("assets", help="Get all assets and save them in database.")
 @with_appcontext
 @log_command
-def import_assets():
+def import_assets() -> None:
     """Get all items, crews, rooms, ships and save them in database."""
     item_service = service_factory.item_service
     character_service = service_factory.character_service
@@ -144,7 +143,7 @@ def import_assets():
 @importer_cli.command("prestiges", help="Get all prestiges and save them in database.")
 @with_appcontext
 @log_command
-def import_prestiges():
+def import_prestiges() -> None:
     """Import prestiges for checking changes."""
     prestige_service = service_factory.prestige_service
 
@@ -157,7 +156,7 @@ def import_prestiges():
 @importer_cli.command("daily-sales", help="Get all daily sales and save them in database.")
 @with_appcontext
 @log_command
-def import_daily_sales():
+def import_daily_sales() -> None:
     """Get all items, crews, rooms, ships on sale today and save them in database."""
     daily_offer_service = service_factory.daily_offer_service
 
@@ -298,7 +297,7 @@ def import_daily_sales():
             save_daily_sale(daily_sale)
 
 
-def save_daily_sale(daily_sale):
+def save_daily_sale(daily_sale: DailySale) -> None:
     """Save daily sale in database."""
     daily_sale_type = get_type_enum_from_string(daily_sale.type)
     try:
@@ -324,10 +323,10 @@ def save_daily_sale(daily_sale):
 
 @importer_cli.command("market", help="Get last market sales and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
-@click.option("--item", type=int, default=None, help="Import only the given item")
+@click.option("--item-id", type=int, default=None, help="Import only the given item")
 @with_appcontext
 @log_command
-def import_market(one_item_only: bool, item: int):
+def import_market(one_item_only: bool, item_id: int | None) -> None:
     """Get last market sales and save them in database."""
     item_service = service_factory.item_service
     market_service = service_factory.market_service
@@ -340,13 +339,13 @@ def import_market(one_item_only: bool, item: int):
 
     # no need to get sales of items not saleable
     items = item_service.items
-    saleable_items = {item_id: item for item_id, item in items.items() if item["saleable"]}
+    saleable_items: dict[int, dict] = {item_id: item for item_id, item in items.items() if item["saleable"]}
 
-    if item:
+    if item_id:
         try:
-            saleable_items = {item: saleable_items[item]}
+            saleable_items = {item_id: saleable_items[item_id]}
         except KeyError:
-            current_app.logger.exception("Unknown item %d", item)
+            current_app.logger.exception("Unknown item %d", item_id)
             return
 
     total = len(saleable_items)
@@ -356,18 +355,18 @@ def import_market(one_item_only: bool, item: int):
     saleable_items_items = list(saleable_items.items())
     saleable_items_ordered = random.sample(saleable_items_items, k=len(saleable_items_items))
 
-    for count, (item_id, item) in enumerate(saleable_items_ordered, start=1):
-        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, item["name"], item_id)
+    for count, (current_item_id, current_item) in enumerate(saleable_items_ordered, start=1):
+        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        sales = market_service.get_sales_from_api(item_id)
+        sales = market_service.get_sales_from_api(current_item_id)
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(sales))
 
         for sale in sales:
             listing = Listing(
                 id=sale["SaleId"],
                 sale_at=sale["StatusDate"],
-                item_name=item["name"],
-                item_id=item_id,
+                item_name=current_item["name"],
+                item_id=current_item_id,
                 amount=sale["Quantity"],
                 currency=sale["CurrencyType"],
                 price=sale["CurrencyValue"],
@@ -392,10 +391,10 @@ def import_market(one_item_only: bool, item: int):
 
 @importer_cli.command("market-messages", help="Get last market messages and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
-@click.option("--item", type=int, default=None, help="Import only the given item")
+@click.option("--item-id", type=int, default=None, help="Import only the given item")
 @with_appcontext
 @log_command
-def import_market_messages(one_item_only: bool, item: int):
+def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     """Get last market messages and save them in database."""
     item_service = service_factory.item_service
     market_service = service_factory.market_service
@@ -408,26 +407,28 @@ def import_market_messages(one_item_only: bool, item: int):
 
     # no need to get sales of items not saleable
     items = item_service.items
-    items_with_offstat = {item_id: item for item_id, item in items.items() if item["has_offstat"]}
+    items_with_offstat: dict[int, dict] = {item_id: item for item_id, item in items.items() if item["has_offstat"]}
 
-    if item:
+    if item_id:
         try:
-            items_with_offstat = {item: items_with_offstat[item]}
+            items_with_offstat = {item_id: items_with_offstat[item_id]}
         except KeyError:
-            current_app.logger.exception("Unknown item %d", item)
+            current_app.logger.exception("Unknown item %d", item_id)
             return
 
     total = len(items_with_offstat)
     if one_item_only:
         total = 1
 
-    items_with_offstat_items = list(items_with_offstat.items())
-    items_with_offstat_ordered = random.sample(items_with_offstat_items, k=len(items_with_offstat_items))
+    items_with_offstat_items: list[tuple[int, dict]] = list(items_with_offstat.items())
+    items_with_offstat_ordered: list[tuple[int, dict]] = random.sample(
+        items_with_offstat_items, k=len(items_with_offstat_items)
+    )
 
-    for count, (item_id, item) in enumerate(items_with_offstat_ordered, start=1):
-        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, item["name"], item_id)
+    for count, (current_item_id, current_item) in enumerate(items_with_offstat_ordered, start=1):
+        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        messages = market_service.get_market_messages_from_api(item_id)
+        messages = market_service.get_market_messages_from_api(current_item_id)
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(messages))
 
         for message in messages:
@@ -435,7 +436,7 @@ def import_market_messages(one_item_only: bool, item: int):
                 id=message["MessageId"],
                 message=message["Message"],
                 sale_id=message["SaleId"],
-                item_id=item_id,
+                item_id=current_item_id,
                 user_id=message["UserId"],
                 message_type=message["MessageType"],
                 channel_id=message["ChannelId"],
@@ -455,7 +456,7 @@ def import_market_messages(one_item_only: bool, item: int):
     current_app.logger.info("Done")
 
 
-def save_market_message(market_message):
+def save_market_message(market_message: MarketMessage) -> None:
     """Save market message in database."""
     try:
         insert_command = (
@@ -484,7 +485,7 @@ def save_market_message(market_message):
 @importer_cli.command("sprites", help="Download sprites from PSS.")
 @with_appcontext
 @log_command
-def dowload_sprites():
+def dowload_sprites() -> None:
     """Download sprites from PSS."""
     sprite_service = service_factory.sprite_service
 
@@ -507,7 +508,7 @@ def dowload_sprites():
                 current_app.logger.exception("Error downloading sprite: %s", url)
 
 
-def save_users(users):
+def save_users(users: list) -> None:
     """Save users and attached alliance in database."""
     for user_id, user in users:
         player = Player(

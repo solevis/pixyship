@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,7 +28,7 @@ if TYPE_CHECKING:
 class BaseService:
     """Base service class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._record_service: RecordService | None = None
         self._sprite_service: SpriteService | None = None
         self._market_service: MarketService | None = None
@@ -49,7 +51,7 @@ class BaseService:
         self._player_service: PlayerService | None = None
 
     @property
-    def record_service(self):
+    def record_service(self) -> RecordService:
         """Get record service."""
         if not self._record_service:
             msg = "record_service is not set"
@@ -58,11 +60,11 @@ class BaseService:
         return self._record_service
 
     @record_service.setter
-    def record_service(self, record_service):
+    def record_service(self, record_service: RecordService) -> None:
         self._record_service = record_service
 
     @property
-    def sprite_service(self):
+    def sprite_service(self) -> SpriteService:
         """Get sprite service."""
         if not self._sprite_service:
             msg = "sprite_service is not set"
@@ -71,11 +73,11 @@ class BaseService:
         return self._sprite_service
 
     @sprite_service.setter
-    def sprite_service(self, sprite_service):
+    def sprite_service(self, sprite_service: SpriteService) -> None:
         self._sprite_service = sprite_service
 
     @property
-    def market_service(self):
+    def market_service(self) -> MarketService:
         """Get market service."""
         if not self._market_service:
             msg = "market_service is not set"
@@ -84,11 +86,11 @@ class BaseService:
         return self._market_service
 
     @market_service.setter
-    def market_service(self, market_service):
+    def market_service(self, market_service: MarketService) -> None:
         self._market_service = market_service
 
     @property
-    def training_service(self):
+    def training_service(self) -> TrainingService:
         """Get training service."""
         if not self._training_service:
             msg = "training_service is not set"
@@ -97,11 +99,11 @@ class BaseService:
         return self._training_service
 
     @training_service.setter
-    def training_service(self, training_service):
+    def training_service(self, training_service: TrainingService) -> None:
         self._training_service = training_service
 
     @property
-    def skin_service(self):
+    def skin_service(self) -> SkinService:
         """Get skin service."""
         if not self._skin_service:
             msg = "skin_service is not set"
@@ -110,11 +112,11 @@ class BaseService:
         return self._skin_service
 
     @skin_service.setter
-    def skin_service(self, skin_service):
+    def skin_service(self, skin_service: SkinService) -> None:
         self._skin_service = skin_service
 
     @property
-    def collection_service(self):
+    def collection_service(self) -> CollectionService:
         """Get collection service."""
         if not self._collection_service:
             msg = "collection_service is not set"
@@ -123,11 +125,11 @@ class BaseService:
         return self._collection_service
 
     @collection_service.setter
-    def collection_service(self, collection_service):
+    def collection_service(self, collection_service: CollectionService) -> None:
         self._collection_service = collection_service
 
     @property
-    def character_service(self):
+    def character_service(self) -> CharacterService:
         """Get character service."""
         if not self._character_service:
             msg = "character_service is not set"
@@ -136,11 +138,11 @@ class BaseService:
         return self._character_service
 
     @character_service.setter
-    def character_service(self, character_service):
+    def character_service(self, character_service: CharacterService) -> None:
         self._character_service = character_service
 
     @property
-    def item_service(self):
+    def item_service(self) -> ItemService:
         """Get item service."""
         if not self._item_service:
             msg = "item_service is not set"
@@ -149,11 +151,11 @@ class BaseService:
         return self._item_service
 
     @item_service.setter
-    def item_service(self, item_service):
+    def item_service(self, item_service: ItemService) -> None:
         self._item_service = item_service
 
     @property
-    def research_service(self):
+    def research_service(self) -> ResearchService:
         """Get research service."""
         if not self._research_service:
             msg = "research_service is not set"
@@ -162,11 +164,11 @@ class BaseService:
         return self._research_service
 
     @research_service.setter
-    def research_service(self, research_service):
+    def research_service(self, research_service: ResearchService) -> None:
         self._research_service = research_service
 
     @property
-    def room_service(self):
+    def room_service(self) -> RoomService:
         """Get room service."""
         if not self._room_service:
             msg = "room_service is not set"
@@ -175,11 +177,11 @@ class BaseService:
         return self._room_service
 
     @room_service.setter
-    def room_service(self, room_service):
+    def room_service(self, room_service: RoomService) -> None:
         self._room_service = room_service
 
     @property
-    def ship_service(self):
+    def ship_service(self) -> ShipService:
         """Get ship service."""
         if not self._ship_service:
             msg = "ship_service is not set"
@@ -188,11 +190,11 @@ class BaseService:
         return self._ship_service
 
     @ship_service.setter
-    def ship_service(self, ship_service):
+    def ship_service(self, ship_service: ShipService) -> None:
         self._ship_service = ship_service
 
     @property
-    def achievement_service(self):
+    def achievement_service(self) -> AchievementService:
         """Get achievement service."""
         if not self._achievement_service:
             msg = "achievement_service is not set"
@@ -201,11 +203,11 @@ class BaseService:
         return self._achievement_service
 
     @achievement_service.setter
-    def achievement_service(self, achievement_service):
+    def achievement_service(self, achievement_service: AchievementService) -> None:
         self._achievement_service = achievement_service
 
     @property
-    def craft_service(self):
+    def craft_service(self) -> CraftService:
         """Get craft service."""
         if not self._craft_service:
             msg = "craft_service is not set"
@@ -214,11 +216,11 @@ class BaseService:
         return self._craft_service
 
     @craft_service.setter
-    def craft_service(self, craft_service):
+    def craft_service(self, craft_service: CraftService) -> None:
         self._craft_service = craft_service
 
     @property
-    def pixyship_service(self):
+    def pixyship_service(self) -> PixyShipService:
         """Get pixyship service."""
         if not self._pixyship_service:
             msg = "pixyship_service is not set"
@@ -227,11 +229,11 @@ class BaseService:
         return self._pixyship_service
 
     @pixyship_service.setter
-    def pixyship_service(self, pixyship_service):
+    def pixyship_service(self, pixyship_service: PixyShipService) -> None:
         self._pixyship_service = pixyship_service
 
     @property
-    def missile_service(self):
+    def missile_service(self) -> MissileService:
         """Get missile service."""
         if not self._missile_service:
             msg = "missile_service is not set"
@@ -240,11 +242,11 @@ class BaseService:
         return self._missile_service
 
     @missile_service.setter
-    def missile_service(self, missile_service):
+    def missile_service(self, missile_service: MissileService) -> None:
         self._missile_service = missile_service
 
     @property
-    def prestige_service(self):
+    def prestige_service(self) -> PrestigeService:
         """Get prestige service."""
         if not self._prestige_service:
             msg = "prestige_service is not set"
@@ -253,11 +255,11 @@ class BaseService:
         return self._prestige_service
 
     @prestige_service.setter
-    def prestige_service(self, prestige_service):
+    def prestige_service(self, prestige_service: PrestigeService) -> None:
         self._prestige_service = prestige_service
 
     @property
-    def changes_service(self):
+    def changes_service(self) -> ChangesService:
         """Get changes service."""
         if not self._changes_service:
             msg = "changes_service is not set"
@@ -266,11 +268,11 @@ class BaseService:
         return self._changes_service
 
     @changes_service.setter
-    def changes_service(self, changes_service):
+    def changes_service(self, changes_service: ChangesService) -> None:
         self._changes_service = changes_service
 
     @property
-    def record_details_service(self):
+    def record_details_service(self) -> RecordDetailsService:
         """Get record details service."""
         if not self._record_details_service:
             msg = "record_details_service is not set"
@@ -279,11 +281,11 @@ class BaseService:
         return self._record_details_service
 
     @record_details_service.setter
-    def record_details_service(self, record_details_service):
+    def record_details_service(self, record_details_service: RecordDetailsService) -> None:
         self._record_details_service = record_details_service
 
     @property
-    def daily_offer_service(self):
+    def daily_offer_service(self) -> DailyOfferService:
         """Get daily offer service."""
         if not self._daily_offer_service:
             msg = "daily_offer_service is not set"
@@ -292,11 +294,11 @@ class BaseService:
         return self._daily_offer_service
 
     @daily_offer_service.setter
-    def daily_offer_service(self, daily_offer_service):
+    def daily_offer_service(self, daily_offer_service: DailyOfferService) -> None:
         self._daily_offer_service = daily_offer_service
 
     @property
-    def player_service(self):
+    def player_service(self) -> PlayerService:
         """Get player service."""
         if not self._player_service:
             msg = "player_service is not set"
@@ -305,5 +307,5 @@ class BaseService:
         return self._player_service
 
     @player_service.setter
-    def player_service(self, player_service):
+    def player_service(self, player_service: PlayerService) -> None:
         self._player_service = player_service

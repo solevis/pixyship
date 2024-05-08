@@ -11,20 +11,20 @@ from app.utils.pss import parse_requirement
 class ShipService(BaseService):
     """Service to manage ships."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._ships = {}
+        self._ships: dict[int, dict] = {}
 
     @property
-    def ships(self):
+    def ships(self) -> dict[int, dict]:
         """Get ships data."""
         if not self._ships:
             self._ships = self.get_ships_from_records()
 
         return self._ships
 
-    def get_ships_from_records(self):
+    def get_ships_from_records(self) -> dict[int, dict]:
         """Load ships from database."""
         records = self.record_service.get_records_from_type(TypeEnum.SHIP)
 
@@ -69,7 +69,9 @@ class ShipService(BaseService):
 
         return ships
 
-    def parse_ship_unlock_costs(self, mineral_cost_string, starbux_cost_string, unlock_cost_string):
+    def parse_ship_unlock_costs(
+        self, mineral_cost_string: str, starbux_cost_string: str, unlock_cost_string: str
+    ) -> tuple[int, int, int, list]:
         """Parse ship unlock cost infos from API."""
         starbux_cost = 0
         mineral_cost = 0
@@ -108,7 +110,7 @@ class ShipService(BaseService):
 
         return starbux_cost, mineral_cost, points_cost, items_cost
 
-    def parse_ship_requirement(self, requirements_string):
+    def parse_ship_requirement(self, requirements_string: str) -> list | None:
         """Parse several requirements assets."""
         if not requirements_string:
             return None
@@ -118,7 +120,7 @@ class ShipService(BaseService):
 
         return [self.parse_requirement(unparsed_requirement.strip()) for unparsed_requirement in unparsed_requirements]
 
-    def update_ships(self):
+    def update_ships(self) -> None:
         """Get ships from API and save them in database."""
         ships = self.pixel_starships_api.get_ships()
         still_presents_ids = []
@@ -137,7 +139,7 @@ class ShipService(BaseService):
 
         self.record_service.purge_old_records(TypeEnum.SHIP, still_presents_ids)
 
-    def parse_requirement(self, requirement_string: str) -> dict:
+    def parse_requirement(self, requirement_string: str) -> dict | None:
         """Parse requirement asset."""
         requirement = parse_requirement(requirement_string)
 
@@ -146,9 +148,10 @@ class ShipService(BaseService):
                 requirement["object"] = self.room_service.rooms[requirement["id"]]
             else:
                 record = self.record_service.get_record(requirement["type"], requirement["id"])
-                requirement["object"] = {
-                    "id": record.type_id,
-                    "name": record.name,
-                }
+                if record:
+                    requirement["object"] = {
+                        "id": record.type_id,
+                        "name": record.name,
+                    }
 
         return requirement

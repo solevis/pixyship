@@ -14,14 +14,14 @@ from app.services.base import BaseService
 class MarketService(BaseService):
     """Service to manage market."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._prices = {}
+        self._prices: dict[int, dict] = {}
 
     @property
     @cache.cached(key_prefix="prices")
-    def prices(self):
+    def prices(self) -> dict[int, dict]:
         """Get prices data."""
         if not self._prices:
             self._prices = self.get_prices_from_db()
@@ -29,7 +29,7 @@ class MarketService(BaseService):
         return self._prices
 
     @staticmethod
-    def get_prices_from_db():
+    def get_prices_from_db() -> dict[int, dict]:
         """Get all history market summary from database."""
         sql = """
                 SELECT l.item_id
@@ -45,7 +45,7 @@ class MarketService(BaseService):
             """
 
         result = db.session.execute(text(sql)).fetchall()
-        prices = defaultdict(dict)
+        prices: dict = defaultdict(dict)
         for row in result:
             item_id = row[0]
             currency = row[1]
@@ -59,7 +59,7 @@ class MarketService(BaseService):
         return prices
 
     @staticmethod
-    def get_item_prices(item_id):
+    def get_item_prices(item_id: int) -> dict:
         """Get item history market from database."""
         sql = """
                 SELECT item_id
@@ -79,7 +79,7 @@ class MarketService(BaseService):
             """
 
         result = db.session.execute(text(sql), {"item_id": item_id}).fetchall()
-        prices = defaultdict(lambda: defaultdict(dict))
+        prices: dict[int, dict] = defaultdict(lambda: defaultdict(dict))
 
         for row in result:
             currency = row[2]
@@ -97,7 +97,7 @@ class MarketService(BaseService):
         }
 
     @staticmethod
-    def get_item_last_players_sales_from_db(item_id, limit):
+    def get_item_last_players_sales_from_db(item_id: int, limit: int) -> list[dict]:
         """Get item last players sales from database."""
         sql = """
                 SELECT l.sale_at,
@@ -126,14 +126,15 @@ class MarketService(BaseService):
             offstat = None
             if row[7]:
                 search_result = re.search(r"\(\+(.*?)\s(.*?)\)", row[7])
-                result_value = search_result.group(1)
-                if result_value:
-                    result_bonus = search_result.group(2)
-                    offstat = {
-                        "value": result_value,
-                        "bonus": result_bonus,
-                        "short_bonus": SHORT_ENHANCE_MAP.get(result_bonus, result_bonus),
-                    }
+                if search_result:
+                    result_value = search_result.group(1)
+                    if result_value:
+                        result_bonus = search_result.group(2)
+                        offstat = {
+                            "value": result_value,
+                            "bonus": result_bonus,
+                            "short_bonus": SHORT_ENHANCE_MAP.get(result_bonus, result_bonus),
+                        }
 
             last_sales.append(
                 {
@@ -150,7 +151,7 @@ class MarketService(BaseService):
 
         return last_sales
 
-    def get_sales_from_api(self, item_id):
+    def get_sales_from_api(self, item_id: int) -> list:
         """Get market history of item."""
         # get max sale_id to retrieve only new sales
         max_sale_id_result = (
@@ -164,6 +165,6 @@ class MarketService(BaseService):
 
         return self.pixel_starships_api.get_sales(item_id, max_sale_id)
 
-    def get_market_messages_from_api(self, item_id):
+    def get_market_messages_from_api(self, item_id: int) -> list:
         """Get market messages of item."""
         return self.pixel_starships_api.get_market_messages(item_id)

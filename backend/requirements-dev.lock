@@ -64,7 +64,7 @@ pytest==8.1.1
 requests==2.31.0
 sentry-sdk==1.45.0
     # via sentry-sdk
-sqlalchemy==2.0.29
+sqlalchemy==2.0.30
     # via alembic
     # via flask-sqlalchemy
     # via sqlalchemy

@@ -25,16 +25,16 @@ from app.utils.pss import get_type_enum_from_string
 class DailyOfferService(BaseService):
     """Service to manage daily offers."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._daily_offers = {}
+        self._daily_offers: dict = {}
         self._promotions: list[dict] = []
         self._situations: list[dict] = []
         self._star_system_merchant_markers: list[dict] = []
 
     @property
-    def daily_offers(self):
+    def daily_offers(self) -> dict:
         """Get daily offers."""
         if not self._daily_offers:
             self._daily_offers = self.get_daily_offers_from_api()
@@ -65,9 +65,9 @@ class DailyOfferService(BaseService):
 
         return self._star_system_merchant_markers
 
-    def get_daily_offers_from_api(self):
+    def get_daily_offers_from_api(self) -> dict:
         """Get settings service data, sales, motd from API."""
-        dailies = self.pixel_starships_api.get_dailies()
+        dailies: dict = self.pixel_starships_api.get_dailies()
         promotions = self.get_current_promotions()
 
         daily_promotions = [promotion for promotion in promotions if promotion["type"] == "DailyDealOffer"]
@@ -82,30 +82,51 @@ class DailyOfferService(BaseService):
                 daily_object = self.format_daily_object(reward["count"], reward["type"], reward["data"], reward["id"])
         else:
             record_type = get_type_enum_from_string(dailies["SaleType"])
+            if record_type is None:
+                current_app.logger.error("Cannot get record type from string %s", dailies["SaleType"])
+                record_details = None
+            else:
+                record_details = self.record_details_service.get_record_details(
+                    record_type, int(dailies["SaleArgument"])
+                )
+
             daily_object = self.format_daily_object(
                 1,
                 dailies["SaleType"],
-                self.record_details_service.get_record_details(record_type, int(dailies["SaleArgument"])),
+                record_details,
                 int(dailies["SaleArgument"]),
             )
 
-        record_type = get_type_enum_from_string(dailies["LimitedCatalogType"])
+        daily_rewards_price = self.format_daily_price(
+            int(dailies["DailyRewardArgument"]),
+            dailies["DailyRewardType"],
+        )
+
+        shop_record_type = get_type_enum_from_string(dailies["LimitedCatalogType"])
+        if shop_record_type is None:
+            current_app.logger.error("Cannot get record type from string %s", dailies["LimitedCatalogType"])
+            shop_record_details = None
+        else:
+            shop_record_details = self.record_details_service.get_record_details(
+                shop_record_type,
+                int(dailies["LimitedCatalogArgument"]),
+            )
+
+        shop_cost = self.format_daily_price(
+            dailies["LimitedCatalogCurrencyAmount"],
+            dailies["LimitedCatalogCurrencyType"],
+        )
+
         offers = {
             "shop": {
                 "sprite": self.sprite_service.get_sprite_infos(SHOP_SPRITE_ID),
                 "object": self.format_daily_object(
                     1,
                     dailies["LimitedCatalogType"],
-                    self.record_details_service.get_record_details(
-                        record_type,
-                        int(dailies["LimitedCatalogArgument"]),
-                    ),
+                    shop_record_details,
                     int(dailies["LimitedCatalogArgument"]),
                 ),
-                "cost": self.format_daily_price(
-                    dailies["LimitedCatalogCurrencyAmount"],
-                    dailies["LimitedCatalogCurrencyType"],
-                ),
+                "cost": shop_cost,
                 "details": {
                     "left": dailies["LimitedCatalogQuantity"],
                     "max": dailies["LimitedCatalogMaxTotal"],
@@ -137,10 +158,7 @@ class DailyOfferService(BaseService):
                     self.format_daily_object(
                         int(dailies["DailyRewardArgument"]),
                         "currency",
-                        self.format_daily_price(
-                            int(dailies["DailyRewardArgument"]),
-                            dailies["DailyRewardType"],
-                        ),
+                        daily_rewards_price,
                         None,
                     ),
                     *self.parse_daily_items(dailies["DailyItemRewards"]),
@@ -175,7 +193,7 @@ class DailyOfferService(BaseService):
             "merchant_markers": self.star_system_merchant_markers,
         }
 
-    def get_current_promotions(self):
+    def get_current_promotions(self) -> list[dict]:
         """Get running promotions depending on the current date."""
         utc_now = datetime.datetime.now(tz=datetime.UTC)
 
@@ -196,7 +214,7 @@ class DailyOfferService(BaseService):
 
         return promotions
 
-    def get_promotions_from_api(self):
+    def get_promotions_from_api(self) -> list[dict]:
         """Get promotions from API."""
         data = self.pixel_starships_api.get_promotions()
         promotions = []
@@ -220,7 +238,7 @@ class DailyOfferService(BaseService):
         return promotions
 
     @staticmethod
-    def format_daily_object(count, type_str, object_str, type_id):
+    def format_daily_object(count: int, type_str: str, object_: dict | None, type_id: int | None) -> dict | None:
         """Format daily object."""
         if type_str == "None":
             return None
@@ -229,18 +247,18 @@ class DailyOfferService(BaseService):
             "count": count,
             "type": type_str.lower(),
             "id": type_id,
-            "object": object_str,
+            "object": object_,
         }
 
     @staticmethod
-    def format_daily_price(amount, currency):
+    def format_daily_price(amount: int, currency: str) -> dict:
         """Format daily price."""
         return {
             "price": amount,
             "currency": currency,
         }
 
-    def parse_daily_cargo(self, item_list_string, cost_list_string):
+    def parse_daily_cargo(self, item_list_string: str, cost_list_string: str) -> list[dict]:
         """Split daily cargo data into prices and items."""
         items = self.parse_daily_items(item_list_string)
 
@@ -251,7 +269,7 @@ class DailyOfferService(BaseService):
                 current_app.logger.error("Cannot parse cost_list_string %s", splitted_price)
                 continue
 
-            price = {"currency": splitted_price[0]}
+            price: dict = {"currency": splitted_price[0]}
 
             amount = splitted_price[1].split("x")
             if len(amount) > 1:
@@ -275,7 +293,7 @@ class DailyOfferService(BaseService):
             for item, price in zip(items, prices, strict=True)
         ]
 
-    def parse_daily_items(self, item_list_string):
+    def parse_daily_items(self, item_list_string: str) -> list[dict]:
         """Parse daily items from API."""
         items_split = [i.split("x") for i in item_list_string.split("|")]
         return [
@@ -288,7 +306,7 @@ class DailyOfferService(BaseService):
             for item in items_split
         ]
 
-    def get_situations_from_api(self):
+    def get_situations_from_api(self) -> list[dict]:
         """Get situations from API."""
         data = self.pixel_starships_api.get_situations()
         situations = []
@@ -307,7 +325,7 @@ class DailyOfferService(BaseService):
 
         return situations
 
-    def get_current_situation(self):
+    def get_current_situation(self) -> dict | None:
         """Get running situation depending on the current date."""
         utc_now = datetime.datetime.now(tz=datetime.UTC)
 
@@ -322,7 +340,7 @@ class DailyOfferService(BaseService):
 
         return None
 
-    def get_star_system_merchant_markers_from_api(self):
+    def get_star_system_merchant_markers_from_api(self) -> list[dict]:
         """Get Star System Merchant Markers from API."""
         data = self.pixel_starships_api.get_star_system_markers()
         markers = []
@@ -358,10 +376,10 @@ class DailyOfferService(BaseService):
 
         return markers
 
-    def format_daily_sale_options(self, sale_item_mask):
+    def format_daily_sale_options(self, sale_item_mask: int) -> list[dict]:
         """From flag determine Sale options."""
         result = []
-        options = self.pixel_starships_api.parse_sale_item_mask(sale_item_mask)
+        options = self.pixel_starships_api.parse_sale_item_mask(int(sale_item_mask))
 
         for option in options:
             name = IAP_NAMES[option]
@@ -370,7 +388,7 @@ class DailyOfferService(BaseService):
         return result
 
     @staticmethod
-    def get_last_sales_from_db(sale_type, sale_type_id, limit):
+    def get_last_sales_from_db(sale_type: TypeEnum, sale_type_id: int, limit: int) -> list[dict]:
         """Get last sales from database."""
         result: list[DailySale] = (
             DailySale.query.filter_by(type_id=sale_type_id, type=sale_type)
@@ -390,7 +408,7 @@ class DailyOfferService(BaseService):
             for row in result
         ]
 
-    def get_last_sales_by_sale_from_from_db(self, sale_from, limit):
+    def get_last_sales_by_sale_from_from_db(self, sale_from: str, limit: int) -> list[dict]:
         """Get last sales for given type from database."""
         sale_from_values = ["blue_cargo_mineral", "blue_cargo_starbux"] if sale_from == "blue_cargo" else [sale_from]
 

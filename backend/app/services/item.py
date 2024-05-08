@@ -19,24 +19,24 @@ from app.utils.pss import has_offstat
 class ItemService(BaseService):
     """Service to manage items."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._items = {}
+        self._items: dict[int, dict] = {}
 
     @property
-    def items(self):
+    def items(self) -> dict[int, dict]:
         """Get items data."""
         if not self._items:
             self._items = self.get_items_from_records()
 
         return self._items
 
-    def get_items_from_records(self):
+    def get_items_from_records(self) -> dict[int, dict]:
         """Get items from database."""
         records = self.record_service.get_records_from_type(TypeEnum.ITEM)
 
-        items = {}
+        items: dict = {}
         for record in records.values():
             current_app.logger.debug("Loading item %d from database", record.type_id)
             item_node = ElementTree.fromstring(record.data)
@@ -49,9 +49,9 @@ class ItemService(BaseService):
             module_extra_enhancement = self.parse_module_extra_enhancement(item)
 
             slot = SLOT_MAP.get(item["ItemSubType"], item["ItemSubType"])
-            item_type = item.get("ItemType")
+            item_type = item["ItemType"]
             rarity_order = RARITY_MAP[item["Rarity"]]
-            bonus = float(item.get("EnhancementValue"))
+            bonus = float(item["EnhancementValue"])
             disp_enhancement = ENHANCE_MAP.get(item["EnhancementType"], item["EnhancementType"])
             offstat = has_offstat(item_type, slot, rarity_order, bonus, disp_enhancement)
 
@@ -61,7 +61,7 @@ class ItemService(BaseService):
                 "sprite": self.sprite_service.get_sprite_infos(int(item["ImageSpriteId"])),
                 "logo_sprite": self.sprite_service.get_sprite_infos(int(item["LogoSpriteId"])),
                 "slot": slot,
-                "enhancement": item.get("EnhancementType").lower(),
+                "enhancement": item["EnhancementType"].lower(),
                 "disp_enhancement": disp_enhancement,
                 "short_disp_enhancement": SHORT_ENHANCE_MAP.get(item["EnhancementType"], item["EnhancementType"]),
                 "bonus": bonus,
@@ -70,7 +70,7 @@ class ItemService(BaseService):
                 "module_extra_short_disp_enhancement": module_extra_enhancement["short_disp_enhancement"],
                 "module_extra_enhancement_bonus": module_extra_enhancement["bonus"],
                 "type": item_type,
-                "rarity": item.get("Rarity").lower(),
+                "rarity": item["Rarity"].lower(),
                 "rarity_order": rarity_order,
                 "has_offstat": offstat,
                 "ingredients": item["Ingredients"],
@@ -97,7 +97,7 @@ class ItemService(BaseService):
         return items
 
     @staticmethod
-    def create_light_item(item, items=None):
+    def create_light_item(item: dict, items: dict[int, dict] | None = None) -> dict:
         """Create a light item from a given item."""
         return {
             "id": item["id"],
@@ -115,20 +115,20 @@ class ItemService(BaseService):
             "module_extra_short_disp_enhancement": item["module_extra_short_disp_enhancement"],
             "module_extra_enhancement_bonus": item["module_extra_enhancement_bonus"],
             "prices": item["prices"],
-            "content": item.get("content", None),
+            "content": item.get("content"),
             "recipe": item["recipe"] if not items else ItemService.parse_item_ingredients(item["ingredients"], items),
             "training": item["training"],
         }
 
     @staticmethod
-    def parse_item_ingredients(ingredients_string, items):
+    def parse_item_ingredients(ingredients_string: str, items: dict[int, dict]) -> list:
         """Parse recipe infos from API."""
         recipe = []
         if ingredients_string:
             ingredients = [i.split("x") for i in ingredients_string.split("|")]
             for ingredient in ingredients:
                 # replace hack, 2021 easter event come with additional 'item:' prefix
-                ingredient_item_id = ingredient[0].replace("item:", "")
+                ingredient_item_id: str = ingredient[0].replace("item:", "")
 
                 item = items.get(int(ingredient_item_id))
 
@@ -140,7 +140,7 @@ class ItemService(BaseService):
 
         return recipe
 
-    def parse_item_content(self, item_content_string, last_item, items):
+    def parse_item_content(self, item_content_string: str, last_item: dict, items: dict[int, dict]) -> list:
         """Parse content infos from API."""
         content = []
         if item_content_string:
@@ -156,7 +156,7 @@ class ItemService(BaseService):
                 content_item_type = content_item_unpacked[0]
 
                 content_item_id_count_unpacked = content_item_unpacked[1].split("x")
-                content_item_id = content_item_id_count_unpacked[0]
+                content_item_id: str | None = content_item_id_count_unpacked[0]
 
                 content_item_count = 1
 
@@ -172,7 +172,7 @@ class ItemService(BaseService):
                 # if content's an Item, get all infos of the item
                 elif content_item_type == "item":
                     try:
-                        item = items.get(int(content_item_id))
+                        item = items[int(content_item_id)]
                         if len(content_item_id_count_unpacked) > 1:
                             content_item_count = int(content_item_id_count_unpacked[1])
                     except KeyError:
@@ -217,7 +217,7 @@ class ItemService(BaseService):
         return content
 
     @staticmethod
-    def parse_module_extra_enhancement(item):
+    def parse_module_extra_enhancement(item: dict) -> dict:
         """Parse module extra enhancement from a given item."""
         module_type = item["ModuleType"]
 
@@ -229,7 +229,7 @@ class ItemService(BaseService):
         disp_enhancement = ENHANCE_MAP.get(enhancement, enhancement)
         short_disp_enhancement = (SHORT_ENHANCE_MAP.get(enhancement, enhancement),)
 
-        bonus = 0
+        bonus: float = 0
         if float(item["ModuleArgument"]) != 0:
             bonus = float(item["ModuleArgument"]) / MODULE_BONUS_RATIO_MAP.get(module_type, 1)
 
@@ -240,7 +240,7 @@ class ItemService(BaseService):
             "bonus": bonus,
         }
 
-    def get_item_upgrades(self, item_id: int):
+    def get_item_upgrades(self, item_id: int) -> list:
         """Get items that can be upgraded with a given item."""
         return [
             ItemService.create_light_item(item)
@@ -248,7 +248,7 @@ class ItemService(BaseService):
             if item["recipe"] and any(recipe_item["id"] == item_id for recipe_item in item["recipe"])
         ]
 
-    def update_items(self):
+    def update_items(self) -> None:
         """Get items from API and save them in database."""
         items = self.pixel_starships_api.get_items()
         still_presents_ids = []

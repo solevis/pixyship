@@ -1,6 +1,6 @@
 import hashlib
-from typing import Any
 from xml.etree import ElementTree
+from xml.etree.ElementTree import Element
 
 from flask import current_app
 from sqlalchemy import func
@@ -16,7 +16,7 @@ from app.utils.xml import sort_attributes
 class RecordService(BaseService):
     """Service to manage records."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._records: dict[TypeEnum, dict[int, Record]] = {}
 
@@ -25,7 +25,7 @@ class RecordService(BaseService):
     def records(self) -> dict[TypeEnum, dict[int, Record]]:
         """Get records data."""
         if not self._records:
-            current_records = Record.query.filter_by(current=True).all()
+            current_records: list[Record] = Record.query.filter_by(current=True).all()
 
             for record in current_records:
                 if record.type not in self._records:
@@ -39,18 +39,18 @@ class RecordService(BaseService):
         """Get records from given PSS API type (LimitedCatalogType for example)."""
         return self.records.get(record_type, {})
 
-    def get_record(self, record_type: TypeEnum, record_id: int, reload_on_error: bool = True) -> Record | None:
+    def get_record(self, record_type: TypeEnum, record_type_id: int, reload_on_error: bool = True) -> Record | None:
         """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
         try:
-            return self.records[record_type][record_id]
+            return self.records[record_type][record_type_id]
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
-                self._records = None
+                self._records = {}
                 cache.clear()
-                return self.get_record(record_type, record_id, False)
+                return self.get_record(record_type, record_type_id, False)
 
-            current_app.logger.exception("Cannot find record of type %s with id %d", record_type, record_id)
+            current_app.logger.exception("Cannot find record of type %s with id %d", record_type, record_type_id)
             return None
 
     def get_record_name(self, record_type: TypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:
@@ -67,20 +67,19 @@ class RecordService(BaseService):
         record_id: int,
         record_name: str,
         record_sprite_id: int,
-        raw_data: Any,
+        raw_data: Element | str,
         url: str,
         ignore_list: list[str] | None = None,
-        data_as_xml: bool = True,
-    ):
+    ) -> None:
         """Save a record to the DB with hash."""
         ignore_list = ignore_list or []
 
-        if data_as_xml:
+        if isinstance(raw_data, Element):
             # since python 3.8, attrib order is now preserved, but we need a sorted order for legacy comparaisons
             sort_attributes(raw_data)
 
             # data to be stored in database
-            data = ElementTree.tostring(raw_data).decode()
+            data: str = ElementTree.tostring(raw_data).decode()
 
             # ignore some fields for hashing
             for i in ignore_list:
@@ -135,14 +134,14 @@ class RecordService(BaseService):
         db.session.commit()
 
     @staticmethod
-    def set_not_current(type_str, type_id):
+    def set_not_current(record_type: TypeEnum, type_id: int) -> None:
         """Set record's current state to False in the DB."""
-        existing = Record.query.filter_by(type=type_str, type_id=type_id, current=True).first()
+        existing = Record.query.filter_by(type=record_type, type_id=type_id, current=True).first()
         existing.current = False
         db.session.commit()
 
     @staticmethod
-    def purge_old_records(record_type: TypeEnum, still_presents_ids: list[int]):
+    def purge_old_records(record_type: TypeEnum, still_presents_ids: list[int]) -> None:
         """Disable old records not presents in API."""
         current_ids = Record.query.filter_by(type=record_type, current=True).with_entities(Record.type_id).all()
         current_ids = [current_id[0] for current_id in current_ids]
@@ -151,9 +150,9 @@ class RecordService(BaseService):
         for no_more_presents_id in no_more_presents_ids:
             RecordService.set_not_current(record_type, no_more_presents_id)
 
-    def get_record_sprite_id(self, record_type_enum, param) -> int | None:
+    def get_record_sprite_id(self, record_type: TypeEnum, type_id: int) -> int | None:
         """Get sprite date for the given record ID."""
-        record = self.get_record(record_type_enum, param)
+        record = self.get_record(record_type, type_id)
         if record is None:
             return None
 

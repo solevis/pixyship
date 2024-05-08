@@ -31,7 +31,7 @@ class RecordDetailsService(BaseService):
         room_service: RoomService,
         sprite_service: SpriteService,
         training_service: TrainingService,
-    ):
+    ) -> None:
         super().__init__()
         self.services = {
             TypeEnum.ITEM: item_service,
