@@ -1,9 +1,26 @@
-dist/
-sprites/
-.DS_Store
-*.old
-*.bak
-*.diff
+# IDE settings
 .vscode
 .idea
 .fleet
+
+# Junk files
+*.bak
+*.swp
+*~
+.DS_Store
+._*
+
+# Merge files
+*.orig
+*.rej
+
+# Backup files
+*.old
+*.bak
+*.new
+
+# PixyShip specific
+sprites/
+
+# VCS
+*.diff
