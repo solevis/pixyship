@@ -4,9 +4,11 @@ import random
 import re
 from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree
+from xml.etree.ElementTree import Element
 
 import requests
 from flask import current_app
+from requests import Response
 
 from app.api_errors import TOKEN_EXPIRED_REGEX
 from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, PSS_START_DATE
@@ -40,19 +42,19 @@ class PixelStarshipsApi:
             self.server = o.hostname
 
     @property
-    def maintenance_message(self):
+    def maintenance_message(self) -> str:
         """Get maintenance message from API."""
         return self._api_settings["MaintenanceMessage"]
 
     @property
-    def devices(self):
+    def devices(self) -> list[Device]:
         """Get generated devices."""
         if not self._devices:
             self._devices = self.get_devices()
 
         return self._devices
 
-    def get_devices(self):
+    def get_devices(self) -> list[Device]:
         """Get generated devices from database."""
         devices = Device.query.all()
         if len(devices) < current_app.config["MIN_DEVICES"]:
@@ -60,7 +62,7 @@ class PixelStarshipsApi:
                 utc_now = datetime.datetime.now(tz=datetime.UTC)
                 client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
-                device_key, device_checksum = self.generate_device(client_datetime)
+                device_key, device_checksum = self.generate_device_key_checksum(client_datetime)
                 new_device = Device(
                     key=device_key,
                     client_datetime=client_datetime,
@@ -74,7 +76,7 @@ class PixelStarshipsApi:
         return devices
 
     @cache.cached(timeout=60 * 60 * 12, key_prefix="api_settings")
-    def get_api_settings(self):
+    def get_api_settings(self) -> dict:
         """Get last game settings from API."""
         params = {"languageKey": "en", "deviceType": "DeviceTypeAndroid"}
 
@@ -91,7 +93,7 @@ class PixelStarshipsApi:
             return setting_element.attrib
 
         # call API with classic URL, in case of error, try with alternative
-        endpoint = urljoin(self._main_pixelstarships_api_url, "SettingService/GetLatestVersion3")
+        endpoint: str = urljoin(self._main_pixelstarships_api_url, "SettingService/GetLatestVersion3")
         response = self.call(endpoint, params=params)
         root = ElementTree.fromstring(response.text)
 
@@ -100,7 +102,7 @@ class PixelStarshipsApi:
             current_app.logger.error("Error when parsing response: %s", response.text)
             return {}
 
-        settings = setting_element.attrib
+        settings: dict = setting_element.attrib
         fixed_endpoint = urljoin(
             f'https://{settings["ProductionServer"]}',
             "SettingService/GetLatestVersion3",
@@ -113,15 +115,9 @@ class PixelStarshipsApi:
 
         return settings
 
-    def api_url(self, path: tuple[str, str], server: str | None = None, **params):
-        """Compute endpoint URL with parameters."""
-        # if url need version, get it from settings (retrieved from API)
-        if path[1]:
-            params["version"] = self._api_settings[path[1]] if hasattr(self, "settings") else 1
-
-        return (server or self.server) + path[0].format(**params)
-
-    def call(self, endpoint, params, need_token=False, force_token_generation=False):
+    def call(
+        self, endpoint: str, params: dict, need_token: bool = False, force_token_generation: bool = False
+    ) -> Response:
         """Make a PSS API call."""
         device = None
         token = None
@@ -155,7 +151,7 @@ class PixelStarshipsApi:
         return response
 
     @staticmethod
-    def get_response(endpoint, params):
+    def get_response(endpoint: str, params: dict) -> Response:
         """Get response from API."""
         try:
             response = requests.get(endpoint, params=params)
@@ -167,7 +163,7 @@ class PixelStarshipsApi:
         return response
 
     @staticmethod
-    def create_device_key():
+    def create_device_key() -> str:
         """Generate random device key."""
         sequence = "0123456789abcdef"
         return "".join(
@@ -185,7 +181,7 @@ class PixelStarshipsApi:
             + random.choice(sequence),
         )
 
-    def generate_device(self, client_datetime):
+    def generate_device_key_checksum(self, client_datetime: str) -> tuple[str, str]:
         """Generate new device key/checksum."""
         device_key = self.create_device_key()
         device_type = "DeviceTypeMac"
@@ -197,7 +193,7 @@ class PixelStarshipsApi:
 
         return device_key, device_checksum
 
-    def get_device(self):
+    def get_device(self) -> Device:
         """Get the next device."""
         devices = self.devices
 
@@ -215,7 +211,7 @@ class PixelStarshipsApi:
 
         return device
 
-    def get_device_token(self, device_key, client_datetime, device_checksum):
+    def get_device_token(self, device_key: str, client_datetime: str, device_checksum: str) -> str:
         """Get device token from API for the given generated device."""
         params = {
             "deviceKey": device_key,
@@ -239,7 +235,7 @@ class PixelStarshipsApi:
 
         return user_login_node.attrib["accessToken"]
 
-    def inspect_ship(self, user_id):
+    def inspect_ship(self, user_id: int) -> dict[str, dict]:
         """Get player ship data from API."""
         params = {
             "userId": user_id,
@@ -251,7 +247,7 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
         root = ElementTree.fromstring(response.text)
 
-        inspect_ship = {
+        inspect_ship: dict = {
             "User": root.find(".//User").attrib.copy(),
             "Ship": root.find(".//Ship").attrib.copy(),
         }
@@ -269,7 +265,7 @@ class PixelStarshipsApi:
 
         return inspect_ship
 
-    def ship_details(self, user_id):
+    def ship_details(self, user_id: int) -> tuple[dict, dict]:
         """Get player ship details from API."""
         params = {
             "UserId": user_id,
@@ -280,17 +276,17 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params, need_token=True)
         root = ElementTree.fromstring(response.text)
 
-        ship_node = root.find(".//Ship")
-        ship = ship_node.attrib.copy()
+        ship_node: Element = root.find(".//Ship")
+        ship: dict = ship_node.attrib.copy()
         ship["pixyship_xml_element"] = ship_node
 
-        user_node = root.find(".//User")
-        user = user_node.attrib.copy()
+        user_node: Element = root.find(".//User")
+        user: dict = user_node.attrib.copy()
         user["pixyship_xml_element"] = user_node
 
         return ship, user
 
-    def ship_room_details(self, user_id):
+    def ship_room_details(self, user_id: int) -> list:
         """Get player ship room details from API."""
         params = {
             "UserId": user_id,
@@ -310,7 +306,7 @@ class PixelStarshipsApi:
 
         return ship_room_details
 
-    def search_users(self, user_name, exact_match=False):
+    def search_users(self, user_name: str, exact_match: bool = False) -> list:
         """Get player ship data from API."""
         params = {
             "searchstring": user_name,
@@ -341,11 +337,11 @@ class PixelStarshipsApi:
         return users
 
     @staticmethod
-    def parse_user_node(user_node):
+    def parse_user_node(user_node: Element) -> dict:
         """Extract user data from XML node."""
         return user_node.attrib
 
-    def get_dailies(self):
+    def get_dailies(self) -> dict:
         """Get dailies from settings service from API."""
         params = {"languageKey": "en", "deviceType": "DeviceTypeAndroid"}
 
@@ -356,12 +352,12 @@ class PixelStarshipsApi:
 
         dailies_node = root.find(".//LiveOps")
 
-        dailies = dailies_node.attrib.copy()
+        dailies: dict = dailies_node.attrib.copy()
         dailies["pixyship_xml_element"] = dailies_node  # custom field, return raw XML data too
 
         return dailies
 
-    def get_sprites(self):
+    def get_sprites(self) -> list:
         """Get sprites from API."""
         params = {
             "designVersion": self._api_settings["FileVersion"],
@@ -384,11 +380,11 @@ class PixelStarshipsApi:
         return sprites
 
     @staticmethod
-    def parse_sprite_node(sprite_node):
+    def parse_sprite_node(sprite_node: Element) -> dict:
         """Extract character data from XML node."""
         return sprite_node.attrib.copy()
 
-    def get_rooms_sprites(self):
+    def get_rooms_sprites(self) -> list:
         """Get rooms sprites from API."""
         params = {"designVersion": self._api_settings["RoomDesignSpriteVersion"]}
 
@@ -408,11 +404,11 @@ class PixelStarshipsApi:
         return rooms_sprites
 
     @staticmethod
-    def parse_room_sprite_node(room_sprite_node):
+    def parse_room_sprite_node(room_sprite_node: Element) -> dict:
         """Extract room sprite data from XML node."""
         return room_sprite_node.attrib.copy()
 
-    def get_skinsets(self):
+    def get_skinsets(self) -> list:
         """Get skinsets from API."""
         params = {
             "designVersion": self._api_settings["SkinSetVersion"],
@@ -435,7 +431,7 @@ class PixelStarshipsApi:
 
         return skinsets
 
-    def get_skins(self):
+    def get_skins(self) -> list:
         """Get skins from API."""
         params = {
             "designVersion": self._api_settings["SkinVersion"],
@@ -459,16 +455,16 @@ class PixelStarshipsApi:
         return skins
 
     @staticmethod
-    def parse_skinset_node(skinset_node):
+    def parse_skinset_node(skinset_node: Element) -> dict:
         """Extract skinset data from XML node."""
         return skinset_node.attrib.copy()
 
     @staticmethod
-    def parse_skin_node(skin_node):
+    def parse_skin_node(skin_node: Element) -> dict:
         """Extract skin data from XML node."""
         return skin_node.attrib.copy()
 
-    def get_ships(self):
+    def get_ships(self) -> list:
         """Get ships designs from API."""
         params = {
             "designVersion": self._api_settings["ShipDesignVersion"],
@@ -491,11 +487,11 @@ class PixelStarshipsApi:
         return ships
 
     @staticmethod
-    def parse_ship_node(ship_node):
+    def parse_ship_node(ship_node: Element) -> dict:
         """Extract character data from XML node."""
         return ship_node.attrib.copy()
 
-    def get_researches(self):
+    def get_researches(self) -> list:
         """Get research designs from API."""
         params = {
             "designVersion": self._api_settings["ResearchDesignVersion"],
@@ -518,11 +514,11 @@ class PixelStarshipsApi:
         return researches
 
     @staticmethod
-    def parse_research_node(research_node):
+    def parse_research_node(research_node: Element) -> dict:
         """Extract research data from XML node."""
         return research_node.attrib.copy()
 
-    def get_rooms(self):
+    def get_rooms(self) -> list:
         """Get room designs from API."""
         # get room purchase
         rooms_purchase = self.get_rooms_purchase()
@@ -562,9 +558,9 @@ class PixelStarshipsApi:
         return rooms
 
     @staticmethod
-    def parse_room_node(room_node):
+    def parse_room_node(room_node: Element) -> dict:
         """Extract room data from XML node."""
-        room = room_node.attrib.copy()
+        room: dict = room_node.attrib.copy()
 
         missile_design_node = list(room_node.iter("MissileDesign"))
         if missile_design_node:
@@ -574,7 +570,7 @@ class PixelStarshipsApi:
 
         return room
 
-    def get_missile_designs(self):
+    def get_missile_designs(self) -> list:
         """Get missile designs from API."""
         params = {
             "designVersion": self._api_settings["MissileDesignVersion"],
@@ -598,11 +594,11 @@ class PixelStarshipsApi:
         return missile_designs
 
     @staticmethod
-    def parse_missile_design_node(missile_design_node):
+    def parse_missile_design_node(missile_design_node: Element) -> dict:
         """Extract missile design data from XML node."""
         return missile_design_node.attrib.copy()
 
-    def get_crafts(self):
+    def get_crafts(self) -> list:
         """Get crafts designs from API."""
         # get missile designs
         missile_designs = self.get_missile_designs()
@@ -661,16 +657,16 @@ class PixelStarshipsApi:
         return crafts
 
     @staticmethod
-    def parse_craft_node(craft_node):
+    def parse_craft_node(craft_node: Element) -> dict:
         """Extract craft data from XML node."""
-        craft = craft_node.attrib.copy()
+        craft: dict = craft_node.attrib.copy()
 
         missile_design_node = list(craft_node.iter("MissileDesign"))
         craft["MissileDesign"] = missile_design_node[0].attrib
 
         return craft
 
-    def get_missiles(self):
+    def get_missiles(self) -> list:
         """Get missiles designs from API."""
         # get room purchase
         missile_designs = self.get_missile_designs()
@@ -732,16 +728,16 @@ class PixelStarshipsApi:
         return missiles
 
     @staticmethod
-    def parse_missile_node(missile_node):
+    def parse_missile_node(missile_node: Element) -> dict:
         """Extract missile data from XML node."""
-        missile = missile_node.attrib.copy()
+        missile: dict = missile_node.attrib.copy()
 
         missile_design_node = list(missile_node.iter("MissileDesign"))
         missile["MissileDesign"] = missile_design_node[0].attrib
 
         return missile
 
-    def get_rooms_purchase(self):
+    def get_rooms_purchase(self) -> list:
         """Get room designs from API."""
         params = {
             "designVersion": self._api_settings["RoomDesignPurchaseVersion"],
@@ -764,11 +760,11 @@ class PixelStarshipsApi:
         return rooms_purchase
 
     @staticmethod
-    def parse_room_purchase_node(room_purchase_node):
+    def parse_room_purchase_node(room_purchase_node: Element) -> dict:
         """Extract room purchase data from XML node."""
         return room_purchase_node.attrib.copy()
 
-    def get_characters(self):
+    def get_characters(self) -> list:
         """Get character designs from API."""
         params = {
             "designVersion": self._api_settings["CharacterDesignVersion"],
@@ -791,7 +787,7 @@ class PixelStarshipsApi:
         return characters
 
     @staticmethod
-    def parse_character_node(character_node):
+    def parse_character_node(character_node: Element) -> dict:
         """Extract character data from XML node."""
         character = character_node.attrib.copy()
 
@@ -803,7 +799,7 @@ class PixelStarshipsApi:
 
         return character
 
-    def get_collections(self):
+    def get_collections(self) -> list:
         """Get collection designs from API."""
         params = {
             "designVersion": self._api_settings["CollectionDesignVersion"],
@@ -826,11 +822,11 @@ class PixelStarshipsApi:
         return collections
 
     @staticmethod
-    def parse_collection_node(collection_node):
+    def parse_collection_node(collection_node: Element) -> dict:
         """Extract collection data from XML node."""
         return collection_node.attrib.copy()
 
-    def get_items(self):
+    def get_items(self) -> list:
         """Get item designs from API."""
         params = {
             "designVersion": self._api_settings["ItemDesignVersion"],
@@ -853,11 +849,11 @@ class PixelStarshipsApi:
         return items
 
     @staticmethod
-    def parse_item_node(item_node):
+    def parse_item_node(item_node: Element) -> dict:
         """Extract item data from XML node."""
         return item_node.attrib.copy()
 
-    def get_alliances(self, take=100):
+    def get_alliances(self, take: int = 100) -> list:
         """Get alliances from API, top 100 by default."""
         params = {
             "designVersion": self._api_settings["ItemDesignVersion"],
@@ -880,11 +876,11 @@ class PixelStarshipsApi:
         return alliances
 
     @staticmethod
-    def parse_alliance_node(alliance_node):
+    def parse_alliance_node(alliance_node: Element) -> dict:
         """Extract alliance data from XML node."""
         return alliance_node.attrib.copy()
 
-    def get_sales(self, item_id, max_sale_id=0, take=None):
+    def get_sales(self, item_id: int, max_sale_id: int = 0, take: int | None = None) -> list:
         """Download sales for given item from PSS API."""
         sales = []
 
@@ -973,11 +969,11 @@ class PixelStarshipsApi:
         return sales
 
     @staticmethod
-    def parse_sale_node(sale_node):
+    def parse_sale_node(sale_node: Element) -> dict:
         """Extract sale data from XML node."""
         return sale_node.attrib.copy()
 
-    def get_market_messages(self, item_id):
+    def get_market_messages(self, item_id: int) -> list:
         """Download market messages for given item from PSS API."""
         market_messages = []
 
@@ -1021,7 +1017,7 @@ class PixelStarshipsApi:
         return market_messages
 
     @staticmethod
-    def parse_market_message_node(message_node):
+    def parse_market_message_node(message_node: Element) -> dict:
         """Extract sale data from XML node."""
         return message_node.attrib.copy()
 
@@ -1063,7 +1059,7 @@ class PixelStarshipsApi:
 
         return users
 
-    def get_prestiges_character_to(self, character_id):
+    def get_prestiges_character_to(self, character_id: int) -> list:
         """Get prestiges recipe creating given character from API."""
         params = {"characterDesignId": character_id}
 
@@ -1084,7 +1080,7 @@ class PixelStarshipsApi:
 
         return prestiges
 
-    def get_prestiges_character_from(self, character_id):
+    def get_prestiges_character_from(self, character_id: int) -> list:
         """Get prestiges recipe created with given character from API."""
         params = {"characterDesignId": character_id}
 
@@ -1106,21 +1102,20 @@ class PixelStarshipsApi:
         return prestiges
 
     @staticmethod
-    def parse_prestige_node(prestige_node):
+    def parse_prestige_node(prestige_node: Element) -> dict:
         """Extract prestige data from XML node."""
         return prestige_node.attrib.copy()
 
     @staticmethod
-    def get_stardate():
+    def get_stardate() -> int:
         """Compute Stardate."""
         utc_now = datetime.datetime.now(tz=datetime.UTC)
         today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
         return (today - PSS_START_DATE).days
 
     @staticmethod
-    def parse_sale_item_mask(sale_item_mask):
+    def parse_sale_item_mask(equipment_mask: int) -> list:
         """From SaleItemMask determine Sale options."""
-        equipment_mask = int(sale_item_mask)
         output = [int(x) for x in f"{equipment_mask:05b}"]
 
         options = []
@@ -1134,7 +1129,7 @@ class PixelStarshipsApi:
 
         return options
 
-    def get_trainings(self):
+    def get_trainings(self) -> list:
         """Get trainings data from API."""
         params = {
             "designVersion": self._api_settings["TrainingDesignVersion"],
@@ -1158,11 +1153,11 @@ class PixelStarshipsApi:
         return trainings
 
     @staticmethod
-    def parse_training_node(training_node):
+    def parse_training_node(training_node: Element) -> dict:
         """Extract training data from XML node."""
         return training_node.attrib.copy()
 
-    def get_achievements(self):
+    def get_achievements(self) -> list:
         """Get achievements data from API."""
         params = {
             "designVersion": self._api_settings["AchievementDesignVersion"],
@@ -1186,11 +1181,11 @@ class PixelStarshipsApi:
         return achievements
 
     @staticmethod
-    def parse_achievement_node(achievement_node):
+    def parse_achievement_node(achievement_node: Element) -> dict:
         """Extract achievement data from XML node."""
         return achievement_node.attrib.copy()
 
-    def get_situations(self):
+    def get_situations(self) -> list:
         """Get situations data from API."""
         params = {
             "designVersion": self._api_settings["SituationDesignVersion"],
@@ -1214,11 +1209,11 @@ class PixelStarshipsApi:
         return situations
 
     @staticmethod
-    def parse_situation_node(situation_node):
+    def parse_situation_node(situation_node: Element) -> dict:
         """Extract situation data from XML node."""
         return situation_node.attrib.copy()
 
-    def get_promotions(self):
+    def get_promotions(self) -> list:
         """Get promotions data from API."""
         params = {
             "designVersion": self._api_settings["PromotionDesignVersion"],
@@ -1242,11 +1237,11 @@ class PixelStarshipsApi:
         return promotions
 
     @staticmethod
-    def parse_promotion_node(promotion_node):
+    def parse_promotion_node(promotion_node: Element) -> dict:
         """Extract promotion data from XML node."""
         return promotion_node.attrib.copy()
 
-    def get_star_system_markers(self):
+    def get_star_system_markers(self) -> list:
         """Get Star System Markers data from API."""
         params = {"languageKey": "en"}
 
@@ -1267,6 +1262,6 @@ class PixelStarshipsApi:
         return markers
 
     @staticmethod
-    def parse_star_system_marker_node(marker_node):
+    def parse_star_system_marker_node(marker_node: Element) -> dict:
         """Extract Star System Marker data from XML node."""
         return marker_node.attrib.copy()

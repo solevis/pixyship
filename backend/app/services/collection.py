@@ -15,14 +15,14 @@ class CollectionService(BaseService):
         self._collections = {}
 
     @property
-    def collections(self):
+    def collections(self) -> dict[int, dict]:
         """Get collections data."""
         if not self._collections:
             self._collections = self.get_collections_from_records()
 
         return self._collections
 
-    def get_collections_from_records(self):
+    def get_collections_from_records(self) -> dict[int, dict]:
         """Load collections from database."""
         records = self.record_service.records[TypeEnum.COLLECTION]
 

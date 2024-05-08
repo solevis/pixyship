@@ -13,7 +13,7 @@ class PixyShipService(BaseService):
     def __init__(self) -> None:
         super().__init__()
 
-    def parse_assets_from_string(self, assets_string: str):
+    def parse_assets_from_string(self, assets_string: str) -> list[dict]:
         """Parse RewardString from API."""
         assets = []
         if assets_string:
@@ -98,7 +98,7 @@ class PixyShipService(BaseService):
         return assets
 
     @staticmethod
-    def get_tournament_infos():
+    def get_tournament_infos() -> dict:
         """Get infos about the next tournament."""
         utc_now = datetime.datetime.now(tz=datetime.UTC)
         first_day_next_month = (utc_now.date().replace(day=1) + datetime.timedelta(days=32)).replace(day=1)

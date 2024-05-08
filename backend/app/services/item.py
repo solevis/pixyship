@@ -25,14 +25,14 @@ class ItemService(BaseService):
         self._items = {}
 
     @property
-    def items(self):
+    def items(self) -> dict[int, dict]:
         """Get items data."""
         if not self._items:
             self._items = self.get_items_from_records()
 
         return self._items
 
-    def get_items_from_records(self):
+    def get_items_from_records(self) -> dict[int, dict]:
         """Get items from database."""
         records = self.record_service.get_records_from_type(TypeEnum.ITEM)
 
@@ -97,7 +97,7 @@ class ItemService(BaseService):
         return items
 
     @staticmethod
-    def create_light_item(item, items=None):
+    def create_light_item(item: dict, items: list | None = None) -> dict:
         """Create a light item from a given item."""
         return {
             "id": item["id"],
@@ -115,13 +115,13 @@ class ItemService(BaseService):
             "module_extra_short_disp_enhancement": item["module_extra_short_disp_enhancement"],
             "module_extra_enhancement_bonus": item["module_extra_enhancement_bonus"],
             "prices": item["prices"],
-            "content": item.get("content", None),
+            "content": item.get("content"),
             "recipe": item["recipe"] if not items else ItemService.parse_item_ingredients(item["ingredients"], items),
             "training": item["training"],
         }
 
     @staticmethod
-    def parse_item_ingredients(ingredients_string, items):
+    def parse_item_ingredients(ingredients_string: str, items: list) -> list:
         """Parse recipe infos from API."""
         recipe = []
         if ingredients_string:
@@ -140,7 +140,7 @@ class ItemService(BaseService):
 
         return recipe
 
-    def parse_item_content(self, item_content_string, last_item, items):
+    def parse_item_content(self, item_content_string: str, last_item: dict, items: list) -> list:
         """Parse content infos from API."""
         content = []
         if item_content_string:
@@ -217,7 +217,7 @@ class ItemService(BaseService):
         return content
 
     @staticmethod
-    def parse_module_extra_enhancement(item):
+    def parse_module_extra_enhancement(item: dict) -> dict:
         """Parse module extra enhancement from a given item."""
         module_type = item["ModuleType"]
 
@@ -240,7 +240,7 @@ class ItemService(BaseService):
             "bonus": bonus,
         }
 
-    def get_item_upgrades(self, item_id: int):
+    def get_item_upgrades(self, item_id: int) -> list:
         """Get items that can be upgraded with a given item."""
         return [
             ItemService.create_light_item(item)

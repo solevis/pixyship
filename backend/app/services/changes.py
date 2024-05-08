@@ -16,12 +16,12 @@ class ChangesService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self._changes: list[dict[str, any]] = []
+        self._changes: list[dict] = []
         self._last_prestiges_changes = None
 
     @property
     @cache.cached(key_prefix="changes")
-    def changes(self) -> list[dict[str, any]]:
+    def changes(self) -> list[dict]:
         """Get changes data."""
         if not self._changes:
             self._changes = self.get_changes_from_db()
@@ -30,14 +30,14 @@ class ChangesService(BaseService):
 
     @property
     @cache.cached(key_prefix="last_prestiges_changes")
-    def last_prestiges_changes(self):
+    def last_prestiges_changes(self) -> datetime | None:
         """Get last prestiges changes date."""
         if self._last_prestiges_changes is None:
             self._last_prestiges_changes = self.get_last_prestiges_changes_from_db()
 
         return self._last_prestiges_changes
 
-    def get_changes_from_db(self) -> list[dict[str, any]]:
+    def get_changes_from_db(self) -> list[dict]:
         """Get changes from database."""
         min_changes_dates_sql = f"""
             SELECT type, MIN(created_at) + INTERVAL '1 day' AS min
@@ -85,7 +85,7 @@ class ChangesService(BaseService):
         result = db.session.execute(text(sql)).fetchall()
         return [self.create_change_record(record) for record in result]
 
-    def create_change_record(self, record) -> dict[str, any]:
+    def create_change_record(self, record: tuple) -> dict:
         """Create change record."""
         record_name = record[0]
         record_sprite_id = record[1]

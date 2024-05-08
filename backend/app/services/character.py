@@ -88,7 +88,7 @@ class CharacterService(BaseService):
         return characters
 
     @staticmethod
-    def parse_equipment_slots(character) -> list[str]:
+    def parse_equipment_slots(character: dict) -> list[str]:
         """Determine equipments slots with character equipment mask."""
         equipment_mask = int(character["EquipmentMask"])
         output = [int(x) for x in f"{equipment_mask:06b}"]

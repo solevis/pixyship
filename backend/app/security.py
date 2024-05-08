@@ -1,11 +1,16 @@
+from collections.abc import Callable
+from typing import ParamSpec
+
 import flask
 from flask import current_app
 
+P = ParamSpec("P")
 
-def enforce_source(func):
+
+def enforce_source(func: Callable) -> Callable:
     """Check in production if the referrer is really PixyShip."""
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Callable:
         # no need to check referrer on DEV
         if current_app.config["DEV_MODE"]:
             return func(*args, **kwargs)

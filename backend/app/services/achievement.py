@@ -14,14 +14,14 @@ class AchievementService(BaseService):
         self._achievements = {}
 
     @property
-    def achievements(self):
+    def achievements(self) -> dict[int, dict]:
         """Get achievements data."""
         if not self._achievements:
             self._achievements = self.get_achievements_from_db()
 
         return self._achievements
 
-    def get_achievements_from_db(self):
+    def get_achievements_from_db(self) -> dict[int, dict]:
         """Load achievements from database."""
         records = self.record_service.records[TypeEnum.ACHIEVEMENT]
 

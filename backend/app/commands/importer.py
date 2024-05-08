@@ -3,7 +3,6 @@ import random
 import time
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
 from urllib import request
 
 import click
@@ -24,7 +23,7 @@ service_factory = ServiceFactory()
 def log_command(func: Callable) -> Callable:
     """Log the start and end of a command."""
 
-    def wrapper(*func_args: tuple[Any], **func_kwargs: dict[str, Any]) -> Any:
+    def wrapper(*func_args: tuple, **func_kwargs: dict) -> Callable:
         start_time = time.time()
         current_app.logger.info("START")
         result = func(*func_args, **func_kwargs)
@@ -298,7 +297,7 @@ def import_daily_sales() -> None:
             save_daily_sale(daily_sale)
 
 
-def save_daily_sale(daily_sale) -> None:
+def save_daily_sale(daily_sale: DailySale) -> None:
     """Save daily sale in database."""
     daily_sale_type = get_type_enum_from_string(daily_sale.type)
     try:
@@ -455,7 +454,7 @@ def import_market_messages(one_item_only: bool, item: int) -> None:
     current_app.logger.info("Done")
 
 
-def save_market_message(market_message) -> None:
+def save_market_message(market_message: MarketMessage) -> None:
     """Save market message in database."""
     try:
         insert_command = (
@@ -507,7 +506,7 @@ def dowload_sprites() -> None:
                 current_app.logger.exception("Error downloading sprite: %s", url)
 
 
-def save_users(users) -> None:
+def save_users(users: list) -> None:
     """Save users and attached alliance in database."""
     for user_id, user in users:
         player = Player(

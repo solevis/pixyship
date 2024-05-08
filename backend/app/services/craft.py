@@ -14,14 +14,14 @@ class CraftService(BaseService):
         self._crafts = {}
 
     @property
-    def crafts(self):
+    def crafts(self) -> dict[int, dict]:
         """Get crafts data."""
         if not self._crafts:
             self._crafts = self.get_crafts_from_records()
 
         return self._crafts
 
-    def get_crafts_from_records(self):
+    def get_crafts_from_records(self) -> dict[int, dict]:
         """Load crafts from database."""
         records = self.record_service.records[TypeEnum.CRAFT]
 

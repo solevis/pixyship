@@ -14,14 +14,14 @@ class MissileService(BaseService):
         self._missiles = {}
 
     @property
-    def missiles(self):
+    def missiles(self) -> dict[int, dict]:
         """Get missiles data."""
         if not self._missiles:
             self._missiles = self.get_missiles_from_records()
 
         return self._missiles
 
-    def get_missiles_from_records(self):
+    def get_missiles_from_records(self) -> dict[int, dict]:
         """Load missiles from database."""
         records = self.record_service.records[TypeEnum.MISSILE]
 
