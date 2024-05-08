@@ -31,7 +31,9 @@ class PlayerService(BaseService):
 
         return data
 
-    def summarize_ship(self, player_name: str) -> tuple[dict, dict, list[dict], list[dict] | None]:
+    def summarize_ship(
+        self, player_name: str
+    ) -> tuple[None, None, None, None] | tuple[dict, dict, list[dict], list[dict] | None]:
         """Get ship, user, rooms and upgrade from given player name."""
         user_id = self.find_user_id(player_name)
         if not user_id:
@@ -48,13 +50,13 @@ class PlayerService(BaseService):
             current_app.logger.error("Cannot find room data for user %s", player_name)
             return None, None, None, None
 
-        user = {
+        user: dict = {
             "id": user_data["Id"],
             "name": user_data["Name"],
             "sprite": self.sprite_service.get_sprite_infos(int(user_data["IconSpriteId"])),
             "alliance_name": user_data.get("AllianceName"),
             "alliance_membership": user_data.get("AllianceMembership"),
-            "alliance_sprite": self.sprite_service.get_sprite_infos(int(user_data.get("AllianceSpriteId"))),
+            "alliance_sprite": self.sprite_service.get_sprite_infos(int(user_data["AllianceSpriteId"])),
             "trophies": int(user_data["Trophy"]),
             "last_date": user_data["LastAlertDate"],
             "race": RACES.get(int(ship_data["OriginalRaceId"]), RACES.get(0)),
@@ -130,7 +132,7 @@ class PlayerService(BaseService):
         return ship, user, rooms, stickers
 
     @staticmethod
-    def find_user_id(search_name: str) -> int:
+    def find_user_id(search_name: str) -> int | None:
         """Given a name return the user_id from database. This should only be an exact match."""
         result: Player = Player.query.filter(Player.name.ilike(search_name)).limit(1).first()
         if result:

@@ -323,10 +323,10 @@ def save_daily_sale(daily_sale: DailySale) -> None:
 
 @importer_cli.command("market", help="Get last market sales and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
-@click.option("--item", type=int, default=None, help="Import only the given item")
+@click.option("--item-id", type=int, default=None, help="Import only the given item")
 @with_appcontext
 @log_command
-def import_market(one_item_only: bool, item: int) -> None:
+def import_market(one_item_only: bool, item_id: int | None) -> None:
     """Get last market sales and save them in database."""
     item_service = service_factory.item_service
     market_service = service_factory.market_service
@@ -339,13 +339,13 @@ def import_market(one_item_only: bool, item: int) -> None:
 
     # no need to get sales of items not saleable
     items = item_service.items
-    saleable_items = {item_id: item for item_id, item in items.items() if item["saleable"]}
+    saleable_items: dict[int, dict] = {item_id: item for item_id, item in items.items() if item["saleable"]}
 
-    if item:
+    if item_id:
         try:
-            saleable_items = {item: saleable_items[item]}
+            saleable_items = {item_id: saleable_items[item_id]}
         except KeyError:
-            current_app.logger.exception("Unknown item %d", item)
+            current_app.logger.exception("Unknown item %d", item_id)
             return
 
     total = len(saleable_items)
@@ -355,18 +355,18 @@ def import_market(one_item_only: bool, item: int) -> None:
     saleable_items_items = list(saleable_items.items())
     saleable_items_ordered = random.sample(saleable_items_items, k=len(saleable_items_items))
 
-    for count, (item_id, item) in enumerate(saleable_items_ordered, start=1):
-        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, item["name"], item_id)
+    for count, (current_item_id, current_item) in enumerate(saleable_items_ordered, start=1):
+        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        sales = market_service.get_sales_from_api(item_id)
+        sales = market_service.get_sales_from_api(current_item_id)
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(sales))
 
         for sale in sales:
             listing = Listing(
                 id=sale["SaleId"],
                 sale_at=sale["StatusDate"],
-                item_name=item["name"],
-                item_id=item_id,
+                item_name=current_item["name"],
+                item_id=current_item_id,
                 amount=sale["Quantity"],
                 currency=sale["CurrencyType"],
                 price=sale["CurrencyValue"],
@@ -391,10 +391,10 @@ def import_market(one_item_only: bool, item: int) -> None:
 
 @importer_cli.command("market-messages", help="Get last market messages and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
-@click.option("--item", type=int, default=None, help="Import only the given item")
+@click.option("--item-id", type=int, default=None, help="Import only the given item")
 @with_appcontext
 @log_command
-def import_market_messages(one_item_only: bool, item: int) -> None:
+def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     """Get last market messages and save them in database."""
     item_service = service_factory.item_service
     market_service = service_factory.market_service
@@ -407,26 +407,28 @@ def import_market_messages(one_item_only: bool, item: int) -> None:
 
     # no need to get sales of items not saleable
     items = item_service.items
-    items_with_offstat = {item_id: item for item_id, item in items.items() if item["has_offstat"]}
+    items_with_offstat: dict[int, dict] = {item_id: item for item_id, item in items.items() if item["has_offstat"]}
 
-    if item:
+    if item_id:
         try:
-            items_with_offstat = {item: items_with_offstat[item]}
+            items_with_offstat = {item_id: items_with_offstat[item_id]}
         except KeyError:
-            current_app.logger.exception("Unknown item %d", item)
+            current_app.logger.exception("Unknown item %d", item_id)
             return
 
     total = len(items_with_offstat)
     if one_item_only:
         total = 1
 
-    items_with_offstat_items = list(items_with_offstat.items())
-    items_with_offstat_ordered = random.sample(items_with_offstat_items, k=len(items_with_offstat_items))
+    items_with_offstat_items: list[tuple[int, dict]] = list(items_with_offstat.items())
+    items_with_offstat_ordered: list[tuple[int, dict]] = random.sample(
+        items_with_offstat_items, k=len(items_with_offstat_items)
+    )
 
-    for count, (item_id, item) in enumerate(items_with_offstat_ordered, start=1):
-        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, item["name"], item_id)
+    for count, (current_item_id, current_item) in enumerate(items_with_offstat_ordered, start=1):
+        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        messages = market_service.get_market_messages_from_api(item_id)
+        messages = market_service.get_market_messages_from_api(current_item_id)
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(messages))
 
         for message in messages:
@@ -434,7 +436,7 @@ def import_market_messages(one_item_only: bool, item: int) -> None:
                 id=message["MessageId"],
                 message=message["Message"],
                 sale_id=message["SaleId"],
-                item_id=item_id,
+                item_id=current_item_id,
                 user_id=message["UserId"],
                 message_type=message["MessageType"],
                 channel_id=message["ChannelId"],

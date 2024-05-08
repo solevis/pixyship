@@ -14,17 +14,17 @@ class ShipService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._ships = {}
+        self._ships: dict[int, dict] = {}
 
     @property
-    def ships(self) -> dict:
+    def ships(self) -> dict[int, dict]:
         """Get ships data."""
         if not self._ships:
             self._ships = self.get_ships_from_records()
 
         return self._ships
 
-    def get_ships_from_records(self) -> dict:
+    def get_ships_from_records(self) -> dict[int, dict]:
         """Load ships from database."""
         records = self.record_service.get_records_from_type(TypeEnum.SHIP)
 
@@ -139,7 +139,7 @@ class ShipService(BaseService):
 
         self.record_service.purge_old_records(TypeEnum.SHIP, still_presents_ids)
 
-    def parse_requirement(self, requirement_string: str) -> dict:
+    def parse_requirement(self, requirement_string: str) -> dict | None:
         """Parse requirement asset."""
         requirement = parse_requirement(requirement_string)
 
@@ -148,9 +148,10 @@ class ShipService(BaseService):
                 requirement["object"] = self.room_service.rooms[requirement["id"]]
             else:
                 record = self.record_service.get_record(requirement["type"], requirement["id"])
-                requirement["object"] = {
-                    "id": record.type_id,
-                    "name": record.name,
-                }
+                if record:
+                    requirement["object"] = {
+                        "id": record.type_id,
+                        "name": record.name,
+                    }
 
         return requirement

@@ -1,5 +1,6 @@
 import hashlib
 from xml.etree import ElementTree
+from xml.etree.ElementTree import Element
 
 from flask import current_app
 from sqlalchemy import func
@@ -24,7 +25,7 @@ class RecordService(BaseService):
     def records(self) -> dict[TypeEnum, dict[int, Record]]:
         """Get records data."""
         if not self._records:
-            current_records = Record.query.filter_by(current=True).all()
+            current_records: list[Record] = Record.query.filter_by(current=True).all()
 
             for record in current_records:
                 if record.type not in self._records:
@@ -45,7 +46,7 @@ class RecordService(BaseService):
         except KeyError:
             # happens when there's new things, reload
             if reload_on_error:
-                self._records = None
+                self._records = {}
                 cache.clear()
                 return self.get_record(record_type, record_type_id, False)
 
@@ -66,20 +67,19 @@ class RecordService(BaseService):
         record_id: int,
         record_name: str,
         record_sprite_id: int,
-        raw_data: any,
+        raw_data: Element | str,
         url: str,
         ignore_list: list[str] | None = None,
-        data_as_xml: bool = True,
     ) -> None:
         """Save a record to the DB with hash."""
         ignore_list = ignore_list or []
 
-        if data_as_xml:
+        if isinstance(raw_data, Element):
             # since python 3.8, attrib order is now preserved, but we need a sorted order for legacy comparaisons
             sort_attributes(raw_data)
 
             # data to be stored in database
-            data = ElementTree.tostring(raw_data).decode()
+            data: str = ElementTree.tostring(raw_data).decode()
 
             # ignore some fields for hashing
             for i in ignore_list:

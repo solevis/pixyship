@@ -17,11 +17,11 @@ class MarketService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._prices = {}
+        self._prices: dict[int, dict] = {}
 
     @property
     @cache.cached(key_prefix="prices")
-    def prices(self) -> dict:
+    def prices(self) -> dict[int, dict]:
         """Get prices data."""
         if not self._prices:
             self._prices = self.get_prices_from_db()
@@ -29,7 +29,7 @@ class MarketService(BaseService):
         return self._prices
 
     @staticmethod
-    def get_prices_from_db() -> dict:
+    def get_prices_from_db() -> dict[int, dict]:
         """Get all history market summary from database."""
         sql = """
                 SELECT l.item_id
@@ -45,7 +45,7 @@ class MarketService(BaseService):
             """
 
         result = db.session.execute(text(sql)).fetchall()
-        prices = defaultdict(dict)
+        prices: dict = defaultdict(dict)
         for row in result:
             item_id = row[0]
             currency = row[1]
@@ -79,7 +79,7 @@ class MarketService(BaseService):
             """
 
         result = db.session.execute(text(sql), {"item_id": item_id}).fetchall()
-        prices = defaultdict(lambda: defaultdict(dict))
+        prices: dict[int, dict] = defaultdict(lambda: defaultdict(dict))
 
         for row in result:
             currency = row[2]
@@ -126,14 +126,15 @@ class MarketService(BaseService):
             offstat = None
             if row[7]:
                 search_result = re.search(r"\(\+(.*?)\s(.*?)\)", row[7])
-                result_value = search_result.group(1)
-                if result_value:
-                    result_bonus = search_result.group(2)
-                    offstat = {
-                        "value": result_value,
-                        "bonus": result_bonus,
-                        "short_bonus": SHORT_ENHANCE_MAP.get(result_bonus, result_bonus),
-                    }
+                if search_result:
+                    result_value = search_result.group(1)
+                    if result_value:
+                        result_bonus = search_result.group(2)
+                        offstat = {
+                            "value": result_value,
+                            "bonus": result_bonus,
+                            "short_bonus": SHORT_ENHANCE_MAP.get(result_bonus, result_bonus),
+                        }
 
             last_sales.append(
                 {

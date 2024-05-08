@@ -17,7 +17,7 @@ class ChangesService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self._changes: list[dict] = []
-        self._last_prestiges_changes = None
+        self._last_prestiges_changes: datetime | None = None
 
     @property
     @cache.cached(key_prefix="changes")
@@ -82,18 +82,21 @@ class ChangesService(BaseService):
             LIMIT {}
         """.format(" OR ".join(min_changes_dates_conditions), current_app.config.get("CHANGES_MAX_ASSETS", 5000))
 
-        result = db.session.execute(text(sql)).fetchall()
+        result: list[tuple] = db.session.execute(text(sql)).fetchall()
         return [self.create_change_record(record) for record in result]
 
     def create_change_record(self, record: tuple) -> dict:
         """Create change record."""
         record_name = record[0]
         record_sprite_id = record[1]
-        record_type = get_type_enum_from_string(record[2])
         record_type_id = record[3]
         change_data = record[4]
         change_created_at = record[5]
         change_old_data = record[6]
+
+        record_type = get_type_enum_from_string(record[2])
+        if record_type is None:
+            return {}
 
         record_sprite = self.sprite_service.get_sprite_infos(record_sprite_id)
 

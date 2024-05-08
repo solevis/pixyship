@@ -28,7 +28,7 @@ dev-dependencies = [
     "types-Flask-Cors>=4.0.0.20240405",
     "types-Flask-Migrate>=4.0.0.20240311",
     "types-requests>=2.31.0.20240406",
-    "sqlalchemy[mypy]>=2.0.29",
+    "sqlalchemy[mypy]>=2.0.30",
 ]
 
 [tool.ruff]

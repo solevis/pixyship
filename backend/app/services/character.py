@@ -1,7 +1,8 @@
 from xml.etree import ElementTree
 
 from app.constants import (
-    ABILITY_MAP,
+    ABILITY_NAME_MAP,
+    ABILITY_SPRITE_MAP,
     EQUIPMENT_SLOTS,
     RARITY_MAP,
 )
@@ -61,9 +62,9 @@ class CharacterService(BaseService):
                 "research": float_range(character, "Research", "FinalResearch"),
                 "science": float_range(character, "Science", "FinalScience"),
                 "ability": float_range(character, "SpecialAbilityArgument", "SpecialAbilityFinalArgument"),
-                "special_ability": ABILITY_MAP.get(character["SpecialAbilityType"], {"name": ""})["name"],
+                "special_ability": ABILITY_NAME_MAP.get(character["SpecialAbilityType"], ""),
                 "ability_sprite": self.sprite_service.get_sprite_infos(
-                    ABILITY_MAP.get(character["SpecialAbilityType"], {"sprite": 110})["sprite"],
+                    ABILITY_SPRITE_MAP.get(character["SpecialAbilityType"], 110),
                 ),
                 "fire_resist": int(character["FireResistance"]),
                 "resurrect": 0,

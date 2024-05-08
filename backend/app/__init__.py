@@ -5,7 +5,7 @@ from flask_cors import CORS
 
 from app.blueprints.api import api_blueprint
 from app.blueprints.root import root_blueprint
-from app.commands import check_cli, importer_cli, tools_cli
+from app.commands import check_cli, importer_cli
 from app.config import DefaultConfig
 from app.ext import cache, db, migrate
 
@@ -106,7 +106,6 @@ def create_app(test_config: dict | None = None) -> Flask:
     # Register commands
     app.cli.add_command(check_cli)
     app.cli.add_command(importer_cli)
-    app.cli.add_command(tools_cli)
 
     # Enable CORS
     init_cors(app)

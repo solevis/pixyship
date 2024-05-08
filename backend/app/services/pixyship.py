@@ -35,7 +35,7 @@ class PixyShipService(BaseService):
                 if asset_item_type == "character":
                     try:
                         asset_item_type_id = int(asset_item_data)
-                        data = self.character_service.characters[asset_item_type_id]
+                        data: dict | int | None = self.character_service.characters[asset_item_type_id]
                     except KeyError:
                         continue
 
@@ -78,7 +78,7 @@ class PixyShipService(BaseService):
                 else:
                     continue
 
-                asset_item_count = 1
+                asset_item_count: int | None = 1
                 if len(asset_item_id_count_unpacked) > 1:
                     # TODO @solevis: handle count based in IAP value, for now ignore it
                     # https://github.com/solevis/pixyship/issues/114

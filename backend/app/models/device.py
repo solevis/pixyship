@@ -30,8 +30,9 @@ class Device(db.Model):  # type: ignore[name-defined]
         from app.pixelstarshipsapi import PixelStarshipsApi
 
         pixel_starships_api = PixelStarshipsApi()
-        self.token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
+        token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
         if self.token is not None:
+            self.token = token
             self.expires_at = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(hours=12)
 
         db.session.commit()

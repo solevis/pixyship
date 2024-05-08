@@ -11,7 +11,7 @@ class MissileService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._missiles = {}
+        self._missiles: dict[int, dict] = {}
 
     @property
     def missiles(self) -> dict[int, dict]:

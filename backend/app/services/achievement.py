@@ -11,7 +11,7 @@ class AchievementService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._achievements = {}
+        self._achievements: dict[int, dict] = {}
 
     @property
     def achievements(self) -> dict[int, dict]:

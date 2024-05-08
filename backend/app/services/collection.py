@@ -12,7 +12,7 @@ class CollectionService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._collections = {}
+        self._collections: dict[int, dict] = {}
 
     @property
     def collections(self) -> dict[int, dict]:

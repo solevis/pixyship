@@ -30,15 +30,18 @@ class PixelStarshipsApi:
             self._main_pixelstarships_api_url = API_URLS.get("MAIN")
             self._forced_pixelstarships_api_url = current_app.config.get("FORCED_PIXELSTARSHIPS_API_URL")
 
-        self._device_next_index = 0
-        self._devices = None
-
-        self._api_settings = self.get_api_settings()
+        self._device_next_index: int = 0
+        self._devices: list[Device] | None = None
+        self._api_settings: dict = self.get_api_settings()
 
         if not self._forced_pixelstarships_api_url:
-            self.server = self._api_settings["ProductionServer"]
+            self.server: str = self._api_settings["ProductionServer"]
         else:
             o = urlparse(self._forced_pixelstarships_api_url)
+            if o.hostname is None:
+                msg = f"Invalid URL: {self._forced_pixelstarships_api_url}"
+                raise ValueError(msg)
+
             self.server = o.hostname
 
     @property
@@ -80,40 +83,32 @@ class PixelStarshipsApi:
         """Get last game settings from API."""
         params = {"languageKey": "en", "deviceType": "DeviceTypeAndroid"}
 
-        if self._forced_pixelstarships_api_url:
-            # call API with forced URL
-            endpoint = urljoin(self._forced_pixelstarships_api_url, "SettingService/GetLatestVersion3")
-            response = self.call(endpoint, params=params)
-            root = ElementTree.fromstring(response.text)
-            setting_element = root.find(".//Setting")
-            if setting_element is None:
-                current_app.logger.error("Error when parsing response: %s", response.text)
-                return {}
+        # Determine the appropriate URL to use
+        url = (
+            self._forced_pixelstarships_api_url
+            if self._forced_pixelstarships_api_url
+            else self._main_pixelstarships_api_url
+        )
+        settings = self.fetch_settings(url, params)
 
-            return setting_element.attrib
+        # If the server has changed, fetch the settings again
+        if "ProductionServer" in settings and url != f'https://{settings["ProductionServer"]}':
+            settings = self.fetch_settings(f'https://{settings["ProductionServer"]}', params)
 
-        # call API with classic URL, in case of error, try with alternative
-        endpoint: str = urljoin(self._main_pixelstarships_api_url, "SettingService/GetLatestVersion3")
+        return settings
+
+    def fetch_settings(self, url: str, params: dict) -> dict:
+        """Fetch settings from the given URL."""
+        endpoint = urljoin(url, "SettingService/GetLatestVersion3")
         response = self.call(endpoint, params=params)
         root = ElementTree.fromstring(response.text)
-
         setting_element = root.find(".//Setting")
+
         if setting_element is None:
             current_app.logger.error("Error when parsing response: %s", response.text)
             return {}
 
-        settings: dict = setting_element.attrib
-        fixed_endpoint = urljoin(
-            f'https://{settings["ProductionServer"]}',
-            "SettingService/GetLatestVersion3",
-        )
-
-        if fixed_endpoint != endpoint:
-            response = self.call(fixed_endpoint, params=params)
-            root = ElementTree.fromstring(response.text)
-            settings = root.find(".//Setting").attrib
-
-        return settings
+        return setting_element.attrib
 
     def call(
         self, endpoint: str, params: dict, need_token: bool = False, force_token_generation: bool = False
@@ -141,7 +136,7 @@ class PixelStarshipsApi:
 
         # expired token, regenerate tokens and retry
         if device and re.compile(TOKEN_EXPIRED_REGEX).search(response.text):
-            device.cycle_token()
+            device.renew_token()
             params["accessToken"] = device.get_token()
             response = self.get_response(endpoint, params)
 
@@ -211,7 +206,7 @@ class PixelStarshipsApi:
 
         return device
 
-    def get_device_token(self, device_key: str, client_datetime: str, device_checksum: str) -> str:
+    def get_device_token(self, device_key: str, client_datetime: datetime, device_checksum: str) -> str | None:
         """Get device token from API for the given generated device."""
         params = {
             "deviceKey": device_key,
@@ -535,6 +530,8 @@ class PixelStarshipsApi:
 
         rooms = []
         room_nodes = root.find(".//RoomDesigns")
+        if room_nodes is None:
+            return []
 
         for room_node in room_nodes:
             # if room purchase, add node to room node
@@ -752,6 +749,9 @@ class PixelStarshipsApi:
         rooms_purchase = []
         room_purchase_nodes = root.find(".//RoomDesignPurchases")
 
+        if room_purchase_nodes is None:
+            return []
+
         for room_purchase_node in room_purchase_nodes:
             room_purchase = self.parse_room_node(room_purchase_node)
             room_purchase["pixyship_xml_element"] = room_purchase_node  # custom field, return raw XML data too
@@ -778,6 +778,9 @@ class PixelStarshipsApi:
 
         characters = []
         character_nodes = root.find(".//CharacterDesigns")
+        if character_nodes is None:
+            current_app.logger.error("Error when parsing response: %s", response.text)
+            return []
 
         for character_node in character_nodes:
             character = self.parse_character_node(character_node)
@@ -789,7 +792,7 @@ class PixelStarshipsApi:
     @staticmethod
     def parse_character_node(character_node: Element) -> dict:
         """Extract character data from XML node."""
-        character = character_node.attrib.copy()
+        character: dict = character_node.attrib.copy()
 
         character["CharacterParts"] = {}
         character_part_nodes = character_node.find(".//CharacterParts")

@@ -11,10 +11,10 @@ class SpriteService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._sprites = {}
+        self._sprites: dict[int, dict] = {}
 
     @property
-    def sprites(self) -> dict:
+    def sprites(self) -> dict[int, dict]:
         """Get sprites data."""
         if not self._sprites:
             self._sprites = self.get_sprites_from_records()
@@ -45,7 +45,7 @@ class SpriteService(BaseService):
             "height": sprite["height"],
         }
 
-    def get_sprites_from_records(self) -> dict:
+    def get_sprites_from_records(self) -> dict[int, dict]:
         """Load sprites from database."""
         records = self.record_service.records[TypeEnum.SPRITE]
 

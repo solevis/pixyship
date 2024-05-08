@@ -26,7 +26,7 @@ def has_offstat(
     if item_slot not in ["Accessory", "Head", "Body", "Weapon", "Leg", "Pet"]:
         return False
 
-    if item_rarity_order < RARITY_MAP.get("Hero"):
+    if item_rarity_order < RARITY_MAP["Hero"]:
         return False
 
     if item_disp_enhancement is None and item_bonus == 0.0:
@@ -117,18 +117,18 @@ def parse_requirement(requirement_string: str) -> dict | None:
         requirement_id, requirement_count = id_and_amount.split(">")
 
     requirement_type = requirement_type.strip().capitalize()
-    requirement_type = get_type_enum_from_string(requirement_type)
-    requirement_id = int(requirement_id.strip())
-    requirement_count = int(requirement_count.strip())
+    type_ = get_type_enum_from_string(requirement_type)
+    id_ = int(requirement_id.strip())
+    count = int(requirement_count.strip())
 
     # in some case (example: Coal Factory), the amount needed is '> 0' not '>= 1'
-    if requirement_count == 0:
-        requirement_count = 1
+    if count == 0:
+        count = 1
 
     return {
-        "count": requirement_count,
-        "type": requirement_type,
-        "id": requirement_id,
+        "count": count,
+        "type": type_,
+        "id": id_,
     }
 
 

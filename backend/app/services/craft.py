@@ -11,7 +11,7 @@ class CraftService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._crafts = {}
+        self._crafts: dict[int, dict] = {}
 
     @property
     def crafts(self) -> dict[int, dict]:

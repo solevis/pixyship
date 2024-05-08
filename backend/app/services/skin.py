@@ -14,11 +14,11 @@ class SkinService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._skins = {}
-        self._skinsets = {}
+        self._skins: dict[int, dict] = {}
+        self._skinsets: dict[int, dict] = {}
 
     @property
-    def skins(self) -> dict:
+    def skins(self) -> dict[int, dict]:
         """Get skins data."""
         if not self._skins:
             self._skins = self.get_skins_from_records()
@@ -26,14 +26,14 @@ class SkinService(BaseService):
         return self._skins
 
     @property
-    def skinsets(self) -> dict:
+    def skinsets(self) -> dict[int, dict]:
         """Get skinsets data."""
         if not self._skinsets:
             self._skinsets = self.get_skinsets_from_db()
 
         return self._skinsets
 
-    def get_skins_from_records(self) -> dict:
+    def get_skins_from_records(self) -> dict[int, dict]:
         """Load skins from database."""
         skin_records = self.record_service.records[TypeEnum.SKIN]
         skins = {}
@@ -64,7 +64,7 @@ class SkinService(BaseService):
 
         return skins
 
-    def get_skinsets_from_db(self) -> dict:
+    def get_skinsets_from_db(self) -> dict[int, dict]:
         """Load skinsets from database."""
         skinset_records = self.record_service.records[TypeEnum.SKINSET]
 

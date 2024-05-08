@@ -274,6 +274,9 @@ def api_ships() -> Response:
 def api_last_sales(sale_type: str, sale_type_id: int) -> Response:
     """Return the last sales of a given type."""
     type_enum = get_type_enum_from_string(escape(sale_type))
+    if type_enum is None:
+        flask.abort(404)
+
     return jsonify(
         {
             "data": service_factory.daily_offer_service.get_last_sales_from_db(type_enum, sale_type_id, 1000),

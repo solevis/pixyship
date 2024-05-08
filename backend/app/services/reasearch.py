@@ -12,17 +12,17 @@ class ResearchService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._researches = {}
+        self._researches: dict[int, dict] = {}
 
     @property
-    def researches(self) -> dict:
+    def researches(self) -> dict[int, dict]:
         """Get researches data."""
         if not self._researches:
             self._researches = self.get_researches_from_records()
 
         return self._researches
 
-    def get_researches_from_records(self) -> dict:
+    def get_researches_from_records(self) -> dict[int, dict]:
         """Load researches from database."""
         records = self.record_service.records[TypeEnum.RESEARCH]
 

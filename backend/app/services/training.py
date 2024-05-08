@@ -11,17 +11,17 @@ class TrainingService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._trainings = {}
+        self._trainings: dict[int, dict] = {}
 
     @property
-    def trainings(self) -> dict:
+    def trainings(self) -> dict[int, dict]:
         """Get trainings data."""
         if not self._trainings:
             self._trainings = self.get_trainings_from_records()
 
         return self._trainings
 
-    def get_trainings_from_records(self) -> dict:
+    def get_trainings_from_records(self) -> dict[int, dict]:
         """Load trainings from database."""
         records = self.record_service.records[TypeEnum.TRAINING]
 
