@@ -71,6 +71,7 @@ COLLECTION_ABILITY_MAP = {
     "DamageReductionSkill": "Damage Reduction",
     "RoomDamageBoostInstance": "Room Damage Boost",
     "ReduceFutureDamageInstance": "Reduce Future Damage",
+    "DestroyModules": "Destroy Modules",
     "None": "None",
 }
 
