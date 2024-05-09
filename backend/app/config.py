@@ -1,4 +1,6 @@
 class DefaultConfig:
+    """Default configuration for PixyShip application."""
+
     # Database URI
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://postgres:postgres@localhost:5432/pixyship"
 
@@ -34,3 +36,7 @@ class DefaultConfig:
 
     # Sentry DSN (https://sentry.io)
     SENTRY_DSN = None
+
+    # Cache configuration
+    CACHE_TYPE = "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = 300

@@ -72,10 +72,6 @@
           <v-icon class="mr-1">mdi-github</v-icon
           ><a :href="githubUrl">GitHub</a>
         </p>
-        <p v-if="changelogUrl">
-          <v-icon class="mr-1">mdi-clipboard-list-outline</v-icon
-          ><a :href="changelogUrl">Changelog</a>
-        </p>
       </v-card-text>
     </v-card>
   </v-card>
@@ -115,7 +111,6 @@ export default {
       donationUrl: process.env.VUE_APP_DONATION_URL,
       discordUrl: process.env.VUE_APP_PIXYSHIP_DISCORD_URL,
       githubUrl: process.env.VUE_APP_PIXYSHIP_GITHUB_URL,
-      changelogUrl: process.env.VUE_APP_PIXYSHIP_CHANGELOG_URL,
     }
   },
 

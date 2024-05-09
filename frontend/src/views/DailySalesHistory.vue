@@ -96,7 +96,7 @@
       <template v-slot:item="{ item }">
         <tr>
           <td>
-            <crew v-if="item.type === 'char'" :char="item.char" tipPosition="right"/>
+            <crew v-if="item.type === 'character'" :char="item.char" tipPosition="right"/>
             <item v-else-if="item.type === 'item'" :item="item.item"/>
             <div v-else :style="spriteStyleScaledWrapper(item.sprite, 300)">
               <div class="block my-1 ma-auto" :style="spriteStyleScaled(item.sprite, 300)"></div>
@@ -104,7 +104,7 @@
           </td>
 
           <td style="min-width: 250px">
-            <span v-if="item.type === 'char'" :class="[item.char.rarity]"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
+            <span v-if="item.type === 'character'" :class="[item.char.rarity]"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
             <span v-else-if="item.type === 'item'" :class="[item.item.rarity]"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
             <span v-else-if="item.type !== 'sprite'"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
             <span v-else><a :href="getSpriteUrl(item.sprite)" >{{ item.name }}</a></span>
@@ -323,7 +323,7 @@ export default {
     },
 
     formatType: function (type) {
-      if (type === 'char') {
+      if (type === 'character') {
         return 'Crew'
       }
 

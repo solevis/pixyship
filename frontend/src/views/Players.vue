@@ -472,7 +472,7 @@ export default {
         {params: {search: this.searchText}}
       )
 
-      this.players = response.data
+      this.players = response.data.data
       this.loaded = true
 
       if (query.player && this.players.filter(player => player.name === query.player).length > 0) {
@@ -489,7 +489,7 @@ export default {
         {params: {search: this.searchText}}
       )
 
-      this.players = response.data
+      this.players = response.data.data
     }, 250),
 
     getShip: async function(searchName) {
@@ -499,14 +499,14 @@ export default {
 
       this.shipLoading = true
       this.showShip = false
-      const endpoint = this.shipEndpoint + encodeURIComponent(searchName)
+      const endpoint = this.playerEndpoint + encodeURIComponent(searchName)
 
       const response = await axios.get(
         endpoint,
         {params: {key: this.searchName}}
       )
 
-      if (response.data.data.status !== 'not found') {
+      if (response.data.status === 'success') {
         this.rooms = response.data.data.rooms
         this.user = response.data.data.user
         this.ship = response.data.data.ship

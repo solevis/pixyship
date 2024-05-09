@@ -1,6 +1,5 @@
 [project]
 name = "pixyship"
-version = "2.10.0"
 description = "PixyShip is a reference site for the game Pixel Starships."
 authors = [
     { name = "solevis", email = "solevis@protonmail.com" }
@@ -14,6 +13,7 @@ dependencies = [
     "psycopg>=3.1.18",
     "requests>=2.31.0",
     "sentry-sdk[flask]>=1.45.0",
+    "Flask-Caching>=2.2.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.11"
@@ -23,12 +23,18 @@ managed = true
 virtual = true
 dev-dependencies = [
     "pytest>=8.1.1",
+    "mypy>=1.10.0",
+    "types-Flask-Cors>=4.0.0.20240405",
+    "types-Flask-Migrate>=4.0.0.20240311",
+    "types-requests>=2.31.0.20240406",
+    "sqlalchemy[mypy]>=2.0.30",
 ]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 120
 indent-width = 4
+unsafe-fixes = true
 
 [tool.pytest.ini_options]
 pythonpath = "."
@@ -37,5 +43,40 @@ addopts = [
 ]
 
 [tool.ruff.lint]
-select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I']
-unfixable = ["B"]
+select = ['ALL']
+unfixable = ['B']
+ignore = [
+    # flake8-boolean-trap
+    'FBT',
+    # flake8-bandit
+    'S',
+    # pylint refactor
+    'PLR',
+    # mccabe
+    'C90',
+    # missing-trailing-comma
+    'ISC001',
+    # line-contains-todo
+    'FIX002',
+    # pydocstyle
+    'D100',
+    'D104',
+    'D107',
+    'D203',
+    'D213',
+    'ANN101',
+    'COM812',
+]
+
+[tool.ruff.lint.per-file-ignores]
+"migrations/**" = ['ERA001', 'INP001', 'ARG001', 'D', 'ANN']
+"tests/**" = ['S101', 'INP001', 'D103', 'ANN']
+
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+warn_unused_ignores = true
+plugins = [
+    "sqlalchemy.ext.mypy.plugin",
+]

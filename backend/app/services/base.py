@@ -1,0 +1,311 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.services.achievement import AchievementService
+    from app.services.changes import ChangesService
+    from app.services.character import CharacterService
+    from app.services.collection import CollectionService
+    from app.services.craft import CraftService
+    from app.services.daily_offer import DailyOfferService
+    from app.services.item import ItemService
+    from app.services.market import MarketService
+    from app.services.missile import MissileService
+    from app.services.pixyship import PixyShipService
+    from app.services.player import PlayerService
+    from app.services.prestige import PrestigeService
+    from app.services.reasearch import ResearchService
+    from app.services.record import RecordService
+    from app.services.record_details import RecordDetailsService
+    from app.services.room import RoomService
+    from app.services.ship import ShipService
+    from app.services.skin import SkinService
+    from app.services.sprite import SpriteService
+    from app.services.training import TrainingService
+
+
+class BaseService:
+    """Base service class."""
+
+    def __init__(self) -> None:
+        self._record_service: RecordService | None = None
+        self._sprite_service: SpriteService | None = None
+        self._market_service: MarketService | None = None
+        self._training_service: TrainingService | None = None
+        self._skin_service: SkinService | None = None
+        self._collection_service: CollectionService | None = None
+        self._character_service: CharacterService | None = None
+        self._item_service: ItemService | None = None
+        self._research_service: ResearchService | None = None
+        self._room_service: RoomService | None = None
+        self._ship_service: ShipService | None = None
+        self._achievement_service: AchievementService | None = None
+        self._craft_service: CraftService | None = None
+        self._pixyship_service: PixyShipService | None = None
+        self._missile_service: MissileService | None = None
+        self._prestige_service: PrestigeService | None = None
+        self._changes_service: ChangesService | None = None
+        self._record_details_service: RecordDetailsService | None = None
+        self._daily_offer_service: DailyOfferService | None = None
+        self._player_service: PlayerService | None = None
+
+    @property
+    def record_service(self) -> RecordService:
+        """Get record service."""
+        if not self._record_service:
+            msg = "record_service is not set"
+            raise ValueError(msg)
+
+        return self._record_service
+
+    @record_service.setter
+    def record_service(self, record_service: RecordService) -> None:
+        self._record_service = record_service
+
+    @property
+    def sprite_service(self) -> SpriteService:
+        """Get sprite service."""
+        if not self._sprite_service:
+            msg = "sprite_service is not set"
+            raise ValueError(msg)
+
+        return self._sprite_service
+
+    @sprite_service.setter
+    def sprite_service(self, sprite_service: SpriteService) -> None:
+        self._sprite_service = sprite_service
+
+    @property
+    def market_service(self) -> MarketService:
+        """Get market service."""
+        if not self._market_service:
+            msg = "market_service is not set"
+            raise ValueError(msg)
+
+        return self._market_service
+
+    @market_service.setter
+    def market_service(self, market_service: MarketService) -> None:
+        self._market_service = market_service
+
+    @property
+    def training_service(self) -> TrainingService:
+        """Get training service."""
+        if not self._training_service:
+            msg = "training_service is not set"
+            raise ValueError(msg)
+
+        return self._training_service
+
+    @training_service.setter
+    def training_service(self, training_service: TrainingService) -> None:
+        self._training_service = training_service
+
+    @property
+    def skin_service(self) -> SkinService:
+        """Get skin service."""
+        if not self._skin_service:
+            msg = "skin_service is not set"
+            raise ValueError(msg)
+
+        return self._skin_service
+
+    @skin_service.setter
+    def skin_service(self, skin_service: SkinService) -> None:
+        self._skin_service = skin_service
+
+    @property
+    def collection_service(self) -> CollectionService:
+        """Get collection service."""
+        if not self._collection_service:
+            msg = "collection_service is not set"
+            raise ValueError(msg)
+
+        return self._collection_service
+
+    @collection_service.setter
+    def collection_service(self, collection_service: CollectionService) -> None:
+        self._collection_service = collection_service
+
+    @property
+    def character_service(self) -> CharacterService:
+        """Get character service."""
+        if not self._character_service:
+            msg = "character_service is not set"
+            raise ValueError(msg)
+
+        return self._character_service
+
+    @character_service.setter
+    def character_service(self, character_service: CharacterService) -> None:
+        self._character_service = character_service
+
+    @property
+    def item_service(self) -> ItemService:
+        """Get item service."""
+        if not self._item_service:
+            msg = "item_service is not set"
+            raise ValueError(msg)
+
+        return self._item_service
+
+    @item_service.setter
+    def item_service(self, item_service: ItemService) -> None:
+        self._item_service = item_service
+
+    @property
+    def research_service(self) -> ResearchService:
+        """Get research service."""
+        if not self._research_service:
+            msg = "research_service is not set"
+            raise ValueError(msg)
+
+        return self._research_service
+
+    @research_service.setter
+    def research_service(self, research_service: ResearchService) -> None:
+        self._research_service = research_service
+
+    @property
+    def room_service(self) -> RoomService:
+        """Get room service."""
+        if not self._room_service:
+            msg = "room_service is not set"
+            raise ValueError(msg)
+
+        return self._room_service
+
+    @room_service.setter
+    def room_service(self, room_service: RoomService) -> None:
+        self._room_service = room_service
+
+    @property
+    def ship_service(self) -> ShipService:
+        """Get ship service."""
+        if not self._ship_service:
+            msg = "ship_service is not set"
+            raise ValueError(msg)
+
+        return self._ship_service
+
+    @ship_service.setter
+    def ship_service(self, ship_service: ShipService) -> None:
+        self._ship_service = ship_service
+
+    @property
+    def achievement_service(self) -> AchievementService:
+        """Get achievement service."""
+        if not self._achievement_service:
+            msg = "achievement_service is not set"
+            raise ValueError(msg)
+
+        return self._achievement_service
+
+    @achievement_service.setter
+    def achievement_service(self, achievement_service: AchievementService) -> None:
+        self._achievement_service = achievement_service
+
+    @property
+    def craft_service(self) -> CraftService:
+        """Get craft service."""
+        if not self._craft_service:
+            msg = "craft_service is not set"
+            raise ValueError(msg)
+
+        return self._craft_service
+
+    @craft_service.setter
+    def craft_service(self, craft_service: CraftService) -> None:
+        self._craft_service = craft_service
+
+    @property
+    def pixyship_service(self) -> PixyShipService:
+        """Get pixyship service."""
+        if not self._pixyship_service:
+            msg = "pixyship_service is not set"
+            raise ValueError(msg)
+
+        return self._pixyship_service
+
+    @pixyship_service.setter
+    def pixyship_service(self, pixyship_service: PixyShipService) -> None:
+        self._pixyship_service = pixyship_service
+
+    @property
+    def missile_service(self) -> MissileService:
+        """Get missile service."""
+        if not self._missile_service:
+            msg = "missile_service is not set"
+            raise ValueError(msg)
+
+        return self._missile_service
+
+    @missile_service.setter
+    def missile_service(self, missile_service: MissileService) -> None:
+        self._missile_service = missile_service
+
+    @property
+    def prestige_service(self) -> PrestigeService:
+        """Get prestige service."""
+        if not self._prestige_service:
+            msg = "prestige_service is not set"
+            raise ValueError("%s" % msg)
+
+        return self._prestige_service
+
+    @prestige_service.setter
+    def prestige_service(self, prestige_service: PrestigeService) -> None:
+        self._prestige_service = prestige_service
+
+    @property
+    def changes_service(self) -> ChangesService:
+        """Get changes service."""
+        if not self._changes_service:
+            msg = "changes_service is not set"
+            raise ValueError(msg)
+
+        return self._changes_service
+
+    @changes_service.setter
+    def changes_service(self, changes_service: ChangesService) -> None:
+        self._changes_service = changes_service
+
+    @property
+    def record_details_service(self) -> RecordDetailsService:
+        """Get record details service."""
+        if not self._record_details_service:
+            msg = "record_details_service is not set"
+            raise ValueError(msg)
+
+        return self._record_details_service
+
+    @record_details_service.setter
+    def record_details_service(self, record_details_service: RecordDetailsService) -> None:
+        self._record_details_service = record_details_service
+
+    @property
+    def daily_offer_service(self) -> DailyOfferService:
+        """Get daily offer service."""
+        if not self._daily_offer_service:
+            msg = "daily_offer_service is not set"
+            raise ValueError(msg)
+
+        return self._daily_offer_service
+
+    @daily_offer_service.setter
+    def daily_offer_service(self, daily_offer_service: DailyOfferService) -> None:
+        self._daily_offer_service = daily_offer_service
+
+    @property
+    def player_service(self) -> PlayerService:
+        """Get player service."""
+        if not self._player_service:
+            msg = "player_service is not set"
+            raise ValueError(msg)
+
+        return self._player_service
+
+    @player_service.setter
+    def player_service(self, player_service: PlayerService) -> None:
+        self._player_service = player_service

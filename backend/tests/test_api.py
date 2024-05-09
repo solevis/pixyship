@@ -7,10 +7,10 @@ def test_login(app):
     with app.app_context():
         pixel_starships_api = PixelStarshipsApi()
 
-        utc_now = datetime.datetime.utcnow()
+        utc_now = datetime.datetime.now(tz=datetime.UTC)
         client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
-        device_key, device_checksum = pixel_starships_api.generate_device(client_datetime)
+        device_key, device_checksum = pixel_starships_api.generate_device_key_checksum(client_datetime)
         token = pixel_starships_api.get_device_token(device_key, client_datetime, device_checksum)
 
         assert isinstance(token, str)
@@ -543,6 +543,7 @@ def test_trainings(app):
         assert "XpChance" in training
         assert "Fatigue" in training
         assert "MinimumGuarantee" in training
+        assert "TrainingName" in training
 
 
 def test_achievements(app):
@@ -678,16 +679,9 @@ def test_missiles(app):
 def test_skins(app):
     with app.app_context():
         pixel_starships_api = PixelStarshipsApi()
-        skinsets, skins = pixel_starships_api.get_skins()
+        skins = pixel_starships_api.get_skins()
 
-        assert len(skinsets) > 0
         assert len(skins) > 0
-
-        skinset = skinsets[0]
-        assert "SkinSetName" in skinset
-        assert "SkinSetDescription" in skinset
-        assert "SkinSetId" in skinset
-        assert "SpriteId" in skinset
 
         skin = skins[0]
         assert "SkinSetId" in skin
@@ -696,3 +690,17 @@ def test_skins(app):
         assert "RootId" in skin
         assert "RaceId" in skin
         assert "SpriteId" in skin
+
+
+def test_skinsets(app):
+    with app.app_context():
+        pixel_starships_api = PixelStarshipsApi()
+        skinsets = pixel_starships_api.get_skinsets()
+
+        assert len(skinsets) > 0
+
+        skinset = skinsets[0]
+        assert "SkinSetName" in skinset
+        assert "SkinSetDescription" in skinset
+        assert "SkinSetId" in skinset
+        assert "SpriteId" in skinset

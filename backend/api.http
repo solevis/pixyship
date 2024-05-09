@@ -1,0 +1,139 @@
+###
+# @name api_players
+GET http://localhost:5000/api/players
+###
+
+###
+# @name api_player
+GET http://localhost:5000/api/players/Solevis
+###
+
+###
+# @name api_players
+GET http://localhost:5000/api/players
+###
+
+###
+# @name api_players_search
+GET http://localhost:5000/api/players?search=solevis
+###
+
+###
+# @name api_daily
+GET http://localhost:5000/api/daily
+###
+
+###
+# @name api_changes
+GET http://localhost:5000/api/changes
+###
+
+###
+# @name api_collections
+GET http://localhost:5000/api/collections
+###
+
+###
+# @name api_achievements
+GET http://localhost:5000/api/achievements
+###
+
+###
+# @name api_research
+GET http://localhost:5000/api/research
+###
+
+###
+# @name api_prestige
+GET http://localhost:5000/api/prestige/196
+###
+
+###
+# @name api_crew
+GET http://localhost:5000/api/crew
+###
+
+###
+# @name api_items
+GET http://localhost:5000/api/items
+###
+
+###
+# @name api_item_prices
+GET http://localhost:5000/api/item/73/prices
+###
+
+###
+# @name api_item_detail
+GET http://localhost:5000/api/item/73/detail
+###
+
+###
+# @name api_tournament
+GET http://localhost:5000/api/tournament
+###
+
+###
+# @name api_rooms
+GET http://localhost:5000/api/rooms
+###
+
+###
+# @name api_skins
+GET http://localhost:5000/api/skins
+###
+
+###
+# @name api_ships
+GET http://localhost:5000/api/ships
+###
+
+###
+# @name api_last_sales_item
+GET http://localhost:5000/api/lastsales/item/106
+###
+
+###
+# @name api_last_sales_character
+GET http://localhost:5000/api/lastsales/character/120
+###
+
+###
+# @name api_last_sales_by_type_blue_cargo
+GET http://localhost:5000/api/lastsalesbysalefrom/blue_cargo
+###
+
+###
+# @name api_last_sales_by_type_shop
+GET http://localhost:5000/api/lastsalesbysalefrom/shop
+###
+
+###
+# @name api_last_sales_by_type_daily_rewards
+GET http://localhost:5000/api/lastsalesbysalefrom/daily_rewards
+###
+
+###
+# @name api_last_sales_by_type_green_cargo
+GET http://localhost:5000/api/lastsalesbysalefrom/green_cargo
+###
+
+###
+# @name api_last_sales_by_type_promotion_dailydealoffer
+GET http://localhost:5000/api/lastsalesbysalefrom/promotion_dailydealoffer
+###
+
+###
+# @name api_last_sales_by_type_sale
+GET http://localhost:5000/api/lastsalesbysalefrom/sale
+###
+
+###
+# @name api_crafts
+GET http://localhost:5000/api/crafts
+###
+
+###
+# @name api_missiles
+GET http://localhost:5000/api/missiles
+###

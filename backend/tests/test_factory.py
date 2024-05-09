@@ -3,20 +3,17 @@ from app import create_app
 
 def test_testing():
     """Test create_app without passing test config."""
-
     assert create_app({"TESTING": True}).testing
 
 
 def test_health(client):
     """Test the health endpoint."""
-
     response = client.get("/health")
     assert response.data == b'{"status":"ok"}\n'
 
 
 def test_config(app):
     """Test the app's configuration."""
-
     assert "SQLALCHEMY_DATABASE_URI" in app.config
     assert "DEV_MODE" in app.config
     assert "DOMAIN" in app.config

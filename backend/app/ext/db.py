@@ -3,7 +3,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
-    pass
+    """Base model."""
 
 
 db = SQLAlchemy(model_class=Base)

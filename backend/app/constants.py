@@ -4,28 +4,46 @@ PSS_SPRITES_URL = "https://pixelstarships.s3.amazonaws.com/{}.png"
 
 # A map to find the correct interior for a given race's ship
 # This fails for some rock ship cause this isn't actually how it works
-RACE_SPECIFIC_SPRITE_MAP = {
+RACE_SPECIFIC_SPRITE_MAP: dict[int, list[int]] = {
     83: [83, 84, 83, 82, 1302, 561, 3134],  # basic lifts
     1532: [1532, 1534, 1532, 1533, 1536, 1535, 3163],  # endgame lifts
     871: [871, 872, 871, 869, 870, 873, 3135],  # armors
 }
 
-ABILITY_MAP = {
-    "DamageToSameRoomCharacters": {"name": "Gas", "sprite": 2706},
-    "HealRoomHp": {"name": "Urgent Repair", "sprite": 2709},
-    "HealSelfHp": {"name": "First Aid", "sprite": 2707},
-    "AddReload": {"name": "Rush", "sprite": 2703},
-    "FireWalk": {"name": "Fire Walk", "sprite": 5389},
-    "DamageToCurrentEnemy": {"name": "Critical Strike", "sprite": 2708},
-    "DamageToRoom": {"name": "Ultra Dismantle", "sprite": 2710},
-    "DeductReload": {"name": "System Hack", "sprite": 2704},
-    "HealSameRoomCharacters": {"name": "Healing Rain", "sprite": 2705},
-    "Freeze": {"name": "Freeze", "sprite": 5390},
-    "SetFire": {"name": "Arson", "sprite": 5388},
-    "Bloodlust": {"name": "Bloodlust", "sprite": 13866},
-    "Invulnerability": {"name": "Phase Shift", "sprite": 13319},
-    "ProtectRoom": {"name": "Stasis Shield", "sprite": 13320},
-    "None": {"name": "", "sprite": 110},  # Empty sprite
+ABILITY_NAME_MAP: dict[str, str] = {
+    "DamageToSameRoomCharacters": "Gas",
+    "HealRoomHp": "Urgent Repair",
+    "HealSelfHp": "First Aid",
+    "AddReload": "Rush",
+    "FireWalk": "Fire Walk",
+    "DamageToCurrentEnemy": "Critical Strike",
+    "DamageToRoom": "Ultra Dismantle",
+    "DeductReload": "System Hack",
+    "HealSameRoomCharacters": "Healing Rain",
+    "Freeze": "Freeze",
+    "SetFire": "Arson",
+    "Bloodlust": "Bloodlust",
+    "Invulnerability": "Phase Shift",
+    "ProtectRoom": "Stasis Shield",
+    "None": "",
+}
+
+ABILITY_SPRITE_MAP: dict[str, int] = {
+    "DamageToSameRoomCharacters": 2706,
+    "HealRoomHp": 2709,
+    "HealSelfHp": 2707,
+    "AddReload": 2703,
+    "FireWalk": 5389,
+    "DamageToCurrentEnemy": 2708,
+    "DamageToRoom": 2710,
+    "DeductReload": 2704,
+    "HealSameRoomCharacters": 2705,
+    "Freeze": 5390,
+    "SetFire": 5388,
+    "Bloodlust": 13866,
+    "Invulnerability": 13319,
+    "ProtectRoom": 13320,
+    "None": 110,  # Empty sprite
 }
 
 COLLECTION_ABILITY_MAP = {
@@ -75,7 +93,7 @@ COLLECTION_ABILITY_TRIGGER_MAP = {
     "None": "None",
 }
 
-RARITY_MAP = {
+RARITY_MAP: dict[str, int] = {
     "Legendary": 7,
     "Special": 6,
     "Hero": 5,
@@ -85,7 +103,7 @@ RARITY_MAP = {
     "Common": 1,
 }
 
-RARITY_COLOR = {
+RARITY_COLOR: dict[str, str] = {
     "Common": "grey",
     "Elite": "white",
     "Unique": "blue",
@@ -95,7 +113,7 @@ RARITY_COLOR = {
     "Legendary": "gold",
 }
 
-TYPE_PSS_API_NAME_FIELD = {
+TYPE_PSS_API_NAME_FIELD: dict[str, str] = {
     "ship": "ShipDesignName",
     "room": "RoomName",
     "char": "CharacterDesignName",
@@ -104,12 +122,9 @@ TYPE_PSS_API_NAME_FIELD = {
     "sprite": "SpriteKey",
 }
 
-DEFAULT_EXPIRATION_DURATION = 60 * 5  # 5 minutes
+EQUIPMENT_SLOTS: list[str] = ["Head", "Body", "Leg", "Weapon", "Accessory", "Pet"]
 
-EQUIPMENT_SLOTS = ["Head", "Body", "Leg", "Weapon", "Accessory", "Pet"]
-
-SLOT_MAP = {
-    "None": None,
+SLOT_MAP: dict[str, str | None] = {
     "EquipmentHead": "Head",
     "EquipmentWeapon": "Weapon",
     "EquipmentBody": "Body",
@@ -127,20 +142,22 @@ SLOT_MAP = {
     "FillMineralStorage": "Fill Mineral Storage",
     "FillGasStorage": "Fill Gas Storage",
     "SpeedUpConstruction": "SpeedUp Construction",
+    "None": None,
 }
 
-ROOM_TYPE_MAP = {
+ROOM_TYPE_MAP: dict[str, str] = {
     "Wall": "Armor",
 }
 
-ENHANCE_MAP = {
+ENHANCE_MAP: dict[str | None, str | None] = {
     "FireResistance": "Fire Resistance",
     "FreezeAttackSkill": "Freeze",
     "Hp": "HP",
     "None": None,
+    None: None,
 }
 
-SHORT_ENHANCE_MAP = {
+SHORT_ENHANCE_MAP: dict[str | None, str | None] = {
     "Ability": "ABL",
     "Attack": "ATK",
     "Engine": "ENG",
@@ -153,9 +170,10 @@ SHORT_ENHANCE_MAP = {
     "Stamina": "STA",
     "Weapon": "WPN",
     "None": None,
+    None: None,
 }
 
-RESEARCH_TYPE_MAP = {
+RESEARCH_TYPE_MAP: dict[str, str | None] = {
     "CrewLevelUpCost": "Crew LevelUp Cost",
     "ConcurrentConstruction": "Concurrent Construction",
     "TradeCapacity": "Trade",
@@ -169,7 +187,7 @@ RESEARCH_TYPE_MAP = {
 }
 
 # Daily IAP mask (see https://github.com/PieInTheSky-Inc/YaDc)
-IAP_NAMES = {500: "Clip", 1200: "Roll", 2500: "Stash", 6500: "Case", 14000: "Vault"}
+IAP_NAMES: dict[int, str] = {500: "Clip", 1200: "Roll", 2500: "Stash", 6500: "Case", 14000: "Vault"}
 
 # 0 - Unknown
 # 1 - Pirate/Dark
@@ -178,7 +196,7 @@ IAP_NAMES = {500: "Clip", 1200: "Roll", 2500: "Stash", 6500: "Case", 14000: "Vau
 # 4 - Visiri/Red
 # 5 - UFO/Green
 # 6 - Starbase
-RACES = {
+RACES: dict[int | None, str] = {
     None: "None",
     0: "Unknown",
     1: "Pirate",
@@ -188,33 +206,33 @@ RACES = {
     5: "Gray",
 }
 
-MODULE_ENHANCEMENT_MAP = {"Turret": "Attack", "XP": "XP"}
+MODULE_ENHANCEMENT_MAP: dict[str, str] = {"Turret": "Attack", "XP": "XP"}
 
-MODULE_BONUS_RATIO_MAP = {"Turret": 100}
+MODULE_BONUS_RATIO_MAP: dict[str, int] = {"Turret": 100}
 
-MANUFACTURE_CAPACITY_MAP = {
+MANUFACTURE_CAPACITY_MAP: dict[str, str] = {
     "Shield": "Restore",
     "Recycling": "Max Blend",
     "Council": "Max Donations",
 }
 
-MANUFACTURE_RATE_MAP = {
+MANUFACTURE_RATE_MAP: dict[str, str] = {
     "Recycling": "Harvest",
 }
 
-MANUFACTURE_RATE_PER_HOUR_MAP = {
+MANUFACTURE_RATE_PER_HOUR_MAP: dict[str, bool] = {
     "Laser": True,
     "Mineral": True,
     "Gas": True,
     "Supply": True,
 }
 
-MANUFACTURE_CAPACITY_RATIO_MAP = {
+MANUFACTURE_CAPACITY_RATIO_MAP: dict[str, int] = {
     "Shield": 100,
     "Recycling": 1,
 }
 
-LABEL_CAPACITY_MAP = {
+LABEL_CAPACITY_MAP: dict[str, str] = {
     "Medical": "Healing",
     "Shield": "Shield",
     "Stealth": "Cloak",
@@ -230,28 +248,28 @@ LABEL_CAPACITY_MAP = {
     "Bridge": "Escape",
 }
 
-CAPACITY_RATIO_MAP = {
+CAPACITY_RATIO_MAP: dict[str, int] = {
     "Medical": 100,
 }
 
-DAILY_SALE_SPRITE_ID = 11006
-DAILY_REWARDS_SPRITE_ID = 2326
-GREEN_CARGO_SPRITE_ID = 11881
-BLUE_CARGO_SPRITE_ID = 11880
-SHOP_SPRITE_ID = 592
+DAILY_SALE_SPRITE_ID: int = 11006
+DAILY_REWARDS_SPRITE_ID: int = 2326
+GREEN_CARGO_SPRITE_ID: int = 11881
+BLUE_CARGO_SPRITE_ID: int = 11880
+SHOP_SPRITE_ID: int = 592
 
-PSS_START_DATE = datetime.date(year=2016, month=1, day=6)
+PSS_START_DATE: datetime.date = datetime.date(year=2016, month=1, day=6)
 
-IAP_OPTIONS_MASK_LOOKUP = [500, 1200, 2500, 6500, 14000]
+IAP_OPTIONS_MASK_LOOKUP: list[int] = [500, 1200, 2500, 6500, 14000]
 
-ROOM_SHOP_TYPE_MASK = {
+ROOM_SHOP_TYPE_MASK: dict[str | None, list[str]] = {
     "1": ["Player"],
     "2": ["Starbase"],
     "3": ["Player", "Starbase"],
     None: ["Bux"],
 }
 
-SALE_FROM_MAP = {
+SALE_FROM_MAP: dict[str, str] = {
     "green_cargo": "Merchant Ship (green cargo)",
     "promotion_valueoffer": "Bank",
     "blue_cargo_starbux": "Dropship (blue cargo)",
@@ -263,7 +281,7 @@ SALE_FROM_MAP = {
     "promotion_offer": "Bank",
 }
 
-API_URLS = {
+API_URLS: dict[str, str] = {
     "MAIN": "https://api.pixelstarships.com/",
     "STAGING": "https://apistaging.pixelstarships.com/",
 }

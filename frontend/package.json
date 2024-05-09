@@ -1,6 +1,5 @@
 {
   "name": "pixyship",
-  "version": "2.10.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

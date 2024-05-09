@@ -1,8 +1,8 @@
 import datetime
-import os
 import random
 import time
-from typing import Any, Callable, Dict, Tuple
+from collections.abc import Callable
+from pathlib import Path
 from urllib import request
 
 import click
@@ -13,21 +13,24 @@ from sqlalchemy.dialects.postgresql import insert
 from app.constants import PSS_SPRITES_URL
 from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, MarketMessage, Player
-from app.pixyship import PixyShip
-from app.utils import api_sleep
+from app.services.factory import ServiceFactory
+from app.utils.pss import api_sleep, get_type_enum_from_string
 
 importer_cli = AppGroup("import", help="Import data from PixyShip API.")
+service_factory = ServiceFactory()
 
 
 def log_command(func: Callable) -> Callable:
-    def wrapper(*func_args: Tuple[Any], **func_kwargs: Dict[str, Any]) -> Any:
+    """Log the start and end of a command."""
+
+    def wrapper(*func_args: tuple, **func_kwargs: dict) -> Callable:
         start_time = time.time()
         current_app.logger.info("START")
         result = func(*func_args, **func_kwargs)
 
         end_time = time.time()  # Capturer le temps de fin
         elapsed_time = end_time - start_time  # Calculer le temps écoulé
-        current_app.logger.info(f"END ({elapsed_time:.2f}s)")
+        current_app.logger.info("END (%.2fs)", elapsed_time)
         return result
 
     return wrapper
@@ -36,8 +39,9 @@ def log_command(func: Callable) -> Callable:
 @importer_cli.command("players", help="Get top players and save them in database.")
 @with_appcontext
 @log_command
-def import_players():
+def import_players() -> None:
     """Get all top 100 players and top 100 alliances' players and save them in database."""
+    player_service = service_factory.player_service
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no players to import")
@@ -45,35 +49,33 @@ def import_players():
 
     current_app.logger.info("Importing players")
 
-    pixyship = PixyShip()
-
     current_app.logger.info("## top 100 players")
-    top_users = list(pixyship.get_top100_users_from_api().items())
+    top_users = list(player_service.get_top100_users_from_api().items())
     api_sleep(5)
 
     current_app.logger.info("## top 100 alliances")
     count = 0
-    top_alliances = pixyship.get_top100_alliances_from_api()
+    top_alliances = player_service.get_top100_alliances_from_api()
     for alliance_id, alliance in list(top_alliances.items()):
         try:
             count += 1
-            current_app.logger.info("[{}/100] {} ({})...".format(count, alliance["name"], alliance_id))
-            top_users += list(pixyship.get_alliance_users_from_api(alliance_id).items())
+            current_app.logger.info("[%d/100] %s (%d)...", count, alliance["name"], alliance_id)
+            top_users += list(player_service.get_alliance_users_from_api(alliance_id).items())
             api_sleep(5)
-        except Exception as e:
-            current_app.logger.exception("Error when importing alliance ({}) users: {}".format(alliance_id, e))
+        except Exception:
+            current_app.logger.exception("Error when importing alliance (%d) users", alliance_id)
 
     try:
         # purge old data
         db.session.query(Player).delete()
         db.session.query(Alliance).delete()
         db.session.commit()
-    except Exception as e:
-        current_app.logger.exception("Error when saving players in database: {}".format(e))
+    except Exception:
+        current_app.logger.exception("Error when saving players in database")
         db.session.rollback()
 
     # save new data
-    _save_users(top_users)
+    save_users(top_users)
 
     current_app.logger.info("Done")
 
@@ -81,46 +83,59 @@ def import_players():
 @importer_cli.command("assets", help="Get all assets and save them in database.")
 @with_appcontext
 @log_command
-def import_assets():
+def import_assets() -> None:
     """Get all items, crews, rooms, ships and save them in database."""
-
-    pixyship = PixyShip()
+    item_service = service_factory.item_service
+    character_service = service_factory.character_service
+    room_service = service_factory.room_service
+    ship_service = service_factory.ship_service
+    collection_service = service_factory.collection_service
+    research_service = service_factory.research_service
+    sprite_service = service_factory.sprite_service
+    skin_service = service_factory.skin_service
+    training_service = service_factory.training_service
+    achievement_service = service_factory.achievement_service
+    craft_service = service_factory.craft_service
+    missile_service = service_factory.missile_service
 
     current_app.logger.info("Importing items...")
-    pixyship.update_items()
+    item_service.update_items()
 
     current_app.logger.info("Importing characters...")
-    pixyship.update_characters()
+    character_service.update_characters()
 
     current_app.logger.info("Importing rooms...")
-    pixyship.update_rooms()
+    room_service.update_rooms()
 
     current_app.logger.info("Importing ships...")
-    pixyship.update_ships()
+    ship_service.update_ships()
 
     current_app.logger.info("Importing collections...")
-    pixyship.update_collections()
+    collection_service.update_collections()
 
     current_app.logger.info("Importing researches...")
-    pixyship.update_researches()
+    research_service.update_researches()
 
     current_app.logger.info("Importing sprites...")
-    pixyship.update_sprites()
+    sprite_service.update_sprites()
+
+    current_app.logger.info("Importing skinsets...")
+    skin_service.update_skinsets()
 
     current_app.logger.info("Importing skins...")
-    pixyship.update_skins()
+    skin_service.update_skins()
 
     current_app.logger.info("Importing trainings...")
-    pixyship.update_trainings()
+    training_service.update_trainings()
 
     current_app.logger.info("Importing achievements...")
-    pixyship.update_achievements()
+    achievement_service.update_achievements()
 
     current_app.logger.info("Importing crafts...")
-    pixyship.update_crafts()
+    craft_service.update_crafts()
 
     current_app.logger.info("Importing missiles...")
-    pixyship.update_missiles()
+    missile_service.update_missiles()
 
     current_app.logger.info("Done")
 
@@ -128,13 +143,12 @@ def import_assets():
 @importer_cli.command("prestiges", help="Get all prestiges and save them in database.")
 @with_appcontext
 @log_command
-def import_prestiges():
+def import_prestiges() -> None:
     """Import prestiges for checking changes."""
-
-    pixyship = PixyShip()
+    prestige_service = service_factory.prestige_service
 
     current_app.logger.info("Importing prestiges...")
-    pixyship.update_prestiges()
+    prestige_service.update_prestiges()
 
     current_app.logger.info("Done")
 
@@ -142,20 +156,19 @@ def import_prestiges():
 @importer_cli.command("daily-sales", help="Get all daily sales and save them in database.")
 @with_appcontext
 @log_command
-def import_daily_sales():
+def import_daily_sales() -> None:
     """Get all items, crews, rooms, ships on sale today and save them in database."""
+    daily_offer_service = service_factory.daily_offer_service
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no daily sales to import")
         return
 
-    pixyship = PixyShip()
-
-    utc_now = datetime.datetime.utcnow()
+    utc_now = datetime.datetime.now(tz=datetime.UTC)
     today = datetime.date(utc_now.year, utc_now.month, utc_now.day)
 
     current_app.logger.info("Importing promotions...")
-    promotions = pixyship.get_current_promotions()
+    promotions = daily_offer_service.get_current_promotions()
     for promotion in promotions:
         for reward in promotion["rewards"]:
             if reward["type"] in ["starbux", "purchasePoints"]:
@@ -170,10 +183,10 @@ def import_daily_sales():
                 price=None,
             )
 
-            _save_daily_sale(daily_sale)
+            save_daily_sale(daily_sale)
 
     current_app.logger.info("Importing daily offers...")
-    dailies_offers = pixyship.dailies["offers"]
+    dailies_offers = daily_offer_service.daily_offers["offers"]
     if not dailies_offers:
         current_app.logger.error("Empty dailies_offers")
         return
@@ -192,7 +205,7 @@ def import_daily_sales():
             price=dailies_offers["shop"]["cost"]["price"],
         )
 
-        _save_daily_sale(daily_sale)
+        save_daily_sale(daily_sale)
 
     daily_bank_offer = dailies_offers["sale"]["object"]
     if not daily_bank_offer:
@@ -209,7 +222,7 @@ def import_daily_sales():
             price=None,
         )
 
-        _save_daily_sale(daily_sale)
+        save_daily_sale(daily_sale)
 
     daily_rewards_offers = dailies_offers["dailyRewards"]["objects"]
     if not daily_rewards_offers:
@@ -229,7 +242,7 @@ def import_daily_sales():
                 price=None,
             )
 
-            _save_daily_sale(daily_sale)
+            save_daily_sale(daily_sale)
 
     daily_bluecargo_mineral_offer = dailies_offers["blueCargo"]["mineralCrew"]
     if not daily_bluecargo_mineral_offer:
@@ -245,7 +258,7 @@ def import_daily_sales():
             price=None,
         )
 
-        _save_daily_sale(daily_sale)
+        save_daily_sale(daily_sale)
 
     daily_bluecargo_starbux_offer = dailies_offers["blueCargo"]["starbuxCrew"]
     if not daily_bluecargo_starbux_offer:
@@ -261,7 +274,7 @@ def import_daily_sales():
             price=None,
         )
 
-        _save_daily_sale(daily_sale)
+        save_daily_sale(daily_sale)
 
     daily_greencargo_offers = dailies_offers["greenCargo"]["items"]
     if not daily_greencargo_offers:
@@ -281,17 +294,17 @@ def import_daily_sales():
                 price=daily_greencargo_offer["cost"]["price"],
             )
 
-            _save_daily_sale(daily_sale)
+            save_daily_sale(daily_sale)
 
 
-def _save_daily_sale(daily_sale):
+def save_daily_sale(daily_sale: DailySale) -> None:
     """Save daily sale in database."""
-
+    daily_sale_type = get_type_enum_from_string(daily_sale.type)
     try:
         insert_command = (
             insert(DailySale.__table__)
             .values(
-                type=daily_sale.type,
+                type=daily_sale_type,
                 type_id=daily_sale.type_id,
                 sale_at=daily_sale.sale_at,
                 sale_from=daily_sale.sale_from,
@@ -303,18 +316,20 @@ def _save_daily_sale(daily_sale):
 
         db.session.execute(insert_command)
         db.session.commit()
-    except Exception as e:
-        current_app.logger.exception("Error when saving Daily Sale in database: {}".format(e))
+    except Exception:
+        current_app.logger.exception("Error when saving Daily Sale in database")
         db.session.rollback()
 
 
 @importer_cli.command("market", help="Get last market sales and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
-@click.option("--item", type=int, default=None, help="Import only the given item")
+@click.option("--item-id", type=int, default=None, help="Import only the given item")
 @with_appcontext
 @log_command
-def import_market(one_item_only: bool, item: int):
+def import_market(one_item_only: bool, item_id: int | None) -> None:
     """Get last market sales and save them in database."""
+    item_service = service_factory.item_service
+    market_service = service_factory.market_service
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no sales to import")
@@ -322,20 +337,17 @@ def import_market(one_item_only: bool, item: int):
 
     current_app.logger.info("Importing market sales")
 
-    pixyship = PixyShip()
-
     # no need to get sales of items not saleable
-    items = pixyship.items
-    saleable_items = {item_id: item for item_id, item in items.items() if item["saleable"]}
+    items = item_service.items
+    saleable_items: dict[int, dict] = {item_id: item for item_id, item in items.items() if item["saleable"]}
 
-    if item:
+    if item_id:
         try:
-            saleable_items = {item: saleable_items[item]}
+            saleable_items = {item_id: saleable_items[item_id]}
         except KeyError:
-            current_app.logger.error("Unknown item {}".format(item))
+            current_app.logger.exception("Unknown item %d", item_id)
             return
 
-    count = 0
     total = len(saleable_items)
     if one_item_only:
         total = 1
@@ -343,19 +355,18 @@ def import_market(one_item_only: bool, item: int):
     saleable_items_items = list(saleable_items.items())
     saleable_items_ordered = random.sample(saleable_items_items, k=len(saleable_items_items))
 
-    for item_id, item in saleable_items_ordered:
-        count += 1
-        current_app.logger.info("[{}/{}] item: {} ({})".format(count, total, item["name"], item_id))
+    for count, (current_item_id, current_item) in enumerate(saleable_items_ordered, start=1):
+        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        sales = pixyship.get_sales_from_api(item_id)
-        current_app.logger.info("[{}/{}] retrieved: {}".format(count, total, len(sales)))
+        sales = market_service.get_sales_from_api(current_item_id)
+        current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(sales))
 
         for sale in sales:
             listing = Listing(
                 id=sale["SaleId"],
                 sale_at=sale["StatusDate"],
-                item_name=item["name"],
-                item_id=item_id,
+                item_name=current_item["name"],
+                item_id=current_item_id,
                 amount=sale["Quantity"],
                 currency=sale["CurrencyType"],
                 price=sale["CurrencyValue"],
@@ -367,7 +378,7 @@ def import_market(one_item_only: bool, item: int):
 
             db.session.merge(listing)
 
-        current_app.logger.info("[{}/{}] saved: {}".format(count, total, len(sales)))
+        current_app.logger.info("[%d/%d] saved: %d", count, total, len(sales))
         db.session.commit()
 
         if one_item_only:
@@ -380,11 +391,13 @@ def import_market(one_item_only: bool, item: int):
 
 @importer_cli.command("market-messages", help="Get last market messages and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
-@click.option("--item", type=int, default=None, help="Import only the given item")
+@click.option("--item-id", type=int, default=None, help="Import only the given item")
 @with_appcontext
 @log_command
-def import_market_messages(one_item_only: bool, item: int):
+def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     """Get last market messages and save them in database."""
+    item_service = service_factory.item_service
+    market_service = service_factory.market_service
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no market messages to import")
@@ -392,40 +405,38 @@ def import_market_messages(one_item_only: bool, item: int):
 
     current_app.logger.info("Importing market messages")
 
-    pixyship = PixyShip()
-
     # no need to get sales of items not saleable
-    items = pixyship.items
-    items_with_offstat = {item_id: item for item_id, item in items.items() if item["has_offstat"]}
+    items = item_service.items
+    items_with_offstat: dict[int, dict] = {item_id: item for item_id, item in items.items() if item["has_offstat"]}
 
-    if item:
+    if item_id:
         try:
-            items_with_offstat = {item: items_with_offstat[item]}
+            items_with_offstat = {item_id: items_with_offstat[item_id]}
         except KeyError:
-            current_app.logger.error("Unknown item {}".format(item))
+            current_app.logger.exception("Unknown item %d", item_id)
             return
 
-    count = 0
     total = len(items_with_offstat)
     if one_item_only:
         total = 1
 
-    items_with_offstat_items = list(items_with_offstat.items())
-    items_with_offstat_ordered = random.sample(items_with_offstat_items, k=len(items_with_offstat_items))
+    items_with_offstat_items: list[tuple[int, dict]] = list(items_with_offstat.items())
+    items_with_offstat_ordered: list[tuple[int, dict]] = random.sample(
+        items_with_offstat_items, k=len(items_with_offstat_items)
+    )
 
-    for item_id, item in items_with_offstat_ordered:
-        count += 1
-        current_app.logger.info("[{}/{}] item: {} ({})".format(count, total, item["name"], item_id))
+    for count, (current_item_id, current_item) in enumerate(items_with_offstat_ordered, start=1):
+        current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        messages = pixyship.get_market_messages_from_api(item_id)
-        current_app.logger.info("[{}/{}] retrieved: {}".format(count, total, len(messages)))
+        messages = market_service.get_market_messages_from_api(current_item_id)
+        current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(messages))
 
         for message in messages:
             market_message = MarketMessage(
                 id=message["MessageId"],
                 message=message["Message"],
                 sale_id=message["SaleId"],
-                item_id=item_id,
+                item_id=current_item_id,
                 user_id=message["UserId"],
                 message_type=message["MessageType"],
                 channel_id=message["ChannelId"],
@@ -433,7 +444,7 @@ def import_market_messages(one_item_only: bool, item: int):
                 message_date=message["MessageDate"],
             )
 
-            _save_market_message(market_message)
+            save_market_message(market_message)
 
         db.session.commit()
 
@@ -445,9 +456,8 @@ def import_market_messages(one_item_only: bool, item: int):
     current_app.logger.info("Done")
 
 
-def _save_market_message(market_message):
+def save_market_message(market_message: MarketMessage) -> None:
     """Save market message in database."""
-
     try:
         insert_command = (
             insert(MarketMessage.__table__)
@@ -467,39 +477,39 @@ def _save_market_message(market_message):
 
         db.session.execute(insert_command)
         db.session.commit()
-    except Exception as e:
-        current_app.logger.exception("Error when saving Market Message in database: {}".format(e))
+    except Exception:
+        current_app.logger.exception("Error when saving Market Message in database")
         db.session.rollback()
 
 
 @importer_cli.command("sprites", help="Download sprites from PSS.")
 @with_appcontext
 @log_command
-def dowload_sprites():
+def dowload_sprites() -> None:
     """Download sprites from PSS."""
+    sprite_service = service_factory.sprite_service
 
-    if not os.path.exists(current_app.config["SPRITES_DIRECTORY"]):
-        os.mkdir(current_app.config["SPRITES_DIRECTORY"])
+    sprites_directory = Path(current_app.config["SPRITES_DIRECTORY"])
+    if not sprites_directory.exists():
+        sprites_directory.mkdir()
 
-    pixyship = PixyShip()
-    sprites = pixyship.sprites
+    sprites = sprite_service.sprites
 
-    for _, sprite in sprites.items():
+    for sprite in sprites.values():
         image_number = sprite["image_file"]
-        filename = current_app.config["SPRITES_DIRECTORY"] + "/{}.png".format(image_number)
+        filename = current_app.config["SPRITES_DIRECTORY"] + f"/{image_number}.png"
 
-        if not os.path.isfile(filename):
-            current_app.logger.info("getting {}".format(filename))
+        if not Path(filename).is_file():
+            current_app.logger.info("Downloading %s", filename)
             url = PSS_SPRITES_URL.format(image_number)
             try:
                 request.urlretrieve(url, filename)
-            except Exception as e:
-                current_app.logger.exception("Error when downloading sprite ({}): {}".format(url, e))
+            except Exception:
+                current_app.logger.exception("Error downloading sprite: %s", url)
 
 
-def _save_users(users):
+def save_users(users: list) -> None:
     """Save users and attached alliance in database."""
-
     for user_id, user in users:
         player = Player(
             id=user_id,

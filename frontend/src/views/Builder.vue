@@ -20,7 +20,7 @@
           <template slot-scope="s" slot="item">
             <div
               class="block mr-2"
-              :style="spriteStyle(s.item.mini_ship_sprite)"
+              :style="spriteStyle(s.item.sprite)"
               align="center"
             ></div>
             <div class="text-xs-left lh-1">
