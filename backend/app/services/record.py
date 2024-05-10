@@ -28,6 +28,7 @@ class RecordService(BaseService):
             current_records: list[Record] = Record.query.filter_by(current=True).all()
 
             for record in current_records:
+                db.session.expunge(record)
                 if record.type not in self._records:
                     self._records[record.type] = {}
 
