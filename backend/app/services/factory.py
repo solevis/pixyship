@@ -97,6 +97,8 @@ class ServiceFactory:
             self._collection_service = CollectionService()
             self._collection_service.record_service = self.record_service
             self._collection_service.sprite_service = self.sprite_service
+            self._collection_service.item_service = self.item_service
+            self._collection_service.character_service = self.character_service
 
         return self._collection_service
 

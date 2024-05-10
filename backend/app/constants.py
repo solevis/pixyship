@@ -72,6 +72,13 @@ COLLECTION_ABILITY_MAP = {
     "RoomDamageBoostInstance": "Room Damage Boost",
     "ReduceFutureDamageInstance": "Reduce Future Damage",
     "DestroyModules": "Destroy Modules",
+    "PreventStatusSkill": "Prevent Status",
+    "ReduceActionCooldown": "Reduce Action Cooldown",
+    "RepairModuleSkill": "Repair Module",
+    "SpawnCrewSkill": "Spawn Crew",
+    "SpawnModuleSkill": "Spawn Module",
+    "StaminaRegenSkill": "Stamina Regen",
+    "ReduceCrewStatusSkill": "Reduce Crew Status",
     "None": "None",
 }
 
@@ -92,6 +99,48 @@ COLLECTION_ABILITY_TRIGGER_MAP = {
     "ModuleTrigger": "Module Trigger",
     "TakeFireDamage": "Take Fire Damage",
     "None": "None",
+}
+
+COLLECTION_ABILITY_TRIGGER_DESC_MAP = {
+    "Constant": "Triggers once every second.",
+    "Death": "Triggers on death.",
+    "Idle": "Triggers once every second when idling.",
+    "Kill": "Triggers on successful crew kill.",
+    "Repair": "Triggers on room repair.",
+    "Start": "Triggers at the start of battle.",
+    "Stun": "Triggers when stunned.",
+    "Teleport": "Triggers after teleporting.",
+    "Walk": "Triggers once every movement step.",
+    "AbilityUsed": "Triggers on special ability activation.",
+    "AllyDeath": "Triggers on death of friendly crew in the current room.",
+    "AttackCrew": "Triggers on crew attack.",
+    "AttackRoom": "Triggers on room attack.",
+    "AttackAny": "Triggers on any attack.",
+    "ChangeRoom": "Triggers when entering a new room.",
+    "DamageTaken": "Triggers when receiving damage.",
+    "EnemyEncounter": "Triggers when encountering a new enemy.",
+    "HealingReceived": "Triggers when receiving healing.",
+    "RoomDestruction": "Triggers when current room is destroyed.",
+    "TakeFireDamage": "Triggers when receiving fire damage.",
+    "TakeCrewDamage": "Triggers when receiving crew damage.",
+    "TakeDamageFromRoom": "Triggers when receiving damage from a weapon room attack.",
+    "FriendlyAbilityUsed": "Triggers when a friendly crew activates an ability in the same room.",
+    "EnemyAbilityUsed": "Triggers when an enemy crew activates an ability in the same room.",
+    "ModuleTrigger": "Triggers when the crew causes a module in the current room to trigger.",
+    "None": "None",
+}
+
+COLLECTION_BASIC_ABILITY_MAP = {
+    "Ability",
+    "Attack",
+    "Engine",
+    "Hp",
+    "Pilot",
+    "Repair",
+    "Science",
+    "Stamina",
+    "Weapon",
+    "FireResistance",
 }
 
 RARITY_MAP: dict[str, int] = {
@@ -286,3 +335,5 @@ API_URLS: dict[str, str] = {
     "MAIN": "https://api.pixelstarships.com/",
     "STAGING": "https://apistaging.pixelstarships.com/",
 }
+
+FRAME_SIZE: int = 40
