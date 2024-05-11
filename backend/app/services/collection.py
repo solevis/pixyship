@@ -6,6 +6,7 @@ from app.constants import (
     COLLECTION_ABILITY_MAP,
     COLLECTION_ABILITY_TRIGGER_DESC_MAP,
     COLLECTION_ABILITY_TRIGGER_MAP,
+    COLLECTION_BASIC_ABILITY_MAP,
     FRAME_SIZE,
     SHORT_ENHANCE_MAP,
     SPECIAL_ABILITY_TYPE_MAP,
@@ -106,14 +107,14 @@ class CollectionService(BaseService):
 
         if max_use < 10000:
             if max_use > 1:
-                trigger_desc += f"Can only be activated {max_use} times."
+                trigger_desc += f" Can only be activated {max_use} times."
             elif max_use == 1:
-                trigger_desc += "Can only be activated once."
+                trigger_desc += " Can only be activated once."
 
         if cooldown > 0:
             cooldown_in_seconds = cooldown / FRAME_SIZE
             formatted_cooldown = f"{cooldown_in_seconds:0.2f}".rstrip("0").rstrip(".")  # Remove trailing zeros
-            trigger_desc += f"Has a {formatted_cooldown} seconds cooldown."
+            trigger_desc += f" Has a {formatted_cooldown} seconds cooldown."
 
         return trigger_desc
 
@@ -166,7 +167,13 @@ class CollectionService(BaseService):
             "DirectDamage": lambda: f"{base_chance}% chance to deal {base_enhancement_value / 100} damage to the target crew.",
             "RoomDamageBoost": lambda: f"{base_chance}% chance to increase the damage of the next {argument} weapon shots for the current room by {base_enhancement_value}%.",
             "RoomDamageBoostInstance": lambda: f"{base_chance}% chance to increase the damage of the next {base_enhancement_value} weapon shots for the current room by {argument}%.",
+            "DestroyModules": lambda: f"{base_chance}% chance to destroy up to {base_enhancement_value} enemy modules in the current room.",
+            "Cloak": lambda: f"{base_chance}% chance to become untargetable for {base_enhancement_value / FRAME_SIZE:.1f} seconds.",
         }
+
+        if enhancement_type in COLLECTION_BASIC_ABILITY_MAP:
+            short_enhancement = SHORT_ENHANCE_MAP[enhancement_type]
+            return f"{base_chance}% chance to increase {short_enhancement} by {base_enhancement_value}."
 
         # Call the appropriate function based on the enhancement_type, log if unknown
         try:

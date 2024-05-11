@@ -89,10 +89,19 @@ def api_collections() -> Response:
     collections = service_factory.collection_service.collections
     characters = service_factory.character_service.characters
 
+    collections_to_remove = []
     for collection_id, collection in collections.items():
-        collection["chars"] = [
+        collection_characters = [
             character for character in characters.values() if character["collection"] == collection_id
         ]
+        if collection_characters:
+            collection["chars"] = collection_characters
+        else:
+            collections_to_remove.append(collection_id)
+
+    # Remove collections without characters
+    for collection_id in collections_to_remove:
+        collections.pop(collection_id)
 
     return jsonify(
         {
