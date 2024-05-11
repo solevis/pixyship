@@ -139,7 +139,7 @@ class CollectionService(BaseService):
             else f"{base_chance}% chance to increase the current room's armor by {base_enhancement_value}.",
             "CastAbilitySkill": lambda: self.handle_cast_ability_skill(base_chance, base_enhancement_value, argument),
             "CastAssignedAbilitySkill": lambda: self.handle_cast_assigned_ability_skill(
-                base_chance, base_enhancement_value, argument
+                base_chance, base_enhancement_value
             ),
             "DamageReductionSkill": lambda: f"{base_chance}% chance to apply a {base_enhancement_value}% damage reduction to self or friendly crew for {argument / FRAME_SIZE:.1f} seconds.",
             "DamageReductionTimeSkill": lambda: f"{base_chance}% chance to apply a {argument}% damage reduction to self or friendly crew for {base_enhancement_value / FRAME_SIZE:.1f} seconds.",
@@ -200,7 +200,9 @@ class CollectionService(BaseService):
         else:
             description = f"{base_chance}% chance to activate {special_ability_name} special ability using current {ability_power} power."
 
-        ability_description = CollectionService.get_ability_description_string(special_ability_name, base_enhancement_value)
+        ability_description = CollectionService.get_ability_description_string(
+            special_ability_name, base_enhancement_value
+        )
         return f"{description} {ability_description}"
 
     @staticmethod
@@ -234,7 +236,7 @@ class CollectionService(BaseService):
         return "Ability description not available."
 
     @staticmethod
-    def handle_cast_assigned_ability_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_cast_assigned_ability_skill(base_chance: int, base_enhancement_value: int) -> str:
         """Handle CastAssignedAbilitySkill ability."""
         ability_power = SHORT_ENHANCE_MAP["Ability"]
         if base_enhancement_value > 0:
