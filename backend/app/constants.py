@@ -143,6 +143,33 @@ COLLECTION_BASIC_ABILITY_MAP = {
     "FireResistance",
 }
 
+SPECIAL_ABILITY_TYPE_MAP = {
+    0: "None",
+    1: "HealSelfHp",
+    2: "HealSameRoomCharacters",
+    3: "AddReload",
+    4: "DeductReload",
+    5: "HealRoomHp",
+    6: "DamageToRoom",
+    7: "DamageToSameRoomCharacters",
+    8: "DamageToCurrentEnemy",
+    9: "SetFire",
+    10: "Teleport",
+    11: "Freeze",
+    12: "FireWalk",
+    13: "Clone",
+    14: "Polymorph",
+    15: "Mimic",
+    16: "Summon",
+    17: "Invulnerability",
+    18: "ProtectRoom",
+    19: "Bloodlust",
+    20: "PoisonRoom",
+    21: "RemoveDebuffsFromSameRoomCharacters",
+    22: "SelfDestruct",
+    23: "XmasExplosion",
+}
+
 RARITY_MAP: dict[str, int] = {
     "Legendary": 7,
     "Special": 6,

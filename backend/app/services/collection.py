@@ -7,6 +7,8 @@ from app.constants import (
     COLLECTION_ABILITY_TRIGGER_DESC_MAP,
     COLLECTION_ABILITY_TRIGGER_MAP,
     FRAME_SIZE,
+    SHORT_ENHANCE_MAP,
+    SPECIAL_ABILITY_TYPE_MAP,
 )
 from app.enums import TypeEnum
 from app.pixelstarshipsapi import PixelStarshipsApi
@@ -62,7 +64,6 @@ class CollectionService(BaseService):
                 "ability_sprite": self.sprite_service.get_sprite_infos(int(collection["AbilityIconSpriteId"])),
                 "ability_name": self.get_ability_name(collection["AbilityName"], collection["EnhancementType"]),
                 "ability_description": ability_description,
-                "trigger": self.get_trigger_name(trigger_type),
                 "trigger_description": self.get_trigger_description(trigger_type, max_use, cooldown_time),
                 "base_chance": int(collection["BaseChance"]),
                 "step_chance": int(collection["StepChance"]),
@@ -191,21 +192,51 @@ class CollectionService(BaseService):
     @staticmethod
     def handle_cast_ability_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
         """Handle CastAbilitySkill ability."""
-        special_ability_name = f"PLACEHOLDER[{argument}]"
-        ability_power = f"PLACEHOLDER[{argument}]"
+        special_ability_name = SPECIAL_ABILITY_TYPE_MAP[argument]
+        ability_power = SHORT_ENHANCE_MAP["Ability"]
 
         if base_enhancement_value > 0:
             description = f"{base_chance}% chance to activate {special_ability_name}."
         else:
             description = f"{base_chance}% chance to activate {special_ability_name} special ability using current {ability_power} power."
 
-        ability_description = " Description of the PLACEHOLDER ability."
-        return description + ability_description
+        ability_description = CollectionService.get_ability_description_string(special_ability_name, base_enhancement_value)
+        return f"{description} {ability_description}"
+
+    @staticmethod
+    def get_ability_description_string(special_ability_name: str, base_enhancement_value: int) -> str:
+        """Get ability description string."""
+        ability_map = {
+            "DamageToSameRoomCharacters": lambda stat: f"Deals {stat:0.0f} damage to all enemy crews in the current room.",
+            "DamageToRoom": lambda stat: f"Deals {stat:0.0f} damage to the current room and all of its barrier modules and mines.",
+            "DeductReload": lambda stat: f"Delays the current room's reload progress by {stat / FRAME_SIZE:0.0f} seconds. Will not trigger on unpowered rooms.",
+            "DamageToCurrentEnemy": lambda stat: f"Deals {stat:0.0f} damage to the current targeted enemy crew.",
+            "HealSelfHp": lambda stat: f"Restores {stat:0.0f} hp to self.",
+            "HealSameRoomCharacters": lambda stat: f"Restores {stat:0.0f} hp to all friendly crews in the current room.",
+            "HealRoomHp": lambda stat: f"Repairs current room for {stat:0.0f} damage.",
+            "AddReload": lambda stat: f"Instantly increases reload progress of the current room by {(1 + (stat / 50)) * 100:0.0f}% divided by the room's max power.",
+            "SetFire": lambda stat: f"Sets the current room on fire for {stat / FRAME_SIZE:0.0f} seconds. Fire damage dealt is proportional to the remaining fire duration.",
+            "Freeze": lambda stat: f"Stops the actions of all enemy crews in the current room for {stat / FRAME_SIZE:0.0f} seconds.",
+            "FireWalk": lambda stat: f"Automatically sets the current room on fire for {stat / FRAME_SIZE:0.0f} seconds. Fire damage dealt is proportional to the remaining fire duration.",
+            "Invulnerability": lambda stat: f"Forms a shield that prevents status effects from affecting this crew for {stat / FRAME_SIZE:0.0f} seconds.",
+            "ProtectRoom": lambda stat: f"Shields the current room from all attacks and abilities for {stat / FRAME_SIZE:0.0f} seconds. The affected room cannot be activated for the duration of the ability.",
+            "Bloodlust": lambda stat: f"Doubles combat speed for {stat / FRAME_SIZE:0.0f} seconds.",
+            "PoisonRoom": lambda stat: f"Inflicts a lingering cloud of poison on the room that will in turn inflict a poisoned state on passing crews over time for {stat / FRAME_SIZE:0.0f} seconds. Poison damage dealt is proportional to the remaining poison duration on the poisoned crew.",
+            "RemoveDebuffsFromSameRoomCharacters": lambda stat: f"Reduces the duration of all negative status effects by {stat / FRAME_SIZE:0.0f} seconds on all friendly crews in the current room.",
+            "SelfDestruct": lambda stat: f"Instantly reduces current hp to 0 and immediately deals {stat:0.0f} damage to all enemy crews in the current room.",
+            "XmasExplosion": lambda stat: f"Drops a special gift for your enemies, which will explode after a 0.5 seconds delay, dealing {stat:0.0f} damage to all enemy crews in the current room.",
+        }
+
+        ability_stat_formatted = f"{base_enhancement_value:0.0f}"
+        if special_ability_name in ability_map:
+            return ability_map[special_ability_name](float(ability_stat_formatted))
+
+        return "Ability description not available."
 
     @staticmethod
     def handle_cast_assigned_ability_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
         """Handle CastAssignedAbilitySkill ability."""
-        ability_power = f"PLACEHOLDER[{argument}]"
+        ability_power = SHORT_ENHANCE_MAP["Ability"]
         if base_enhancement_value > 0:
             return f"{base_chance}% chance to activate assigned special ability with {base_enhancement_value} {ability_power} power."
 
