@@ -82,7 +82,7 @@ class DailyOfferService(BaseService):
                 daily_object = self.format_daily_object(reward["count"], reward["type"], reward["data"], reward["id"])
         else:
             record_type = get_type_enum_from_string(dailies["SaleType"])
-            if record_type is None:
+            if record_type is None or record_type == TypeEnum.NONE:
                 current_app.logger.error("Cannot get record type from string %s", dailies["SaleType"])
                 record_details = None
             else:

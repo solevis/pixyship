@@ -146,7 +146,7 @@ class ShipService(BaseService):
         if requirement:
             if requirement["type"] == TypeEnum.ROOM:
                 requirement["object"] = self.room_service.rooms[requirement["id"]]
-            else:
+            elif requirement["type"]:
                 record = self.record_service.get_record(requirement["type"], requirement["id"])
                 if record:
                     requirement["object"] = {
