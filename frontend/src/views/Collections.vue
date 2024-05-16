@@ -57,14 +57,25 @@
             <div :style="spriteStyle(item.icon_sprite)"></div>
           </td>
           <td class="name">{{ item.name }}</td>
-          <td>{{ item.ability_name }}</td>
-          <td>{{ item.trigger }}</td>
-          <td>{{ item.max_use === 999999 ? '∞' : item.max_use }}</td>
-          <td>{{ `${item.min} - ${item.max}` }}</td>
-          <td>{{ item.base_enhancement === 999999 ? '∞' : item.base_enhancement }}</td>
-          <td>{{ item.base_chance }}%</td>
+          <td>
+            <div class="d-flex flex-row">
+            <div :style="spriteStyle(item.ability_sprite)" class="mr-1"></div>
+            {{ item.ability_name }}
+            </div>
+          </td>
+          <td>
+            <p>
+              {{ item.trigger_description }}
+              <br>
+              {{ item.ability_description }}
+            </p>
+            <p class="small font-italic description">
+              {{ item.description }}
+            </p>
+          </td>
           <td>{{ item.step_enhancement === 999999 ? '∞' : item.step_enhancement }}</td>
           <td>{{ item.step_chance }}%</td>
+          <td>{{ `${item.min} - ${item.max}` }}</td>
           <td>
             <div v-if="item.chars.length > 0">
               <div
@@ -76,7 +87,6 @@
               </div>
             </div>
           </td>
-          <td>{{ item.description }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -144,34 +154,9 @@ export default {
           },
         },
         {
-          text: "Trigger",
+          text: "Description",
           align: "left",
-          value: "trigger",
-          sortable: false,
-          filterable: false
-        },
-        {
-          text: "Max Use",
-          align: "right",
-          value: "max_use",
-          filterable: false,
-        },
-        {
-          text: "Required (Min - Max)",
-          align: "center",
-          value: "min",
-          filterable: false,
-        },
-        {
-          text: "Base Bonus",
-          align: "right",
-          value: "base_enhancement",
-          filterable: false,
-        },
-        {
-          text: "Base Chance",
-          align: "right",
-          value: "base_chance",
+          value: "description",
           filterable: false,
         },
         {
@@ -180,7 +165,6 @@ export default {
           value: "step_enhancement",
           filterable: false,
         },
-
         {
           text: "Step Chance",
           align: "right",
@@ -188,16 +172,16 @@ export default {
           filterable: false,
         },
         {
+          text: "Required",
+          align: "center",
+          value: "min",
+          filterable: false,
+        },
+        {
           text: "Chars",
           align: "left",
           sortable: false,
           filterable: false
-        },
-        {
-          text: "Description",
-          align: "left",
-          value: "description",
-          filterable: false,
         },
       ],
       collections: [],
@@ -324,5 +308,10 @@ export default {
 
 a.name {
   text-decoration: none;
+}
+
+.description {
+  font-size: 0.9em;
+  color: #9e9e9e;
 }
 </style>

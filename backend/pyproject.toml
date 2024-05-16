@@ -71,7 +71,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "migrations/**" = ['ERA001', 'INP001', 'ARG001', 'D', 'ANN']
 "tests/**" = ['S101', 'INP001', 'D103', 'ANN']
-
+"app/services/collection.py" = ['E501']
 
 [tool.mypy]
 python_version = "3.11"

@@ -339,6 +339,10 @@ def test_collections(app):
         assert "BaseChance" in collection
         assert "StepChance" in collection
         assert "MaxUse" in collection
+        assert "AbilityIconSpriteId" in collection
+        assert "AbilityName" in collection
+        assert "CooldownTime" in collection
+        assert "Argument" in collection
 
 
 def test_items(app):
