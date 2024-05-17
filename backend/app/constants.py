@@ -283,7 +283,7 @@ RACES: dict[int | None, str] = {
     5: "Gray",
 }
 
-MODULE_ENHANCEMENT_MAP: dict[str, str] = {"Turret": "Attack", "XP": "XP"}
+MODULE_ENHANCEMENT_MAP: dict[str, str] = {"Turret": "Hp", "XP": "XP"}
 
 MODULE_BONUS_RATIO_MAP: dict[str, int] = {"Turret": 100}
 

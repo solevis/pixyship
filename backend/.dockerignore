@@ -94,3 +94,4 @@ instance/
 pixyship.png
 data/
 postgresql.dumps.*
+redisdata/

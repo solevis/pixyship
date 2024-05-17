@@ -51,7 +51,7 @@ class ItemService(BaseService):
             slot = SLOT_MAP.get(item["ItemSubType"], item["ItemSubType"])
             item_type = item["ItemType"]
             rarity_order = RARITY_MAP[item["Rarity"]]
-            bonus = float(item["EnhancementValue"])
+            bonus = self.get_item_bonus(item)
             disp_enhancement = ENHANCE_MAP.get(item["EnhancementType"], item["EnhancementType"])
             offstat = has_offstat(item_type, slot, rarity_order, bonus, disp_enhancement)
 
@@ -95,6 +95,11 @@ class ItemService(BaseService):
             item["content"] = self.parse_item_content(item["content_string"], item, items)
 
         return items
+
+    @staticmethod
+    def get_item_bonus(item):
+        """Get the bonus of an item."""
+        return float(item["EnhancementValue"]) / MODULE_BONUS_RATIO_MAP.get(item["ModuleType"], 1)
 
     @staticmethod
     def create_light_item(item: dict, items: dict[int, dict] | None = None) -> dict:
@@ -228,10 +233,7 @@ class ItemService(BaseService):
         enhancement = MODULE_ENHANCEMENT_MAP.get(module_type, None)
         disp_enhancement = ENHANCE_MAP.get(enhancement, enhancement)
         short_disp_enhancement = (SHORT_ENHANCE_MAP.get(enhancement, enhancement),)
-
-        bonus: float = 0
-        if float(item["ModuleArgument"]) != 0:
-            bonus = float(item["ModuleArgument"]) / MODULE_BONUS_RATIO_MAP.get(module_type, 1)
+        bonus = float(item["ModuleArgument"])
 
         return {
             "enhancement": enhancement,

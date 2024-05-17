@@ -145,3 +145,4 @@ cython_debug/
 # PixyShip
 internal-tools/
 postgresql.dumps.*
+redisdata/
