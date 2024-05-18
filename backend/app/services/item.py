@@ -97,7 +97,7 @@ class ItemService(BaseService):
         return items
 
     @staticmethod
-    def get_item_bonus(item):
+    def get_item_bonus(item: dict) -> float:
         """Get the bonus of an item."""
         return float(item["EnhancementValue"]) / MODULE_BONUS_RATIO_MAP.get(item["ModuleType"], 1)
 
