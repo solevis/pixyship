@@ -22,9 +22,6 @@ RUN pip install --no-cache-dir --upgrade pip
 COPY ./requirements.lock /app/requirements.lock
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.lock
 
-# Install gunicorn
-RUN pip install --no-cache-dir gunicorn
-
 # Copy app source code
 COPY . /app
 
@@ -32,7 +29,7 @@ COPY . /app
 EXPOSE 8000
 
 # Run the app
-CMD [ "gunicorn", "app:create_app()", "--bind", "0.0.0.0:8000" ]
+CMD [ "gunicorn", "wsgi:app", "--bind", "0.0.0.0:8000" ]
 
 # Healthcheck
 HEALTHCHECK CMD curl --fail http://localhost:8000/health || exit 1

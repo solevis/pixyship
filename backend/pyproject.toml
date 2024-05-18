@@ -15,6 +15,7 @@ dependencies = [
     "sentry-sdk[flask]>=1.45.0",
     "Flask-Caching>=2.2.0",
     "redis>=5.0.4",
+    "gunicorn>=22.0.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.11"
