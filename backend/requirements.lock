@@ -32,6 +32,7 @@ flask-cors==4.0.0
 flask-migrate==4.0.7
 flask-sqlalchemy==3.1.1
     # via flask-migrate
+gunicorn==22.0.0
 idna==3.7
     # via requests
 itsdangerous==2.1.2
@@ -45,12 +46,13 @@ markupsafe==2.1.5
     # via mako
     # via sentry-sdk
     # via werkzeug
+packaging==24.0
+    # via gunicorn
 psycopg==3.1.18
 psycopg-binary==3.1.18
 redis==5.0.4
 requests==2.31.0
 sentry-sdk==1.45.0
-    # via sentry-sdk
 sqlalchemy==2.0.29
     # via alembic
     # via flask-sqlalchemy
