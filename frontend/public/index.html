@@ -16,19 +16,6 @@
     <link rel="manifest" href="<%= BASE_URL %>site.webmanifest">
     <% } %>
 
-    <% if (process.env.VUE_APP_PLAUSIBLE_SCRIPT_URL && process.env.VUE_APP_PLAUSIBLE_DOMAIN) { %>
-    <script defer data-domain="<%= process.env.VUE_APP_PLAUSIBLE_DOMAIN %>"
-            src="<%= process.env.VUE_APP_PLAUSIBLE_SCRIPT_URL %>"></script>
-    <% } %>
-
-    <% if (process.env.VUE_APP_GOATCOUNTER_SCRIPT_URL) { %>
-    <script data-goatcounter="<%= process.env.VUE_APP_GOATCOUNTER_SCRIPT_URL %>"
-            async src="https://gc.zgo.at/count.v3.js"
-            crossorigin="anonymous"
-            integrity="sha384-QGgNMMRFTi8ul5kHJ+vXysPe8gySvSA/Y3rpXZiRLzKPIw8CWY+a3ObKmQsyDr+a">
-    </script>
-    <% } %>
-
     <meta data-vue-meta="1" name="msapplication-TileColor" content="#2b5797">
     <meta data-vue-meta="1" name="msapplication-config" content="<%= BASE_URL %>browserconfig.xml">
     <meta data-vue-meta="1" name="theme-color" content="#000000">

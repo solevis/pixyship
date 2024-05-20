@@ -137,3 +137,9 @@ def test_api_missiles(client, app):
     with app.test_request_context():
         response = client.get(url_for("api.api_missiles"))
     assert response.status_code == 200
+
+
+def test_api_config(client, app):
+    with app.test_request_context():
+        response = client.get(url_for("api.api_config"))
+    assert response.status_code == 200

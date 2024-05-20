@@ -1,35 +1,34 @@
 // Common mixins for PixyShip vue controls
 import moment from 'moment'
 
-const apiServer = process.env.VUE_APP_PIXYSHIP_API_URL
-const spriteServer = process.env.VUE_APP_SPRITES_URL
+const API_URL = process.env.VUE_APP_PIXYSHIP_API_URL
 
 export default {
   data() {
     return {
-      changesEndpoint: apiServer + 'api/changes',
-      collectionsEndpoint: apiServer + 'api/collections',
-      achievementsEndpoint: apiServer + 'api/achievements',
-      crewEndpoint: apiServer + 'api/crew',
-      itemPricesEndpoint: (id) => apiServer + `api/item/${id}/prices`,
-      itemDetailEndpoint: (id) => apiServer + `api/item/${id}/detail`,
-      itemsEndpoint: apiServer + 'api/items',
-      prestigeEndpoint: apiServer + 'api/prestige/',
-      roomsEndpoint: apiServer + 'api/rooms',
-      roomEndpoint: apiServer + 'api/room/',
-      shipsEndpoint: apiServer + 'api/ships',
-      playerEndpoint: apiServer + 'api/players/',
-      verifyEndpoint: apiServer + 'api/verify/',
-      typeaheadEndpoint: apiServer + 'api/name_typeahead',
-      dailyEndpoint: apiServer + 'api/daily',
-      researchesEndpoint: apiServer + 'api/research',
-      playersEndpoint: apiServer + 'api/players',
-      tournamentEndpoint: apiServer + 'api/tournament',
-      lastSalesEndpoint: (type, id) => apiServer + `api/lastsales/${type}/${id}`,
-      lastSalesBySaleFromEndpoint: (sale_from) => apiServer + `api/lastsalesbysalefrom/${sale_from}`,
-      craftsEndpoint: apiServer + 'api/crafts',
-      missilesEndpoint: apiServer + 'api/missiles',
-      skinsEndpoint: apiServer + 'api/skins',
+      changesEndpoint: API_URL + 'changes',
+      collectionsEndpoint: API_URL + 'collections',
+      achievementsEndpoint: API_URL + 'achievements',
+      crewEndpoint: API_URL + 'crew',
+      itemPricesEndpoint: (id) => API_URL + `item/${id}/prices`,
+      itemDetailEndpoint: (id) => API_URL + `item/${id}/detail`,
+      itemsEndpoint: API_URL + 'items',
+      prestigeEndpoint: API_URL + 'prestige/',
+      roomsEndpoint: API_URL + 'rooms',
+      roomEndpoint: API_URL + 'room/',
+      shipsEndpoint: API_URL + 'ships',
+      playerEndpoint: API_URL + 'players/',
+      verifyEndpoint: API_URL + 'verify/',
+      typeaheadEndpoint: API_URL + 'name_typeahead',
+      dailyEndpoint: API_URL + 'daily',
+      researchesEndpoint: API_URL + 'research',
+      playersEndpoint: API_URL + 'players',
+      tournamentEndpoint: API_URL + 'tournament',
+      lastSalesEndpoint: (type, id) => API_URL + `lastsales/${type}/${id}`,
+      lastSalesBySaleFromEndpoint: (sale_from) => API_URL + `lastsalesbysalefrom/${sale_from}`,
+      craftsEndpoint: API_URL + 'crafts',
+      missilesEndpoint: API_URL + 'missiles',
+      skinsEndpoint: API_URL + 'skins',
     }
   },
 
@@ -66,7 +65,7 @@ export default {
       }
 
       return {
-        background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
+        background: `${color} url('${this.$root.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
         width: `${sprite.width}px`,
         height: `${sprite.height}px`,
         border: `${border}px solid lightgrey`,
@@ -88,7 +87,7 @@ export default {
       scale = scale > 1 ? 1 : scale
 
       return {
-        background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
+        background: `${color} url('${this.$root.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
         width: `${sprite.width}px`,
         height: `${sprite.height}px`,
         border: `${border}px solid lightgrey`,
@@ -131,7 +130,7 @@ export default {
 
       const fillStr = portScale === 1 ? '' : '/ 100% 100%'
       let obj = {
-        background: `${color} url('${spriteServer}${sprite.source}.png') -${sprite.x}px -${sprite.y}px ${fillStr}`,
+        background: `${color} url('${this.$root.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px ${fillStr}`,
         width: `${sprite.width / portScale}px`,
         height: `${sprite.height / portScale}px`,
         border: `${border}px solid lightgrey`,
@@ -146,7 +145,7 @@ export default {
     },
 
     getSpriteUrl(sprite) {
-      return `${spriteServer}${sprite.source}.png`
+      return `${this.$root.config.spriteUrl}${sprite.source}.png`
     },
 
     buxSprite() {
