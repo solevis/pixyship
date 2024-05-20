@@ -108,9 +108,9 @@ export default {
       mainDeveloper: "Solevis",
       mainDeveloperEmail: "contact@pixyship.com",
       contributors: "Bril, The worst.",
-      donationUrl: process.env.VUE_APP_DONATION_URL,
-      discordUrl: process.env.VUE_APP_PIXYSHIP_DISCORD_URL,
-      githubUrl: process.env.VUE_APP_PIXYSHIP_GITHUB_URL,
+      donationUrl: this.$root.config.donationUrl,
+      discordUrl: this.$root.config.discordUrl,
+      githubUrl: this.$root.config.githubUrl,
     }
   },
 

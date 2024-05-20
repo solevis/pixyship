@@ -333,6 +333,21 @@ def api_missiles() -> Response:
     )
 
 
+@api_blueprint.route("/config")
+@enforce_source
+@cache.cached()
+def api_config() -> Response:
+    """Return the config."""
+    return jsonify(
+        {
+            "spriteUrl": current_app.config["SPRITE_URL"],
+            "discordUrl": current_app.config["DISCORD_URL"],
+            "githubUrl": current_app.config["GITHUB_URL"],
+            "donationUrl": current_app.config["DONATION_URL"],
+        },
+    )
+
+
 @api_blueprint.route("/<path:path>")
 @enforce_source
 def bad_api(path: str) -> Response:

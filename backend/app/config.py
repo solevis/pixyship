@@ -40,3 +40,9 @@ class DefaultConfig:
     # Cache configuration
     CACHE_TYPE = "SimpleCache"
     CACHE_DEFAULT_TIMEOUT = 300
+
+    # Frontend configuration
+    SPRITE_URL = "//pixelstarships.s3.amazonaws.com/"
+    DISCORD_URL = "https://example.discord/"
+    GITHUB_URL = "https://github.com/solevis/pixyship/"
+    DONATION_URL = "https://example.donate/"
