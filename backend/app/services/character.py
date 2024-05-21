@@ -26,7 +26,6 @@ class CharacterService(BaseService):
         """Get characters data."""
         return self.get_characters_from_records()
 
-
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""
         records = self.record_service.records[TypeEnum.CHARACTER]
