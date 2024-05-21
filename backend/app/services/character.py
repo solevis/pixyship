@@ -24,9 +24,8 @@ class CharacterService(BaseService):
     @cache.cached(key_prefix="characters")
     def characters(self) -> dict[int, dict]:
         """Get characters data."""
-        characters = self.get_characters_from_records()
+        return self.get_characters_from_records()
 
-        return characters
 
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""

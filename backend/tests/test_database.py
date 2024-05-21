@@ -18,7 +18,10 @@ def test_items(app, service_factory):
 
 def test_rooms(app, service_factory):
     with app.app_context():
-        rooms, _, = service_factory.room_service.get_rooms_from_records()
+        (
+            rooms,
+            _,
+        ) = service_factory.room_service.get_rooms_from_records()
 
         assert len(rooms) > 0
         assert rooms[10]["id"] == 10
