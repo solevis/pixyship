@@ -14,6 +14,7 @@ from app.constants import (
     ROOM_TYPE_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import parse_price_from_pricestring, parse_requirement
@@ -25,35 +26,25 @@ class RoomService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._rooms: dict[int, dict] = {}
-        self._rooms_by_name: dict[int, dict] = {}
-        self._upgrades: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="rooms")
     def rooms(self) -> dict:
         """Get rooms data."""
-        if not self._rooms:
-            self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
-
-        return self._rooms
+        (
+            rooms,
+            _,
+        ) = self.get_rooms_from_records()
+        return rooms
 
     @property
+    @cache.cached(key_prefix="rooms_by_name")
     def rooms_by_name(self) -> dict:
         """Get rooms data by name."""
-        if not self._rooms_by_name:
-            self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
+        _, rooms_by_name = self.get_rooms_from_records()
+        return rooms_by_name
 
-        return self._rooms_by_name
-
-    @property
-    def upgrades(self) -> dict:
-        """Get room upgrades data."""
-        if not self._upgrades:
-            self._rooms, self._upgrades, self._rooms_by_name = self.get_rooms_from_records()
-
-        return self._upgrades
-
-    def get_rooms_from_records(self) -> tuple[dict, dict, dict]:
+    def get_rooms_from_records(self) -> tuple[dict, dict]:
         """Load rooms from database."""
         records = self.record_service.records[TypeEnum.ROOM]
 
@@ -147,11 +138,8 @@ class RoomService(BaseService):
                 "not_powered": not_powered,
             }
 
-        upgrades = {room["upgrade_from_id"]: room_id for room_id, room in rooms.items()}
-
         rooms_by_name = {room["name"]: room for room_id, room in rooms.items()}
-
-        return rooms, upgrades, rooms_by_name
+        return rooms, rooms_by_name
 
     def update_rooms(self) -> None:
         """Get rooms from API and save them in database."""

@@ -170,9 +170,13 @@ def api_prestige(char_id: int) -> Response:
 @cache.cached()
 def api_crew() -> Response:
     """Return all crew."""
+    character_service = service_factory.character_service
+    characters = character_service.characters
+    character_service.update_character_with_collection_data(characters)
+
     return jsonify(
         {
-            "data": service_factory.character_service.characters,
+            "data": characters,
             "status": "success",
             "current_time": time.time(),
         },

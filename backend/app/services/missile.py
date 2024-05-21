@@ -1,6 +1,7 @@
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,15 +12,12 @@ class MissileService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._missiles: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="missiles")
     def missiles(self) -> dict[int, dict]:
         """Get missiles data."""
-        if not self._missiles:
-            self._missiles = self.get_missiles_from_records()
-
-        return self._missiles
+        return self.get_missiles_from_records()
 
     def get_missiles_from_records(self) -> dict[int, dict]:
         """Load missiles from database."""

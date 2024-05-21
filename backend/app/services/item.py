@@ -11,6 +11,7 @@ from app.constants import (
     SLOT_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import has_offstat
@@ -22,15 +23,12 @@ class ItemService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._items: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="items")
     def items(self) -> dict[int, dict]:
         """Get items data."""
-        if not self._items:
-            self._items = self.get_items_from_records()
-
-        return self._items
+        return self.get_items_from_records()
 
     def get_items_from_records(self) -> dict[int, dict]:
         """Get items from database."""

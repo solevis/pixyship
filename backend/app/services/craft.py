@@ -1,6 +1,7 @@
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,15 +12,12 @@ class CraftService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._crafts: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="crafts")
     def crafts(self) -> dict[int, dict]:
         """Get crafts data."""
-        if not self._crafts:
-            self._crafts = self.get_crafts_from_records()
-
-        return self._crafts
+        return self.get_crafts_from_records()
 
     def get_crafts_from_records(self) -> dict[int, dict]:
         """Load crafts from database."""

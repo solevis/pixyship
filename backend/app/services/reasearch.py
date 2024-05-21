@@ -2,6 +2,7 @@ from xml.etree import ElementTree
 
 from app.constants import RESEARCH_TYPE_MAP
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -12,15 +13,12 @@ class ResearchService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._researches: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="researches")
     def researches(self) -> dict[int, dict]:
         """Get researches data."""
-        if not self._researches:
-            self._researches = self.get_researches_from_records()
-
-        return self._researches
+        return self.get_researches_from_records()
 
     def get_researches_from_records(self) -> dict[int, dict]:
         """Load researches from database."""

@@ -7,6 +7,7 @@ from app.constants import (
     RARITY_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.math import float_range, int_range
@@ -18,16 +19,14 @@ class CharacterService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._characters: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="characters")
     def characters(self) -> dict[int, dict]:
         """Get characters data."""
-        if not self._characters:
-            self._characters = self.get_characters_from_records()
-            self.update_character_with_collection_data()
+        characters = self.get_characters_from_records()
 
-        return self._characters
+        return characters
 
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""
@@ -96,10 +95,10 @@ class CharacterService(BaseService):
 
         return [EQUIPMENT_SLOTS[5 - i] for i, b in enumerate(output) if b]
 
-    def update_character_with_collection_data(self) -> None:
+    def update_character_with_collection_data(self, characters: dict[int, dict]) -> None:
         """Updata character data with collection."""
         # update crew with collection data
-        for character in self.characters.values():
+        for character in characters.values():
             if character["collection"]:
                 character["collection_sprite"] = self.collection_service.collections[character["collection"]][
                     "icon_sprite"

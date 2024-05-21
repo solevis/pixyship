@@ -18,23 +18,22 @@ class RecordService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self._records: dict[TypeEnum, dict[int, Record]] = {}
 
     @property
     @cache.cached(key_prefix="records")
     def records(self) -> dict[TypeEnum, dict[int, Record]]:
         """Get records data."""
-        if not self._records:
-            current_records: list[Record] = Record.query.filter_by(current=True).all()
+        records: dict[TypeEnum, dict[int, Record]] = {}
+        current_records: list[Record] = Record.query.filter_by(current=True).all()
 
-            for record in current_records:
-                db.session.expunge(record)
-                if record.type not in self._records:
-                    self._records[record.type] = {}
+        for record in current_records:
+            db.session.expunge(record)
+            if record.type not in records:
+                records[record.type] = {}
 
-                self._records[record.type][record.type_id] = record
+            records[record.type][record.type_id] = record
 
-        return self._records
+        return records
 
     def get_records_from_type(self, record_type: TypeEnum) -> dict[int, Record]:
         """Get records from given PSS API type (LimitedCatalogType for example)."""

@@ -18,7 +18,7 @@ def test_items(app, service_factory):
 
 def test_rooms(app, service_factory):
     with app.app_context():
-        rooms, _, _ = service_factory.room_service.get_rooms_from_records()
+        rooms, _, = service_factory.room_service.get_rooms_from_records()
 
         assert len(rooms) > 0
         assert rooms[10]["id"] == 10
@@ -44,14 +44,6 @@ def test_missiles(app, service_factory):
         assert missiles[40]["id"] == 40
         assert missiles[40]["name"] == "Penetrator Lv5"
         assert missiles[40]["volley"] == 1.0
-
-
-def test_upgrades(app, service_factory):
-    with app.app_context():
-        _, upgrades, _ = service_factory.room_service.get_rooms_from_records()
-
-        assert len(upgrades) > 0
-        assert upgrades[10] == 20
 
 
 def test_ships(app, service_factory):

@@ -17,16 +17,12 @@ class MarketService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._prices: dict[int, dict] = {}
 
     @property
     @cache.cached(key_prefix="prices")
     def prices(self) -> dict[int, dict]:
         """Get prices data."""
-        if not self._prices:
-            self._prices = self.get_prices_from_db()
-
-        return self._prices
+        return self.get_prices_from_db()
 
     @staticmethod
     def get_prices_from_db() -> dict[int, dict]:

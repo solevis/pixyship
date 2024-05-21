@@ -1,6 +1,7 @@
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,26 +12,15 @@ class SpriteService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._sprites: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="sprites")
     def sprites(self) -> dict[int, dict]:
         """Get sprites data."""
-        if not self._sprites:
-            self._sprites = self.get_sprites_from_records()
-
-        return self._sprites
+        return self.get_sprites_from_records()
 
     def get_sprite_infos(self, sprite_id: int) -> dict | None:
         """Get sprite infos from given id."""
-        if not sprite_id:
-            return None
-
-        if isinstance(sprite_id, str):
-            sprite_id = int(sprite_id)
-
-        if not isinstance(sprite_id, int):
-            return None
 
         sprite = self.sprites.get(sprite_id)
         if not sprite:

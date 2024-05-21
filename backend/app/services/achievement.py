@@ -1,6 +1,7 @@
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,15 +12,12 @@ class AchievementService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._achievements: dict[int, dict] = {}
 
     @property
+    @cache.cached(key_prefix="achievements")
     def achievements(self) -> dict[int, dict]:
         """Get achievements data."""
-        if not self._achievements:
-            self._achievements = self.get_achievements_from_db()
-
-        return self._achievements
+        return self.get_achievements_from_db()
 
     def get_achievements_from_db(self) -> dict[int, dict]:
         """Load achievements from database."""
