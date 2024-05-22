@@ -15,6 +15,7 @@ from app.constants import (
     ROOM_TYPE_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import parse_price_from_pricestring, parse_requirement
@@ -27,6 +28,7 @@ class RoomService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="rooms")
     def rooms(self) -> dict:
         """Get rooms data."""
         (
@@ -36,6 +38,7 @@ class RoomService(BaseService):
         return rooms
 
     @cached_property
+    @cache.cached(key_prefix="rooms_by_name")
     def rooms_by_name(self) -> dict:
         """Get rooms data by name."""
         _, rooms_by_name = self.get_rooms_from_records()

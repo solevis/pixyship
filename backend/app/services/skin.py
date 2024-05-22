@@ -5,6 +5,7 @@ from app.constants import (
     RACES,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -16,11 +17,13 @@ class SkinService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="skins")
     def skins(self) -> dict[int, dict]:
         """Get skins data."""
         return self.get_skins_from_records()
 
     @cached_property
+    @cache.cached(key_prefix="skinsets")
     def skinsets(self) -> dict[int, dict]:
         """Get skinsets data."""
         return self.get_skinsets_from_db()

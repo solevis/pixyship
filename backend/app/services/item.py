@@ -1,4 +1,3 @@
-from functools import cached_property
 from xml.etree import ElementTree
 
 from flask import current_app
@@ -12,6 +11,7 @@ from app.constants import (
     SLOT_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import has_offstat
@@ -23,7 +23,8 @@ class ItemService(BaseService):
     def __init__(self) -> None:
         super().__init__()
 
-    @cached_property
+    @property
+    @cache.cached(key_prefix="items")
     def items(self) -> dict[int, dict]:
         """Get items data."""
         return self.get_items_from_records()

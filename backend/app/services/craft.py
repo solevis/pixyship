@@ -2,6 +2,7 @@ from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -13,6 +14,7 @@ class CraftService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="crafts")
     def crafts(self) -> dict[int, dict]:
         """Get crafts data."""
         return self.get_crafts_from_records()

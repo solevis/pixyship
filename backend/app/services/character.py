@@ -8,6 +8,7 @@ from app.constants import (
     RARITY_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.math import float_range, int_range
@@ -20,6 +21,7 @@ class CharacterService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="characters")
     def characters(self) -> dict[int, dict]:
         """Get characters data."""
         return self.get_characters_from_records()

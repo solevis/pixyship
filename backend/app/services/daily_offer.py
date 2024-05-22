@@ -14,7 +14,7 @@ from app.constants import (
     SHOP_SPRITE_ID,
 )
 from app.enums import TypeEnum
-from app.ext import db
+from app.ext import cache, db
 from app.models import DailySale, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
@@ -31,21 +31,25 @@ class DailyOfferService(BaseService):
         self.pixel_starships_api = PixelStarshipsApi()
 
     @cached_property
+    @cache.cached(key_prefix="daily_offers")
     def daily_offers(self) -> dict:
         """Get daily offers."""
         return self.get_daily_offers_from_api()
 
     @cached_property
+    @cache.cached(key_prefix="promotions")
     def promotions(self) -> list[dict]:
         """Get promotions."""
         return self.get_promotions_from_api()
 
     @cached_property
+    @cache.cached(key_prefix="situations")
     def situations(self) -> list[dict]:
         """Get situations."""
         return self.get_situations_from_api()
 
     @cached_property
+    @cache.cached(key_prefix="star_system_merchant_markers")
     def star_system_merchant_markers(self) -> list[dict]:
         """Get Star System Merchant Markers."""
         return self.get_star_system_merchant_markers_from_api()

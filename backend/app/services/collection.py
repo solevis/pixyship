@@ -13,6 +13,7 @@ from app.constants import (
     SPECIAL_ABILITY_TYPE_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -24,6 +25,7 @@ class CollectionService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="collections")
     def collections(self) -> dict[int, dict]:
         """Get collections data."""
         return self.get_collections_from_records()

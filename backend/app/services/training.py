@@ -2,6 +2,7 @@ from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -13,6 +14,7 @@ class TrainingService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="trainings")
     def trainings(self) -> dict[int, dict]:
         """Get trainings data."""
         return self.get_trainings_from_records()

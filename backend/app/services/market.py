@@ -5,6 +5,7 @@ from functools import cached_property
 from sqlalchemy import desc, text
 
 from app.constants import SHORT_ENHANCE_MAP
+from app.ext import cache
 from app.ext.db import db
 from app.models import Listing
 from app.pixelstarshipsapi import PixelStarshipsApi
@@ -18,6 +19,7 @@ class MarketService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="prices")
     def prices(self) -> dict[int, dict]:
         """Get prices data."""
         return self.get_prices_from_db()

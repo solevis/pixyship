@@ -3,6 +3,7 @@ from xml.etree import ElementTree
 
 from app.constants import RESEARCH_TYPE_MAP
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -14,6 +15,7 @@ class ResearchService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="researches")
     def researches(self) -> dict[int, dict]:
         """Get researches data."""
         return self.get_researches_from_records()
