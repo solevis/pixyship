@@ -1,9 +1,9 @@
 import html
 import time
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
-from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import parse_requirement
@@ -14,10 +14,8 @@ class ShipService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="ships")
+    @cached_property
     def ships(self) -> dict[int, dict]:
         """Get ships data."""
         return self.get_ships_from_records()
@@ -27,7 +25,7 @@ class ShipService(BaseService):
         records = self.record_service.get_records_from_type(TypeEnum.SHIP)
 
         ships = {}
-        for record in records.values():
+        for record in records:
             ship = PixelStarshipsApi.parse_ship_node(ElementTree.fromstring(record.data))
             starbux_cost, mineral_cost, points_cost, items_cost = self.parse_ship_unlock_costs(
                 ship["MineralCost"],
@@ -120,7 +118,8 @@ class ShipService(BaseService):
 
     def update_ships(self) -> None:
         """Get ships from API and save them in database."""
-        ships = self.pixel_starships_api.get_ships()
+        pixel_starships_api = PixelStarshipsApi()
+        ships = pixel_starships_api.get_ships()
         still_presents_ids = []
 
         for ship in ships:
@@ -131,7 +130,7 @@ class ShipService(BaseService):
                 ship["ShipDesignName"],
                 int(ship["MiniShipSpriteId"]),
                 ship["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

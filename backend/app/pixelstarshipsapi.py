@@ -12,7 +12,6 @@ from requests import Response
 
 from app.api_errors import TOKEN_EXPIRED_REGEX
 from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, PSS_START_DATE
-from app.ext import cache
 from app.ext.db import db
 from app.models import Device
 from app.utils.pss import api_sleep
@@ -78,7 +77,6 @@ class PixelStarshipsApi:
 
         return devices
 
-    @cache.cached(timeout=60 * 60 * 12, key_prefix="api_settings")
     def get_api_settings(self) -> dict:
         """Get last game settings from API."""
         params = {"languageKey": "en", "deviceType": "DeviceTypeAndroid"}

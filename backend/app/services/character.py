@@ -1,3 +1,4 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.constants import (
@@ -7,7 +8,6 @@ from app.constants import (
     RARITY_MAP,
 )
 from app.enums import TypeEnum
-from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.math import float_range, int_range
@@ -18,20 +18,18 @@ class CharacterService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="characters")
+    @cached_property
     def characters(self) -> dict[int, dict]:
         """Get characters data."""
         return self.get_characters_from_records()
 
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""
-        records = self.record_service.records[TypeEnum.CHARACTER]
+        records = self.record_service.get_records_from_type(TypeEnum.CHARACTER)
 
         characters = {}
-        for record in records.values():
+        for record in records:
             character_node = ElementTree.fromstring(record.data)
             character = PixelStarshipsApi.parse_character_node(character_node)
 
@@ -105,7 +103,8 @@ class CharacterService(BaseService):
 
     def update_characters(self) -> None:
         """Get crews from API and save them in database."""
-        characters = self.pixel_starships_api.get_characters()
+        pixel_starships_api = PixelStarshipsApi()
+        characters = pixel_starships_api.get_characters()
         still_presents_ids = []
 
         for character in characters:
@@ -116,7 +115,7 @@ class CharacterService(BaseService):
                 character["CharacterDesignName"],
                 int(character["ProfileSpriteId"]),
                 character["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

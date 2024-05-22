@@ -1,4 +1,5 @@
 import datetime
+from functools import cached_property
 
 from flask import current_app
 from sqlalchemy import and_, desc
@@ -13,7 +14,7 @@ from app.constants import (
     SHOP_SPRITE_ID,
 )
 from app.enums import TypeEnum
-from app.ext import cache, db
+from app.ext import db
 from app.models import DailySale, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
@@ -29,26 +30,22 @@ class DailyOfferService(BaseService):
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="daily_offers")
+    @cached_property
     def daily_offers(self) -> dict:
         """Get daily offers."""
         return self.get_daily_offers_from_api()
 
-    @property
-    @cache.cached(key_prefix="promotions")
+    @cached_property
     def promotions(self) -> list[dict]:
         """Get promotions."""
         return self.get_promotions_from_api()
 
-    @property
-    @cache.cached(key_prefix="situations")
+    @cached_property
     def situations(self) -> list[dict]:
         """Get situations."""
         return self.get_situations_from_api()
 
-    @property
-    @cache.cached(key_prefix="star_system_merchant_markers")
+    @cached_property
     def star_system_merchant_markers(self) -> list[dict]:
         """Get Star System Merchant Markers."""
         return self.get_star_system_merchant_markers_from_api()

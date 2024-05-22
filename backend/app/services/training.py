@@ -1,7 +1,7 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
-from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,10 +11,8 @@ class TrainingService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="trainings")
+    @cached_property
     def trainings(self) -> dict[int, dict]:
         """Get trainings data."""
         return self.get_trainings_from_records()
@@ -48,7 +46,8 @@ class TrainingService(BaseService):
 
     def update_trainings(self) -> None:
         """Update data and save records."""
-        trainings = self.pixel_starships_api.get_trainings()
+        pixel_starships_api = PixelStarshipsApi()
+        trainings = pixel_starships_api.get_trainings()
         still_presents_ids = []
 
         for training in trainings:
@@ -59,7 +58,7 @@ class TrainingService(BaseService):
                 training["TrainingName"],
                 int(training["TrainingSpriteId"]),
                 training["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

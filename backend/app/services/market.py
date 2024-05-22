@@ -1,10 +1,10 @@
 import re
 from collections import defaultdict
+from functools import cached_property
 
 from sqlalchemy import desc, text
 
 from app.constants import SHORT_ENHANCE_MAP
-from app.ext import cache
 from app.ext.db import db
 from app.models import Listing
 from app.pixelstarshipsapi import PixelStarshipsApi
@@ -16,10 +16,8 @@ class MarketService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="prices")
+    @cached_property
     def prices(self) -> dict[int, dict]:
         """Get prices data."""
         return self.get_prices_from_db()
@@ -147,7 +145,8 @@ class MarketService(BaseService):
 
         return last_sales
 
-    def get_sales_from_api(self, item_id: int) -> list:
+    @staticmethod
+    def get_sales_from_api(pixel_starships_api: PixelStarshipsApi, item_id: int) -> list:
         """Get market history of item."""
         # get max sale_id to retrieve only new sales
         max_sale_id_result = (
@@ -159,8 +158,10 @@ class MarketService(BaseService):
         else:
             max_sale_id = 0
 
-        return self.pixel_starships_api.get_sales(item_id, max_sale_id)
+        return pixel_starships_api.get_sales(item_id, max_sale_id)
 
-    def get_market_messages_from_api(self, item_id: int) -> list:
+    @staticmethod
+    def get_market_messages_from_api(item_id: int) -> list:
         """Get market messages of item."""
-        return self.pixel_starships_api.get_market_messages(item_id)
+        pixel_starships_api = PixelStarshipsApi()
+        return pixel_starships_api.get_market_messages(item_id)

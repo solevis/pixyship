@@ -75,6 +75,11 @@ def create_app(test_config: dict | None = None) -> Flask:
     # Initialize configurations
     init_configuration(app, test_config)
 
+    if app.config["ENALBE_PROFILER"]:
+        from werkzeug.middleware.profiler import ProfilerMiddleware
+
+        app.wsgi_app = ProfilerMiddleware(app.wsgi_app)
+
     # Initialize Sentry if DSN is provided, only in production
     if app.config["SENTRY_DSN"] and not app.config["DEV_MODE"]:
         import sentry_sdk

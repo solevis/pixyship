@@ -1,4 +1,5 @@
 import hashlib
+from functools import cached_property
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
@@ -19,8 +20,7 @@ class RecordService(BaseService):
     def __init__(self) -> None:
         super().__init__()
 
-    @property
-    @cache.cached(key_prefix="records")
+    @cached_property
     def records(self) -> dict[TypeEnum, dict[int, Record]]:
         """Get records data."""
         records: dict[TypeEnum, dict[int, Record]] = {}
@@ -35,9 +35,10 @@ class RecordService(BaseService):
 
         return records
 
-    def get_records_from_type(self, record_type: TypeEnum) -> dict[int, Record]:
+    @staticmethod
+    def get_records_from_type(record_type: TypeEnum) -> list[Record]:
         """Get records from given PSS API type (LimitedCatalogType for example)."""
-        return self.records.get(record_type, {})
+        return Record.query.filter_by(current=True, type=record_type).all()
 
     def get_record(self, record_type: TypeEnum, record_type_id: int, reload_on_error: bool = True) -> Record | None:
         """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""

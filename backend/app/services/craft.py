@@ -1,7 +1,7 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
-from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,20 +11,18 @@ class CraftService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="crafts")
+    @cached_property
     def crafts(self) -> dict[int, dict]:
         """Get crafts data."""
         return self.get_crafts_from_records()
 
     def get_crafts_from_records(self) -> dict[int, dict]:
         """Load crafts from database."""
-        records = self.record_service.records[TypeEnum.CRAFT]
+        records = self.record_service.get_records_from_type(TypeEnum.CRAFT)
 
         crafts = {}
-        for record in records.values():
+        for record in records:
             craft = PixelStarshipsApi.parse_craft_node(ElementTree.fromstring(record.data))
             missile_design = craft["MissileDesign"]
 
@@ -60,7 +58,8 @@ class CraftService(BaseService):
 
     def update_crafts(self) -> None:
         """Get crafts from API and save them in database."""
-        crafts = self.pixel_starships_api.get_crafts()
+        pixel_starships_api = PixelStarshipsApi()
+        crafts = pixel_starships_api.get_crafts()
         still_presents_ids = []
 
         for craft in crafts:
@@ -71,7 +70,7 @@ class CraftService(BaseService):
                 craft["CraftName"],
                 int(craft["SpriteId"]),
                 craft["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
                 ["ReloadModifier"],
             )
             still_presents_ids.append(int(record_id))

@@ -1,10 +1,10 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.constants import (
     RACES,
 )
 from app.enums import TypeEnum
-from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -14,27 +14,24 @@ class SkinService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="skins")
+    @cached_property
     def skins(self) -> dict[int, dict]:
         """Get skins data."""
         return self.get_skins_from_records()
 
-    @property
-    @cache.cached(key_prefix="skinsets")
+    @cached_property
     def skinsets(self) -> dict[int, dict]:
         """Get skinsets data."""
         return self.get_skinsets_from_db()
 
     def get_skins_from_records(self) -> dict[int, dict]:
         """Load skins from database."""
-        skin_records = self.record_service.records[TypeEnum.SKIN]
+        skin_records = self.record_service.get_records_from_type(TypeEnum.SKIN)
         skins = {}
 
         # for each skin, find the skinset and add name and description
-        for skin_record in skin_records.values():
+        for skin_record in skin_records:
             skin = PixelStarshipsApi.parse_skin_node(ElementTree.fromstring(skin_record.data))
             skinset_id = int(skin["SkinSetId"])
 
@@ -61,12 +58,12 @@ class SkinService(BaseService):
 
     def get_skinsets_from_db(self) -> dict[int, dict]:
         """Load skinsets from database."""
-        skinset_records = self.record_service.records[TypeEnum.SKINSET]
+        skinset_records = self.record_service.get_records_from_type(TypeEnum.SKINSET)
 
         skinsets = {}
 
         # retrieve all skinsets
-        for skinset_record in skinset_records.values():
+        for skinset_record in skinset_records:
             skinset = PixelStarshipsApi.parse_skinset_node(ElementTree.fromstring(skinset_record.data))
 
             skinsets[skinset_record.type_id] = {
@@ -80,7 +77,8 @@ class SkinService(BaseService):
 
     def update_skinsets(self) -> None:
         """Update skinsets and save records."""
-        skinsets = self.pixel_starships_api.get_skinsets()
+        pixel_starships_api = PixelStarshipsApi()
+        skinsets = pixel_starships_api.get_skinsets()
         still_presents_ids = []
 
         for skinset in skinsets:
@@ -91,7 +89,7 @@ class SkinService(BaseService):
                 skinset["SkinSetName"],
                 int(skinset["SpriteId"]),
                 skinset["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 
@@ -99,7 +97,8 @@ class SkinService(BaseService):
 
     def update_skins(self) -> None:
         """Update skins and save records."""
-        skins = self.pixel_starships_api.get_skins()
+        pixel_starships_api = PixelStarshipsApi()
+        skins = pixel_starships_api.get_skins()
         still_presents_ids = []
 
         for skin in skins:
@@ -110,7 +109,7 @@ class SkinService(BaseService):
                 skin["SkinName"],
                 int(skin["SpriteId"]),
                 skin["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

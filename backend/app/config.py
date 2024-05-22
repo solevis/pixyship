@@ -46,3 +46,6 @@ class DefaultConfig:
     DISCORD_URL = "https://example.discord/"
     GITHUB_URL = "https://github.com/solevis/pixyship/"
     DONATION_URL = "https://example.donate/"
+
+    # Profiler
+    ENALBE_PROFILER = False

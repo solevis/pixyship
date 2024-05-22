@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.constants import (
@@ -14,7 +15,6 @@ from app.constants import (
     ROOM_TYPE_MAP,
 )
 from app.enums import TypeEnum
-from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import parse_price_from_pricestring, parse_requirement
@@ -25,10 +25,8 @@ class RoomService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
-    @property
-    @cache.cached(key_prefix="rooms")
+    @cached_property
     def rooms(self) -> dict:
         """Get rooms data."""
         (
@@ -37,8 +35,7 @@ class RoomService(BaseService):
         ) = self.get_rooms_from_records()
         return rooms
 
-    @property
-    @cache.cached(key_prefix="rooms_by_name")
+    @cached_property
     def rooms_by_name(self) -> dict:
         """Get rooms data by name."""
         _, rooms_by_name = self.get_rooms_from_records()
@@ -46,10 +43,10 @@ class RoomService(BaseService):
 
     def get_rooms_from_records(self) -> tuple[dict, dict]:
         """Load rooms from database."""
-        records = self.record_service.records[TypeEnum.ROOM]
+        records = self.record_service.get_records_from_type(TypeEnum.ROOM)
 
         rooms = {}
-        for record in records.values():
+        for record in records:
             room = PixelStarshipsApi.parse_room_node(ElementTree.fromstring(record.data))
             missile_design = room["MissileDesign"]
 
@@ -143,7 +140,8 @@ class RoomService(BaseService):
 
     def update_rooms(self) -> None:
         """Get rooms from API and save them in database."""
-        rooms = self.pixel_starships_api.get_rooms()
+        pixel_starships_api = PixelStarshipsApi()
+        rooms = pixel_starships_api.get_rooms()
         still_presents_ids = []
 
         for room in rooms:
@@ -154,7 +152,7 @@ class RoomService(BaseService):
                 room["RoomName"],
                 int(room["ImageSpriteId"]),
                 room["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
                 ["AvailabilityMask"],
             )
             still_presents_ids.append(int(record_id))
