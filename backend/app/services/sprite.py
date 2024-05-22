@@ -21,8 +21,9 @@ class SpriteService(BaseService):
 
     def get_sprite_infos(self, sprite_id: int) -> dict | None:
         """Get sprite infos from given id."""
-        sprite = self.sprites.get(sprite_id)
-        if not sprite:
+        try:
+            sprite = self.sprites[sprite_id]
+        except KeyError:
             return None
 
         return {
