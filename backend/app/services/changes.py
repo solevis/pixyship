@@ -5,7 +5,7 @@ from flask import current_app
 from sqlalchemy import text
 
 from app.enums import TypeEnum
-from app.ext import db
+from app.ext import cache, db
 from app.services.base import BaseService
 from app.services.item import ItemService
 from app.services.record import RecordService
@@ -19,11 +19,13 @@ class ChangesService(BaseService):
         super().__init__()
 
     @cached_property
+    @cache.cached(key_prefix="changes")
     def changes(self) -> list[dict]:
         """Get changes data."""
         return self.get_changes_from_db()
 
     @cached_property
+    @cache.cached(key_prefix="last_prestiges_changes")
     def last_prestiges_changes(self) -> datetime | None:
         """Get last prestiges changes date."""
         return self.get_last_prestiges_changes_from_db()
