@@ -1,6 +1,8 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,15 +13,20 @@ class MissileService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._missiles: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def missiles(self) -> dict[int, dict]:
         """Get missiles data."""
-        if not self._missiles:
-            self._missiles = self.get_missiles_from_records()
+        missiles = cache.get("missiles")
+        if missiles is None:
+            missiles = self.get_missiles_from_records()
+            cache.set("missiles", missiles)
 
-        return self._missiles
+        return missiles
+
+    def update_cache(self) -> None:
+        """Load missiles in cache."""
+        cache.set("missiles", self.get_missiles_from_records())
 
     def get_missiles_from_records(self) -> dict[int, dict]:
         """Load missiles from database."""

@@ -1,4 +1,5 @@
 import datetime
+from functools import cached_property
 
 from flask import current_app
 from sqlalchemy import and_, desc
@@ -13,7 +14,7 @@ from app.constants import (
     SHOP_SPRITE_ID,
 )
 from app.enums import TypeEnum
-from app.ext import db
+from app.ext import cache, db
 from app.models import DailySale, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
@@ -28,42 +29,30 @@ class DailyOfferService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self.pixel_starships_api = PixelStarshipsApi()
-        self._daily_offers: dict = {}
-        self._promotions: list[dict] = []
-        self._situations: list[dict] = []
-        self._star_system_merchant_markers: list[dict] = []
 
-    @property
+    @cached_property
+    @cache.cached(key_prefix="daily_offers")
     def daily_offers(self) -> dict:
         """Get daily offers."""
-        if not self._daily_offers:
-            self._daily_offers = self.get_daily_offers_from_api()
+        return self.get_daily_offers_from_api()
 
-        return self._daily_offers
-
-    @property
+    @cached_property
+    @cache.cached(key_prefix="promotions")
     def promotions(self) -> list[dict]:
         """Get promotions."""
-        if not self._promotions:
-            self._promotions = self.get_promotions_from_api()
+        return self.get_promotions_from_api()
 
-        return self._promotions
-
-    @property
+    @cached_property
+    @cache.cached(key_prefix="situations")
     def situations(self) -> list[dict]:
         """Get situations."""
-        if not self._situations:
-            self._situations = self.get_situations_from_api()
+        return self.get_situations_from_api()
 
-        return self._situations
-
-    @property
+    @cached_property
+    @cache.cached(key_prefix="star_system_merchant_markers")
     def star_system_merchant_markers(self) -> list[dict]:
         """Get Star System Merchant Markers."""
-        if not self._star_system_merchant_markers:
-            self._star_system_merchant_markers = self.get_star_system_merchant_markers_from_api()
-
-        return self._star_system_merchant_markers
+        return self.get_star_system_merchant_markers_from_api()
 
     def get_daily_offers_from_api(self) -> dict:
         """Get settings service data, sales, motd from API."""

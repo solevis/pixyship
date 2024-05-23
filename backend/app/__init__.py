@@ -69,11 +69,19 @@ def create_app(test_config: dict | None = None) -> Flask:
     # Create the Flask application
     app = Flask(__name__, instance_relative_config=True)
 
-    # Set the logging level
-    app.logger.setLevel(logging.INFO)
-
     # Initialize configurations
     init_configuration(app, test_config)
+
+    # Set the logging level
+    if app.config["DEV_MODE"]:
+        app.logger.setLevel(logging.DEBUG)
+    else:
+        app.logger.setLevel(logging.INFO)
+
+    if app.config["ENALBE_PROFILER"]:
+        from werkzeug.middleware.profiler import ProfilerMiddleware
+
+        app.wsgi_app = ProfilerMiddleware(app.wsgi_app)
 
     # Initialize Sentry if DSN is provided, only in production
     if app.config["SENTRY_DSN"] and not app.config["DEV_MODE"]:

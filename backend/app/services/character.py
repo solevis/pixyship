@@ -1,3 +1,4 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.constants import (
@@ -7,6 +8,7 @@ from app.constants import (
     RARITY_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.math import float_range, int_range
@@ -17,24 +19,27 @@ class CharacterService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
-        self._characters: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def characters(self) -> dict[int, dict]:
         """Get characters data."""
-        if not self._characters:
-            self._characters = self.get_characters_from_records()
-            self.update_character_with_collection_data()
+        characters = cache.get("characters")
+        if characters is None:
+            characters = self.get_characters_from_records()
+            cache.set("characters", characters)
 
-        return self._characters
+        return characters
+
+    def update_cache(self) -> None:
+        """Load characters in cache."""
+        cache.set("characters", self.get_characters_from_records())
 
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""
-        records = self.record_service.records[TypeEnum.CHARACTER]
+        records = self.record_service.get_records_from_type(TypeEnum.CHARACTER)
 
         characters = {}
-        for record in records.values():
+        for record in records:
             character_node = ElementTree.fromstring(record.data)
             character = PixelStarshipsApi.parse_character_node(character_node)
 
@@ -96,10 +101,10 @@ class CharacterService(BaseService):
 
         return [EQUIPMENT_SLOTS[5 - i] for i, b in enumerate(output) if b]
 
-    def update_character_with_collection_data(self) -> None:
+    def update_character_with_collection_data(self, characters: dict[int, dict]) -> None:
         """Updata character data with collection."""
         # update crew with collection data
-        for character in self.characters.values():
+        for character in characters.values():
             if character["collection"]:
                 character["collection_sprite"] = self.collection_service.collections[character["collection"]][
                     "icon_sprite"
@@ -108,7 +113,8 @@ class CharacterService(BaseService):
 
     def update_characters(self) -> None:
         """Get crews from API and save them in database."""
-        characters = self.pixel_starships_api.get_characters()
+        pixel_starships_api = PixelStarshipsApi()
+        characters = pixel_starships_api.get_characters()
         still_presents_ids = []
 
         for character in characters:
@@ -119,7 +125,7 @@ class CharacterService(BaseService):
                 character["CharacterDesignName"],
                 int(character["ProfileSpriteId"]),
                 character["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

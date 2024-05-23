@@ -1,3 +1,4 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from flask import current_app
@@ -12,6 +13,7 @@ from app.constants import (
     SPECIAL_ABILITY_TYPE_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -21,23 +23,27 @@ class CollectionService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
-        self._collections: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def collections(self) -> dict[int, dict]:
         """Get collections data."""
-        if not self._collections:
-            self._collections = self.get_collections_from_records()
+        collections = cache.get("collections")
+        if collections is None:
+            collections = self.get_collections_from_records()
+            cache.set("collections", collections)
 
-        return self._collections
+        return collections
+
+    def update_cache(self) -> None:
+        """Load collections in cache."""
+        cache.set("collections", self.get_collections_from_records())
 
     def get_collections_from_records(self) -> dict[int, dict]:
         """Load collections from database."""
-        records = self.record_service.records[TypeEnum.COLLECTION]
+        records = self.record_service.get_records_from_type(TypeEnum.COLLECTION)
 
         collections = {}
-        for record in records.values():
+        for record in records:
             collection_node = ElementTree.fromstring(record.data)
             collection = PixelStarshipsApi.parse_collection_node(collection_node)
 
@@ -312,7 +318,8 @@ class CollectionService(BaseService):
 
     def update_collections(self) -> None:
         """Get collections from API and save them in database."""
-        collections = self.pixel_starships_api.get_collections()
+        pixel_starships_api = PixelStarshipsApi()
+        collections = pixel_starships_api.get_collections()
         still_presents_ids = []
 
         for collection in collections:
@@ -323,7 +330,7 @@ class CollectionService(BaseService):
                 collection["CollectionName"],
                 int(collection["SpriteId"]),
                 collection["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

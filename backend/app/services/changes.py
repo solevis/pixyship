@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import cached_property
 
 from flask import current_app
 from sqlalchemy import text
@@ -16,26 +17,31 @@ class ChangesService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self._changes: list[dict] = []
-        self._last_prestiges_changes: datetime | None = None
 
-    @property
-    @cache.cached(key_prefix="changes")
+    @cached_property
     def changes(self) -> list[dict]:
         """Get changes data."""
-        if not self._changes:
-            self._changes = self.get_changes_from_db()
+        changes = cache.get("changes")
+        if changes is None:
+            changes = self.get_changes_from_db()
+            cache.set("changes", changes)
 
-        return self._changes
+        return changes
 
-    @property
-    @cache.cached(key_prefix="last_prestiges_changes")
+    @cached_property
     def last_prestiges_changes(self) -> datetime | None:
         """Get last prestiges changes date."""
-        if self._last_prestiges_changes is None:
-            self._last_prestiges_changes = self.get_last_prestiges_changes_from_db()
+        last_prestiges_changes = cache.get("last_prestiges_changes")
+        if last_prestiges_changes is None:
+            last_prestiges_changes = self.get_last_prestiges_changes_from_db()
+            cache.set("last_prestiges_changes", last_prestiges_changes)
 
-        return self._last_prestiges_changes
+        return last_prestiges_changes
+
+    def update_cache(self) -> None:
+        """Load cache."""
+        cache.set("changes", self.get_changes_from_db())
+        cache.set("last_prestiges_changes", self.get_last_prestiges_changes_from_db())
 
     def get_changes_from_db(self) -> list[dict]:
         """Get changes from database."""

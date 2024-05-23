@@ -1,6 +1,8 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -10,16 +12,20 @@ class TrainingService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
-        self._trainings: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def trainings(self) -> dict[int, dict]:
         """Get trainings data."""
-        if not self._trainings:
-            self._trainings = self.get_trainings_from_records()
+        trainings = cache.get("trainings")
+        if trainings is None:
+            trainings = self.get_trainings_from_records()
+            cache.set("trainings", trainings)
 
-        return self._trainings
+        return trainings
+
+    def update_cache(self) -> None:
+        """Load trainings in cache."""
+        cache.set("trainings", self.get_trainings_from_records())
 
     def get_trainings_from_records(self) -> dict[int, dict]:
         """Load trainings from database."""
@@ -50,7 +56,8 @@ class TrainingService(BaseService):
 
     def update_trainings(self) -> None:
         """Update data and save records."""
-        trainings = self.pixel_starships_api.get_trainings()
+        pixel_starships_api = PixelStarshipsApi()
+        trainings = pixel_starships_api.get_trainings()
         still_presents_ids = []
 
         for training in trainings:
@@ -61,7 +68,7 @@ class TrainingService(BaseService):
                 training["TrainingName"],
                 int(training["TrainingSpriteId"]),
                 training["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

@@ -1,6 +1,8 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -10,25 +12,29 @@ class AchievementService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
-        self._achievements: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def achievements(self) -> dict[int, dict]:
         """Get achievements data."""
-        if not self._achievements:
-            self._achievements = self.get_achievements_from_db()
+        achievements = cache.get("achievements")
+        if achievements is None:
+            achievements = self.get_achievements_from_db()
+            cache.set("achievements", achievements)
 
-        return self._achievements
+        return achievements
+
+    def update_cache(self) -> None:
+        """Load achievements in cache."""
+        cache.set("achievements", self.get_achievements_from_db())
 
     def get_achievements_from_db(self) -> dict[int, dict]:
         """Load achievements from database."""
-        records = self.record_service.records[TypeEnum.ACHIEVEMENT]
+        records = self.record_service.get_records_from_type(TypeEnum.ACHIEVEMENT)
 
         achievements = {}
         all_parent_achievement_design_id = []
 
-        for record in records.values():
+        for record in records:
             achievement = PixelStarshipsApi.parse_achievement_node(ElementTree.fromstring(record.data))
 
             starbux_reward = 0
@@ -68,7 +74,8 @@ class AchievementService(BaseService):
 
     def update_achievements(self) -> None:
         """Update data and save records."""
-        achievements = self.pixel_starships_api.get_achievements()
+        pixel_starships_api = PixelStarshipsApi()
+        achievements = pixel_starships_api.get_achievements()
         still_presents_ids = []
 
         for achievement in achievements:
@@ -79,7 +86,7 @@ class AchievementService(BaseService):
                 achievement["AchievementTitle"],
                 int(achievement["SpriteId"]),
                 achievement["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

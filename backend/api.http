@@ -137,3 +137,8 @@ GET http://localhost:5000/api/crafts
 # @name api_missiles
 GET http://localhost:5000/api/missiles
 ###
+
+###
+# @name api_config
+GET http://localhost:5000/api/config
+###

@@ -1,6 +1,5 @@
+from functools import cached_property
 from xml.etree import ElementTree
-
-from flask import current_app
 
 from app.constants import (
     ENHANCE_MAP,
@@ -11,6 +10,7 @@ from app.constants import (
     SLOT_MAP,
 )
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import has_offstat
@@ -21,24 +21,27 @@ class ItemService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
-        self._items: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def items(self) -> dict[int, dict]:
         """Get items data."""
-        if not self._items:
-            self._items = self.get_items_from_records()
+        items = cache.get("items")
+        if items is None:
+            items = self.get_items_from_records()
+            cache.set("items", items)
 
-        return self._items
+        return items
+
+    def update_cache(self) -> None:
+        """Load items in cache."""
+        cache.set("items", self.get_items_from_records())
 
     def get_items_from_records(self) -> dict[int, dict]:
         """Get items from database."""
         records = self.record_service.get_records_from_type(TypeEnum.ITEM)
 
         items: dict = {}
-        for record in records.values():
-            current_app.logger.debug("Loading item %d from database", record.type_id)
+        for record in records:
             item_node = ElementTree.fromstring(record.data)
             item = PixelStarshipsApi.parse_item_node(item_node)
 
@@ -252,7 +255,8 @@ class ItemService(BaseService):
 
     def update_items(self) -> None:
         """Get items from API and save them in database."""
-        items = self.pixel_starships_api.get_items()
+        pixel_starships_api = PixelStarshipsApi()
+        items = pixel_starships_api.get_items()
         still_presents_ids = []
 
         for item in items:
@@ -263,7 +267,7 @@ class ItemService(BaseService):
                 item["ItemDesignName"],
                 int(item["ImageSpriteId"]),
                 item["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
                 ["FairPrice", "MarketPrice", "BuildPrice"],
             )
             still_presents_ids.append(int(record_id))

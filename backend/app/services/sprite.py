@@ -1,6 +1,8 @@
+from functools import cached_property
 from xml.etree import ElementTree
 
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -10,30 +12,26 @@ class SpriteService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
-        self._sprites: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def sprites(self) -> dict[int, dict]:
         """Get sprites data."""
-        if not self._sprites:
-            self._sprites = self.get_sprites_from_records()
+        sprites = cache.get("sprites")
+        if sprites is None:
+            sprites = self.get_sprites_from_records()
+            cache.set("sprites", sprites)
 
-        return self._sprites
+        return sprites
+
+    def update_cache(self) -> None:
+        """Load sprites in cache."""
+        cache.set("sprites", self.get_sprites_from_records())
 
     def get_sprite_infos(self, sprite_id: int) -> dict | None:
         """Get sprite infos from given id."""
-        if not sprite_id:
-            return None
-
-        if isinstance(sprite_id, str):
-            sprite_id = int(sprite_id)
-
-        if not isinstance(sprite_id, int):
-            return None
-
-        sprite = self.sprites.get(sprite_id)
-        if not sprite:
+        try:
+            sprite = self.sprites[sprite_id]
+        except KeyError:
             return None
 
         return {
@@ -47,10 +45,10 @@ class SpriteService(BaseService):
 
     def get_sprites_from_records(self) -> dict[int, dict]:
         """Load sprites from database."""
-        records = self.record_service.records[TypeEnum.SPRITE]
+        records = self.record_service.get_records_from_type(TypeEnum.SPRITE)
 
         sprites = {}
-        for record in records.values():
+        for record in records:
             sprite = PixelStarshipsApi.parse_sprite_node(ElementTree.fromstring(record.data))
 
             sprites[record.type_id] = {
@@ -66,7 +64,8 @@ class SpriteService(BaseService):
 
     def update_sprites(self) -> None:
         """Update data and save records."""
-        sprites = self.pixel_starships_api.get_sprites()
+        pixel_starships_api = PixelStarshipsApi()
+        sprites = pixel_starships_api.get_sprites()
         still_presents_ids = []
 
         for sprite in sprites:
@@ -77,7 +76,7 @@ class SpriteService(BaseService):
                 sprite["ImageFileId"],
                 int(sprite["SpriteId"]),
                 sprite["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

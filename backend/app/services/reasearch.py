@@ -1,7 +1,10 @@
 from xml.etree import ElementTree
 
+from werkzeug.utils import cached_property
+
 from app.constants import RESEARCH_TYPE_MAP
 from app.enums import TypeEnum
+from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
@@ -11,23 +14,27 @@ class ResearchService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
-        self._researches: dict[int, dict] = {}
 
-    @property
+    @cached_property
     def researches(self) -> dict[int, dict]:
         """Get researches data."""
-        if not self._researches:
-            self._researches = self.get_researches_from_records()
+        researches = cache.get("researches")
+        if researches is None:
+            researches = self.get_researches_from_records()
+            cache.set("researches", researches)
 
-        return self._researches
+        return researches
+
+    def update_cache(self) -> None:
+        """Load researches in cache."""
+        cache.set("researches", self.get_researches_from_records())
 
     def get_researches_from_records(self) -> dict[int, dict]:
         """Load researches from database."""
-        records = self.record_service.records[TypeEnum.RESEARCH]
+        records = self.record_service.get_records_from_type(TypeEnum.RESEARCH)
 
         researches = {}
-        for record in records.values():
+        for record in records:
             research = PixelStarshipsApi.parse_research_node(ElementTree.fromstring(record.data))
             researches[record.type_id] = {
                 **research,
@@ -66,7 +73,8 @@ class ResearchService(BaseService):
 
     def update_researches(self) -> None:
         """Update data and save records."""
-        researches = self.pixel_starships_api.get_researches()
+        pixel_starships_api = PixelStarshipsApi()
+        researches = pixel_starships_api.get_researches()
         still_presents_ids = []
 
         for research in researches:
@@ -77,7 +85,7 @@ class ResearchService(BaseService):
                 research["ResearchName"],
                 int(research["ImageSpriteId"]),
                 research["pixyship_xml_element"],
-                self.pixel_starships_api.server,
+                pixel_starships_api.server,
             )
             still_presents_ids.append(int(record_id))
 

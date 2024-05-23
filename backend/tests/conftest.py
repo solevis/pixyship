@@ -19,11 +19,3 @@ def client(app):
 def runner(app):
     """Create a test runner for the app's Click commands."""
     return app.test_cli_runner()
-
-
-@pytest.fixture()
-def service_factory():
-    """Create a service factory instance for each test."""
-    from app.services.factory import ServiceFactory
-
-    return ServiceFactory()

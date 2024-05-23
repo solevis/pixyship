@@ -13,11 +13,27 @@ from sqlalchemy.dialects.postgresql import insert
 from app.constants import PSS_SPRITES_URL
 from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, MarketMessage, Player
-from app.services.factory import ServiceFactory
+from app.pixelstarshipsapi import PixelStarshipsApi
+from app.services.achievement import AchievementService
+from app.services.changes import ChangesService
+from app.services.character import CharacterService
+from app.services.collection import CollectionService
+from app.services.craft import CraftService
+from app.services.daily_offer import DailyOfferService
+from app.services.item import ItemService
+from app.services.market import MarketService
+from app.services.missile import MissileService
+from app.services.player import PlayerService
+from app.services.prestige import PrestigeService
+from app.services.reasearch import ResearchService
+from app.services.room import RoomService
+from app.services.ship import ShipService
+from app.services.skin import SkinService
+from app.services.sprite import SpriteService
+from app.services.training import TrainingService
 from app.utils.pss import api_sleep, get_type_enum_from_string
 
 importer_cli = AppGroup("import", help="Import data from PixyShip API.")
-service_factory = ServiceFactory()
 
 
 def log_command(func: Callable) -> Callable:
@@ -41,7 +57,7 @@ def log_command(func: Callable) -> Callable:
 @log_command
 def import_players() -> None:
     """Get all top 100 players and top 100 alliances' players and save them in database."""
-    player_service = service_factory.player_service
+    player_service = PlayerService()
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no players to import")
@@ -85,57 +101,74 @@ def import_players() -> None:
 @log_command
 def import_assets() -> None:
     """Get all items, crews, rooms, ships and save them in database."""
-    item_service = service_factory.item_service
-    character_service = service_factory.character_service
-    room_service = service_factory.room_service
-    ship_service = service_factory.ship_service
-    collection_service = service_factory.collection_service
-    research_service = service_factory.research_service
-    sprite_service = service_factory.sprite_service
-    skin_service = service_factory.skin_service
-    training_service = service_factory.training_service
-    achievement_service = service_factory.achievement_service
-    craft_service = service_factory.craft_service
-    missile_service = service_factory.missile_service
+    item_service = ItemService()
+    character_service = CharacterService()
+    room_service = RoomService()
+    ship_service = ShipService()
+    collection_service = CollectionService()
+    research_service = ResearchService()
+    sprite_service = SpriteService()
+    skin_service = SkinService()
+    training_service = TrainingService()
+    achievement_service = AchievementService()
+    craft_service = CraftService()
+    missile_service = MissileService()
+    changes_service = ChangesService()
 
     current_app.logger.info("Importing items...")
     item_service.update_items()
+    item_service.update_cache()
 
     current_app.logger.info("Importing characters...")
     character_service.update_characters()
+    character_service.update_cache()
 
     current_app.logger.info("Importing rooms...")
     room_service.update_rooms()
+    room_service.update_cache()
 
     current_app.logger.info("Importing ships...")
     ship_service.update_ships()
+    ship_service.update_cache()
 
     current_app.logger.info("Importing collections...")
     collection_service.update_collections()
+    collection_service.update_cache()
 
     current_app.logger.info("Importing researches...")
     research_service.update_researches()
+    research_service.update_cache()
 
     current_app.logger.info("Importing sprites...")
     sprite_service.update_sprites()
+    sprite_service.update_cache()
 
     current_app.logger.info("Importing skinsets...")
     skin_service.update_skinsets()
+    skin_service.update_cache()
 
     current_app.logger.info("Importing skins...")
     skin_service.update_skins()
+    skin_service.update_cache()
 
     current_app.logger.info("Importing trainings...")
     training_service.update_trainings()
+    training_service.update_cache()
 
     current_app.logger.info("Importing achievements...")
     achievement_service.update_achievements()
+    achievement_service.update_cache()
 
     current_app.logger.info("Importing crafts...")
     craft_service.update_crafts()
+    craft_service.update_cache()
 
     current_app.logger.info("Importing missiles...")
     missile_service.update_missiles()
+    missile_service.update_cache()
+
+    current_app.logger.info("Invalidating changes cache...")
+    changes_service.update_cache()
 
     current_app.logger.info("Done")
 
@@ -145,7 +178,7 @@ def import_assets() -> None:
 @log_command
 def import_prestiges() -> None:
     """Import prestiges for checking changes."""
-    prestige_service = service_factory.prestige_service
+    prestige_service = PrestigeService()
 
     current_app.logger.info("Importing prestiges...")
     prestige_service.update_prestiges()
@@ -158,7 +191,7 @@ def import_prestiges() -> None:
 @log_command
 def import_daily_sales() -> None:
     """Get all items, crews, rooms, ships on sale today and save them in database."""
-    daily_offer_service = service_factory.daily_offer_service
+    daily_offer_service = DailyOfferService()
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no daily sales to import")
@@ -328,8 +361,9 @@ def save_daily_sale(daily_sale: DailySale) -> None:
 @log_command
 def import_market(one_item_only: bool, item_id: int | None) -> None:
     """Get last market sales and save them in database."""
-    item_service = service_factory.item_service
-    market_service = service_factory.market_service
+    item_service = ItemService()
+    market_service = MarketService()
+    pixel_starships_api = PixelStarshipsApi()
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no sales to import")
@@ -358,7 +392,7 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
     for count, (current_item_id, current_item) in enumerate(saleable_items_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        sales = market_service.get_sales_from_api(current_item_id)
+        sales = market_service.get_sales_from_api(pixel_starships_api, current_item_id)
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(sales))
 
         for sale in sales:
@@ -386,6 +420,7 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
 
         api_sleep(3, force_sleep=True)
 
+    market_service.update_cache()
     current_app.logger.info("Done")
 
 
@@ -396,8 +431,7 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
 @log_command
 def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     """Get last market messages and save them in database."""
-    item_service = service_factory.item_service
-    market_service = service_factory.market_service
+    item_service = ItemService()
 
     if current_app.config["USE_STAGING_API"]:
         current_app.logger.info("In staging mode, no market messages to import")
@@ -428,7 +462,7 @@ def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     for count, (current_item_id, current_item) in enumerate(items_with_offstat_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        messages = market_service.get_market_messages_from_api(current_item_id)
+        messages = MarketService.get_market_messages_from_api(current_item_id)
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(messages))
 
         for message in messages:
@@ -487,7 +521,7 @@ def save_market_message(market_message: MarketMessage) -> None:
 @log_command
 def dowload_sprites() -> None:
     """Download sprites from PSS."""
-    sprite_service = service_factory.sprite_service
+    sprite_service = SpriteService()
 
     sprites_directory = Path(current_app.config["SPRITES_DIRECTORY"])
     if not sprites_directory.exists():
