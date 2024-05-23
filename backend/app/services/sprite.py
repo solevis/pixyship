@@ -14,10 +14,18 @@ class SpriteService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="sprites")
     def sprites(self) -> dict[int, dict]:
         """Get sprites data."""
-        return self.get_sprites_from_records()
+        sprites = cache.get("sprites")
+        if sprites is None:
+            sprites = self.get_sprites_from_records()
+            cache.set("sprites", sprites)
+
+        return sprites
+
+    def update_cache(self) -> None:
+        """Load sprites in cache."""
+        cache.set("sprites", self.get_sprites_from_records())
 
     def get_sprite_infos(self, sprite_id: int) -> dict | None:
         """Get sprite infos from given id."""

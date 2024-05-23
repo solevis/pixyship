@@ -14,10 +14,18 @@ class CraftService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="crafts")
     def crafts(self) -> dict[int, dict]:
         """Get crafts data."""
-        return self.get_crafts_from_records()
+        crafts = cache.get("crafts")
+        if crafts is None:
+            crafts = self.get_crafts_from_records()
+            cache.set("crafts", crafts)
+
+        return crafts
+
+    def update_cache(self) -> None:
+        """Load crafts in cache."""
+        cache.set("crafts", self.get_crafts_from_records())
 
     def get_crafts_from_records(self) -> dict[int, dict]:
         """Load crafts from database."""

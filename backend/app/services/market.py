@@ -19,10 +19,18 @@ class MarketService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="prices")
     def prices(self) -> dict[int, dict]:
         """Get prices data."""
-        return self.get_prices_from_db()
+        prices = cache.get("prices")
+        if prices is None:
+            prices = self.get_prices_from_db()
+            cache.set("prices", prices)
+
+        return prices
+
+    def update_cache(self) -> None:
+        """Load prices in cache."""
+        cache.set("prices", self.get_prices_from_db())
 
     @staticmethod
     def get_prices_from_db() -> dict[int, dict]:

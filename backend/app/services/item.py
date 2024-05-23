@@ -1,6 +1,5 @@
+from functools import cached_property
 from xml.etree import ElementTree
-
-from flask import current_app
 
 from app.constants import (
     ENHANCE_MAP,
@@ -23,11 +22,19 @@ class ItemService(BaseService):
     def __init__(self) -> None:
         super().__init__()
 
-    @property
-    @cache.cached(key_prefix="items")
+    @cached_property
     def items(self) -> dict[int, dict]:
         """Get items data."""
-        return self.get_items_from_records()
+        items = cache.get("items")
+        if items is None:
+            items = self.get_items_from_records()
+            cache.set("items", items)
+
+        return items
+
+    def update_cache(self) -> None:
+        """Load items in cache."""
+        cache.set("items", self.get_items_from_records())
 
     def get_items_from_records(self) -> dict[int, dict]:
         """Get items from database."""
@@ -35,7 +42,6 @@ class ItemService(BaseService):
 
         items: dict = {}
         for record in records:
-            current_app.logger.debug("Loading item %d from database", record.type_id)
             item_node = ElementTree.fromstring(record.data)
             item = PixelStarshipsApi.parse_item_node(item_node)
 

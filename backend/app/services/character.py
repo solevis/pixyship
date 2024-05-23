@@ -21,10 +21,18 @@ class CharacterService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="characters")
     def characters(self) -> dict[int, dict]:
         """Get characters data."""
-        return self.get_characters_from_records()
+        characters = cache.get("characters")
+        if characters is None:
+            characters = self.get_characters_from_records()
+            cache.set("characters", characters)
+
+        return characters
+
+    def update_cache(self) -> None:
+        """Load characters in cache."""
+        cache.set("characters", self.get_characters_from_records())
 
     def get_characters_from_records(self) -> dict[int, dict]:
         """Load crews from database."""

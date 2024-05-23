@@ -14,10 +14,18 @@ class TrainingService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="trainings")
     def trainings(self) -> dict[int, dict]:
         """Get trainings data."""
-        return self.get_trainings_from_records()
+        trainings = cache.get("trainings")
+        if trainings is None:
+            trainings = self.get_trainings_from_records()
+            cache.set("trainings", trainings)
+
+        return trainings
+
+    def update_cache(self) -> None:
+        """Load trainings in cache."""
+        cache.set("trainings", self.get_trainings_from_records())
 
     def get_trainings_from_records(self) -> dict[int, dict]:
         """Load trainings from database."""

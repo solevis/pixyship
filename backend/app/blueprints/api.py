@@ -427,18 +427,6 @@ def api_time() -> Response:
     )
 
 
-@api_blueprint.route("/test-cache")
-@enforce_source
-@cache.cached(timeout=10)
-def api_test_cache() -> Response:
-    """Return the current time."""
-    return jsonify(
-        {
-            "current_time": time.time(),
-        },
-    )
-
-
 @api_blueprint.route("/<path:path>")
 @enforce_source
 def bad_api(path: str) -> Response:

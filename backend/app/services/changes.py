@@ -19,16 +19,29 @@ class ChangesService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="changes")
     def changes(self) -> list[dict]:
         """Get changes data."""
-        return self.get_changes_from_db()
+        changes = cache.get("changes")
+        if changes is None:
+            changes = self.get_changes_from_db()
+            cache.set("changes", changes)
+
+        return changes
 
     @cached_property
-    @cache.cached(key_prefix="last_prestiges_changes")
     def last_prestiges_changes(self) -> datetime | None:
         """Get last prestiges changes date."""
-        return self.get_last_prestiges_changes_from_db()
+        last_prestiges_changes = cache.get("last_prestiges_changes")
+        if last_prestiges_changes is None:
+            last_prestiges_changes = self.get_last_prestiges_changes_from_db()
+            cache.set("last_prestiges_changes", last_prestiges_changes)
+
+        return last_prestiges_changes
+
+    def update_cache(self) -> None:
+        """Load cache."""
+        cache.set("changes", self.get_changes_from_db())
+        cache.set("last_prestiges_changes", self.get_last_prestiges_changes_from_db())
 
     def get_changes_from_db(self) -> list[dict]:
         """Get changes from database."""

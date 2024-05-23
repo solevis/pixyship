@@ -14,10 +14,18 @@ class AchievementService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="achievements")
     def achievements(self) -> dict[int, dict]:
         """Get achievements data."""
-        return self.get_achievements_from_db()
+        achievements = cache.get("achievements")
+        if achievements is None:
+            achievements = self.get_achievements_from_db()
+            cache.set("achievements", achievements)
+
+        return achievements
+
+    def update_cache(self) -> None:
+        """Load achievements in cache."""
+        cache.set("achievements", self.get_achievements_from_db())
 
     def get_achievements_from_db(self) -> dict[int, dict]:
         """Load achievements from database."""

@@ -25,10 +25,18 @@ class CollectionService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="collections")
     def collections(self) -> dict[int, dict]:
         """Get collections data."""
-        return self.get_collections_from_records()
+        collections = cache.get("collections")
+        if collections is None:
+            collections = self.get_collections_from_records()
+            cache.set("collections", collections)
+
+        return collections
+
+    def update_cache(self) -> None:
+        """Load collections in cache."""
+        cache.set("collections", self.get_collections_from_records())
 
     def get_collections_from_records(self) -> dict[int, dict]:
         """Load collections from database."""

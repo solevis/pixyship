@@ -1,5 +1,6 @@
-from functools import cached_property
 from xml.etree import ElementTree
+
+from werkzeug.utils import cached_property
 
 from app.constants import RESEARCH_TYPE_MAP
 from app.enums import TypeEnum
@@ -15,10 +16,18 @@ class ResearchService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="researches")
     def researches(self) -> dict[int, dict]:
         """Get researches data."""
-        return self.get_researches_from_records()
+        researches = cache.get("researches")
+        if researches is None:
+            researches = self.get_researches_from_records()
+            cache.set("researches", researches)
+
+        return researches
+
+    def update_cache(self) -> None:
+        """Load researches in cache."""
+        cache.set("researches", self.get_researches_from_records())
 
     def get_researches_from_records(self) -> dict[int, dict]:
         """Load researches from database."""

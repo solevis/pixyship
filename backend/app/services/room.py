@@ -28,21 +28,30 @@ class RoomService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="rooms")
     def rooms(self) -> dict:
         """Get rooms data."""
-        (
-            rooms,
-            _,
-        ) = self.get_rooms_from_records()
+        rooms = cache.get("rooms")
+        if rooms is None:
+            rooms, _ = self.get_rooms_from_records()
+            cache.set("rooms", rooms)
+
         return rooms
 
     @cached_property
-    @cache.cached(key_prefix="rooms_by_name")
     def rooms_by_name(self) -> dict:
         """Get rooms data by name."""
-        _, rooms_by_name = self.get_rooms_from_records()
+        rooms_by_name = cache.get("rooms_by_name")
+        if rooms_by_name is None:
+            _, rooms_by_name = self.get_rooms_from_records()
+            cache.set("rooms_by_name", rooms_by_name)
+
         return rooms_by_name
+
+    def update_cache(self) -> None:
+        """Load rooms in cache."""
+        rooms, rooms_by_name = self.get_rooms_from_records()
+        cache.set("rooms", rooms)
+        cache.set("rooms_by_name", rooms_by_name)
 
     def get_rooms_from_records(self) -> tuple[dict, dict]:
         """Load rooms from database."""

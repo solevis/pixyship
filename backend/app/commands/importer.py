@@ -15,6 +15,7 @@ from app.ext.db import db
 from app.models import Alliance, DailySale, Listing, MarketMessage, Player
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.achievement import AchievementService
+from app.services.changes import ChangesService
 from app.services.character import CharacterService
 from app.services.collection import CollectionService
 from app.services.craft import CraftService
@@ -112,45 +113,62 @@ def import_assets() -> None:
     achievement_service = AchievementService()
     craft_service = CraftService()
     missile_service = MissileService()
+    changes_service = ChangesService()
 
     current_app.logger.info("Importing items...")
     item_service.update_items()
+    item_service.update_cache()
 
     current_app.logger.info("Importing characters...")
     character_service.update_characters()
+    character_service.update_cache()
 
     current_app.logger.info("Importing rooms...")
     room_service.update_rooms()
+    room_service.update_cache()
 
     current_app.logger.info("Importing ships...")
     ship_service.update_ships()
+    ship_service.update_cache()
 
     current_app.logger.info("Importing collections...")
     collection_service.update_collections()
+    collection_service.update_cache()
 
     current_app.logger.info("Importing researches...")
     research_service.update_researches()
+    research_service.update_cache()
 
     current_app.logger.info("Importing sprites...")
     sprite_service.update_sprites()
+    sprite_service.update_cache()
 
     current_app.logger.info("Importing skinsets...")
     skin_service.update_skinsets()
+    skin_service.update_cache()
 
     current_app.logger.info("Importing skins...")
     skin_service.update_skins()
+    skin_service.update_cache()
 
     current_app.logger.info("Importing trainings...")
     training_service.update_trainings()
+    training_service.update_cache()
 
     current_app.logger.info("Importing achievements...")
     achievement_service.update_achievements()
+    achievement_service.update_cache()
 
     current_app.logger.info("Importing crafts...")
     craft_service.update_crafts()
+    craft_service.update_cache()
 
     current_app.logger.info("Importing missiles...")
     missile_service.update_missiles()
+    missile_service.update_cache()
+
+    current_app.logger.info("Invalidating changes cache...")
+    changes_service.update_cache()
 
     current_app.logger.info("Done")
 
@@ -344,6 +362,7 @@ def save_daily_sale(daily_sale: DailySale) -> None:
 def import_market(one_item_only: bool, item_id: int | None) -> None:
     """Get last market sales and save them in database."""
     item_service = ItemService()
+    market_service = MarketService()
     pixel_starships_api = PixelStarshipsApi()
 
     if current_app.config["USE_STAGING_API"]:
@@ -373,7 +392,7 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
     for count, (current_item_id, current_item) in enumerate(saleable_items_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        sales = MarketService.get_sales_from_api(pixel_starships_api, current_item_id)
+        sales = market_service.get_sales_from_api(pixel_starships_api, current_item_id)
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(sales))
 
         for sale in sales:
@@ -401,6 +420,7 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
 
         api_sleep(3, force_sleep=True)
 
+    market_service.update_cache()
     current_app.logger.info("Done")
 
 

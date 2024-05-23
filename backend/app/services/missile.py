@@ -15,10 +15,18 @@ class MissileService(BaseService):
         self.pixel_starships_api = PixelStarshipsApi()
 
     @cached_property
-    @cache.cached(key_prefix="missiles")
     def missiles(self) -> dict[int, dict]:
         """Get missiles data."""
-        return self.get_missiles_from_records()
+        missiles = cache.get("missiles")
+        if missiles is None:
+            missiles = self.get_missiles_from_records()
+            cache.set("missiles", missiles)
+
+        return missiles
+
+    def update_cache(self) -> None:
+        """Load missiles in cache."""
+        cache.set("missiles", self.get_missiles_from_records())
 
     def get_missiles_from_records(self) -> dict[int, dict]:
         """Load missiles from database."""

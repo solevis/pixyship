@@ -17,16 +17,29 @@ class SkinService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="skins")
     def skins(self) -> dict[int, dict]:
         """Get skins data."""
-        return self.get_skins_from_records()
+        skins = cache.get("skins")
+        if skins is None:
+            skins = self.get_skins_from_records()
+            cache.set("skins", skins)
+
+        return skins
 
     @cached_property
-    @cache.cached(key_prefix="skinsets")
     def skinsets(self) -> dict[int, dict]:
         """Get skinsets data."""
-        return self.get_skinsets_from_db()
+        skinsets = cache.get("skinsets")
+        if skinsets is None:
+            skinsets = self.get_skinsets_from_db()
+            cache.set("skinsets", skinsets)
+
+        return skinsets
+
+    def update_cache(self) -> None:
+        """Load skins in cache."""
+        cache.set("skins", self.get_skins_from_records())
+        cache.set("skinsets", self.get_skinsets_from_db())
 
     def get_skins_from_records(self) -> dict[int, dict]:
         """Load skins from database."""

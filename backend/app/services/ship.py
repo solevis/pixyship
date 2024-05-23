@@ -17,10 +17,18 @@ class ShipService(BaseService):
         super().__init__()
 
     @cached_property
-    @cache.cached(key_prefix="ships")
     def ships(self) -> dict[int, dict]:
         """Get ships data."""
-        return self.get_ships_from_records()
+        ships = cache.get("ships")
+        if ships is None:
+            ships = self.get_ships_from_records()
+            cache.set("ships", ships)
+
+        return ships
+
+    def update_cache(self) -> None:
+        """Load ships in cache."""
+        cache.set("ships", self.get_ships_from_records())
 
     def get_ships_from_records(self) -> dict[int, dict]:
         """Load ships from database."""

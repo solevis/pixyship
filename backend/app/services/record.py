@@ -38,7 +38,7 @@ class RecordService(BaseService):
     @staticmethod
     def get_records_from_type(record_type: TypeEnum) -> list[Record]:
         """Get records from given PSS API type (LimitedCatalogType for example)."""
-        return Record.query.filter_by(current=True, type=record_type).all()
+        return Record.query.filter_by(current=True, type=record_type).order_by(Record.type_id).all()
 
     def get_record(self, record_type: TypeEnum, record_type_id: int, reload_on_error: bool = True) -> Record | None:
         """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
