@@ -48,12 +48,11 @@
           <td>{{ item.reload }}<br><span class="damage-dps">{{ `${item.reload / 40}s` }}</span></td>
           <td>{{ item.attack_distance }}</td>
           <td>{{ item.attack_range }}</td>
-          <td><span v-if="item.reload_modifier">{{ item.reload_modifier }}%</span></td>
-          <td>{{ item.craft_volley }}</td>
-          <td>{{ item.craft_volley_delay }}<br><span class="damage-dps">{{ `${item.craft_volley_delay / 40}s` }}</span></td>
-          <td>{{ item.hp }}</td>
           <td>{{ item.volley }}</td>
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
+          <td><span v-if="item.reload_modifier" :class="item.reload_modifier >= 0 ? 'positive' : 'negative'">{{ item.reload_modifier }}%</span></td>
+          <td>{{ item.hp }}</td>
+          <td>{{ item.aoe }}</td>
           <td>{{ item.system_damage }}<br><span class="damage-dps">{{ `${computeDps(item.system_damage, item)}/s` }}</span></td>
           <td>{{ item.hull_damage }}<br><span class="damage-dps">{{ `${computeDps(item.hull_damage, item)}/s` }}</span></td>
           <td>{{ item.character_damage }}<br><span class="damage-dps">{{ `${computeDps(item.character_damage, item)}/s` }}</span></td>
@@ -64,6 +63,8 @@
           <td>{{ item.emp_length }}<br><span class="damage-dps">{{ `${item.emp_length / 40}s` }}</span></td>
           <td>{{ item.craft_attack_type }}</td>
           <td>{{ item.craft_target_type }}</td>
+          <td>{{ item.craft_volley }}</td>
+          <td>{{ item.craft_volley_delay }}<br><span class="damage-dps">{{ `${item.craft_volley_delay / 40}s` }}</span></td>
         </tr>
       </template>
     </v-data-table>
@@ -142,21 +143,21 @@ export default {
           filterable: true
         },
         {
+          text: "Attack Volley",
+          align: "left",
+          value: "volley",
+          filterable: true
+        },
+        {
+          text: "Attack Delay",
+          align: "left",
+          value: "volley_delay",
+          filterable: true
+        },
+        {
           text: "Reload Speed",
           align: "left",
           value: "reload_modifier",
-          filterable: true
-        },
-        {
-          text: "Craft Volley",
-          align: "left",
-          value: "craft_volley",
-          filterable: true
-        },
-        {
-          text: "Craft Volley Delay",
-          align: "left",
-          value: "craft_volley_delay",
           filterable: true
         },
         {
@@ -166,15 +167,9 @@ export default {
           filterable: true
         },
         {
-          text: "Volley",
+          text: "AOE",
           align: "left",
-          value: "volley",
-          filterable: true
-        },
-        {
-          text: "Volley Delay",
-          align: "left",
-          value: "volley_delay",
+          value: "aoe",
           filterable: true
         },
         {
@@ -236,7 +231,19 @@ export default {
           align: "left",
           value: "craft_target_type",
           filterable: true
-        }
+        },
+        {
+          text: "Craft Volley",
+          align: "left",
+          value: "craft_volley",
+          filterable: true
+        },
+        {
+          text: "Craft Volley Delay",
+          align: "left",
+          value: "craft_volley_delay",
+          filterable: true
+        },
       ],
     }
   },
@@ -344,5 +351,13 @@ a.name {
 .damage-dps {
   font-size: 0.9em;
   color: #9e9e9e;
+}
+
+.positive {
+  color: #1be600;
+}
+
+.negative {
+  color: #f44336;
 }
 </style>
