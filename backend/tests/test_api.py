@@ -651,6 +651,7 @@ def test_crafts(app):
         assert "EMPLength" in craft["MissileDesign"]
         assert "StunLength" in craft["MissileDesign"]
         assert "HullPercentageDamage" in craft["MissileDesign"]
+        assert "ExplosionRadius" in craft["MissileDesign"]
 
 
 def test_missiles(app):
@@ -678,6 +679,7 @@ def test_missiles(app):
         assert "EMPLength" in missile["MissileDesign"]
         assert "StunLength" in missile["MissileDesign"]
         assert "HullPercentageDamage" in missile["MissileDesign"]
+        assert "ExplosionRadius" in missile["MissileDesign"]
 
 
 def test_skins(app):

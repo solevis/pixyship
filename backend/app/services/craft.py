@@ -41,7 +41,7 @@ class CraftService(BaseService):
                 "name": craft["CraftName"],
                 "flight_speed": int(craft["FlightSpeed"]),
                 "reload": int(craft["Reload"]),
-                "reload_modifier": int(craft["ReloadModifier"]) if "ReloadModifier" in craft else None,
+                "reload_modifier": int(craft["ReloadModifier"]) - 100 if "ReloadModifier" in craft else None,
                 "craft_volley": int(craft["Volley"]),
                 "craft_volley_delay": int(craft["VolleyDelay"]),
                 "attack_distance": int(craft["AttackDistance"]),
@@ -62,6 +62,7 @@ class CraftService(BaseService):
                 "emp_length": float(missile_design["EMPLength"]) if missile_design else 0,
                 "stun_length": float(missile_design["StunLength"]) if missile_design else 0,
                 "hull_percentage_damage": float(missile_design["HullPercentageDamage"]) if missile_design else 0,
+                "aoe": float(missile_design["ExplosionRadius"]) / 100 if missile_design else 0,
             }
 
         return crafts
