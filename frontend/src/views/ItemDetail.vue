@@ -177,7 +177,8 @@
 
                           <template v-else-if="content_item.type === 'skin'">
                             <a :href="makeLink(content_item.type, content_item.id)">
-                              <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                              <div v-if="content_item.data.sprite" class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                              <template v-else>Skin</template>
                             </a>
                           </template>
                         </td>
@@ -318,7 +319,8 @@
                   </template>
 
                   <template v-else-if="content_item.type === 'skin'">
-                    <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                    <div v-if="content_item.data.sprite" class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                    <template v-else>Skin</template>
                     <div class="d-inline-block middle">x{{ content_item.count }}</div>
                   </template>
                 </li>
