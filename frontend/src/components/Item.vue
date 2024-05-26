@@ -154,7 +154,8 @@
                 </template>
 
                 <template v-else-if="content_item.type === 'skin'">
-                  <div class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                  <div v-if="content_item.data.sprite" class="d-inline-block middle mr-1" :style="spriteStyle(content_item.data.sprite)"></div>
+                  <template v-else>Skin</template>
                 </template>
 
                 <div class="d-inline-block middle">x{{ content_item.count }}</div>
