@@ -118,6 +118,9 @@ def parse_requirement(requirement_string: str) -> dict | None:
 
     requirement_type = requirement_type.strip().capitalize()
     type_ = get_type_enum_from_string(requirement_type)
+    if type_ is None:
+        return None
+
     id_ = int(requirement_id.strip())
     count = int(requirement_count.strip())
 

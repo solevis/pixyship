@@ -124,7 +124,11 @@ class ShipService(BaseService):
         requirements_string = html.unescape(requirements_string)
         unparsed_requirements = requirements_string.split("&&")
 
-        return [self.parse_requirement(unparsed_requirement.strip()) for unparsed_requirement in unparsed_requirements]
+        return [
+            parsed
+            for unparsed_requirement in unparsed_requirements
+            if (parsed := self.parse_requirement(unparsed_requirement.strip())) is not None
+        ]
 
     def update_ships(self) -> None:
         """Get ships from API and save them in database."""
