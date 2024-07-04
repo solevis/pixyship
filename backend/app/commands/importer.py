@@ -115,6 +115,10 @@ def import_assets() -> None:
     missile_service = MissileService()
     changes_service = ChangesService()
 
+    current_app.logger.info("Importing sprites...")
+    sprite_service.update_sprites()
+    sprite_service.update_cache()
+
     current_app.logger.info("Importing items...")
     item_service.update_items()
     item_service.update_cache()
@@ -138,10 +142,6 @@ def import_assets() -> None:
     current_app.logger.info("Importing researches...")
     research_service.update_researches()
     research_service.update_cache()
-
-    current_app.logger.info("Importing sprites...")
-    sprite_service.update_sprites()
-    sprite_service.update_cache()
 
     current_app.logger.info("Importing skinsets...")
     skin_service.update_skinsets()
