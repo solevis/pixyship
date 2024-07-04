@@ -62,7 +62,7 @@ class CraftService(BaseService):
                 "emp_length": float(missile_design["EMPLength"]) if missile_design else 0,
                 "stun_length": float(missile_design["StunLength"]) if missile_design else 0,
                 "hull_percentage_damage": float(missile_design["HullPercentageDamage"]) if missile_design else 0,
-                "aoe": float(missile_design["ExplosionRadius"]) - 100 if missile_design else 0,
+                "aoe": float(missile_design["ExplosionRadius"]) / 100 if missile_design else None,
             }
 
         return crafts

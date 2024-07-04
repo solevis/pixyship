@@ -52,7 +52,7 @@
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
           <td><span v-if="item.reload_modifier" :class="item.reload_modifier >= 0 ? 'positive' : 'negative'">{{ item.reload_modifier }}%</span></td>
           <td>{{ item.hp }}</td>
-          <td>{{ item.aoe }}</td>
+          <td>{{ item.aoe ? item.aoe : '' }}</td>
           <td>{{ item.system_damage }}<br><span class="damage-dps">{{ `${computeDps(item.system_damage, item)}/s` }}</span></td>
           <td>{{ item.hull_damage }}<br><span class="damage-dps">{{ `${computeDps(item.hull_damage, item)}/s` }}</span></td>
           <td>{{ item.character_damage }}<br><span class="damage-dps">{{ `${computeDps(item.character_damage, item)}/s` }}</span></td>
