@@ -178,9 +178,15 @@ def api_prestige(char_id: int) -> Response:
     except KeyError:
         flask.abort(404)
 
+    collection_service = CollectionService()
+    if character["collection"]:
+        character["collection_sprite"] = collection_service.collections[character["collection"]]["icon_sprite"]
+        character["collection_name"] = collection_service.collections[character["collection"]]["name"]
+
     prestige_service = PrestigeService()
     return jsonify(
         {
+            "character": character,
             "data": prestige_service.get_prestiges_from_api(character["id"]),
             "status": "success",
             "current_time": time.time(),
