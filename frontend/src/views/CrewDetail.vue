@@ -518,7 +518,6 @@ export default {
       crewId: this.$route.params.id,
       characters: [],
       character: {},
-      data: {},
       from: [],
       to: [],
       level: 40,
@@ -622,19 +621,10 @@ export default {
     getCrew: async function () {
       const response = await axios.get(this.prestigeEndpoint + this.crewId)
 
-      // TODO: This is ugly, fix it
-      let characters = {}
-      for (let character of response.data.data.chars) {
-        characters[character.id] = character
-      }
-
-      this.characters = characters
-      this.data = response.data.data
-
-      this.from = this.data.from
-      this.to = this.data.to
-
-      this.character = this.characters[this.crewId]
+      this.characters = Object.fromEntries(response.data.data.chars.map(character => [character.id, character]))
+      this.from = response.data.data.from
+      this.to = response.data.data.to
+      this.character = response.data.character
 
       this.loaded = true
       this.updateCurrentLevel()
