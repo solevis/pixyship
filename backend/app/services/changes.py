@@ -55,7 +55,8 @@ class ChangesService(BaseService):
                            '{TypeEnum.ROOM}',
                            '{TypeEnum.SPRITE}',
                            '{TypeEnum.CRAFT}',
-                           '{TypeEnum.SKINSET}'
+                           '{TypeEnum.SKINSET}',
+                           '{TypeEnum.COLLECTION}'
                 )
             GROUP BY type
         """
