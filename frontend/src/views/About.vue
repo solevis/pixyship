@@ -107,7 +107,7 @@ export default {
     return {
       mainDeveloper: "Solevis",
       mainDeveloperEmail: "contact@pixyship.com",
-      contributors: "Bril, The worst.",
+      contributors: "Bril, The worst., Stex Ghost, Xeon",
       donationUrl: this.$root.config.donationUrl,
       discordUrl: this.$root.config.discordUrl,
       githubUrl: this.$root.config.githubUrl,
