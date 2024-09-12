@@ -55,6 +55,7 @@
           <td><span v-if="item.reload_modifier">{{ item.reload_modifier }}%</span></td>
           <td>{{ item.volley }}</td>
           <td>{{ item.volley_delay }}<br><span class="damage-dps">{{ `${item.volley_delay / 40}s` }}</span></td>
+          <td>{{ item.aoe ? item.aoe : '' }}</td>
           <td>{{ item.system_damage }}</td>
           <td>{{ item.hull_damage }}</td>
           <td>{{ item.character_damage }}</td>
@@ -146,6 +147,12 @@ export default {
           text: "Volley Delay",
           align: "left",
           value: "volley_delay",
+          filterable: true
+        },
+        {
+          text: "AOE",
+          align: "left",
+          value: "aoe",
           filterable: true
         },
         {

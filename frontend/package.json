@@ -4,8 +4,6 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-staging": "vue-cli-service build --mode staging",
-    "build-beta": "vue-cli-service build --mode beta",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

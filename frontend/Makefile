@@ -8,8 +8,8 @@ export NODE_OPTIONS:= --openssl-legacy-provider
 
 .PHONY: build
 build:
-	@npx update-browserslist-db@latest
-	@npm run build
+	@docker compose exec frontend npx update-browserslist-db@latest
+	@docker compose exec frontend npm run build
 
 .PHONY: deploy
 rsync:
@@ -33,8 +33,8 @@ rsync-beta:
 deploy-beta: build rsync-beta
 
 .PHONY: deploy-all
-deploy-all: deploy rsync-staging rsync-beta
+deploy-all: build rsync rsync-staging rsync-beta
 
 .PHONY: update-browsers
 update-browsers:
-	@npx browserslist@latest --update-db
+	@docker compose exec frontend npx browserslist@latest --update-db
