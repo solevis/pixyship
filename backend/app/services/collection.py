@@ -298,11 +298,12 @@ class CollectionService(BaseService):
     @staticmethod
     def handle_reduce_crew_status_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
         """Handle ReduceCrewStatusSkill ability."""
-        duration_seconds = base_enhancement_value / FRAME_SIZE
         if argument == 1:
-            return f"{base_chance}% chance to reduce any freeze status duration on the crew by {duration_seconds:.1f} seconds."
+            return (
+                f"{base_chance}% chance to reduce any freeze status duration on the crew by {base_enhancement_value}%."
+            )
 
-        return f"{base_chance}% chance to reduce all negative status effects' duration on the crew by {duration_seconds:.1f} seconds."
+        return f"{base_chance}% chance to reduce all negative status effects' duration on the crew by {base_enhancement_value}%."
 
     @staticmethod
     def handle_reduce_room_status_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
