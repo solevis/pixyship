@@ -3,7 +3,7 @@ import hashlib
 import random
 import re
 from urllib.parse import urljoin, urlparse
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
 
 import requests
@@ -101,7 +101,7 @@ class PixelStarshipsApi:
         """Fetch settings from the given URL."""
         endpoint = urljoin(url, "SettingService/GetLatestVersion3")
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
         setting_element = root.find(".//Setting")
 
         if setting_element is None:
@@ -221,7 +221,7 @@ class PixelStarshipsApi:
         endpoint = f"https://{self.server}/UserService/DeviceLogin11"
         response = requests.post(endpoint, params=params)
 
-        root = ElementTree.fromstring(response.content.decode("utf-8"))
+        root = ET.fromstring(response.content.decode("utf-8"))
         user_login_node = root.find(".//UserLogin")
 
         if user_login_node is None:
@@ -240,7 +240,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/ShipService/InspectShip2"
         response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         inspect_ship: dict = {
             "User": root.find(".//User").attrib.copy(),
@@ -269,7 +269,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/PublicService/GetShipDetails"
         response = self.call(endpoint, params=params, need_token=True)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         ship_node: Element = root.find(".//Ship")
         ship: dict = ship_node.attrib.copy()
@@ -290,7 +290,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/PublicService/GetShipRoomDetails"
         response = self.call(endpoint, params=params, need_token=True)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         ship_room_details_node = root.find(".//Rooms")
         ship_room_details = []
@@ -310,7 +310,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/UserService/SearchUsers"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         users = []
 
@@ -343,7 +343,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/LiveOpsService/GetTodayLiveOps2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         dailies_node = root.find(".//LiveOps")
 
@@ -362,7 +362,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/FileService/ListSprites"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         sprites = []
         sprite_nodes = root.find(".//Sprites")
@@ -386,7 +386,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/RoomDesignSpriteService/ListRoomDesignSprites"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         rooms_sprites = []
         room_sprites_nodes = root.find(".//RoomDesignSprites")
@@ -413,7 +413,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/UserService/ListSkinsets2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         skinsets = []
         skinset_nodes = root.find(".//SkinSets")
@@ -436,7 +436,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/UserService/ListSkins2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         skins = []
         skin_nodes = root.find(".//Skins")
@@ -469,7 +469,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/ShipService/ListAllShipDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         ships = []
         ship_nodes = root.find(".//ShipDesigns")
@@ -496,7 +496,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/ResearchService/ListAllResearchDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         researches = []
         research_nodes = root.find(".//ResearchDesigns")
@@ -526,7 +526,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/RoomService/ListRoomDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         rooms = []
         room_nodes = root.find(".//RoomDesigns")
@@ -577,7 +577,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/RoomService/ListMissileDesigns"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         missile_designs = []
         missile_design_nodes = root.find(".//MissileDesigns")
@@ -611,7 +611,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/RoomService/ListCraftDesigns"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         crafts = []
         craft_nodes = root.find(".//CraftDesigns")
@@ -679,7 +679,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/ItemService/ListItemDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         missiles = []
         item_nodes = root.find(".//ItemDesigns")
@@ -744,7 +744,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/RoomService/ListRoomDesignPurchase"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         rooms_purchase = []
         room_purchase_nodes = root.find(".//RoomDesignPurchases")
@@ -774,7 +774,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/CharacterService/ListAllCharacterDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         characters = []
         character_nodes = root.find(".//CharacterDesigns")
@@ -812,7 +812,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/CollectionService/ListAllCollectionDesigns"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         collections = []
         collection_nodes = root.find(".//CollectionDesigns")
@@ -839,7 +839,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/ItemService/ListItemDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         items = []
         item_nodes = root.find(".//ItemDesigns")
@@ -866,7 +866,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/AllianceService/ListAlliancesByRanking"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         alliances = []
         alliance_nodes = root.find(".//Alliances")
@@ -922,7 +922,7 @@ class PixelStarshipsApi:
                 api_sleep(30, force_sleep=True)
                 continue
 
-            root = ElementTree.fromstring(response.text)
+            root = ET.fromstring(response.text)
 
             # parse HTTP body as XML and find sales nodes
             sale_nodes = root.find(".//Sales")
@@ -1002,7 +1002,7 @@ class PixelStarshipsApi:
 
             return []
 
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         # parse HTTP body as XML and find market_messages nodes
         market_messsage_nodes = root.find(".//Messages")
@@ -1031,7 +1031,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/AllianceService/ListUsers"
         response = self.call(endpoint, params=params, need_token=True)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         users = []
         user_nodes = root.find(".//Users")
@@ -1050,7 +1050,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/LadderService/ListUsersByRanking"
         response = self.call(endpoint, params=params, need_token=True)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         users = []
         user_nodes = root.find(".//Users")
@@ -1069,7 +1069,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/CharacterService/PrestigeCharacterTo"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         prestiges = []
         prestige_nodes = root.find(".//Prestiges")
@@ -1090,7 +1090,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/CharacterService/PrestigeCharacterFrom"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         prestiges = []
         prestige_nodes = root.find(".//Prestiges")
@@ -1142,7 +1142,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/TrainingService/ListAllTrainingDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         trainings = []
         training_nodes = root.find(".//TrainingDesigns")
@@ -1170,7 +1170,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/AchievementService/ListAchievementDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         achievements = []
         achievement_nodes = root.find(".//AchievementDesigns")
@@ -1198,7 +1198,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/SituationService/ListSituationDesigns"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         situations = []
         situation_nodes = root.find(".//SituationDesigns")
@@ -1226,7 +1226,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/PromotionService/ListAllPromotionDesigns2"
         response = self.call(endpoint, params=params)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         promotions = []
         promotion_nodes = root.find(".//PromotionDesigns")
@@ -1251,7 +1251,7 @@ class PixelStarshipsApi:
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/GalaxyService/ListStarSystemMarkers"
         response = self.call(endpoint, params=params, need_token=True)
-        root = ElementTree.fromstring(response.text)
+        root = ET.fromstring(response.text)
 
         markers = []
         markers_nodes = root.find(".//StarSystemMarkers")

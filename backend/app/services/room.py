@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.constants import (
     CAPACITY_RATIO_MAP,
@@ -59,7 +59,7 @@ class RoomService(BaseService):
 
         rooms = {}
         for record in records:
-            room = PixelStarshipsApi.parse_room_node(ElementTree.fromstring(record.data))
+            room = PixelStarshipsApi.parse_room_node(ET.fromstring(record.data))
             missile_design = room["MissileDesign"]
 
             room_price, room_price_currency = parse_price_from_pricestring(room["PriceString"])

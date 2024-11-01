@@ -1,5 +1,5 @@
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.enums import TypeEnum
 from app.ext import cache
@@ -35,7 +35,7 @@ class AchievementService(BaseService):
         all_parent_achievement_design_id = []
 
         for record in records:
-            achievement = PixelStarshipsApi.parse_achievement_node(ElementTree.fromstring(record.data))
+            achievement = PixelStarshipsApi.parse_achievement_node(ET.fromstring(record.data))
 
             starbux_reward = 0
             mineral_reward = 0

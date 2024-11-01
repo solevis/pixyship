@@ -1,6 +1,6 @@
 import hashlib
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
 
 from flask import current_app
@@ -80,14 +80,14 @@ class RecordService(BaseService):
             sort_attributes(raw_data)
 
             # data to be stored in database
-            data: str = ElementTree.tostring(raw_data).decode()
+            data: str = ET.tostring(raw_data).decode()
 
             # ignore some fields for hashing
             for i in ignore_list:
                 raw_data.attrib.pop(i, None)
 
             # hash
-            md5_str = ElementTree.tostring(raw_data).decode().replace("\n", " ")
+            md5_str = ET.tostring(raw_data).decode().replace("\n", " ")
         else:
             data = raw_data
             md5_str = data

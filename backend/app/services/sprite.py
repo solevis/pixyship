@@ -1,5 +1,5 @@
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.enums import TypeEnum
 from app.ext import cache
@@ -49,7 +49,7 @@ class SpriteService(BaseService):
 
         sprites = {}
         for record in records:
-            sprite = PixelStarshipsApi.parse_sprite_node(ElementTree.fromstring(record.data))
+            sprite = PixelStarshipsApi.parse_sprite_node(ET.fromstring(record.data))
 
             sprites[record.type_id] = {
                 "image_file": int(sprite["ImageFileId"]),

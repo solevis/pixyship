@@ -1,5 +1,5 @@
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.enums import TypeEnum
 from app.ext import cache
@@ -33,7 +33,7 @@ class CraftService(BaseService):
 
         crafts = {}
         for record in records:
-            craft = PixelStarshipsApi.parse_craft_node(ElementTree.fromstring(record.data))
+            craft = PixelStarshipsApi.parse_craft_node(ET.fromstring(record.data))
             missile_design = craft["MissileDesign"]
 
             crafts[record.type_id] = {
