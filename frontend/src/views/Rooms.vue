@@ -127,6 +127,12 @@
 
               <td>{{ item.level }}</td>
               <td>{{ item.min_ship_level }}</td>
+
+              <td>
+                <div v-show="item.hp > 0">
+                  {{ item.hp }}
+                </div>
+              </td>
               
               <td>
                 <div :class="formatPowerStyleClass(item)">
@@ -492,8 +498,14 @@ export default {
             return this.filterCombobox(value.toString(), this.searchShipLevel)
           },
         },
+        {
+          text: "HP",
+          align: "center",
+          value: "hp",
+          filterable: false
+        },
         { 
-          text: "(+/-)Power/HP",
+          text: "(+/-)Power",
           align: "center",
           value: "power_diff",
           filterable: false 
