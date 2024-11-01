@@ -97,9 +97,10 @@ class RoomService(BaseService):
                 "construction_sprite": self.sprite_service.get_sprite_infos(int(room["ConstructionSpriteId"])),
                 "power_use": int(room["MaxSystemPower"]),
                 "power_gen": int(room["MaxPowerGenerated"]),
-                "power_diff": int(room["MaxSystemPower"])
+                "power_diff": 0
                 if not_powered
                 else int(room["MaxPowerGenerated"]) - int(room["MaxSystemPower"]),
+                "hp": int(room["MaxSystemPower"]),
                 "min_ship_level": int(room["MinShipLevel"]),
                 "upgrade_from_id": int(room["UpgradeFromRoomDesignId"]),
                 "defense": int(room["DefaultDefenceBonus"]),
