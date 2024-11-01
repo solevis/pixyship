@@ -1,5 +1,5 @@
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.constants import (
     ENHANCE_MAP,
@@ -42,7 +42,7 @@ class ItemService(BaseService):
 
         items: dict = {}
         for record in records:
-            item_node = ElementTree.fromstring(record.data)
+            item_node = ET.fromstring(record.data)
             item = PixelStarshipsApi.parse_item_node(item_node)
 
             number_of_rewards = 0

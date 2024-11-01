@@ -29,10 +29,7 @@ def has_offstat(
     if item_rarity_order < RARITY_MAP["Hero"]:
         return False
 
-    if item_disp_enhancement is None and item_bonus == 0.0:
-        return False
-
-    return True
+    return not (item_disp_enhancement is None and item_bonus == 0.0)
 
 
 def get_type_enum_from_string(type_string: str) -> TypeEnum | None:

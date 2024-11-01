@@ -1,7 +1,7 @@
 import html
 import time
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.enums import TypeEnum
 from app.ext import cache
@@ -36,7 +36,7 @@ class ShipService(BaseService):
 
         ships = {}
         for record in records:
-            ship = PixelStarshipsApi.parse_ship_node(ElementTree.fromstring(record.data))
+            ship = PixelStarshipsApi.parse_ship_node(ET.fromstring(record.data))
             starbux_cost, mineral_cost, points_cost, items_cost = self.parse_ship_unlock_costs(
                 ship["MineralCost"],
                 ship["StarbuxCost"],

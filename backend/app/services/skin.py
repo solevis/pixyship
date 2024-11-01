@@ -1,5 +1,5 @@
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.constants import (
     RACES,
@@ -48,7 +48,7 @@ class SkinService(BaseService):
 
         # for each skin, find the skinset and add name and description
         for skin_record in skin_records:
-            skin = PixelStarshipsApi.parse_skin_node(ElementTree.fromstring(skin_record.data))
+            skin = PixelStarshipsApi.parse_skin_node(ET.fromstring(skin_record.data))
             skinset_id = int(skin["SkinSetId"])
 
             # if skinset is not in the skinsets, skip
@@ -80,7 +80,7 @@ class SkinService(BaseService):
 
         # retrieve all skinsets
         for skinset_record in skinset_records:
-            skinset = PixelStarshipsApi.parse_skinset_node(ElementTree.fromstring(skinset_record.data))
+            skinset = PixelStarshipsApi.parse_skinset_node(ET.fromstring(skinset_record.data))
 
             skinsets[skinset_record.type_id] = {
                 "id": int(skinset["SkinSetId"]),

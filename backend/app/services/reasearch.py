@@ -1,4 +1,4 @@
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from werkzeug.utils import cached_property
 
@@ -35,7 +35,7 @@ class ResearchService(BaseService):
 
         researches = {}
         for record in records:
-            research = PixelStarshipsApi.parse_research_node(ElementTree.fromstring(record.data))
+            research = PixelStarshipsApi.parse_research_node(ET.fromstring(record.data))
             researches[record.type_id] = {
                 **research,
                 "id": record.type_id,

@@ -1,5 +1,5 @@
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from app.constants import (
     ABILITY_NAME_MAP,
@@ -40,7 +40,7 @@ class CharacterService(BaseService):
 
         characters = {}
         for record in records:
-            character_node = ElementTree.fromstring(record.data)
+            character_node = ET.fromstring(record.data)
             character = PixelStarshipsApi.parse_character_node(character_node)
 
             characters[record.type_id] = {

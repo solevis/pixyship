@@ -6,6 +6,8 @@
 #   features: []
 #   all-features: false
 #   with-sources: false
+#   generate-hashes: false
+#   universal: false
 
 alembic==1.13.1
     # via flask-migrate

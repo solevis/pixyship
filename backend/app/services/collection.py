@@ -1,5 +1,5 @@
 from functools import cached_property
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from flask import current_app
 
@@ -44,7 +44,7 @@ class CollectionService(BaseService):
 
         collections = {}
         for record in records:
-            collection_node = ElementTree.fromstring(record.data)
+            collection_node = ET.fromstring(record.data)
             collection = PixelStarshipsApi.parse_collection_node(collection_node)
 
             max_use = int(collection["MaxUse"])
