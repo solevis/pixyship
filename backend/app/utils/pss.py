@@ -103,7 +103,7 @@ def parse_requirement(requirement_string: str) -> dict | None:
         return None
 
     splits = requirement_string.split(":")
-    if len(splits) < 2:
+    if len(splits) != 2:
         return None
 
     requirement_type, id_and_amount = splits
