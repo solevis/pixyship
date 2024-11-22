@@ -8,7 +8,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system};
       in {
-        devShell = pkgs.mkShell { buildInputs = [ pkgs.rye ]; };
+        devShell = pkgs.mkShell { buildInputs = [ pkgs.rye pkgs.pre-commit ]; };
       }
     );
 }

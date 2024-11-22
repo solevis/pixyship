@@ -334,10 +334,10 @@ export default {
       level: null,
       showScoreStat: true,
       headers: [
-        { 
-          text: "Order by ID", 
+        {
+          text: "Order by ID",
           align: "start",
-          value: "id",           
+          value: "id",
           filter: value => {
             const query = this.$route.query
 
@@ -354,59 +354,59 @@ export default {
                 return parseInt(id.trim())
               })
             }
-            
+
             return ids.includes(value)
           }
         },
-        { 
-          text: "Name", 
-          align: "start",          
+        {
+          text: "Name",
+          align: "start",
           value: "name",
           filterable: true
         },
         {
           text: "Equip",
-          align: "start",          
+          align: "start",
           value: "equipment",
           sort: (a, b) => {
             let joinedA = Object.values(a).join('')
             let joinedB = Object.values(b).join('')
             return joinedA.localeCompare(joinedB)
           },
-          filter: value => { 
+          filter: value => {
             return this.filterCombobox(Object.values(value).toString(), this.searchEquipment, true)
           }
         },
-        { 
-          text: "Rarity", 
-          align: "start",          
-          value: "rarity", 
-          filter: value => { 
+        {
+          text: "Rarity",
+          align: "start",
+          value: "rarity",
+          filter: value => {
             return this.filterCombobox(value, this.searchRarity)
           },
           sort: this.sortRarity,
         },
-        { 
-          text: "Special", 
+        {
+          text: "Special",
           align: "center",
-          value: "special_ability", 
-          filter: value => { 
+          value: "special_ability",
+          filter: value => {
             return this.filterCombobox(value, this.searchSpecial)
-          } 
+          }
         },
-        { 
-          text: "Set", 
+        {
+          text: "Set",
           align: "center",
-          value: "collection_name", 
-          filter: value => { 
+          value: "collection_name",
+          filter: value => {
             return this.filterCombobox(value, this.searchCollection)
           }
         },
-        { 
-          text: "HP", 
+        {
+          text: "HP",
           align: "center",
-          value: "hp[2]", 
-          filterable: false 
+          value: "hp[2]",
+          filterable: false
         },
         {
           text: "ATK",
@@ -462,16 +462,16 @@ export default {
           value: "training_limit",
           filterable: false,
         },
-        { 
+        {
           text: "Walk",
           align: "center",
-          value: "walk", 
+          value: "walk",
           filterable: false
         },
-        { 
+        {
           text: "Run",
           align: "center",
-          value: "run", 
+          value: "run",
           filterable: false
         },
       ],
@@ -483,7 +483,7 @@ export default {
       return !this.loaded
     },
     pendingFilter: function () {
-      return this.searchName 
+      return this.searchName
         || this.searchSpecial.length > 0
         || this.searchRarity.length > 0
         || this.searchCollection.length > 0

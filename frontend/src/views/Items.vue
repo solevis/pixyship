@@ -352,10 +352,10 @@ export default {
       loaded: false,
       items: [],
       headers: [
-        { 
-          text: "Order by ID", 
+        {
+          text: "Order by ID",
           align: "start",
-          value: "id",           
+          value: "id",
           filter: value => {
             const query = this.$route.query
 
@@ -372,19 +372,19 @@ export default {
                 return parseInt(id.trim())
               })
             }
-            
+
             return ids.includes(value)
-          } 
+          }
         },
-        { 
-          text: "Name", 
-          align: "center", 
-          value: "name", 
-          filterable: true 
+        {
+          text: "Name",
+          align: "center",
+          value: "name",
+          filterable: true
         },
         {
           text: "Rarity",
-          align: "center",          
+          align: "center",
           value: "rarity",
           filter: (value) => {
             return this.filterCombobox(value, this.searchRarity)
@@ -393,20 +393,20 @@ export default {
         },
         {
           text: "Savy Price",
-          align: "center",          
+          align: "center",
           value: "market_price",
           filterable: false,
         },
         {
           text: "Market Prices (48h)",
-          align: "center",          
+          align: "center",
           value: "offers",
           filterable: false,
           width: 210,
         },
         {
           text: "Type/Subtype",
-          align: "center",          
+          align: "center",
           value: "typesubtype",
           sortable: true,
           filter: (value, search, item) => {
@@ -427,7 +427,7 @@ export default {
         },
         {
           text: "Bonus",
-          align: "center",          
+          align: "center",
           value: "bonus",
           filter: (value, search, item) => {
             let searchValue = item.disp_enhancement
@@ -440,7 +440,7 @@ export default {
         },
         {
           text: "Training",
-          align: "center",          
+          align: "center",
           value: "mainTrainingStatValue",
           width: 175,
           filter: (value, search, item) => {
@@ -460,7 +460,7 @@ export default {
         },
         {
           text: "Recipe",
-          align: "center",          
+          align: "center",
           value: "recipe",
           filterable: false,
           sort: (a, b) => {
@@ -501,7 +501,7 @@ export default {
       return !this.loaded
     },
     pendingFilter: function () {
-      return this.searchName 
+      return this.searchName
         || this.searchRarity.length > 0
         || this.searchSlot.length > 0
         || this.searchType.length > 0
@@ -695,7 +695,7 @@ export default {
       this.types = Array.from(
         new Set(this.items.map((item) => (!item.type ? "None" : item.type)))
       ).sort(this.sortAlphabeticallyExceptNone)
-      
+
       this.rarities = Array.from(
         new Set(
           this.items.map(

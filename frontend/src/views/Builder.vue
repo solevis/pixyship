@@ -111,17 +111,17 @@
     <div id="ship" v-if="loaded">
       <svg class="mb-5" v-if="selectedShip" :height="selectedShip.interior_sprite.height" :width="selectedShip.interior_sprite.width" v-on:dragover="allowDrop" v-on:drop="shipOnDrop" v-on:dragleave.self="removeDragRoom">
         <!-- Ship interior -->
-        <image 
-          :xlink:href="getSpriteUrl(selectedShip.interior_sprite)" 
-          x="0" y="0" 
-          :height="selectedShip.interior_sprite.height" 
-          :width="selectedShip.interior_sprite.width" 
+        <image
+          :xlink:href="getSpriteUrl(selectedShip.interior_sprite)"
+          x="0" y="0"
+          :height="selectedShip.interior_sprite.height"
+          :width="selectedShip.interior_sprite.width"
         />
 
         <!-- Outer Grid -->
         <!-- <template v-for="r in (selectedShip.rows)" >
           <template v-for="c in (selectedShip.columns)" >
-            <rect 
+            <rect
               :key="'outergrid-' + r + '-' + c"
               v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] == '0'" :x="25 * c - 25" :y="25 * r - 25"
               width="25" height="25" stroke="#fff" stroke-opacity="0.1" fill-opacity="0%">
@@ -132,7 +132,7 @@
         <!-- Ship Grid -->
         <template v-for="r in selectedShip.rows" >
           <template v-for="c in selectedShip.columns" >
-            <rect 
+            <rect
               :key="'grid-' + r + '-' + c"
               v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '1'" :x="25 * c - 25" :y="25 * r - 25"
               width="25" height="25" stroke="#fff" fill="#0004">
@@ -142,7 +142,7 @@
 
         <template v-for="r in selectedShip.rows" >
           <template v-for="c in selectedShip.columns" >
-            <rect 
+            <rect
               :key="'grid-' + r + '-' + c"
               v-if="selectedShip.mask[selectedShip.columns * (r-1) + (c-1)] === '2'" :x="25 * c - 25" :y="25 * r - 25"
               width="25" height="25" stroke="#ff8000" fill="#0004">
@@ -173,7 +173,7 @@
           <svg :x="`${r.x * 25}px`" :y="`${r.y * 25}px`"
             :viewbox="`${r.room.sprite.x} ${r.room.sprite.y} ${r.room.sprite.width} ${r.room.sprite.height}`"
             :width="`${r.room.sprite.width}px`" :height="`${r.room.sprite.height}px`">
-            
+
             <!-- Room sprite -->
             <foreignObject class="room" width="125" height="75">
               <body xmlns="http://www.w3.org/1999/xhtml">
@@ -184,7 +184,7 @@
                   :data-roomid="r.roomId"
                   :data-x="r.x"
                   :data-y="r.y"
-                  :x="r.x*25" 
+                  :x="r.x*25"
                   :y="r.y*25"
                   >
                 </div>
@@ -222,7 +222,7 @@
     <!-- Stats -->
     <v-row class="pb-15" justify="center" v-if="loaded">
         <v-col cols="12" sm="12" md="10">
-          <v-card 
+          <v-card
             v-if="selectedShip"
             outlined
             shaped
@@ -341,7 +341,7 @@
           </v-card>
         </v-col>
     </v-row>
-    
+
   </v-card>
 </template>
 
@@ -657,7 +657,7 @@ export default {
       this.armor = this.shipRooms
         .map(location => location.room.type === 'Armor' ? location.room.capacity : 0)
         .reduce((a, s) => a + s, 0)
-      
+
       if (this.selectedShip) {
         this.mineralCapacity = Number(this.selectedShip.mineral_capacity) + this.shipRooms
           .map(location => location.room.type === 'Storage' && location.room.manufacture_type === 'Mineral' ? location.room.capacity : 0)
@@ -723,7 +723,7 @@ export default {
 
     getArmor (x, y) {
       const location = this.shipRooms.filter(location => location.x === x && location.y === y)
-      
+
       if (location.length > 0) {
         if (location[0].room.type === 'Armor') {
           return location[0].room.capacity
@@ -742,7 +742,7 @@ export default {
         this.undropLoc = null
         this.swapLoc = null
         event.preventDefault()
-      } 
+      }
       // else if (this.isOccupied(x, y, this.draggedRoom)) {
       //   this.dropLoc = null
       //   this.undropLoc = null
@@ -772,7 +772,7 @@ export default {
       } catch (error) {
         // nothing
       }
-      
+
       const id = parseInt(event.target.dataset.roomid)
       this.draggedRoom = this.rooms[id]
     },
@@ -811,7 +811,7 @@ export default {
     addToRecentRooms (newRoom) {
       // check that room isn't already in the list
       const matchCount = this.recentRooms.filter(recentRoom => recentRoom.id === newRoom.id).length
-      
+
       if (!matchCount) {
         this.recentRooms.push(newRoom)
       }
@@ -822,7 +822,7 @@ export default {
     removeRoom () {
       if (!this.toRemove) {
         return
-      } 
+      }
 
       const x = this.toRemove.dataset.x
       const y = this.toRemove.dataset.y
@@ -838,7 +838,7 @@ export default {
         if (ind >= 0) {
           const placement = this.shipRooms[ind]
           const room = placement.room
-          
+
           // free the space
           this.setOccupied(placement.x, placement.y, room, 0)
           this.shipRooms.splice(ind, 1)
@@ -868,7 +868,7 @@ export default {
 
     shipRoomDragStart (event) {
       event.dataTransfer.clearData()
-      
+
       try {
         event.dataTransfer.setData('ignore', '')
       } catch (error) {

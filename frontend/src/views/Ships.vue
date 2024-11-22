@@ -177,23 +177,23 @@
 
                   <svg class="mb-5" :height="item.interior_sprite.height * getShipScalingRatio(item)" :width="item.interior_sprite.width * getShipScalingRatio(item) ">
                     <!-- Ship interior -->
-                    <image 
-                      :xlink:href="getSpriteUrl(item.interior_sprite)" 
-                      x="0" y="0" 
-                      :height="item.interior_sprite.height * getShipScalingRatio(item)" 
-                      :width="item.interior_sprite.width * getShipScalingRatio(item)" 
+                    <image
+                      :xlink:href="getSpriteUrl(item.interior_sprite)"
+                      x="0" y="0"
+                      :height="item.interior_sprite.height * getShipScalingRatio(item)"
+                      :width="item.interior_sprite.width * getShipScalingRatio(item)"
                     />
 
                     <!-- Ship Grid -->
                     <template v-for="r in item.rows" >
                       <template v-for="c in item.columns" >
-                        <rect 
+                        <rect
                           :key="'grid-' + r + '-' + c"
-                          v-if="item.mask[item.columns * (r-1) + (c-1)] === '1'" 
-                          :x="(25 * getShipScalingRatio(item)) * c - (25 * getShipScalingRatio(item))" 
+                          v-if="item.mask[item.columns * (r-1) + (c-1)] === '1'"
+                          :x="(25 * getShipScalingRatio(item)) * c - (25 * getShipScalingRatio(item))"
                           :y="(25 * getShipScalingRatio(item)) * r - (25 * getShipScalingRatio(item))"
-                          :width="25 * getShipScalingRatio(item)" 
-                          :height="25 * getShipScalingRatio(item)" 
+                          :width="25 * getShipScalingRatio(item)"
+                          :height="25 * getShipScalingRatio(item)"
                           stroke="#fff" fill="#0004">
                         </rect>
                       </template>
@@ -201,13 +201,13 @@
 
                     <template v-for="r in item.rows" >
                       <template v-for="c in item.columns" >
-                        <rect 
+                        <rect
                           :key="'grid-' + r + '-' + c"
-                          v-if="item.mask[item.columns * (r-1) + (c-1)] === '2'" 
-                          :x="(25 * getShipScalingRatio(item)) * c - (25 * getShipScalingRatio(item))" 
+                          v-if="item.mask[item.columns * (r-1) + (c-1)] === '2'"
+                          :x="(25 * getShipScalingRatio(item)) * c - (25 * getShipScalingRatio(item))"
                           :y="(25 * getShipScalingRatio(item)) * r - (25 * getShipScalingRatio(item))"
-                          :width="25 * getShipScalingRatio(item)" 
-                          :height="25 * getShipScalingRatio(item)" 
+                          :width="25 * getShipScalingRatio(item)"
+                          :height="25 * getShipScalingRatio(item)"
                           stroke="#ff8000" fill="#0004">
                         </rect>
                       </template>
@@ -230,11 +230,11 @@
 
                   <svg class="mb-5" :height="item.exterior_sprite.height * getShipScalingRatio(item)" :width="item.exterior_sprite.width * getShipScalingRatio(item) ">
                     <!-- Ship interior -->
-                    <image 
-                      :xlink:href="getSpriteUrl(item.exterior_sprite)" 
-                      x="0" y="0" 
-                      :height="item.exterior_sprite.height * getShipScalingRatio(item)" 
-                      :width="item.exterior_sprite.width * getShipScalingRatio(item)" 
+                    <image
+                      :xlink:href="getSpriteUrl(item.exterior_sprite)"
+                      x="0" y="0"
+                      :height="item.exterior_sprite.height * getShipScalingRatio(item)"
+                      :width="item.exterior_sprite.width * getShipScalingRatio(item)"
                     />
                   </svg>
                 </v-card>
@@ -314,9 +314,9 @@ export default {
       loaded: false,
       rooms: [],
       headers: [
-        { 
-          text: "Order by ID", 
-          align: "center", 
+        {
+          text: "Order by ID",
+          align: "center",
           value: "id",
           filter: value => {
             const query = this.$route.query
@@ -334,41 +334,41 @@ export default {
                 return parseInt(id.trim())
               })
             }
-            
+
             return ids.includes(value)
           }
         },
-        { 
-          text: "Name", 
-          align: "center", 
-          value: "name", 
-          filterable: true 
+        {
+          text: "Name",
+          align: "center",
+          value: "name",
+          filterable: true
         },
-        { 
-          text: "Level", 
-          align: "right", 
-          value: "level", 
+        {
+          text: "Level",
+          align: "right",
+          value: "level",
           filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchLevel)
           },
         },
-        { 
-          text: "Space", 
-          align: "right", 
-          value: "space", 
+        {
+          text: "Space",
+          align: "right",
+          value: "space",
           filterable: false
         },
-        { 
-          text: "T1", 
-          align: "right", 
-          value: "spaceT1", 
-          filterable: false 
+        {
+          text: "T1",
+          align: "right",
+          value: "spaceT1",
+          filterable: false
         },
-        { 
-          text: "T2", 
-          align: "right", 
-          value: "spaceT2", 
-          filterable: false 
+        {
+          text: "T2",
+          align: "right",
+          value: "spaceT2",
+          filterable: false
         },
         {
           text: "Extended",
@@ -383,41 +383,41 @@ export default {
             return true
           },
         },
-        { 
-          text: "Health", 
-          align: "right", 
-          value: "hp", 
-          filterable: false 
+        {
+          text: "Health",
+          align: "right",
+          value: "hp",
+          filterable: false
         },
-        { 
+        {
           text: "Repair Time",
-          align: "right", 
+          align: "right",
           value: "full_repair_time",
-          filterable: false 
-        },
-        { 
-          text: "Cost", 
-          align: "center", 
-          value: "starbux_cost", 
           filterable: false
         },
-        { 
-          text: "Capacity", 
-          align: "center", 
-          value: "defense", 
+        {
+          text: "Cost",
+          align: "center",
+          value: "starbux_cost",
           filterable: false
         },
-        { 
-          text: "Type", 
-          align: "left", 
+        {
+          text: "Capacity",
+          align: "center",
+          value: "defense",
+          filterable: false
+        },
+        {
+          text: "Type",
+          align: "left",
           value: "ship_type", filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchType)
-          }, 
+          },
         },
-        { 
-          text: "Description", 
-          align: "left", 
-          value: "description", 
+        {
+          text: "Description",
+          align: "left",
+          value: "description",
           filterable: false
         },
       ],
@@ -430,7 +430,7 @@ export default {
     },
 
     pendingFilter: function () {
-      return this.searchName 
+      return this.searchName
         || this.searchLevel.length > 0
         || this.searchType.length > 0
         || this.searchExtended !== null

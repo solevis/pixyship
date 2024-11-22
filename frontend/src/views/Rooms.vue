@@ -133,7 +133,7 @@
                   {{ item.hp }}
                 </div>
               </td>
-              
+
               <td>
                 <div :class="formatPowerStyleClass(item)">
                   {{ formatPower(item) }}
@@ -190,7 +190,7 @@
                         <td>Base room</td>
                         <td><a :href="`/rooms?ids=${item.base_room_id}`">{{ item.base_room_name }}</a></td>
                       </tr>
-                      
+
                       <tr v-show="item.enhancement_type != 'None'">
                         <td>Support Stat</td>
                         <td>{{ item.enhancement_type }}</td>
@@ -420,10 +420,10 @@ export default {
       loaded: false,
       rooms: [],
       headers: [
-        { 
-          text: "Order by ID", 
-          align: "center", 
-          value: "id", 
+        {
+          text: "Order by ID",
+          align: "center",
+          value: "id",
           filter: value => {
             const query = this.$route.query
 
@@ -444,22 +444,22 @@ export default {
             return ids.includes(value)
           }
         },
-        { 
-          text: "Name", 
-          align: "left", 
+        {
+          text: "Name",
+          align: "left",
           value: "name",
           filterable: true,
-          width: 200 
+          width: 200
         },
-        { 
-          text: "Short", 
-          align: "left", 
+        {
+          text: "Short",
+          align: "left",
           value: "short_name",
           filterable: false
         },
         {
           text: "Type",
-          align: "left",          
+          align: "left",
           value: "type",
           filter: (value) => {
             return this.filterCombobox(value, this.searchType)
@@ -475,7 +475,7 @@ export default {
         },
         {
           text: "Size",
-          align: "center",          
+          align: "center",
           sortable: false,
           filter: (value, search, item) => {
             value = `${item.width}x${item.height}`
@@ -484,7 +484,7 @@ export default {
         },
         {
           text: "Level",
-          align: "center",          
+          align: "center",
           value: "level",
           filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchLevel)
@@ -492,7 +492,7 @@ export default {
         },
         {
           text: "Min Ship Level",
-          align: "center",          
+          align: "center",
           value: "min_ship_level",
           filter: (value) => {
             return this.filterCombobox(value.toString(), this.searchShipLevel)
@@ -504,28 +504,28 @@ export default {
           value: "hp",
           filterable: false
         },
-        { 
+        {
           text: "(+/-)Power",
           align: "center",
           value: "power_diff",
-          filterable: false 
+          filterable: false
         },
         {
           text: "Cost",
-          align: "center",          
+          align: "center",
           value: "upgrade_cost",
           filterable: false,
         },
         {
           text: "Time",
-          align: "center",          
+          align: "center",
           value: "upgrade_seconds",
           width: 150,
           filterable: false,
         },
         {
           text: "Description",
-          align: "center",          
+          align: "center",
           value: "description",
           filterable: false,
           sortable: false,
@@ -538,9 +538,9 @@ export default {
     isLoading: function () {
       return !this.loaded
     },
-    
+
     pendingFilter: function () {
-      return this.searchName 
+      return this.searchName
         || this.searchLevel.length > 0
         || this.searchShipLevel.length > 0
         || this.searchSize.length > 0

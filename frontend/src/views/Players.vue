@@ -18,7 +18,7 @@
           outlined
           class="mt-2"
         >
-        
+
           <template v-slot:item="data" v-if="$vuetify.breakpoint.xs">
             <div style="width: 10em" class="ml-2">{{ data.item.name }}</div>
           </template>
@@ -30,7 +30,7 @@
           </template>
         </v-autocomplete>
 
-        <v-menu 
+        <v-menu
           v-model="menu"
           :close-on-content-click="false"
           offset-y
@@ -47,7 +47,7 @@
               <v-icon>mdi-cog</v-icon>
             </v-btn>
           </template>
-          
+
           <v-card>
             <v-list>
               <v-list-item>
@@ -129,21 +129,21 @@
               </filter>
 
               <!-- Ship sprite -->
-              <image 
-                :xlink:href="getSpriteUrl(ship.interior_sprite)" 
-                x="0" y="0" 
-                :height="ship.interior_sprite.height" 
-                :width="ship.interior_sprite.width" 
+              <image
+                :xlink:href="getSpriteUrl(ship.interior_sprite)"
+                x="0" y="0"
+                :height="ship.interior_sprite.height"
+                :width="ship.interior_sprite.width"
                 filter="url(#interior-color-filter)"
               />
 
               <!-- Rooms -->
               <g v-for="(room, index) in rooms" :key="'room1-' + index">
-                <svg 
-                  :x="`${room.column * 25}px`" 
+                <svg
+                  :x="`${room.column * 25}px`"
                   :y="`${room.row * 25}px`"
                   :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
-                  :width="`${room.sprite.width}px`" 
+                  :width="`${room.sprite.width}px`"
                   :height="`${room.sprite.height}px`"
                   >
 
@@ -179,17 +179,17 @@
 
             <svg v-show="!showExterior && !showTrueColor" class="ship" :height="ship.interior_sprite.height" :width="ship.interior_sprite.width">
               <!-- Ship sprite -->
-              <image 
-                :xlink:href="getSpriteUrl(ship.interior_sprite)" 
-                x="0" y="0" 
-                :height="ship.interior_sprite.height" 
-                :width="ship.interior_sprite.width" 
+              <image
+                :xlink:href="getSpriteUrl(ship.interior_sprite)"
+                x="0" y="0"
+                :height="ship.interior_sprite.height"
+                :width="ship.interior_sprite.width"
               />
 
               <!-- Rooms -->
               <g v-for="(room, index) in rooms" :key="'room2-' + index">
-                <svg 
-                  :x="`${room.column * 25}px`" 
+                <svg
+                  :x="`${room.column * 25}px`"
                   :y="`${room.row * 25}px`"
                   :viewbox="`${room.sprite.x} ${room.sprite.y} ${room.sprite.width} ${room.sprite.height}`"
                   :width="`${room.sprite.width}px`" :height="`${room.sprite.height}px`">
@@ -237,22 +237,22 @@
               </filter>
 
               <!-- Ship sprite -->
-              <image 
-                :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
-                x="0" y="0" 
-                :height="ship.exterior_sprite.height" 
-                :width="ship.exterior_sprite.width" 
+              <image
+                :xlink:href="getSpriteUrl(ship.exterior_sprite)"
+                x="0" y="0"
+                :height="ship.exterior_sprite.height"
+                :width="ship.exterior_sprite.width"
                 filter="url(#exterior-color-filter)"
               />
 
               <!-- Rooms -->
               <g v-for="(room, index) in rooms" :key="'room3-' + index">
-                <svg 
+                <svg
                   v-if="room.exterior_sprite"
-                  :x="`${room.column * 25}px`" 
+                  :x="`${room.column * 25}px`"
                   :y="`${room.row * 25}px`"
                   :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
-                  :width="`${room.exterior_sprite.width}px`" 
+                  :width="`${room.exterior_sprite.width}px`"
                   :height="`${room.exterior_sprite.height}px`">
 
                   <!-- Room sprite -->
@@ -267,18 +267,18 @@
 
             <svg v-show="showExterior && !showTrueColor" class="ship" :height="ship.exterior_sprite.height" :width="ship.exterior_sprite.width">
               <!-- Ship sprite -->
-              <image 
-                :xlink:href="getSpriteUrl(ship.exterior_sprite)" 
-                x="0" y="0" 
-                :height="ship.exterior_sprite.height" 
-                :width="ship.exterior_sprite.width" 
+              <image
+                :xlink:href="getSpriteUrl(ship.exterior_sprite)"
+                x="0" y="0"
+                :height="ship.exterior_sprite.height"
+                :width="ship.exterior_sprite.width"
               />
 
               <!-- Rooms -->
               <g v-for="(room, index) in rooms" :key="'room4-' + index">
-                <svg 
+                <svg
                   v-if="room.exterior_sprite"
-                  :x="`${room.column * 25}px`" 
+                  :x="`${room.column * 25}px`"
                   :y="`${room.row * 25}px`"
                   :viewbox="`${room.exterior_sprite.x} ${room.exterior_sprite.y} ${room.exterior_sprite.width} ${room.exterior_sprite.height}`"
                   :width="`${room.exterior_sprite.width}px`" :height="`${room.exterior_sprite.height}px`">
