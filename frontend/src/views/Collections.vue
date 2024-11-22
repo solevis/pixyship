@@ -115,10 +115,10 @@ export default {
       skills: [],
       loaded: false,
       headers: [
-        { 
-          text: "Order by ID", 
-          align: "center", 
-          value: "id", 
+        {
+          text: "Order by ID",
+          align: "center",
+          value: "id",
           filter: value => {
             const query = this.$route.query
 
@@ -135,13 +135,13 @@ export default {
                 return parseInt(id.trim())
               })
             }
-            
+
             return ids.includes(value)
-          } 
+          }
         },
-        { 
-          text: "Name", 
-          align: "left", 
+        {
+          text: "Name",
+          align: "left",
           value: "name",
           filterable: true
         },
@@ -193,7 +193,7 @@ export default {
       return !this.loaded
     },
     pendingFilter: function () {
-      return this.searchName 
+      return this.searchName
         || this.searchSkill.length > 0
     }
   },
@@ -255,7 +255,7 @@ export default {
       this.updateQueryFromFilter('skill', value)
     },
   },
-  
+
   methods: {
     initFilters() {
       this.searchName = this.$route.query.name

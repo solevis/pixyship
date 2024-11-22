@@ -75,7 +75,7 @@
             ></div>
           </td>
         </tr>
-        
+
         <tr v-if="Object.values(char.equipment).length > 0">
           <td class="text-xs-right">Equip:</td>
           <td colspan="3">

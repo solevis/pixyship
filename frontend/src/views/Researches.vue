@@ -143,7 +143,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      
+
                       <tr v-show="item.enhancement_type != 'None'">
                         <td>Description</td>
                         <td>{{ item.ResearchDescription }}</td>
@@ -185,9 +185,9 @@ export default {
       researches: [],
       headers: [
         {
-          text: "Order by ID", 
-          align: "center", 
-          value: "id", 
+          text: "Order by ID",
+          align: "center",
+          value: "id",
           filter: value => {
             const query = this.$route.query
 
@@ -204,48 +204,48 @@ export default {
                 return parseInt(id.trim())
               })
             }
-            
+
             return ids.includes(value)
           }
         },
         {
-          text: 'Name', 
+          text: 'Name',
           value: 'name'
         },
         {
-          text: 'Lab Level', 
-          value: 'lab_level', 
+          text: 'Lab Level',
+          value: 'lab_level',
           filter: (value) => {
             return this.filterCombobox(value, this.searchLabLevel)
           },
         },
         {
-          text: 'Ship Level', 
-          value: 'min_ship_level', 
+          text: 'Ship Level',
+          value: 'min_ship_level',
           filter: (value) => {
             return this.filterCombobox(value, this.searchMinShipLevel)
           },
         },
         {
-          text: 'Requirement', 
-          value: 'required_research_name', 
+          text: 'Requirement',
+          value: 'required_research_name',
           filterable: false
         },
         {
-          text: 'Type', 
+          text: 'Type',
           value: 'research_type',
           filter: (value) => {
             return this.filterCombobox(value, this.searchType)
           },
         },
         {
-          text: 'Cost', 
-          value: 'cost', 
+          text: 'Cost',
+          value: 'cost',
           filterable: false
         },
         {
-          text: 'Research Time', 
-          value: 'research_seconds', 
+          text: 'Research Time',
+          value: 'research_seconds',
           filterable: false
         }
       ],
@@ -257,7 +257,7 @@ export default {
       return !this.loaded
     },
     pendingFilter: function () {
-      return this.searchName 
+      return this.searchName
         || this.searchType.length > 0
         || this.searchLabLevel.length > 0
         || this.searchMinShipLevel.length > 0

@@ -116,7 +116,7 @@
               <li v-for="(ingredient) in item.recipe"
                   :key="'item-cmp-' + item.id + '-recipe-' + ingredient.id"
                 >
-                  
+
                   <div class="d-inline-block middle mr-1">{{ ingredient.name }}</div>
                   <div class="d-inline-block middle mr-1" :style="spriteStyle(ingredient.sprite)"></div>
                   <div class="d-inline-block middle">x{{ ingredient.count }}</div>

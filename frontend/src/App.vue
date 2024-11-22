@@ -174,7 +174,7 @@ export default {
     onMutate () {
       let height = 0
       const toolbar = this.$refs.toolbar
-      
+
       if (toolbar) {
         height = `${toolbar.$el.offsetHeight}px`
       }
