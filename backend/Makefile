@@ -1,6 +1,6 @@
 .PHONY=format
 format:
-	rye fmt
+	ruff format
 
 .PHONY=test
 test:
@@ -8,7 +8,7 @@ test:
 
 .PHONY=lint
 lint:
-	rye lint
+	ruff check
 
 .PHONY=docker-build
 docker-build:
