@@ -90,7 +90,7 @@ class RoomService(BaseService):
                 "capacity": int(room["Capacity"]) / CAPACITY_RATIO_MAP.get(room["RoomType"], 1),
                 "capacity_label": LABEL_CAPACITY_MAP.get(room["RoomType"], "Capacity"),
                 "range": int(room["Range"]),
-                "min_range": int(room["MinRange"]),
+                "min_range": int(room.get("MinRange", "0")),
                 "height": int(room["Rows"]),
                 "width": int(room["Columns"]),
                 "sprite": self.sprite_service.get_sprite_infos(int(room["ImageSpriteId"])),
