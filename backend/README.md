@@ -60,12 +60,12 @@ ${EDITOR} instance/config.cfg
 docker compose up --build
 
 # Initialize the database
-docker compose exec  -w /app pixyship-backend flask db upgrade
+docker compose exec  -w /app backend flask db upgrade
 
 # Initial data load
-docker compose exec  -w /app pixyship-backend flask import assets
-docker compose exec  -w /app pixyship-backend flask import players
-docker compose exec  -w /app pixyship-backend flask import market --item 73
+docker compose exec  -w /app backend flask import assets
+docker compose exec  -w /app backend flask import players
+docker compose exec  -w /app backend flask import market --item 73
 ```
 
 Access the backend at [http://localhost:8080](http://localhost:8080).

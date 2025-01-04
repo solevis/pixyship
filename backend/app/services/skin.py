@@ -106,6 +106,7 @@ class SkinService(BaseService):
                 int(skinset["SpriteId"]),
                 skinset["pixyship_xml_element"],
                 pixel_starships_api.server,
+                ["PurchaseCount", "ApprovalFlags"],
             )
             still_presents_ids.append(int(record_id))
 

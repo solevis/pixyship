@@ -6,4 +6,4 @@ from .market_message import MarketMessage
 from .player import Player
 from .record import Record
 
-__all__ = ["Alliance", "DailySale", "Device", "Listing", "Player", "Record", "MarketMessage"]
+__all__ = ["Alliance", "DailySale", "Device", "Listing", "MarketMessage", "Player", "Record"]
