@@ -17,19 +17,19 @@
           return-object
           outlined
         >
-          <template slot-scope="s" slot="item">
+          <template v-slot:item="{ item }">
             <div
               class="block mr-2"
-              :style="spriteStyle(s.item.sprite)"
+              :style="spriteStyle(item.sprite)"
               align="center"
             ></div>
             <div class="text-xs-left lh-1">
-              {{ s.item.name }}
+              {{ item.name }}
               <br />
               <div class="caption">
-                <span>Level {{ s.item.level }}</span>
-                <span class="ml-2">{{ s.item.ship_type }}</span>
-                <span class="ml-2">{{ s.item.hp }} hp</span>
+                <span>Level {{ item.level }}</span>
+                <span class="ml-2">{{ item.ship_type }}</span>
+                <span class="ml-2">{{ item.hp }} hp</span>
               </div>
             </div>
           </template>
@@ -59,18 +59,18 @@
             return-object
             outlined
           >
-            <template slot-scope="r" slot="item">
+            <template v-slot:item="{ item }">
               <div
                 class="block mr-2"
-                :style="spriteStyle(r.item.sprite)"
+                :style="spriteStyle(item.sprite)"
                 align="center"
               ></div>
               <div class="text-xs-left lh-1">
-                {{ r.item.name }}
+                {{ item.name }}
                 <br />
                 <div class="caption">
-                  <span>Ship level {{ r.item.min_ship_level }}</span>
-                  <span class="ml-2">{{ r.item.type }}</span>
+                  <span>Ship level {{ item.min_ship_level }}</span>
+                  <span class="ml-2">{{ item.type }}</span>
                 </div>
               </div>
             </template>
@@ -91,18 +91,20 @@
             class="text-center"
           >
 
-          <div slot="item" slot-scope="props" class="block recent-room">
-              <div
-                draggable="true"
-                class=""
-                :style="spriteStyle(props.item.sprite)"
-                v-on:dragstart="roomDragStart"
-                v-on:dragend="roomDragEnd"
-                :data-roomid="props.item.id"
-                align="center">
+            <template v-slot:item="{ item }" >
+              <div class="block recent-room">
+                <div
+                    draggable="true"
+                    class=""
+                    :style="spriteStyle(item.sprite)"
+                    v-on:dragstart="roomDragStart"
+                    v-on:dragend="roomDragEnd"
+                    :data-roomid="item.id"
+                    align="center">
+                </div>
+                <span class="room-name passthrough" x="2" y="9">{{ item.short_name || item.name }}</span>
               </div>
-              <span class="room-name passthrough" x="2" y="9">{{ props.item.short_name || props.item.name }}</span>
-            </div>
+            </template>
           </v-data-iterator>
         </v-col>
     </v-row>
