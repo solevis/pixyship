@@ -15,8 +15,6 @@ apiService.getConfig().then(response => {
     const app = createApp(App)
     const head = createHead()
 
-    // Rendre config disponible globalement
-    // app.config.globalProperties.$config = config
 
     // Alternative: utiliser provide/inject
     app.provide('config', config)

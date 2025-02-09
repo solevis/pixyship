@@ -130,7 +130,7 @@
                   </div>
                 </v-card-subtitle>
 
-                <v-simple-table dense style="width: 500px">
+                <v-table dense style="width: 500px">
                   <template v-slot:default>
                     <thead>
                       <tr>
@@ -150,7 +150,7 @@
                       </tr>
                     </tbody>
                   </template>
-                </v-simple-table>
+                </v-table>
               </v-card>
             </v-col>
           </v-row>

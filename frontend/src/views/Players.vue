@@ -311,7 +311,7 @@
               {{ ship.name }} (Level {{ ship.level }})
             </v-card-subtitle>
 
-            <v-simple-table dense class="px-6 pb-6 pt-2">
+            <v-table dense class="px-6 pb-6 pt-2">
               <template v-slot:default>
                 <tbody>
                   <tr v-show="user.alliance_name">
@@ -360,7 +360,7 @@
                   </tr>
                 </tbody>
               </template>
-            </v-simple-table>
+            </v-table>
           </v-card>
         </v-col>
       </v-row>

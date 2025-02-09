@@ -22,7 +22,7 @@
     <template v-if="loaded && display.mdAndUp.value">
       <v-row justify="center">
         <v-col cols="8">
-          <v-simple-table v-if="loaded" class="px-3">
+          <v-table v-if="loaded" class="px-3">
             <template v-slot:default>
               <thead>
               <tr>
@@ -260,7 +260,7 @@
               </tr>
               </tbody>
             </template>
-          </v-simple-table>
+          </v-table>
         </v-col>
       </v-row>
     </template>
@@ -411,8 +411,8 @@
 
     <v-row v-if="loaded" justify="center">
       <v-col cols="12">
-        <v-tabs-items v-model="activeTab" touchless>
-          <v-tab-item value="tab-players-sales">
+        <v-tabs-window v-model="activeTab" touchless>
+          <v-tabs-window-item value="tab-players-sales">
             <v-card flat>
               <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center" :class="display.mdAndUp.value ? 'pt-4' : ''">
                 <v-col class="text-center" cols="12" md="3">
@@ -519,13 +519,13 @@
                 </v-col>
               </v-row>
             </v-card>
-          </v-tab-item>
+          </v-tabs-window-item>
 
-          <v-tab-item value="tab-market">
+          <v-tabs-window-item value="tab-market">
             <item-market :item="item" :showTitle="false" class="mt-4"/>
-          </v-tab-item>
+          </v-tabs-window-item>
 
-          <v-tab-item value="tab-last-sales">
+          <v-tabs-window-item value="tab-last-sales">
             <v-card flat>
               <v-row justify="center">
                 <v-col class="text-center" cols="12" md="8">
@@ -533,9 +533,9 @@
                 </v-col>
               </v-row>
             </v-card>
-          </v-tab-item>
+          </v-tabs-window-item>
 
-          <v-tab-item value="tab-craft">
+          <v-tabs-window-item value="tab-craft">
             <v-card flat>
               <v-row
                   v-if="loaded && item.recipe.length > 0"
@@ -569,9 +569,9 @@
                 </v-col>
               </v-row>
             </v-card>
-          </v-tab-item>
+          </v-tabs-window-item>
 
-          <v-tab-item value="tab-upgrades">
+          <v-tabs-window-item value="tab-upgrades">
             <v-card flat>
 
               <v-row
@@ -602,8 +602,8 @@
                 </v-col>
               </v-row>
             </v-card>
-          </v-tab-item>
-        </v-tabs-items>
+          </v-tabs-window-item>
+        </v-tabs-window>
       </v-col>
     </v-row>
   </v-card>
@@ -617,8 +617,8 @@ import ItemMixin from "../mixins/Item.vue.js"
 import Item from "../components/Item.vue"
 import Crew from "../components/Crew.vue"
 import ItemMarket from "../components/ItemMarket.vue"
-import LastSales from "../components/LastSales";
-import SpritesButton from "@/components/SpritesButton";
+import LastSales from "../components/LastSales.vue";
+import SpritesButton from "../components/SpritesButton.vue";
 import _ from "lodash";
 import {useHead} from "@vueuse/head"
 import {useDisplay} from "vuetify"

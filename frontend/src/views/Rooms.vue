@@ -105,7 +105,7 @@
                 <div :class="[item.rarity, 'lh-9', 'name']">
                   {{ item.name }}
                 </div>
-                <div if="item.base_room_name" class="small font-italic">
+                <div v-if="item.base_room_name" class="small font-italic">
                   {{ item.base_room_name }}
                 </div>
               </td>
@@ -173,7 +173,7 @@
                   </div>
                 </v-card-subtitle>
 
-                <v-simple-table dense style="width: 500px">
+                <v-table dense style="width: 500px">
                   <template v-slot:default>
                     <thead>
                       <tr>
@@ -285,7 +285,7 @@
                       </tr>
                     </tbody>
                   </template>
-                </v-simple-table>
+                </v-table>
               </v-card>
             </v-col>
 
@@ -304,7 +304,7 @@
                 </div>
               </v-card-subtitle>
 
-                <v-simple-table dense style="width: 500px">
+                <v-table dense style="width: 500px">
                   <template v-slot:default>
                     <thead>
                       <tr>
@@ -378,7 +378,7 @@
                       </tr>
                     </tbody>
                   </template>
-                </v-simple-table>
+                </v-table>
               </v-card>
             </v-col>
           </v-row>

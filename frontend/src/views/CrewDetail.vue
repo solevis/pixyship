@@ -22,7 +22,7 @@
     <template v-if="loaded && display.mdAndUp.value">
       <v-row justify="center">
         <v-col cols="8">
-          <v-simple-table v-if="loaded" class="px-3">
+          <v-table v-if="loaded" class="px-3">
             <template v-slot:default>
               <thead>
               <tr>
@@ -126,7 +126,7 @@
               </tr>
               </tbody>
             </template>
-          </v-simple-table>
+          </v-table>
         </v-col>
       </v-row>
     </template>
@@ -199,8 +199,8 @@
 
     <v-row v-if="loaded" justify="center">
       <v-col cols="12">
-        <v-tabs-items v-model="activeTab" touchless>
-          <v-tab-item value="tab-prestiges">
+        <v-tabs-window v-model="activeTab" touchless>
+          <v-tabs-window-item value="tab-prestiges">
             <v-card flat>
               <!-- Large screen (Table and prestiges side by side) -->
               <template v-if="loaded && display.mdAndUp.value">
@@ -280,10 +280,10 @@
                     <v-card-title>Prestige Options</v-card-title>
                     <v-expansion-panels>
                       <v-expansion-panel>
-                        <v-expansion-panel-header>
+                        <v-expansion-panel-title>
                           Combine both for {{ characters[crewId].name }}:
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
                           <v-row
                               v-for="(olist, t) in to"
                               :key="'grouped-to-' + t"
@@ -310,14 +310,14 @@
                           <div class="text-center" v-if="!notEmptyObject(to)">
                             <v-icon>mdi-flask-empty-off-outline</v-icon>
                           </div>
-                        </v-expansion-panel-content>
+                        </v-expansion-panel-text>
                       </v-expansion-panel>
 
                       <v-expansion-panel>
-                        <v-expansion-panel-header>
+                        <v-expansion-panel-title>
                           Combine with {{ characters[crewId].name }} to get:
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
                           <v-row
                               v-for="(olist, t) in from"
                               :key="'grouped-from-' + t"
@@ -346,16 +346,16 @@
                           <div class="text-center" v-if="!notEmptyObject(from)">
                             <v-icon>mdi-flask-empty-off-outline</v-icon>
                           </div>
-                        </v-expansion-panel-content>
+                        </v-expansion-panel-text>
                       </v-expansion-panel>
                     </v-expansion-panels>
                   </v-card>
                 </v-col>
               </v-row>
             </v-card>
-          </v-tab-item>
+          </v-tabs-window-item>
 
-          <v-tab-item value="tab-last-sales">
+          <v-tabs-window-item value="tab-last-sales">
             <v-card flat>
               <v-row justify="center">
                 <v-col class="text-center" cols="12" md="8">
@@ -363,8 +363,8 @@
                 </v-col>
               </v-row>
             </v-card>
-          </v-tab-item>
-        </v-tabs-items>
+          </v-tabs-window-item>
+        </v-tabs-window>
       </v-col>
     </v-row>
 
@@ -419,10 +419,10 @@
           <v-card-title>Prestige Options</v-card-title>
           <v-expansion-panels>
             <v-expansion-panel>
-              <v-expansion-panel-header>
+              <v-expansion-panel-title>
                 Combine both for {{ characters[crewId].name }}:
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
                 <v-row
                     v-for="(olist, t) in to"
                     :key="'grouped-to-' + t"
@@ -449,14 +449,14 @@
                 <div class="text-center" v-if="!notEmptyObject(to)">
                   <v-icon>mdi-flask-empty-off-outline</v-icon>
                 </div>
-              </v-expansion-panel-content>
+              </v-expansion-panel-text>
             </v-expansion-panel>
 
             <v-expansion-panel>
-              <v-expansion-panel-header>
+              <v-expansion-panel-title>
                 Combine with {{ characters[crewId].name }} to get:
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
                 <v-row
                     v-for="(olist, t) in from"
                     :key="'grouped-from-' + t"
@@ -485,7 +485,7 @@
                 <div class="text-center" v-if="!notEmptyObject(from)">
                   <v-icon>mdi-flask-empty-off-outline</v-icon>
                 </div>
-              </v-expansion-panel-content>
+              </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
         </v-card>
@@ -499,8 +499,8 @@ import axios from "axios"
 import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Crew from "../components/Crew.vue"
 import _ from "lodash";
-import LastSales from "../components/LastSales";
-import SpritesButton from "@/components/SpritesButton";
+import LastSales from "../components/LastSales.vue";
+import SpritesButton from "../components/SpritesButton.vue";
 import {useHead} from "@vueuse/head"
 import {useDisplay} from "vuetify"
 
