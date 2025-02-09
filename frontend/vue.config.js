@@ -8,6 +8,7 @@ module.exports = {
     productionSourceMap: false,
 
     devServer: {
-        public: '0.0.0.0:8080'
+        host: '0.0.0.0',
+        port: 8080,
     }
 }

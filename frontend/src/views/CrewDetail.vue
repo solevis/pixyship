@@ -369,9 +369,9 @@
     </v-row>
 
     <!-- Small screen (infos as card and expandable prestiges) -->
-    <v-row v-else-if="loaded" justify="center">
+    <v-row v-else justify="center">
       <v-col>
-        <v-card v-if="loaded" outlined>
+        <v-card outlined>
           <v-card-title>Core Stats</v-card-title>
           <v-card-text>
             <span>HP: {{ character.hp[2] | statFormat(0) }}</span><br>
@@ -381,7 +381,7 @@
           </v-card-text>
         </v-card>
 
-        <v-card v-if="loaded" outlined class="mt-2">
+        <v-card outlined class="mt-2">
           <v-card-title>Room Stats</v-card-title>
           <v-card-text>
             <span>Pilot: {{ character.pilot[2] | statFormat() }}</span><br>
@@ -391,7 +391,7 @@
           </v-card-text>
         </v-card>
 
-        <v-card v-if="loaded" outlined class="mt-2">
+        <v-card outlined class="mt-2">
           <v-card-title>Utility Stats</v-card-title>
           <v-card-text>
             <span>Equip: {{ Object.values(character.equipment).join(", ") }}</span><br>

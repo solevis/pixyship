@@ -1,7 +1,7 @@
 <template>
   <v-card flat>
     <v-row
-      v-if="loaded && Object.keys(item.priceHistory).length > 0"
+      v-if="loaded && Object.keys(priceHistory).length > 0"
       justify="center"
     >
       <v-switch
@@ -94,7 +94,7 @@ export default {
 
     getItemMarket: async function () {
       const response = await axios.get(this.itemPricesEndpoint(this.item.id))
-      this.item.priceHistory = response.data.data.prices
+      this.priceHistory = response.data.data.prices
 
       this.loaded = true
       this.initMarketChart()
