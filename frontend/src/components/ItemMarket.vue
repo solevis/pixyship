@@ -106,7 +106,7 @@ export default {
       }
 
       this.charts.push(this.item)
-      this.plotData(this.item, null, this.showTitle)
+      this.plotData(this.item, this.priceHistory, null, this.showTitle)
     }
   }
 }

@@ -52,9 +52,7 @@ export default {
       }
     },
 
-    plotData(item, chartElementId = null, showMainTitle = true) {
-      const history = item.priceHistory
-
+    plotData(item, priceHistory, chartElementId = null, showMainTitle = true) {
       if (Object.keys(history).length > 0) {
         const series = {}
         const currencies = []
