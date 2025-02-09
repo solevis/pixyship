@@ -46,12 +46,11 @@
           bottom
           offset-y
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template v-slot:activator="{ props }">
             <v-btn
               text
               small
-              v-bind="attrs"
-              v-on="on"
+              v-bind="props"
             >
               Misc
               <v-icon right>

@@ -1,7 +1,7 @@
 <template>
   <v-tooltip :disabled="!show" :right="right" :left="left" color="grey darken-3">
-    <template v-slot:activator="{ on, attrs }">
-      <a :href="`/crew/${char.id}`" v-bind="attrs" v-on="on" :aria-label="char.name">
+    <template v-slot:activator="{ props }">
+      <a :href="`/crew/${char.id}`" v-bind="props" :aria-label="char.name">
         <div v-if="name === 'top'" class="name" :class="[char.rarity]">
           {{ char.name }}
         </div>

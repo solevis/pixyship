@@ -79,8 +79,8 @@
     >
       <template v-slot:item="{ item, expand, isExpanded }">
          <v-tooltip bottom color="blue-grey" :disabled="isExpanded">
-          <template v-slot:activator="{ on, attrs }">
-            <tr @click="expand(!isExpanded)" v-bind="attrs" v-on="on">
+          <template v-slot:activator="{ props }">
+            <tr @click="expand(!isExpanded)" v-bind="props">
               <td>
                 <div class="block my-1" :style="spriteStyle(item.sprite)"></div>
               </td>

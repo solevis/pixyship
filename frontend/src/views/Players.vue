@@ -35,11 +35,10 @@
           :close-on-content-click="false"
           offset-y
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template v-slot:activator="{ props }">
             <v-btn
               class="mt-2 mx-1"
-              v-bind="attrs"
-              v-on="on"
+              v-bind="props"
               icon
               large
               aria-label="Options"

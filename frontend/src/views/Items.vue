@@ -109,8 +109,8 @@
     >
       <template v-slot:item="{ item }">
         <v-tooltip bottom color="grey darken-3">
-          <template v-slot:activator="{ on, attrs }">
-            <tr v-bind="attrs" v-on="on">
+          <template v-slot:activator="{ props }">
+            <tr v-bind="props">
               <!-- Image -->
               <td>
                 <item :item="item" :tip="false"/>

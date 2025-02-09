@@ -1,7 +1,7 @@
 <template>
   <v-tooltip :disabled="!show" top color="grey darken-3">
-    <template v-slot:activator="{ on, attrs }">
-      <component :is="disableLink ? 'span' : 'a'" :href="`/item/${item.id}`" v-bind="attrs" v-on="on" :aria-label="item.name" class="item-link">
+    <template v-slot:activator="{ props }">
+      <component :is="disableLink ? 'span' : 'a'" :href="`/item/${item.id}`" v-bind="props" :aria-label="item.name" class="item-link">
         <div :class="name === 'bottom' ? 'text-center' : ''">
           <div v-if="!name" :aria-label="item.name">
               <div class="item-sprite" :style="spriteStyle(item.sprite)"></div>

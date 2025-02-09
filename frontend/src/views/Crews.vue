@@ -150,10 +150,9 @@
           <td>
             <div class="special-ability">
               <v-tooltip bottom color="blue-grey">
-                <template v-slot:activator="{ on, attrs }">
+                <template v-slot:activator="{ props }">
                   <div
-                    v-bind="attrs"
-                    v-on="on"
+                    v-bind="props"
                     class="center"
                     :style="spriteStyle(item.ability_sprite)"
                   ></div>
@@ -166,11 +165,10 @@
           <!-- Collection -->
           <td>
             <v-tooltip v-if="item.collection_sprite" bottom color="blue-grey">
-              <template v-slot:activator="{ on, attrs }">
+              <template v-slot:activator="{ props }">
                 <a :href="`/collections?ids=${item.collection}`">
                   <div
-                      v-bind="attrs"
-                      v-on="on"
+                      v-bind="props"
                       :style="spriteStyle(item.collection_sprite)"
                       class="center"
                   ></div>

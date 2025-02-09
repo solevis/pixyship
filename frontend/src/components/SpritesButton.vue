@@ -5,13 +5,12 @@
       hide-overlay
       transition="dialog-bottom-transition"
   >
-    <template v-slot:activator="{ on, attrs }">
+    <template v-slot:activator="{ props }">
       <div class="text-center">
         <v-btn
             color="primary"
             dark
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
         >
           Zoom Sprite
         </v-btn>
