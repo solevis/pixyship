@@ -7,7 +7,7 @@
         <!-- News -->
         <v-col cols="12" md="12">
           <v-card outlined class="not-offers">
-            <div :class="$vuetify.breakpoint.smAndUp ?'news-sprite' : 'news-sprite-mobile'" :style="spriteStyle(this.news.sprite)"></div>
+            <div :class="display.smAndUp.value ?'news-sprite' : 'news-sprite-mobile'" :style="spriteStyle(this.news.sprite)"></div>
             <v-card-title class="overline mb-2"
             >
               <v-icon left>mdi-newspaper-variant</v-icon>
@@ -610,15 +610,12 @@ import moment from "moment"
 import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Crew from "../components/Crew.vue"
 import Item from "../components/Item.vue"
+import {useHead} from "@vueuse/head"
 
-const convert = require("xml-js")
+import convert from "xml-js"
+import {useDisplay} from "vuetify"
 
 export default {
-  metaInfo: {
-    title: 'PixyShip',
-    titleTemplate: null
-  },
-
   mixins: [PixyShipMixin],
 
   components: {
@@ -628,6 +625,7 @@ export default {
 
   data() {
     return {
+      display: useDisplay(),
       loaded: false,
       tournamentLoaded: false,
       changesLoaded: false,
@@ -673,6 +671,11 @@ export default {
   },
 
   mounted: function () {
+    useHead({
+      title: 'PixyShip',
+      titleTemplate: null
+    })
+
     this.getTournament()
     this.getChanges()
   },

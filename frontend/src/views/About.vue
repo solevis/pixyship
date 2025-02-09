@@ -78,29 +78,30 @@
 </template>
 
 <script>
-export default {
 
-  metaInfo() {
-    return {
+import {computed} from "vue"
+import {useHead} from "@vueuse/head"
+
+export default {
+  inject: ['config'],
+  mounted() {
+    useHead({
       title: this.$route.name,
       meta: [
         {
-          vmid: 'google-title',
-          itemprop: 'name',
-          content: `PixyShip - ${this.$route.name}`
-        },
-        {
-          vmid: 'og-title',
           property: 'og:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'twitter-title',
-          name: 'twitter:title',
+          itemprop: 'name',
           content: `PixyShip - ${this.$route.name}`
         },
+        {
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        }
       ]
-    }
+    })
   },
 
   data() {
@@ -108,9 +109,9 @@ export default {
       mainDeveloper: "Solevis",
       mainDeveloperEmail: "contact@pixyship.com",
       contributors: "Bril, The worst., Stex Ghost, Xeon",
-      donationUrl: this.$root.config.donationUrl,
-      discordUrl: this.$root.config.discordUrl,
-      githubUrl: this.$root.config.githubUrl,
+      donationUrl: this.config.donationUrl,
+      discordUrl: this.config.discordUrl,
+      githubUrl: this.config.githubUrl,
     }
   },
 

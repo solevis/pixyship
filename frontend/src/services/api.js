@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const apiService = {
   getConfig() {
-    return axios.get(process.env.VUE_APP_PIXYSHIP_API_URL + 'config');
+    return axios.get(import.meta.env.VITE_PIXYSHIP_API_URL + 'config');
   }
 };
 

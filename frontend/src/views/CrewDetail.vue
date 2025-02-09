@@ -19,7 +19,7 @@
     </v-row>
 
     <!-- Large screen (Table and prestiges side by side) -->
-    <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
+    <template v-if="loaded && display.mdAndUp.value">
       <v-row justify="center">
         <v-col cols="8">
           <v-simple-table v-if="loaded" class="px-3">
@@ -186,12 +186,12 @@
           <v-tab href="#tab-prestiges"
           >
             <v-icon left>mdi-sitemap</v-icon>
-            <span v-if="$vuetify.breakpoint.mdAndUp">Prestiges</span></v-tab
+            <span v-if="display.mdAndUp.value">Prestiges</span></v-tab
           >
           <v-tab href="#tab-last-sales"
           >
             <v-icon left>mdi-history</v-icon>
-            <span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
+            <span v-if="display.mdAndUp.value">Last sales</span></v-tab
           >
         </v-tabs>
       </v-col>
@@ -203,7 +203,7 @@
           <v-tab-item value="tab-prestiges">
             <v-card flat>
               <!-- Large screen (Table and prestiges side by side) -->
-              <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
+              <template v-if="loaded && display.mdAndUp.value">
                 <v-row class="mt-2 pb-2" justify="center">
                   <v-col cols="4">
                     <div class="text-center">
@@ -501,6 +501,8 @@ import Crew from "../components/Crew.vue"
 import _ from "lodash";
 import LastSales from "../components/LastSales";
 import SpritesButton from "@/components/SpritesButton";
+import {useHead} from "@vueuse/head"
+import {useDisplay} from "vuetify"
 
 export default {
   mixins: [PixyShipMixin],
@@ -513,6 +515,7 @@ export default {
 
   data() {
     return {
+      display: useDisplay(),
       activeTab: "tab-prestiges",
       loaded: false,
       crewId: this.$route.params.id,
@@ -535,6 +538,40 @@ export default {
   },
 
   mounted: function () {
+     useHead({
+      title: this.character.name,
+      meta: [
+        {
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          itemprop: 'description',
+          content: this.viewDescription
+        }
+      ]
+    })
+
     if (this.$route.query.activeTab) {
       this.activeTab = this.$route.query.activeTab.trim();
     }
@@ -572,49 +609,6 @@ export default {
         maximumFractionDigits: maxDigits,
       })
     },
-  },
-
-  metaInfo() {
-    return {
-      title: this.character.name,
-      meta: [
-        {
-          vmid: 'google-title',
-          itemprop: 'name',
-          content: `PixyShip - ${this.character.name}`
-        },
-        {
-          vmid: 'og-title',
-          property: 'og:title',
-          content: `PixyShip - ${this.character.name}`
-        },
-        {
-          vmid: 'twitter-title',
-          name: 'twitter:title',
-          content: `PixyShip - ${this.character.name}`
-        },
-        {
-          vmid: 'description',
-          name: 'description',
-          content: this.character.name + ': ' + this.character.description
-        },
-        {
-          vmid: 'twitter-description',
-          name: 'twitter:description',
-          content: this.character.name + ': ' + this.character.description
-        },
-        {
-          vmid: 'og-description',
-          property: 'og:description',
-          content: this.character.name + ': ' + this.character.description
-        },
-        {
-          vmid: 'google-description',
-          itemprop: 'description',
-          content: this.character.name + ': ' + this.character.description
-        },
-      ]
-    }
   },
 
   methods: {

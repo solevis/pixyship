@@ -1,9 +1,10 @@
 // Common mixins for PixyShip vue controls
 import moment from 'moment'
 
-const API_URL = process.env.VUE_APP_PIXYSHIP_API_URL
+const API_URL = import.meta.env.VITE_PIXYSHIP_API_URL
 
 export default {
+  inject: ['config'],
   data() {
     return {
       changesEndpoint: API_URL + 'changes',
@@ -65,7 +66,7 @@ export default {
       }
 
       return {
-        background: `${color} url('${this.$root.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
+        background: `${color} url('${this.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
         width: `${sprite.width}px`,
         height: `${sprite.height}px`,
         border: `${border}px solid lightgrey`,
@@ -87,7 +88,7 @@ export default {
       scale = scale > 1 ? 1 : scale
 
       return {
-        background: `${color} url('${this.$root.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
+        background: `${color} url('${this.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px`,
         width: `${sprite.width}px`,
         height: `${sprite.height}px`,
         border: `${border}px solid lightgrey`,
@@ -130,7 +131,7 @@ export default {
 
       const fillStr = portScale === 1 ? '' : '/ 100% 100%'
       let obj = {
-        background: `${color} url('${this.$root.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px ${fillStr}`,
+        background: `${color} url('${this.config.spriteUrl}${sprite.source}.png') -${sprite.x}px -${sprite.y}px ${fillStr}`,
         width: `${sprite.width / portScale}px`,
         height: `${sprite.height / portScale}px`,
         border: `${border}px solid lightgrey`,
@@ -145,7 +146,7 @@ export default {
     },
 
     getSpriteUrl(sprite) {
-      return `${this.$root.config.spriteUrl}${sprite.source}.png`
+      return `${this.config.spriteUrl}${sprite.source}.png`
     },
 
     buxSprite() {

@@ -353,6 +353,7 @@ import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import "@/assets/css/override.css"
+import {useHead} from "@vueuse/head"
 
 require('../js/DragDropTouch')
 
@@ -367,47 +368,40 @@ export default {
     },
   },
 
-  metaInfo () {
-    return {
+  mounted() {
+    useHead({
       title: this.$route.name,
       meta: [
         {
-          vmid: 'google-title',
           itemprop: 'name',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'og-title',
           property: 'og:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'twitter-title',
           name: 'twitter:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'description',
           name: 'description',
           content: this.viewDescription
         },
         {
-          vmid: 'twitter-description',
           name: 'twitter:description',
           content: this.viewDescription
         },
         {
-          vmid: 'og-description',
           property: 'og:description',
           content: this.viewDescription
         },
         {
-          vmid: 'google-description',
           itemprop: 'description',
           content: this.viewDescription
-        },
+        }
       ]
-    }
+    })
   },
 
   data() {

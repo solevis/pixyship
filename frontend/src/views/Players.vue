@@ -19,7 +19,7 @@
           class="mt-2"
         >
 
-          <template v-slot:item="data" v-if="$vuetify.breakpoint.xs">
+          <template v-slot:item="data" v-if="display.xs.value">
             <div style="width: 10em" class="ml-2">{{ data.item.name }}</div>
           </template>
           <template v-slot:item="data" v-else>
@@ -372,6 +372,8 @@
 import axios from "axios"
 import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import _ from 'lodash'
+import {useHead} from "@vueuse/head"
+import {useDisplay} from "vuetify"
 
 export default {
   mixins: [PixyShipMixin],
@@ -380,6 +382,7 @@ export default {
 
   data() {
     return {
+      display: useDisplay(),
       viewDescription: "Search top players and see their layout and infos",
       menu: false,
       searchPlayer: "",
@@ -408,47 +411,40 @@ export default {
     },
   },
 
-  metaInfo () {
-    return {
+  mounted() {
+    useHead({
       title: this.title,
       meta: [
         {
-          vmid: 'google-title',
           itemprop: 'name',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'og-title',
           property: 'og:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'twitter-title',
           name: 'twitter:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'description',
           name: 'description',
           content: this.viewDescription
         },
         {
-          vmid: 'twitter-description',
           name: 'twitter:description',
           content: this.viewDescription
         },
         {
-          vmid: 'og-description',
           property: 'og:description',
           content: this.viewDescription
         },
         {
-          vmid: 'google-description',
           itemprop: 'description',
           content: this.viewDescription
-        },
+        }
       ]
-    }
+    })
   },
 
   beforeMount: function () {

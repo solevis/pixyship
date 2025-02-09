@@ -2,61 +2,35 @@
   "name": "pixyship",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "preview": "npx vite preview"
   },
   "dependencies": {
-    "core-js": "^3.6.5",
+    "@mdi/font": "^7.3.67",
+    "@vueuse/head": "^2.0.0",
+    "axios": "^1.7.9",
+    "core-js": "^3.34.0",
     "lodash.debounce": "^4.0.8",
     "lodash.isempty": "^4.4.0",
-    "typeface-roboto": "^1.1.13",
-    "vue": "^2.7.10",
+    "moment": "^2.30.1",
+    "plotly.js-dist": "^3.0.0",
+    "roboto-fontface": "*",
+    "vue": "^3.4.0",
     "vue-clipboard2": "^0.3.1",
-    "vue-meta": "^2.4.0",
-    "vue-router": "^3.6.5",
-    "vuetify": "^2.6.10",
+    "vue-meta": "^3.0.0-alpha.10",
+    "vue-router": "^4.2.0",
+    "vuetify": "^3.4.0",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
-    "@mdi/font": "^5.9.55",
+    "@mdi/font": "^7.3.67",
     "@types/lodash": "^4.14.168",
-    "@vue/cli-plugin-babel": "~5.0.8",
-    "@vue/cli-plugin-eslint": "~5.0.8",
-    "@vue/cli-plugin-router": "~5.0.8",
-    "@vue/cli-service": "~5.0.8",
-    "axios": "^0.21.1",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.5.0",
-    "eslint-plugin-vue": "^7.0.0",
-    "glob-parent": ">=5.1.2",
-    "moment": "^2.29.1",
-    "normalize-url": ">=4.5.1",
-    "plotly.js-dist": "^1.58.4",
-    "sass": "^1.32.0",
-    "sass-loader": "^10.0.0",
-    "trim-newlines": ">=3.0.1",
-    "vue-cli-plugin-vuetify": "^2.5.8",
-    "vue-template-compiler": "^2.7.10",
-    "vuetify-loader": "^1.9.2"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "@vitejs/plugin-vue": "^4.5.0",
+    "eslint": "^8.49.0",
+    "eslint-plugin-vue": "^9.17.0",
+    "sass": "^1.69.0",
+    "vite": "^5.0.0",
+    "vite-plugin-vuetify": "^2.0.0"
+  }
 }

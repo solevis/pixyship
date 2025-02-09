@@ -76,6 +76,7 @@ import PixyShipMixin from "../mixins/PixyShip.vue.js"
 import DataTableMixin from "../mixins/DataTable.vue.js"
 import moment from 'moment'
 import _ from 'lodash'
+import {useHead} from "@vueuse/head"
 
 export default {
   mixins: [PixyShipMixin, DataTableMixin],
@@ -216,47 +217,40 @@ export default {
     }
   },
 
-  metaInfo () {
-    return {
+  mounted() {
+    useHead({
       title: this.$route.name,
       meta: [
         {
-          vmid: 'google-title',
           itemprop: 'name',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'og-title',
           property: 'og:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'twitter-title',
           name: 'twitter:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'description',
           name: 'description',
           content: this.viewDescription
         },
         {
-          vmid: 'twitter-description',
           name: 'twitter:description',
           content: this.viewDescription
         },
         {
-          vmid: 'og-description',
           property: 'og:description',
           content: this.viewDescription
         },
         {
-          vmid: 'google-description',
           itemprop: 'description',
           content: this.viewDescription
-        },
+        }
       ]
-    }
+    })
   },
 
   beforeMount: function () {

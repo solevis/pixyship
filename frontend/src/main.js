@@ -1,23 +1,31 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
 import router from './router'
-import apiService from './services/api';
+import apiService from './services/api'
 
-Vue.config.productionTip = false
+// Import des styles nécessaires pour Vuetify 3
+import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles'
+import { createHead } from '@vueuse/head'
 
 apiService.getConfig().then(response => {
-    const config = response.data;
-    new Vue({
-        vuetify,
-        router,
-        data() {
-            return {
-                config
-            }
-        },
-        render: h => h(App),
-    }).$mount('#app')
+    const config = response.data
+
+    const app = createApp(App)
+    const head = createHead()
+
+    // Rendre config disponible globalement
+    // app.config.globalProperties.$config = config
+
+    // Alternative: utiliser provide/inject
+    app.provide('config', config)
+
+    app.use(vuetify)
+    app.use(router)
+    app.use(head)
+
+    app.mount('#app')
 }).catch(error => {
-    console.error('Error fetching config:', error);
-});
+    console.error('Error fetching config:', error)
+})

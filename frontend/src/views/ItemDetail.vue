@@ -19,7 +19,7 @@
     </v-row>
 
     <!-- Large screen (Table and prestiges side by side) -->
-    <template v-if="loaded && $vuetify.breakpoint.mdAndUp">
+    <template v-if="loaded && display.mdAndUp.value">
       <v-row justify="center">
         <v-col cols="8">
           <v-simple-table v-if="loaded" class="px-3">
@@ -383,27 +383,27 @@
           <v-tab href="#tab-market"
           >
             <v-icon left>mdi-chart-histogram</v-icon>
-            <span v-if="$vuetify.breakpoint.mdAndUp">Market History</span></v-tab
+            <span v-if="display.mdAndUp.value">Market History</span></v-tab
           >
           <v-tab href="#tab-last-sales"
           >
             <v-icon left>mdi-history</v-icon>
-            <span v-if="$vuetify.breakpoint.mdAndUp">Last sales</span></v-tab
+            <span v-if="display.mdAndUp.value">Last sales</span></v-tab
           >
           <v-tab href="#tab-players-sales"
           >
             <v-icon left>mdi-sale</v-icon>
-            <span v-if="$vuetify.breakpoint.mdAndUp">Last players sales</span></v-tab
+            <span v-if="display.mdAndUp.value">Last players sales</span></v-tab
           >
           <v-tab href="#tab-craft"
           >
             <v-icon left>mdi-sitemap</v-icon>
-            <span v-if="$vuetify.breakpoint.mdAndUp">Craft tree</span></v-tab
+            <span v-if="display.mdAndUp.value">Craft tree</span></v-tab
           >
           <v-tab href="#tab-upgrades"
           >
             <v-icon left>mdi-rice</v-icon>
-            <span v-if="$vuetify.breakpoint.mdAndUp">Upgrades</span></v-tab
+            <span v-if="display.mdAndUp.value">Upgrades</span></v-tab
           >
         </v-tabs>
       </v-col>
@@ -414,7 +414,7 @@
         <v-tabs-items v-model="activeTab" touchless>
           <v-tab-item value="tab-players-sales">
             <v-card flat>
-              <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center" :class="$vuetify.breakpoint.mdAndUp ? 'pt-4' : ''">
+              <v-row v-if="loaded && lastPlayersSales.length > 0" justify="center" :class="display.mdAndUp.value ? 'pt-4' : ''">
                 <v-col class="text-center" cols="12" md="3">
                   <v-text-field
                       v-model="lastPlayersSalesSearch"
@@ -462,7 +462,7 @@
                 <v-col class="text-center" cols="12" md="8">
                   <v-data-table
                       mobile-breakpoint="0"
-                      :headers="$vuetify.breakpoint.mdAndUp ? lastPlayersSalesHeaders : lastPlayersSalesMobileHeaders"
+                      :headers="display.mdAndUp.value ? lastPlayersSalesHeaders : lastPlayersSalesMobileHeaders"
                       :items="lastPlayersSales"
                       :items-per-page="20"
                       :footer-props="{
@@ -474,7 +474,7 @@
                   >
                     <template v-slot:item="{ item }">
                       <tr>
-                        <td v-if="$vuetify.breakpoint.mdAndUp">{{ nowTime(item.date) }}</td>
+                        <td v-if="display.mdAndUp.value">{{ nowTime(item.date) }}</td>
                         <td>x{{ item.quantity }}</td>
                         <td>
                           <div
@@ -620,6 +620,8 @@ import ItemMarket from "../components/ItemMarket.vue"
 import LastSales from "../components/LastSales";
 import SpritesButton from "@/components/SpritesButton";
 import _ from "lodash";
+import {useHead} from "@vueuse/head"
+import {useDisplay} from "vuetify"
 
 export default {
   mixins: [PixyShipMixin, ItemMixin, DataTableMixin],
@@ -632,51 +634,9 @@ export default {
     SpritesButton,
   },
 
-  metaInfo() {
-    return {
-      title: this.item.name,
-      meta: [
-        {
-          vmid: 'google-title',
-          itemprop: 'name',
-          content: `PixyShip - ${this.item.name}`
-        },
-        {
-          vmid: 'og-title',
-          property: 'og:title',
-          content: `PixyShip - ${this.item.name}`
-        },
-        {
-          vmid: 'twitter-title',
-          name: 'twitter:title',
-          content: `PixyShip - ${this.item.name}`
-        },
-        {
-          vmid: 'description',
-          name: 'description',
-          content: this.item.name + ': ' + this.item.description
-        },
-        {
-          vmid: 'twitter-description',
-          name: 'twitter:description',
-          content: this.item.name + ': ' + this.item.description
-        },
-        {
-          vmid: 'og-description',
-          property: 'og:description',
-          content: this.item.name + ': ' + this.item.description
-        },
-        {
-          vmid: 'google-description',
-          itemprop: 'description',
-          content: this.item.name + ': ' + this.item.description
-        },
-      ]
-    }
-  },
-
   data() {
     return {
+      display: useDisplay(),
       activeTab: "tab-detail",
       loaded: false,
       itemId: this.$route.params.id,
@@ -804,6 +764,39 @@ export default {
   },
 
   mounted: function () {
+    useHead({
+      title: this.item.name,
+      meta: [
+        {
+          itemprop: 'name',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          property: 'og:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          name: 'twitter:title',
+          content: `PixyShip - ${this.$route.name}`
+        },
+        {
+          name: 'description',
+          content: this.viewDescription
+        },
+        {
+          name: 'twitter:description',
+          content: this.viewDescription
+        },
+        {
+          property: 'og:description',
+          content: this.viewDescription
+        },
+        {
+          itemprop: 'description',
+          content: this.viewDescription
+        }
+      ]
+    })
     if (this.$route.query.activeTab) {
       this.activeTab = this.$route.query.activeTab.trim();
     }

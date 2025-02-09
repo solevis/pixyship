@@ -294,6 +294,8 @@ import DataTableMixin from "../mixins/DataTable.vue.js"
 import Item from "../components/Item.vue"
 import "../assets/css/override.css"
 import _ from 'lodash'
+import {useHead} from "@vueuse/head"
+import {useDisplay} from "vuetify"
 
 export default {
   mixins: [PixyShipMixin, DataTableMixin],
@@ -304,6 +306,7 @@ export default {
 
   data() {
     return {
+      display: useDisplay(),
       viewDescription: "All ships infos (sprite, type, requirement, spaces, HP...) of Pixel Starships",
       searchName: "",
       searchLevel: [],
@@ -437,47 +440,40 @@ export default {
     }
   },
 
-  metaInfo () {
-    return {
+  mounted() {
+    useHead({
       title: this.$route.name,
       meta: [
         {
-          vmid: 'google-title',
           itemprop: 'name',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'og-title',
           property: 'og:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'twitter-title',
           name: 'twitter:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'description',
           name: 'description',
           content: this.viewDescription
         },
         {
-          vmid: 'twitter-description',
           name: 'twitter:description',
           content: this.viewDescription
         },
         {
-          vmid: 'og-description',
           property: 'og:description',
           content: this.viewDescription
         },
         {
-          vmid: 'google-description',
           itemprop: 'description',
           content: this.viewDescription
-        },
+        }
       ]
-    }
+    })
   },
 
   beforeMount: function () {
@@ -578,7 +574,7 @@ export default {
     },
 
     getShipScalingRatio(ship) {
-      let baseRatio = this.$vuetify.breakpoint.xsOnly ? 1.1 : 2.5
+      let baseRatio = this.display.xs.valueOnly ? 1.1 : 2.5
       let scale = (window.innerWidth / baseRatio) / Math.max(ship.interior_sprite.width,ship.interior_sprite.height)
       scale = scale > 1 ? 1 : scale
       return scale

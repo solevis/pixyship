@@ -1,9 +1,4 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import VueMeta from 'vue-meta'
-
-Vue.use(VueRouter)
-Vue.use(VueMeta)
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
@@ -105,18 +100,18 @@ const routes = [
     component: () => import('../views/Skins.vue')
   },
   {
-    path: '*',
+    path: '/:pathMatch(.*)*',
     component: () => import('../views/Home.vue')
   }
 ]
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL), // Remplace process.env.BASE_URL
   routes
 })
 
-router.onError(error => {
+// Gestion des erreurs de chunk
+router.onError((error) => {
   if (/loading chunk \d* failed./i.test(error.message)) {
     window.location.reload()
   }

@@ -163,6 +163,7 @@ import Crew from "../components/Crew.vue"
 import Item from "../components/Item.vue"
 import "../assets/css/override.css"
 import _ from 'lodash'
+import {useHead} from "@vueuse/head"
 
 const convert = require('xml-js')
 
@@ -234,47 +235,40 @@ export default {
     },
   },
 
-  metaInfo () {
-    return {
+  mounted() {
+    useHead({
       title: this.$route.name,
       meta: [
         {
-          vmid: 'google-title',
           itemprop: 'name',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'og-title',
           property: 'og:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'twitter-title',
           name: 'twitter:title',
           content: `PixyShip - ${this.$route.name}`
         },
         {
-          vmid: 'description',
           name: 'description',
           content: this.viewDescription
         },
         {
-          vmid: 'twitter-description',
           name: 'twitter:description',
           content: this.viewDescription
         },
         {
-          vmid: 'og-description',
           property: 'og:description',
           content: this.viewDescription
         },
         {
-          vmid: 'google-description',
           itemprop: 'description',
           content: this.viewDescription
-        },
+        }
       ]
-    }
+    })
   },
 
   beforeMount: function () {
