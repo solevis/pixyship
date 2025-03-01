@@ -20,9 +20,3 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 
 - [Frontend](frontend/README.md)
 - [Backend](backend/README.md)
-
-## Sponsors
-
-<a href="https://jb.gg/OpenSourceSupport">
-<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="150">
-</a>

@@ -11,7 +11,7 @@ from app.ext import cache
 from app.ext.db import db
 from app.models import Record
 from app.services.base import BaseService
-from app.utils.xml import sort_attributes
+from app.utils.xml_helpers import sort_attributes
 
 
 class RecordService(BaseService):
