@@ -19,7 +19,7 @@ from app.models import DailySale, Record
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.services.item import ItemService
-from app.utils.math import format_delta_time
+from app.utils.calculation import format_delta_time
 from app.utils.pss import get_type_enum_from_string
 
 
