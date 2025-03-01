@@ -174,7 +174,7 @@ export default {
           filterable: true
         },
         {
-          text: "Shield Dmg",
+          text: "Tracking",
           align: "left",
           value: "shield_damage",
           filterable: true
