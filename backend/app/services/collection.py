@@ -53,7 +53,7 @@ class CollectionService(BaseService):
             ability_description = self.get_ability_description(
                 collection["EnhancementType"],
                 int(collection["BaseChance"]),
-                int(collection["BaseEnhancementValue"]),
+                float(collection["BaseEnhancementValue"]),
                 int(collection["Argument"]),
                 trigger_type,
             )
@@ -63,7 +63,7 @@ class CollectionService(BaseService):
                 "name": collection["CollectionName"],
                 "min": int(collection["MinCombo"]),
                 "max": int(collection["MaxCombo"]),
-                "base_enhancement": int(collection["BaseEnhancementValue"]),
+                "base_enhancement": float(collection["BaseEnhancementValue"]),
                 "sprite": self.sprite_service.get_sprite_infos(int(collection["SpriteId"])),
                 "step_enhancement": float(collection["StepEnhancementValue"]),
                 "icon_sprite": self.sprite_service.get_sprite_infos(int(collection["IconSpriteId"])),
@@ -125,7 +125,7 @@ class CollectionService(BaseService):
         return trigger_desc
 
     def get_ability_description(
-        self, enhancement_type: str, base_chance: int, base_enhancement_value: int, argument: int, trigger_type: str
+        self, enhancement_type: str, base_chance: int, base_enhancement_value: float, argument: int, trigger_type: str
     ) -> str:
         """Get collection ability description."""
         enhancement_map = {
@@ -189,7 +189,7 @@ class CollectionService(BaseService):
             return ""
 
     @staticmethod
-    def handle_blood_thirst_skill(base_chance: int, base_enhancement_value: int, trigger_type: str) -> str:
+    def handle_blood_thirst_skill(base_chance: int, base_enhancement_value: float, trigger_type: str) -> str:
         """Handle BloodThirstSkill ability."""
         if trigger_type == "AttackRoom":
             return f"{base_chance}% chance to convert {base_enhancement_value}% of attack damage dealt to enemy rooms to replenish own hp."
@@ -249,7 +249,7 @@ class CollectionService(BaseService):
         return "Ability description not available."
 
     @staticmethod
-    def handle_cast_assigned_ability_skill(base_chance: int, base_enhancement_value: int) -> str:
+    def handle_cast_assigned_ability_skill(base_chance: int, base_enhancement_value: float) -> str:
         """Handle CastAssignedAbilitySkill ability."""
         ability_power = SHORT_ENHANCE_MAP["Ability"]
         if base_enhancement_value > 0:
@@ -257,7 +257,7 @@ class CollectionService(BaseService):
 
         return f"{base_chance}% chance to activate assigned special ability skill using current {ability_power} power."
 
-    def handle_gain_item_skill(self, base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_gain_item_skill(self, base_chance: int, base_enhancement_value: float, argument: int) -> str:
         """Handle GainItemSkill ability."""
         item_design = self.item_service.items[argument]
         item_name = item_design["name"]
@@ -265,7 +265,7 @@ class CollectionService(BaseService):
         return f"{base_chance}% chance to gain a {item_name} with +{base_enhancement_value}{enhancement_type_short}."
 
     @staticmethod
-    def handle_move_speed_boost(base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_move_speed_boost(base_chance: int, base_enhancement_value: float, argument: int) -> str:
         """Handle MoveSpeedBoost ability."""
         if argument == 1:
             return f"{base_chance}% chance to gain {base_enhancement_value} walk speed."
@@ -276,14 +276,14 @@ class CollectionService(BaseService):
         return f"{base_chance}% chance to gain {base_enhancement_value} to both walk and run speed."
 
     @staticmethod
-    def handle_prevent_status_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_prevent_status_skill(base_chance: int, base_enhancement_value: float, argument: int) -> str:
         """Handle PreventStatusSkill ability."""
         if argument == 1:
             return f"{base_chance}% chance to prevent {base_enhancement_value} negative status effects."
 
         return f"{base_chance}% chance to gain ability to block negative status effects from being inflicted {base_enhancement_value} times."
 
-    def handle_spawn_crew_skill(self, base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_spawn_crew_skill(self, base_chance: int, base_enhancement_value: float, argument: int) -> str:
         """Handle SpawnCrewSkill ability."""
         character_design = self.character_service.characters[argument]
         character_name = character_design["name"]
@@ -296,7 +296,7 @@ class CollectionService(BaseService):
         return f"{base_chance}% chance to spawn a {module_name} in the current room if a slot is available."
 
     @staticmethod
-    def handle_reduce_crew_status_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_reduce_crew_status_skill(base_chance: int, base_enhancement_value: float, argument: int) -> str:
         """Handle ReduceCrewStatusSkill ability."""
         if argument == 1:
             return (
@@ -306,7 +306,7 @@ class CollectionService(BaseService):
         return f"{base_chance}% chance to reduce all negative status effects' duration on the crew by {base_enhancement_value}%."
 
     @staticmethod
-    def handle_reduce_room_status_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_reduce_room_status_skill(base_chance: int, base_enhancement_value: float, argument: int) -> str:
         """Handle ReduceRoomStatusSkill ability."""
         duration_seconds = base_enhancement_value / FRAME_SIZE
         if argument == 1:
