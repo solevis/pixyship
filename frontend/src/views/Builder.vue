@@ -14,6 +14,7 @@
           placeholder="Type to search ships"
           @input="selectShip()"
           item-text="name"
+          item-value="id"
           return-object
           outlined
         >
