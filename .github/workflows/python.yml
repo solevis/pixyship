@@ -24,4 +24,7 @@ jobs:
         run: uv sync
       - name: Lint
         working-directory: ./backend
-        run: uv run ruff check
+        run: uvx ruff check
+      - name: Format
+        working-directory: ./backend
+        run: uvx ruff format --check
