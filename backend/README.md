@@ -4,7 +4,7 @@
 
 - [Python 3.11](https://www.python.org/)
 - [PostgreSQL 15](https://www.postgresql.org/)
-- [rye](https://rye-up.com/)
+- [uv](https://docs.astral.sh/uv/)
 
 ## Getting Started locally
 
@@ -12,27 +12,26 @@ Install :
 
 ```bash
 # Initialize environment
-rye pin 3.11
-rye sync
+uv sync
 
 # Configure database and other settings, see app/config.py for available settings
 mkdir -p instance
 ${EDITOR} instance/config.cfg
 
 # Create database
-rye run flask db upgrade
+uv run flask db upgrade
 
 # Initial data load
-rye run flask import assets
-rye run flask import players
-rye run flask import market  # very long, several hours
-rye run flask import market --item 73  # retrieve market history for only one item, much faster for dev
+uv run flask import assets
+uv run flask import players
+uv run flask import market  # very long, several hours
+uv run flask import market --item 73  # retrieve market history for only one item, much faster for dev
 ```
 
 Run :
 
 ```bash
-rye run flask --debug run
+uv run flask --debug run
 ```
 
 Access the backend at [http://localhost:5000](http://localhost:5000).
@@ -40,13 +39,13 @@ Access the backend at [http://localhost:5000](http://localhost:5000).
 Linter :
 
 ```bash
-rye lint
+uv run ruff check
 ```
 
 Tests :
 
 ```bash
-rye test
+uv run pytest
 ```
 
 ## Getting Started locally with Docker

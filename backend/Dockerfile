@@ -15,12 +15,12 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Prevent Python from buffering stdout and stderr
 ENV PYTHONUNBUFFERED 1
 
-# Upgrading pip version
-RUN pip install --no-cache-dir --upgrade pip
+# Install uv for faster dependency installation
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Install app dependencies
+# Install app dependencies using uv pip for faster installation
 COPY ./requirements.lock /app/requirements.lock
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.lock
+RUN uv pip install --system --no-cache -r /app/requirements.lock
 
 # Copy app source code
 COPY . /app

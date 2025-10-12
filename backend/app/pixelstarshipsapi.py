@@ -92,8 +92,8 @@ class PixelStarshipsApi:
         settings = self.fetch_settings(url, params)
 
         # If the server has changed, fetch the settings again
-        if "ProductionServer" in settings and url != f'https://{settings["ProductionServer"]}':
-            settings = self.fetch_settings(f'https://{settings["ProductionServer"]}', params)
+        if "ProductionServer" in settings and url != f"https://{settings['ProductionServer']}":
+            settings = self.fetch_settings(f"https://{settings['ProductionServer']}", params)
 
         return settings
 
