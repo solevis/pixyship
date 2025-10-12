@@ -119,6 +119,10 @@ def import_assets() -> None:
     sprite_service.update_sprites()
     sprite_service.update_cache()
 
+    current_app.logger.info("Importing trainings...")
+    training_service.update_trainings()
+    training_service.update_cache()
+
     current_app.logger.info("Importing items...")
     item_service.update_items()
     item_service.update_cache()
@@ -126,6 +130,10 @@ def import_assets() -> None:
     current_app.logger.info("Importing characters...")
     character_service.update_characters()
     character_service.update_cache()
+
+    current_app.logger.info("Importing researches...")
+    research_service.update_researches()
+    research_service.update_cache()
 
     current_app.logger.info("Importing rooms...")
     room_service.update_rooms()
@@ -139,10 +147,6 @@ def import_assets() -> None:
     collection_service.update_collections()
     collection_service.update_cache()
 
-    current_app.logger.info("Importing researches...")
-    research_service.update_researches()
-    research_service.update_cache()
-
     current_app.logger.info("Importing skinsets...")
     skin_service.update_skinsets()
     skin_service.update_cache()
@@ -150,10 +154,6 @@ def import_assets() -> None:
     current_app.logger.info("Importing skins...")
     skin_service.update_skins()
     skin_service.update_cache()
-
-    current_app.logger.info("Importing trainings...")
-    training_service.update_trainings()
-    training_service.update_cache()
 
     current_app.logger.info("Importing achievements...")
     achievement_service.update_achievements()

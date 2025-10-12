@@ -2,17 +2,15 @@
 
 ## Requirements
 
-- [Python 3.11](https://www.python.org/)
-- [PostgreSQL 15](https://www.postgresql.org/)
-- [uv](https://docs.astral.sh/uv/)
+- [devenv](https://devenv.sh/) - Provides Python 3.11, PostgreSQL 15, Redis, and uv
 
 ## Getting Started locally
 
-Install :
+Initialize environment:
 
 ```bash
-# Initialize environment
-uv sync
+# Enter the devenv shell (starts PostgreSQL and Redis automatically)
+devenv shell
 
 # Configure database and other settings, see app/config.py for available settings
 mkdir -p instance
@@ -28,7 +26,7 @@ uv run flask import market  # very long, several hours
 uv run flask import market --item 73  # retrieve market history for only one item, much faster for dev
 ```
 
-Run :
+Run:
 
 ```bash
 uv run flask --debug run
@@ -36,35 +34,14 @@ uv run flask --debug run
 
 Access the backend at [http://localhost:5000](http://localhost:5000).
 
-Linter :
+Linter:
 
 ```bash
 uv run ruff check
 ```
 
-Tests :
+Tests:
 
 ```bash
 uv run pytest
 ```
-
-## Getting Started locally with Docker
-
-```bash
-# Configure database and other settings, see app/config.py for available settings
-mkdir -p instance
-${EDITOR} instance/config.cfg
-
-# Launch the stack
-docker compose up --build
-
-# Initialize the database
-docker compose exec  -w /app backend flask db upgrade
-
-# Initial data load
-docker compose exec  -w /app backend flask import assets
-docker compose exec  -w /app backend flask import players
-docker compose exec  -w /app backend flask import market --item 73
-```
-
-Access the backend at [http://localhost:8080](http://localhost:8080).
