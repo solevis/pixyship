@@ -1,0 +1,49 @@
+# Description: Justfile for the PixyShip's frontend project
+
+# Set default environment variables
+export NODE_OPTIONS := "--openssl-legacy-provider"
+
+# List all available recipes
+_default:
+    @just --list
+
+# Bootstrap the project
+bootstrap:
+    npm install
+
+# Serve the project in development mode
+serve:
+    npm run serve
+
+# Build the project
+build:
+    npx update-browserslist-db@latest
+    npm run build
+
+# Rsync dist to production
+rsync:
+    rsync -av --delete ./dist/ pixyship:/opt/pixyship.com/uploaded-dist
+
+# Build and deploy to production
+deploy: build rsync
+
+# Rsync dist to staging
+rsync-staging:
+    rsync -av --delete ./dist/ pixyship:/opt/staging.pixyship.com/uploaded-dist
+
+# Build and deploy to staging
+deploy-staging: build rsync-staging
+
+# Rsync dist to beta
+rsync-beta:
+    rsync -av --delete ./dist/ pixyship:/opt/beta.pixyship.com/uploaded-dist
+
+# Build and deploy to beta
+deploy-beta: build rsync-beta
+
+# Build and deploy to all environments
+deploy-all: build rsync rsync-staging rsync-beta
+
+# Update browser database
+update-browsers:
+    npx browserslist@latest --update-db
