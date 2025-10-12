@@ -62,7 +62,7 @@ class PrestigeService(BaseService):
         # determine which crews to group
         temp_to = list(prestiges_to)
         grouped_to = defaultdict(list)
-        while len(temp_to):
+        while len(temp_to) > 0:
             counter = Counter([x for y in temp_to for x in y])
             [(most_id, _)] = counter.most_common(1)
 

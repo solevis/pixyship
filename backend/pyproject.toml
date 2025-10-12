@@ -29,6 +29,7 @@ dev = [
     "types-Flask-Migrate>=4.0.0.20240311",
     "types-requests>=2.31.0.20240406",
     "sqlalchemy[mypy]>=2.0.30",
+    "ruff>=0.14.0",
 ]
 
 [tool.ruff]
@@ -51,6 +52,8 @@ ignore = [
     'FBT',
     # flake8-bandit
     'S',
+    # pylint
+    'PLC0415',
     # pylint refactor
     'PLR',
     # mccabe
