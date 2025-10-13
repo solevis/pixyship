@@ -12,7 +12,7 @@ bootstrap:
     npm install
 
 # Serve the project in development mode
-serve:
+run:
     npm run serve
 
 # Build the project
