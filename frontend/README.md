@@ -20,7 +20,7 @@ ${EDITOR} .env.development
 just bootstrap
 
 # Serve with hot reload
-just serve
+just run
 ```
 
 ### Using Node.js directly

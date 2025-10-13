@@ -2,7 +2,7 @@ class DefaultConfig:
     """Default configuration for PixyShip application."""
 
     # Database URI
-    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://postgres:postgres@localhost:5432/pixyship"
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://pixyship@localhost:5432/pixyship"
 
     # Enable features specific to development
     DEV_MODE = True
@@ -38,7 +38,11 @@ class DefaultConfig:
     SENTRY_DSN = None
 
     # Cache configuration
-    CACHE_TYPE = "SimpleCache"
+    CACHE_TYPE = "RedisCache"
+    CACHE_REDIS_HOST = "localhost"
+    CACHE_REDIS_PORT = 6379
+    CACHE_REDIS_DB = 1
+    CACHE_REDIS_URL = "redis://localhost:6379/1"
     CACHE_DEFAULT_TIMEOUT = 600
 
     # Frontend configuration

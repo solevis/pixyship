@@ -12,7 +12,10 @@ Initialize environment:
 # Enter the devenv shell (starts PostgreSQL and Redis automatically)
 devenv shell
 
-# Configure database and other settings, see app/config.py for available settings
+# Launch services
+devenv up -d
+
+# Set your SAVY_ACCESS_TOKEN and DEVICE_LOGIN_CHECKSUM_KEY in instance/config.cfg
 mkdir -p instance
 ${EDITOR} instance/config.cfg
 
