@@ -21,5 +21,10 @@ in
     package = nixpkgs-old.nodejs_16;
   };
 
+  enterShell = ''
+    echo "→ node version: $(node --version)"
+    echo "→ npm version: $(npm --version)"
+  '';
+
   dotenv.disableHint = true;
 }

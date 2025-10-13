@@ -34,5 +34,13 @@
     port = 6379;
   };
 
+  enterShell = ''
+    echo "→ uv version: $(uv --version)"
+    echo "→ python version: $(python --version)"
+    echo "→ postgres version: $(psql --version)"
+    echo "→ redis version: $(redis-server --version)"
+    echo "→ venv path: $UV_PROJECT_ENVIRONMENT"
+  '';
+
   dotenv.disableHint = true;
 }
