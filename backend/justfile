@@ -14,7 +14,7 @@ run:
 
 # Generate pip-compatible requirements.lock for production
 lock:
-    uv pip compile pyproject.toml -o requirements.lock
+    uv pip compile pyproject.toml -o requirements.lock --no-header --no-annotate
 
 # Format code with ruff
 format:
@@ -27,11 +27,3 @@ test:
 # Run linter with ruff
 lint:
     uv run ruff check
-
-# Build Docker image
-docker-build:
-    docker build -t solevis/pixyship-backend .
-
-# Run Docker container
-docker-run:
-    docker run -p 8080:8080 solevis/pixyship-backend
