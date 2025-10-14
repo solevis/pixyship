@@ -78,7 +78,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     else:
         app.logger.setLevel(logging.INFO)
 
-    if app.config["ENALBE_PROFILER"]:
+    if app.config["ENABLE_PROFILER"]:
         from werkzeug.middleware.profiler import ProfilerMiddleware
 
         app.wsgi_app = ProfilerMiddleware(app.wsgi_app)

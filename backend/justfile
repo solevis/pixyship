@@ -10,7 +10,7 @@ sync:
 
 # Run server
 run:
-    uv run flask run
+    uv run flask run --debug
 
 # Generate pip-compatible requirements.lock for production
 lock:
@@ -26,4 +26,11 @@ test:
 
 # Run linter with ruff
 lint:
-    uv run ruff check
+    uv run ruff check --fix
+
+# Type check with mypy
+typecheck:
+    uv run mypy app/
+
+# Run all checks
+check: lint typecheck test

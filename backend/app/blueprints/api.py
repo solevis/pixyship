@@ -18,7 +18,7 @@ from app.services.missile import MissileService
 from app.services.pixyship import PixyShipService
 from app.services.player import PlayerService
 from app.services.prestige import PrestigeService
-from app.services.reasearch import ResearchService
+from app.services.research import ResearchService
 from app.services.room import RoomService
 from app.services.ship import ShipService
 from app.services.skin import SkinService
@@ -315,13 +315,20 @@ def api_rooms() -> Response:
 @cache.cached()
 def api_skins() -> Response:
     """Return all skins."""
-    # keep only skins with sprite_type = "Interior"
     skin_service = SkinService()
-    skins = [skin for skin in skin_service.skins.values() if skin["sprite_type"] == "Interior"]
+    skins = skin_service.skins
+
+    # Remove duplicate skins with the same name
+    skins_filtered = {}
+    known_names = set()
+    for skin_id, skin in skins.items():
+        if skin["name"] not in known_names:
+            skins_filtered[skin_id] = skin
+            known_names.add(skin["name"])
 
     return jsonify(
         {
-            "data": skins,
+            "data": skins_filtered,
             "status": "success",
             "current_time": time.time(),
         },

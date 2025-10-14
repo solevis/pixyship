@@ -21,6 +21,7 @@ class DefaultConfig:
     CHANGES_MAX_ASSETS = 5000
 
     # Generated with `python -c 'import os; print(os.urandom(16))'`, must be kept secret
+    # Warning: never use this key value in production!
     SECRET_KEY = "dev"
 
     # Generated from PSS website (only available for Savy trusted third-party developers),
@@ -52,4 +53,4 @@ class DefaultConfig:
     DONATION_URL = "https://example.donate/"
 
     # Profiler
-    ENALBE_PROFILER = False
+    ENABLE_PROFILER = False

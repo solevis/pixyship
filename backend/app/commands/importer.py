@@ -25,7 +25,7 @@ from app.services.market import MarketService
 from app.services.missile import MissileService
 from app.services.player import PlayerService
 from app.services.prestige import PrestigeService
-from app.services.reasearch import ResearchService
+from app.services.research import ResearchService
 from app.services.room import RoomService
 from app.services.ship import ShipService
 from app.services.skin import SkinService

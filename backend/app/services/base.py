@@ -16,9 +16,9 @@ if TYPE_CHECKING:
     from app.services.pixyship import PixyShipService
     from app.services.player import PlayerService
     from app.services.prestige import PrestigeService
-    from app.services.reasearch import ResearchService
     from app.services.record import RecordService
     from app.services.record_details import RecordDetailsService
+    from app.services.research import ResearchService
     from app.services.room import RoomService
     from app.services.ship import ShipService
     from app.services.skin import SkinService
@@ -88,7 +88,7 @@ class BaseService:
     @cached_property
     def research_service(self) -> ResearchService:
         """Get research service."""
-        from app.services.reasearch import ResearchService
+        from app.services.research import ResearchService
 
         return ResearchService()
 
