@@ -6,7 +6,7 @@ from app.services.collection import CollectionService
 from app.services.craft import CraftService
 from app.services.item import ItemService
 from app.services.missile import MissileService
-from app.services.reasearch import ResearchService
+from app.services.research import ResearchService
 from app.services.room import RoomService
 from app.services.ship import ShipService
 from app.services.skin import SkinService
