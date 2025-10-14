@@ -1,5 +1,6 @@
 [project]
 name = "pixyship"
+version = "0.1.0"
 description = "PixyShip is a reference site for the game Pixel Starships."
 authors = [
     { name = "solevis", email = "solevis@protonmail.com" }
@@ -20,16 +21,15 @@ dependencies = [
 readme = "README.md"
 requires-python = ">= 3.11"
 
-[tool.rye]
-managed = true
-virtual = true
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=8.1.1",
     "mypy>=1.10.0",
     "types-Flask-Cors>=4.0.0.20240405",
     "types-Flask-Migrate>=4.0.0.20240311",
     "types-requests>=2.31.0.20240406",
     "sqlalchemy[mypy]>=2.0.30",
+    "ruff>=0.14.0",
 ]
 
 [tool.ruff]
@@ -52,6 +52,8 @@ ignore = [
     'FBT',
     # flake8-bandit
     'S',
+    # pylint
+    'PLC0415',
     # pylint refactor
     'PLR',
     # mccabe

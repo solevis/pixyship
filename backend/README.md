@@ -2,70 +2,49 @@
 
 ## Requirements
 
-- [Python 3.11](https://www.python.org/)
-- [PostgreSQL 15](https://www.postgresql.org/)
-- [rye](https://rye-up.com/)
+- [devenv](https://devenv.sh/) - Provides Python 3.11, PostgreSQL 15, Redis, and uv
 
 ## Getting Started locally
 
-Install :
+Initialize environment:
 
 ```bash
-# Initialize environment
-rye pin 3.11
-rye sync
+# Enter the devenv shell (starts PostgreSQL and Redis automatically)
+devenv shell
 
-# Configure database and other settings, see app/config.py for available settings
+# Launch services
+devenv up -d
+
+# Set your SAVY_ACCESS_TOKEN and DEVICE_LOGIN_CHECKSUM_KEY in instance/config.cfg
 mkdir -p instance
 ${EDITOR} instance/config.cfg
 
 # Create database
-rye run flask db upgrade
+uv run flask db upgrade
 
 # Initial data load
-rye run flask import assets
-rye run flask import players
-rye run flask import market  # very long, several hours
-rye run flask import market --item 73  # retrieve market history for only one item, much faster for dev
+uv run flask import assets
+uv run flask import players
+uv run flask import market  # very long, several hours
+uv run flask import market --item 73  # retrieve market history for only one item, much faster for dev
 ```
 
-Run :
+Run:
 
 ```bash
-rye run flask --debug run
+uv run flask --debug run
 ```
 
 Access the backend at [http://localhost:5000](http://localhost:5000).
 
-Linter :
+Linter:
 
 ```bash
-rye lint
+uv run ruff check
 ```
 
-Tests :
+Tests:
 
 ```bash
-rye test
+uv run pytest
 ```
-
-## Getting Started locally with Docker
-
-```bash
-# Configure database and other settings, see app/config.py for available settings
-mkdir -p instance
-${EDITOR} instance/config.cfg
-
-# Launch the stack
-docker compose up --build
-
-# Initialize the database
-docker compose exec  -w /app backend flask db upgrade
-
-# Initial data load
-docker compose exec  -w /app backend flask import assets
-docker compose exec  -w /app backend flask import players
-docker compose exec  -w /app backend flask import market --item 73
-```
-
-Access the backend at [http://localhost:8080](http://localhost:8080).

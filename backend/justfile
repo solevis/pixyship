@@ -1,0 +1,29 @@
+# Description: Justfile for the PixyShip's backend project
+
+# List all available recipes
+_default:
+    @just --list
+
+# Sync dependencies
+sync:
+    uv sync
+
+# Run server
+run:
+    uv run flask run
+
+# Generate pip-compatible requirements.lock for production
+lock:
+    uv pip compile pyproject.toml -o requirements.lock --no-header --no-annotate
+
+# Format code with ruff
+format:
+    uv run ruff format
+
+# Run tests with pytest
+test:
+    uv run pytest
+
+# Run linter with ruff
+lint:
+    uv run ruff check

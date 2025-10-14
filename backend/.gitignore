@@ -106,8 +106,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.direnv/
-.envrc
 
 # Spyder project settings
 .spyderproject
@@ -148,3 +146,14 @@ internal-tools/
 postgresql.dumps.*
 redisdata/
 pgdata/
+
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml

@@ -2,11 +2,28 @@
 
 ## Requirements
 
-- [Node.js 16](https://nodejs.org/)
+- [devenv](https://devenv.sh/) (recommended) or [Node.js 16](https://nodejs.org/)
+- [just](https://github.com/casey/just) (command runner)
 
-## Getting Started locally
+## Getting Started
 
-Install :
+### Using devenv (Recommended)
+
+```bash
+# Enter the development environment
+devenv shell
+
+# Configure frontend (defaults options should work)
+${EDITOR} .env.development
+
+# Install npm dependencies
+just bootstrap
+
+# Serve with hot reload
+just run
+```
+
+### Using Node.js directly
 
 ```bash
 # Configure frontend (defaults options should work)
@@ -14,25 +31,17 @@ ${EDITOR} .env.development
 
 # Install npm dependencies
 npm install
-```
 
-Run :
-
-```bash
 # Serve with hot reload
 npm run serve
 ```
 
 Access frontend at [http://localhost:8080](http://localhost:8080).
 
-## Getting Started locally with Docker
+## Available Commands
+
+This project uses `just` as a command runner. To see all available commands:
 
 ```bash
-# Configure frontend (defaults options should work)
-${EDITOR} .env.development
-
-# Launch the stack
-docker compose up --build
+just --list
 ```
-
-Access frontend at [http://localhost:8080](http://localhost:8080).

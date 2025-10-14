@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
@@ -17,7 +17,23 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.3
+    rev: v0.14.0
     hooks:
-      - id: ruff
+      - id: ruff-check
+        files: ^backend/
       - id: ruff-format
+        files: ^backend/
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.9.2
+    hooks:
+      - id: pip-compile
+        args:
+          [
+            backend/pyproject.toml,
+            -o,
+            backend/requirements.lock,
+            --no-header,
+            --no-annotate,
+          ]
+        files: ^backend/(pyproject\.toml|uv\.lock)$
