@@ -10,7 +10,7 @@ sync:
 
 # Run server
 run:
-    uv run flask run
+    uv run flask run --debug
 
 # Generate pip-compatible requirements.lock for production
 lock:
