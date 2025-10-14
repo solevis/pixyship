@@ -7,67 +7,27 @@
     <v-card-subtitle v-if="loaded">
       <v-row>
         <v-col cols="12" sm="6" md="3">
-          <v-text-field
-              v-model="searchName"
-              append-icon="mdi-magnify"
-              label='Name'
-              clearable
-              outlined
-          ></v-text-field>
+          <v-text-field v-model="searchName" append-icon="mdi-magnify" label='Name' clearable outlined></v-text-field>
         </v-col>
 
         <v-col cols="12" sm="6" md="3">
-          <v-autocomplete
-              v-model="searchType"
-              :items="types"
-              label="Type"
-              clearable
-              outlined
-              multiple
-              small-chips
-              hide-details
-              :value-comparator="filterValueComparator"
-          ></v-autocomplete>
+          <v-autocomplete v-model="searchType" :items="types" label="Type" clearable outlined multiple small-chips
+            hide-details :value-comparator="filterValueComparator"></v-autocomplete>
         </v-col>
 
         <v-col cols="12" sm="6" md="3">
-          <v-autocomplete
-              v-model="searchCurrency"
-              :items="currencies"
-              label="Currency"
-              clearable
-              outlined
-              multiple
-              small-chips
-              hide-details
-              :value-comparator="filterValueComparator"
-          ></v-autocomplete>
+          <v-autocomplete v-model="searchCurrency" :items="currencies" label="Currency" clearable outlined multiple
+            small-chips hide-details :value-comparator="filterValueComparator"></v-autocomplete>
         </v-col>
 
         <v-col cols="12" sm="6" md="3">
-          <v-menu
-              v-model="menu"
-              :close-on-content-click="false"
-              :nudge-right="40"
-              transition="scale-transition"
-              offset-y
-              min-width="auto"
-          >
+          <v-menu v-model="menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+            offset-y min-width="auto">
             <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                  v-model="searchDate"
-                  label="Until"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                  clearable
-                  outlined
-              ></v-text-field>
+              <v-text-field v-model="searchDate" label="Until" readonly v-bind="attrs" v-on="on" clearable
+                outlined></v-text-field>
             </template>
-            <v-date-picker
-                v-model="searchDate"
-                @input="menu = false"
-            ></v-date-picker>
+            <v-date-picker v-model="searchDate" @input="menu = false"></v-date-picker>
           </v-menu>
         </v-col>
       </v-row>
@@ -75,39 +35,28 @@
 
 
     <!-- Table -->
-    <v-data-table
-        v-if="loaded"
-        mobile-breakpoint="0"
-        :headers="headers"
-        :items="dailysales"
-        :search="searchName"
-        :custom-filter="multipleFilterWithNegative"
-        :loading="isLoading"
-        :footer-props="{
-          itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
-        }"
-        :sort-by.sync="globalSortBy"
-        :sort-desc.sync="globalSortDesc"
-        multi-sort
-        loading-text="Loading..."
-        class="elevation-1 px-3"
-        :items-per-page="itemsPerPage"
-    >
+    <v-data-table v-if="loaded" mobile-breakpoint="0" :headers="headers" :items="dailysales" :search="searchName"
+      :custom-filter="multipleFilterWithNegative" :loading="isLoading" :footer-props="{
+        itemsPerPageOptions: [10, 20, 50, 100, 200, -1],
+      }" :sort-by.sync="globalSortBy" :sort-desc.sync="globalSortDesc" multi-sort loading-text="Loading..."
+      class="elevation-1 px-3" :items-per-page="itemsPerPage">
       <template v-slot:item="{ item }">
         <tr>
           <td>
-            <crew v-if="item.type === 'character'" :char="item.char" tipPosition="right"/>
-            <item v-else-if="item.type === 'item'" :item="item.item"/>
+            <crew v-if="item.type === 'character'" :char="item.char" tipPosition="right" />
+            <item v-else-if="item.type === 'item'" :item="item.item" />
             <div v-else :style="spriteStyleScaledWrapper(item.sprite, 300)">
               <div class="block my-1 ma-auto" :style="spriteStyleScaled(item.sprite, 300)"></div>
             </div>
           </td>
 
           <td style="min-width: 250px">
-            <span v-if="item.type === 'character'" :class="[item.char.rarity]"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
-            <span v-else-if="item.type === 'item'" :class="[item.item.rarity]"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
+            <span v-if="item.type === 'character'" :class="[item.char.rarity]"><a
+                :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
+            <span v-else-if="item.type === 'item'" :class="[item.item.rarity]"><a
+                :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
             <span v-else-if="item.type !== 'sprite'"><a :href="makeLink(item.type, item.id)">{{ item.name }}</a></span>
-            <span v-else><a :href="getSpriteUrl(item.sprite)" >{{ item.name }}</a></span>
+            <span v-else><a :href="getSpriteUrl(item.sprite)">{{ item.name }}</a></span>
           </td>
 
           <td>
@@ -119,10 +68,7 @@
           </td>
 
           <td>
-              <div
-                  class="d-inline-block"
-                  :style="currencySprite(item.currency)"
-              />
+            <div class="d-inline-block" :style="currencySprite(item.currency)" />
           </td>
 
           <td style="min-width: 150px">{{ item.moment }}</td>
@@ -201,7 +147,6 @@ export default {
         {
           text: 'Date', value: 'moment', align: 'left', filter: value => {
             if (this.searchDate) {
-
               return value <= this.searchDate
             }
 
@@ -218,7 +163,7 @@ export default {
     },
   },
 
-  metaInfo () {
+  metaInfo() {
     return {
       title: this.$route.name,
       meta: [
@@ -267,7 +212,7 @@ export default {
   },
 
   watch: {
-    searchName: _.debounce(function(value){
+    searchName: _.debounce(function (value) {
       this.updateQueryFromFilter('name', value)
     }, 250),
 
@@ -310,7 +255,7 @@ export default {
       const response = await axios.get(this.lastSalesBySaleFromEndpoint(this.saleFrom))
 
       let dailysales = response.data.data.map(dailysale => {
-        dailysale.moment = moment.utc(dailysale.changed_at).format('YYYY-MM-DD')
+        dailysale.moment = moment.utc(dailysale.date).format('YYYY-MM-DD')
         return dailysale
       })
 
