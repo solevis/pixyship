@@ -209,6 +209,11 @@ class DailyOfferService(BaseService):
         promotions = []
 
         for datum in data:
+            pack_id = (
+                int(datum["PackId"].replace("sale", ""))
+                if datum["PackId"] and datum["PackId"].replace("sale", "").isdigit()
+                else None
+            )
             promotion = {
                 "id": int(datum["PromotionDesignId"]),
                 "type": datum["PromotionType"],
@@ -219,7 +224,7 @@ class DailyOfferService(BaseService):
                 "sprite": self.sprite_service.get_sprite_infos(datum["IconSpriteId"]),
                 "from": datum["FromDate"],
                 "end": datum["ToDate"],
-                "pack": int(datum["PackId"].replace("sale", "")) if datum["PackId"] else None,
+                "pack": pack_id,
             }
 
             promotions.append(promotion)

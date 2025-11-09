@@ -7,14 +7,13 @@
         <!-- News -->
         <v-col cols="12" md="12">
           <v-card outlined class="not-offers">
-            <div :class="$vuetify.breakpoint.smAndUp ?'news-sprite' : 'news-sprite-mobile'" :style="spriteStyle(this.news.sprite)"></div>
-            <v-card-title class="overline mb-2"
-            >
+            <div :class="$vuetify.breakpoint.smAndUp ? 'news-sprite' : 'news-sprite-mobile'"
+              :style="spriteStyle(this.news.sprite)"></div>
+            <v-card-title class="overline mb-2">
               <v-icon left>mdi-newspaper-variant</v-icon>
               Pixel Starships
               News
-            </v-card-title
-            >
+            </v-card-title>
 
             <v-card-subtitle v-if="news.news_moment">
               Stardate #{{ stardate }} ({{ news.news_moment.format('YYYY/MM/DD') }})
@@ -73,18 +72,15 @@
             </v-card-title>
             <v-card-text>
               <p>
-                Most Recent: {{ nowTime(this.changeLatest) }}<br/>
-                Today: {{ this.changesToday }}<br/>
-                This Week: {{ this.changesThisWeek }}<br/>
+                Most Recent: {{ nowTime(this.changeLatest) }}<br />
+                Today: {{ this.changesToday }}<br />
+                This Week: {{ this.changesThisWeek }}<br />
                 <span v-if="this.lastPrestigesChanges">Last Prestiges Changes: {{ this.lastPrestigesChanges }}</span>
               </p>
             </v-card-text>
 
             <v-card-actions>
-              <v-btn
-                  text
-                  to="/changes"
-              >
+              <v-btn text to="/changes">
                 See changes
               </v-btn>
             </v-card-actions>
@@ -100,7 +96,7 @@
             </v-card-title>
 
             <v-card-text>
-              <crew :char="this.offers.blueCargo.mineralCrew.object" name="right"/>
+              <crew :char="this.offers.blueCargo.mineralCrew.object" name="right" />
 
               <div style="clear: both" class="pt-2">
                 <div class="block middle mr-1">Cost:</div>
@@ -109,7 +105,7 @@
 
               <v-divider class="mt-4 mb-4"></v-divider>
 
-              <crew :char="this.offers.blueCargo.starbuxCrew.object" name="right"/>
+              <crew :char="this.offers.blueCargo.starbuxCrew.object" name="right" />
 
               <div style="clear: both" class="pt-2">
                 <div class="block middle mr-1">Cost:</div>
@@ -118,10 +114,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn
-                  text
-                  to="/dailysales/blue_cargo"
-              >
+              <v-btn text to="/dailysales/blue_cargo">
                 History
               </v-btn>
             </v-card-actions>
@@ -140,19 +133,20 @@
               <div>
 
                 <template v-if="this.offers.shop.object.type === 'item'">
-                  <item :item="this.offers.shop.object.object" :count="this.offers.shop.object.count" name="right"/>
+                  <item :item="this.offers.shop.object.object" :count="this.offers.shop.object.count" name="right" />
                 </template>
 
                 <template v-else-if="this.offers.shop.object.type === 'room'">
                   <a :href="makeLink('room', this.offers.shop.object.object.id)">
                     {{ this.offers.shop.object.count > 1 ? 'x' + this.offers.shop.object.count : '' }}
                     <div class="block mr-2 middle" :style="spriteStyle(this.offers.shop.object.object.sprite)"></div>
-                    <div :class="[this.offers.shop.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{ this.offers.shop.object.object.name }}</div>
+                    <div :class="[this.offers.shop.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
+                      this.offers.shop.object.object.name }}</div>
                   </a>
                 </template>
 
                 <template v-else-if="this.offers.shop.object.type === 'character'">
-                  <crew :char="this.offers.shop.object.object" name="right"/>
+                  <crew :char="this.offers.shop.object.object" name="right" />
                 </template>
 
                 <template v-else-if="this.offers.shop.object.type === 'currency'">
@@ -172,8 +166,8 @@
                 </template>
                 <template v-else-if="this.offers.shop.cost && this.offers.shop.cost.currency == 'item'">
                   <div class="block middle mr-1">{{ this.offers.shop.cost.count }}</div>
-                  <div class="block middle" :style="spriteStyle(this.offers.shop.cost.object.sprite)" :title="this.offers.shop.cost.object.name"
-                  ></div>
+                  <div class="block middle" :style="spriteStyle(this.offers.shop.cost.object.sprite)"
+                    :title="this.offers.shop.cost.object.name"></div>
                 </template>
               </div>
 
@@ -184,10 +178,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn
-                  text
-                  to="/dailysales/shop"
-              >
+              <v-btn text to="/dailysales/shop">
                 History
               </v-btn>
             </v-card-actions>
@@ -208,19 +199,20 @@
 
                 <div>
                   <template v-if="object.type === 'item'">
-                    <item :item="object.object" :count="object.count" name="right"/>
+                    <item :item="object.object" :count="object.count" name="right" />
                   </template>
 
                   <template v-else-if="object.type === 'room'">
                     <a :href="makeLink('room', object.object.id)">
                       {{ 'x' + object.count }}
                       <div class="block mr-2 middle" :style="spriteStyle(object.object.sprite)"></div>
-                      <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{ object.object.name }}</div>
+                      <div :class="[object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{ object.object.name }}
+                      </div>
                     </a>
                   </template>
 
                   <template v-else-if="object.type === 'character'">
-                    <crew :char="object.object" name="right"/>
+                    <crew :char="object.object" name="right" />
                   </template>
 
                   <template v-else-if="object.type === 'currency'">
@@ -237,10 +229,7 @@
               </div>
             </v-card-text>
             <v-card-actions>
-              <v-btn
-                  text
-                  to="/dailysales/daily_rewards"
-              >
+              <v-btn text to="/dailysales/daily_rewards">
                 History
               </v-btn>
             </v-card-actions>
@@ -261,19 +250,20 @@
 
                 <div>
                   <template v-if="offer.object.type === 'item'">
-                    <item :item="offer.object.object" :count="offer.object.count" name="right"/>
+                    <item :item="offer.object.object" :count="offer.object.count" name="right" />
                   </template>
 
                   <template v-else-if="offer.object.type === 'room'">
                     <a :href="makeLink('room', offer.object.object.id)">
                       {{ 'x' + offer.object.count }}
                       <div class="block mr-2 middle" :style="spriteStyle(offer.object.object.sprite)"></div>
-                      <div :class="[offer.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{ offer.object.object.name }}</div>
+                      <div :class="[offer.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
+                        offer.object.object.name }}</div>
                     </a>
                   </template>
 
                   <template v-else-if="offer.object.type === 'character'">
-                    <crew :char="offer.object.object" name="right"/>
+                    <crew :char="offer.object.object" name="right" />
                   </template>
 
                   <template v-else-if="offer.object.type === 'currency'">
@@ -293,8 +283,8 @@
                   </template>
                   <template v-else-if="offer.cost && offer.cost.currency == 'item'">
                     <div class="block middle mr-1">Cost: {{ offer.cost.count }}</div>
-                    <div class="block middle" :style="spriteStyle(offer.cost.object.sprite)" :title="offer.cost.object.name"
-                    ></div>
+                    <div class="block middle" :style="spriteStyle(offer.cost.object.sprite)"
+                      :title="offer.cost.object.name"></div>
                   </template>
                 </div>
 
@@ -302,10 +292,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn
-                  text
-                  to="/dailysales/green_cargo"
-              >
+              <v-btn text to="/dailysales/green_cargo">
                 History
               </v-btn>
             </v-card-actions>
@@ -316,10 +303,7 @@
         <v-col cols="12" sm="6" md="3">
           <v-card outlined class="offers">
             <v-window v-model="currentMerchantMarker">
-              <v-window-item
-                  v-for="(object, i) in this.merchantMarkers"
-                  :key="'merchant-marker-' + i"
-              >
+              <v-window-item v-for="(object, i) in this.merchantMarkers" :key="'merchant-marker-' + i">
                 <v-card :height="merchantMarkersMaxRewards * 100 + 70" flat tile>
                   <v-card-title class="overline mb-2">
                     <div class="block middle mr-2" :style="mapSprite()"></div>
@@ -327,12 +311,10 @@
                   </v-card-title>
 
                   <v-card-text>
-                    <v-row
-                        align="center"
-                        justify="center"
-                    >
+                    <v-row align="center" justify="center">
                       <v-col>
-                        <div v-for="(item, j) in object.items" :key="'merchant-marker-' + i + item.reward.type + '-' + item.reward.id">
+                        <div v-for="(item, j) in object.items"
+                          :key="'merchant-marker-' + i + item.reward.type + '-' + item.reward.id">
                           <template v-if="item.reward.type === 'starbux'">
                             {{ item.reward.data }}
                             <div class="block middle" :style="buxSprite()"></div>
@@ -344,7 +326,7 @@
                           </template>
 
                           <template v-else-if="item.reward.type === 'item'">
-                            <item :item="item.reward.data" :count="object.count" name="right"/>
+                            <item :item="item.reward.data" :count="object.count" name="right" />
                           </template>
 
                           <template v-else-if="item.reward.type === 'room'">
@@ -352,14 +334,14 @@
                               {{ object.count > 1 ? 'x' + object.count : '' }}
                               <div class="block mr-2 middle" :style="spriteStyle(item.reward.data.sprite)"></div>
                               <div :class="[item.reward.data.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
-                                  item.reward.data.name
-                                }}
+                                item.reward.data.name
+                              }}
                               </div>
                             </a>
                           </template>
 
                           <template v-else-if="item.reward.type === 'character'">
-                            <crew :char="item.reward.data" name="right"/>
+                            <crew :char="item.reward.data" name="right" />
                             <div style="clear: both"></div>
                           </template>
 
@@ -387,35 +369,17 @@
             </v-window>
 
             <v-card-actions v-if="this.merchantMarkers.length > 1" class="justify-space-between">
-              <v-btn
-                  text
-                  @click="prevMerchantMarker"
-              >
+              <v-btn text @click="prevMerchantMarker">
                 <v-icon>mdi-chevron-left</v-icon>
               </v-btn>
-              <v-item-group
-                  v-model="currentMerchantMarker"
-                  class="text-center"
-                  mandatory
-              >
-                <v-item
-                    v-for="n in this.merchantMarkersLength"
-                    :key="`btn-${n}`"
-                    v-slot="{ active, toggle }"
-                >
-                  <v-btn
-                      :input-value="active"
-                      icon
-                      @click="toggle"
-                  >
+              <v-item-group v-model="currentMerchantMarker" class="text-center" mandatory>
+                <v-item v-for="n in this.merchantMarkersLength" :key="`btn-${n}`" v-slot="{ active, toggle }">
+                  <v-btn :input-value="active" icon @click="toggle">
                     <v-icon>mdi-record</v-icon>
                   </v-btn>
                 </v-item>
               </v-item-group>
-              <v-btn
-                  text
-                  @click="nextMerchantMarker"
-              >
+              <v-btn text @click="nextMerchantMarker">
                 <v-icon>mdi-chevron-right</v-icon>
               </v-btn>
             </v-card-actions>
@@ -431,17 +395,10 @@
             </v-card-title>
 
             <v-window v-model="currentDailyBundle">
-              <v-window-item
-                  v-for="(object, i) in this.offers.promotions.objects"
-                  :key="'promo-' + i"
-
-              >
+              <v-window-item v-for="(object, i) in this.offers.promotions.objects" :key="'promo-' + i">
                 <v-card :height="dailyBundlesMaxRewards * 40" flat tile>
                   <v-card-text>
-                    <v-row
-                        align="center"
-                        justify="center"
-                    >
+                    <v-row align="center" justify="center">
                       <v-col>
                         <div v-for="reward in object.rewards" :key="'promo-' + i + '-' + reward.type + reward.id">
                           <template v-if="reward.type === 'starbux'">
@@ -455,7 +412,7 @@
                           </template>
 
                           <template v-else-if="reward.type === 'item'">
-                            <item :item="reward.data" :count="reward.count" name="right"/>
+                            <item :item="reward.data" :count="reward.count" name="right" />
                           </template>
 
                           <template v-else-if="reward.type === 'room'">
@@ -463,14 +420,14 @@
                               {{ reward.count > 1 ? 'x' + reward.count : '' }}
                               <div class="block mr-2 middle" :style="spriteStyle(reward.data.sprite)"></div>
                               <div :class="[reward.data.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
-                                  reward.data.name
-                                }}
+                                reward.data.name
+                              }}
                               </div>
                             </a>
                           </template>
 
                           <template v-else-if="reward.type === 'character'">
-                            <crew :char="reward.data" name="right"/>
+                            <crew :char="reward.data" name="right" />
                             <div style="clear: both"></div>
                           </template>
 
@@ -479,7 +436,8 @@
                           </template>
                         </div>
                         <div style="clear: both" class="pt-2">
-                          <div>Cost<span class="font-italic">*</span>: {{ formatDailyBundlePackCost(object.pack) }}</div>
+                          <div>Cost<span class="font-italic">*</span>: {{ formatDailyBundlePackCost(object.pack) }}
+                          </div>
                         </div>
                       </v-col>
                     </v-row>
@@ -489,35 +447,17 @@
             </v-window>
 
             <v-card-actions v-if="this.offers.promotions.objects.length > 1" class="justify-space-between">
-              <v-btn
-                  text
-                  @click="prevDailyBundle"
-              >
+              <v-btn text @click="prevDailyBundle">
                 <v-icon>mdi-chevron-left</v-icon>
               </v-btn>
-              <v-item-group
-                  v-model="currentDailyBundle"
-                  class="text-center"
-                  mandatory
-              >
-                <v-item
-                    v-for="n in this.dailyBundlesLength"
-                    :key="`btn-${n}`"
-                    v-slot="{ active, toggle }"
-                >
-                  <v-btn
-                      :input-value="active"
-                      icon
-                      @click="toggle"
-                  >
+              <v-item-group v-model="currentDailyBundle" class="text-center" mandatory>
+                <v-item v-for="n in this.dailyBundlesLength" :key="`btn-${n}`" v-slot="{ active, toggle }">
+                  <v-btn :input-value="active" icon @click="toggle">
                     <v-icon>mdi-record</v-icon>
                   </v-btn>
                 </v-item>
               </v-item-group>
-              <v-btn
-                  text
-                  @click="nextDailyBundle"
-              >
+              <v-btn text @click="nextDailyBundle">
                 <v-icon>mdi-chevron-right</v-icon>
               </v-btn>
             </v-card-actions>
@@ -527,10 +467,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn
-                  text
-                  to="/dailysales/promotion_dailydealoffer"
-              >
+              <v-btn text to="/dailysales/promotion_dailydealoffer">
                 History
               </v-btn>
             </v-card-actions>
@@ -549,19 +486,20 @@
             <v-card-text v-if="this.offers.sale.object">
               <div>
                 <template v-if="this.offers.sale.object.type === 'item'">
-                  <item :item="this.offers.sale.object.object" :count="this.offers.sale.object.count" name="right"/>
+                  <item :item="this.offers.sale.object.object" :count="this.offers.sale.object.count" name="right" />
                 </template>
 
                 <template v-else-if="this.offers.sale.object.type === 'room'">
                   <a :href="makeLink('room', this.offers.sale.object.object.id)">
                     {{ this.offers.sale.object.count > 1 ? 'x' + this.offers.sale.object.count : '' }}
                     <div class="block mr-2 middle" :style="spriteStyle(this.offers.sale.object.object.sprite)"></div>
-                    <div :class="[this.offers.sale.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{ this.offers.sale.object.object.name }}</div>
+                    <div :class="[this.offers.sale.object.object.rarity, 'block', 'middle', 'nowrap', 'bold']">{{
+                      this.offers.sale.object.object.name }}</div>
                   </a>
                 </template>
 
                 <template v-else-if="this.offers.sale.object.type === 'character'">
-                  <crew :char="this.offers.sale.object.object" name="right"/>
+                  <crew :char="this.offers.sale.object.object" name="right" />
                 </template>
 
                 <template v-else-if="this.offers.sale.object.type === 'currency'">
@@ -590,10 +528,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn
-                  text
-                  to="/dailysales/sale"
-              >
+              <v-btn text to="/dailysales/sale">
                 History
               </v-btn>
             </v-card-actions>
@@ -713,15 +648,15 @@ export default {
       const changes = await axios.get(this.changesEndpoint)
       this.changes = changes.data.data.map((change) => {
         change.attributes = this.getAllAttributes(
-            convert.xml2js(change.data).elements[0]
+          convert.xml2js(change.data).elements[0]
         )
         change.oldAttributes = change.old_data
-            ? this.getAllAttributes(convert.xml2js(change.old_data).elements[0])
-            : null
+          ? this.getAllAttributes(convert.xml2js(change.old_data).elements[0])
+          : null
         change.moment = moment.utc(change.changed_at)
         change.changes = this.diffAttributes(
-            change.attributes,
-            change.oldAttributes
+          change.attributes,
+          change.oldAttributes
         )
         return change
       })
@@ -731,16 +666,16 @@ export default {
       const oneWeek = moment().add(-7, "days")
 
       this.changesToday = this.changes.filter(
-          (change) => change.moment > oneDay
+        (change) => change.moment > oneDay
       ).length
       this.changesYesterday = this.changes.filter(
-          (change) => change.moment > twoDay
+        (change) => change.moment > twoDay
       ).length
       this.changesThisWeek = this.changes.filter(
-          (change) => change.moment > oneWeek
+        (change) => change.moment > oneWeek
       ).length
       this.changeLatest = Math.max(
-          ...this.changes.map((change) => change.moment)
+        ...this.changes.map((change) => change.moment)
       )
 
       this.lastPrestigesChanges = this.nowTime(changes.data.lastprestigeschanges)
@@ -780,6 +715,8 @@ export default {
     },
 
     formatDailyBundlePackCost(pack) {
+      if (!pack) return ''
+
       if (pack === 1) {
         return '$1.99'
       }
@@ -803,24 +740,24 @@ export default {
 
     nextDailyBundle() {
       this.currentDailyBundle = this.currentDailyBundle + 1 === this.dailyBundlesLength
-          ? 0
-          : this.currentDailyBundle + 1
+        ? 0
+        : this.currentDailyBundle + 1
     },
     prevDailyBundle() {
       this.currentDailyBundle = this.currentDailyBundle - 1 < 0
-          ? this.dailyBundlesLength - 1
-          : this.currentDailyBundle - 1
+        ? this.dailyBundlesLength - 1
+        : this.currentDailyBundle - 1
     },
 
     nextMerchantMarker() {
       this.currentMerchantMarker = this.currentMerchantMarker + 1 === this.merchantMarkersLength
-          ? 0
-          : this.currentMerchantMarker + 1
+        ? 0
+        : this.currentMerchantMarker + 1
     },
     prevMerchantMarker() {
       this.currentMerchantMarker = this.currentMerchantMarker - 1 < 0
-          ? this.merchantMarkersLength - 1
-          : this.currentMerchantMarker - 1
+        ? this.merchantMarkersLength - 1
+        : this.currentMerchantMarker - 1
     },
   },
 }
