@@ -2,7 +2,7 @@ def test_default_config(app):
     with app.app_context():
         from app.config import DefaultConfig
 
-        assert DefaultConfig.SQLALCHEMY_DATABASE_URI == "postgresql+psycopg://postgres:postgres@localhost:5432/pixyship"
+        assert DefaultConfig.SQLALCHEMY_DATABASE_URI == "postgresql+psycopg://pixyship@localhost:5432/pixyship"
         assert DefaultConfig.DEV_MODE is True
         assert DefaultConfig.DOMAIN == "localhost:8080"
         assert DefaultConfig.SPRITES_DIRECTORY == "../sprites"

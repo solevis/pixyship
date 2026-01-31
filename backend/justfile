@@ -28,9 +28,9 @@ test:
 lint:
     uv run ruff check --fix
 
-# Type check with mypy
+# Type checking with ty
 typecheck:
-    uv run mypy app/
+    uv run ty check
 
 # Run all checks
 check: lint typecheck test
