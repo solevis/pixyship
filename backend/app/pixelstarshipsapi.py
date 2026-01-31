@@ -179,11 +179,11 @@ class PixelStarshipsApi:
     def generate_device_key_checksum(self, client_datetime: str) -> tuple[str, str]:
         """Generate new device key/checksum."""
         device_key = self.create_device_key()
-        device_type = "DeviceTypeMac"
+        device_type = "DeviceTypeAndroid"
         checksum_key = current_app.config["DEVICE_LOGIN_CHECKSUM_KEY"]
 
         device_checksum = hashlib.md5(
-            f"{device_key}{client_datetime}{device_type}{checksum_key}savysoda".encode(),
+            f"{device_key}{client_datetime}{device_type}{checksum_key}".encode(),
         ).hexdigest()
 
         return device_key, device_checksum
@@ -208,18 +208,56 @@ class PixelStarshipsApi:
 
     def get_device_token(self, device_key: str, client_datetime: datetime, device_checksum: str) -> str | None:
         """Get device token from API for the given generated device."""
-        params = {
-            "deviceKey": device_key,
-            "checksum": device_checksum,
-            "isJailBroken": "false",
-            "deviceType": "DeviceTypeMac",
-            "languagekey": "en",
-            "advertisingKey": '""',
-            "clientDateTime": client_datetime,
+        # Convert datetime to string if it's a datetime object
+        if isinstance(client_datetime, datetime.datetime):
+            client_datetime_str = client_datetime.strftime("%Y-%m-%dT%H:%M:%S")
+        else:
+            client_datetime_str = client_datetime
+
+        device_type = "DeviceTypeAndroid"
+
+        # Prepare the request data for DeviceLogin17
+        data = {
+            "DeviceType": device_type,
+            "DeviceKey": device_key,
+            "ClientDateTime": client_datetime_str,
+            "Checksum": device_checksum,
+            "IsJailBroken": "false",
+            "Signal": "false",
+            "LanguageKey": "en",
+            "AdvertisingKey": "",
+            "AccessToken": "00000000-0000-0000-0000-000000000000",
+            "RefreshToken": "",
+            "UserDeviceInfo": {
+                "OsVersion": "AD12",
+                "OSBuild": "0",
+                "DeviceName": "AD123",
+                "Locale": "en",
+                "ClientBuild": "17180",
+                "ClientVersion": "0.999.43",
+            },
         }
 
-        endpoint = f"https://{self.server}/UserService/DeviceLogin11"
-        response = requests.post(endpoint, params=params)
+        # Prepare URI parameters
+        uri_params = {
+            "AccessToken": "00000000-0000-0000-0000-000000000000",
+            "AdvertisingKey": "",
+            "Checksum": device_checksum,
+            "ClientDateTime": client_datetime_str,
+            "DeviceKey": device_key,
+            "DeviceType": device_type,
+            "IsJailBroken": "false",
+            "LanguageKey": "en",
+            "Signal": "false",
+        }
+
+        endpoint = f"https://{self.server}/UserService/DeviceLogin17"
+        headers = {
+            "User-Agent": "UnityPlayer/2021.3.33f1 (UnityWebRequest/1.0, libcurl/7.84.0-DEV)",
+            "Content-Type": "application/json",
+        }
+
+        response = requests.post(endpoint, headers=headers, json=data, params=uri_params)
 
         root = ET.fromstring(response.content.decode("utf-8"))
         user_login_node = root.find(".//UserLogin")
