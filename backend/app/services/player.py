@@ -116,7 +116,7 @@ class PlayerService(BaseService):
                 construction=bool(current_room_data["ConstructionStartDate"]),
             )
 
-            room["exterior_sprite"] = self.get_exterior_sprite(int(current_room_data["RoomDesignId"]), ship_id)
+            room["exterior_sprite"] = self.get_exterior_sprite(int(current_room_data["RoomDesignId"]), ship_id)  # type: ignore[assignment]
 
             rooms.append(room)
 

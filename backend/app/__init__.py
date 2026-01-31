@@ -81,7 +81,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     if app.config["ENABLE_PROFILER"]:
         from werkzeug.middleware.profiler import ProfilerMiddleware
 
-        app.wsgi_app = ProfilerMiddleware(app.wsgi_app)
+        app.wsgi_app = ProfilerMiddleware(app.wsgi_app)  # type: ignore[assignment]
 
     # Initialize Sentry if DSN is provided, only in production
     if app.config["SENTRY_DSN"] and not app.config["DEV_MODE"]:

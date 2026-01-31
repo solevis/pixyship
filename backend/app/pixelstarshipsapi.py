@@ -89,7 +89,7 @@ class PixelStarshipsApi:
             if self._forced_pixelstarships_api_url
             else self._main_pixelstarships_api_url
         )
-        settings = self.fetch_settings(url, params)
+        settings = self.fetch_settings(url, params)  # type: ignore[arg-type]
 
         # If the server has changed, fetch the settings again
         if "ProductionServer" in settings and url != f"https://{settings['ProductionServer']}":
@@ -206,7 +206,7 @@ class PixelStarshipsApi:
 
         return device
 
-    def get_device_token(self, device_key: str, client_datetime: datetime, device_checksum: str) -> str | None:
+    def get_device_token(self, device_key: str, client_datetime: datetime.datetime, device_checksum: str) -> str | None:
         """Get device token from API for the given generated device."""
         # Convert datetime to string if it's a datetime object
         if isinstance(client_datetime, datetime.datetime):
@@ -280,21 +280,29 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params, need_token=True, force_token_generation=True)
         root = ET.fromstring(response.text)
 
+        user_node = root.find(".//User")
+        ship_node = root.find(".//Ship")
+
+        if user_node is None or ship_node is None:
+            error_msg = "Missing required User or Ship element in XML"
+            raise ValueError(error_msg)
+
         inspect_ship: dict = {
-            "User": root.find(".//User").attrib.copy(),
-            "Ship": root.find(".//Ship").attrib.copy(),
+            "User": user_node.attrib.copy(),
+            "Ship": ship_node.attrib.copy(),
         }
 
-        inspect_ship["User"]["pixyship_xml_element"] = root.find(".//User")
-        inspect_ship["Ship"]["pixyship_xml_element"] = root.find(".//Ship")
+        inspect_ship["User"]["pixyship_xml_element"] = user_node
+        inspect_ship["Ship"]["pixyship_xml_element"] = ship_node
 
         # get rooms
         rooms_node = root.find(".//Rooms")
         inspect_ship["Ship"]["Rooms"] = []
-        for room_node in rooms_node:
-            room = room_node.attrib.copy()
-            room["pixyship_xml_element"] = room_node
-            inspect_ship["Ship"]["Rooms"].append(room)
+        if rooms_node is not None:
+            for room_node in rooms_node:
+                room = room_node.attrib.copy()
+                room["pixyship_xml_element"] = room_node  # type: ignore[assignment]
+                inspect_ship["Ship"]["Rooms"].append(room)
 
         return inspect_ship
 
@@ -309,13 +317,18 @@ class PixelStarshipsApi:
         response = self.call(endpoint, params=params, need_token=True)
         root = ET.fromstring(response.text)
 
-        ship_node: Element = root.find(".//Ship")
-        ship: dict = ship_node.attrib.copy()
-        ship["pixyship_xml_element"] = ship_node
+        ship_node = root.find(".//Ship")
+        user_node = root.find(".//User")
 
-        user_node: Element = root.find(".//User")
+        if ship_node is None or user_node is None:
+            error_msg = "Missing required Ship or User element in XML"
+            raise ValueError(error_msg)
+
+        ship: dict = ship_node.attrib.copy()
+        ship["pixyship_xml_element"] = ship_node  # type: ignore[assignment]
+
         user: dict = user_node.attrib.copy()
-        user["pixyship_xml_element"] = user_node
+        user["pixyship_xml_element"] = user_node  # type: ignore[assignment]
 
         return ship, user
 
@@ -332,10 +345,11 @@ class PixelStarshipsApi:
 
         ship_room_details_node = root.find(".//Rooms")
         ship_room_details = []
-        for room_node in ship_room_details_node:
-            room = room_node.attrib.copy()
-            room["pixyship_xml_element"] = room_node
-            ship_room_details.append(room)
+        if ship_room_details_node is not None:
+            for room_node in ship_room_details_node:
+                room = room_node.attrib.copy()
+                room["pixyship_xml_element"] = room_node  # type: ignore[assignment]
+                ship_room_details.append(room)
 
         return ship_room_details
 
@@ -361,11 +375,12 @@ class PixelStarshipsApi:
                 users.append(user)
         else:
             users_node = root.find(".//Users")
-            for user_node in users_node:
-                user = self.parse_user_node(user_node)
+            if users_node is not None:
+                for user_node in users_node:
+                    user = self.parse_user_node(user_node)
 
-                user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
-                users.append(user)
+                    user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
+                    users.append(user)
 
         return users
 
@@ -385,8 +400,12 @@ class PixelStarshipsApi:
 
         dailies_node = root.find(".//LiveOps")
 
+        if dailies_node is None:
+            error_msg = "Missing required LiveOps element in XML"
+            raise ValueError(error_msg)
+
         dailies: dict = dailies_node.attrib.copy()
-        dailies["pixyship_xml_element"] = dailies_node  # custom field, return raw XML data too
+        dailies["pixyship_xml_element"] = dailies_node  # type: ignore[assignment]  # custom field, return raw XML data too
 
         return dailies
 
@@ -405,10 +424,11 @@ class PixelStarshipsApi:
         sprites = []
         sprite_nodes = root.find(".//Sprites")
 
-        for sprite_node in sprite_nodes:
-            sprite = self.parse_sprite_node(sprite_node)
-            sprite["pixyship_xml_element"] = sprite_node  # custom field, return raw XML data too
-            sprites.append(sprite)
+        if sprite_nodes is not None:
+            for sprite_node in sprite_nodes:
+                sprite = self.parse_sprite_node(sprite_node)
+                sprite["pixyship_xml_element"] = sprite_node  # custom field, return raw XML data too
+                sprites.append(sprite)
 
         return sprites
 
@@ -429,10 +449,11 @@ class PixelStarshipsApi:
         rooms_sprites = []
         room_sprites_nodes = root.find(".//RoomDesignSprites")
 
-        for room_sprites_node in room_sprites_nodes:
-            room_sprites = self.parse_room_sprite_node(room_sprites_node)
-            room_sprites["pixyship_xml_element"] = room_sprites_node  # custom field, return raw XML data too
-            rooms_sprites.append(room_sprites)
+        if room_sprites_nodes is not None:
+            for room_sprites_node in room_sprites_nodes:
+                room_sprites = self.parse_room_sprite_node(room_sprites_node)
+                room_sprites["pixyship_xml_element"] = room_sprites_node  # custom field, return raw XML data too
+                rooms_sprites.append(room_sprites)
 
         return rooms_sprites
 
@@ -456,9 +477,10 @@ class PixelStarshipsApi:
         skinsets = []
         skinset_nodes = root.find(".//SkinSets")
 
-        for skinset_node in skinset_nodes:
-            skinset = self.parse_skinset_node(skinset_node)
-            skinset["pixyship_xml_element"] = skinset_node
+        if skinset_nodes is not None:
+            for skinset_node in skinset_nodes:
+                skinset = self.parse_skinset_node(skinset_node)
+                skinset["pixyship_xml_element"] = skinset_node
 
             skinsets.append(skinset)
 
@@ -479,11 +501,12 @@ class PixelStarshipsApi:
         skins = []
         skin_nodes = root.find(".//Skins")
 
-        for skinset_node in skin_nodes:
-            skin = self.parse_skin_node(skinset_node)
-            skin["pixyship_xml_element"] = skinset_node
+        if skin_nodes is not None:
+            for skinset_node in skin_nodes:
+                skin = self.parse_skin_node(skinset_node)
+                skin["pixyship_xml_element"] = skinset_node
 
-            skins.append(skin)
+                skins.append(skin)
 
         return skins
 
@@ -512,10 +535,11 @@ class PixelStarshipsApi:
         ships = []
         ship_nodes = root.find(".//ShipDesigns")
 
-        for ship_node in ship_nodes:
-            ship = self.parse_ship_node(ship_node)
-            ship["pixyship_xml_element"] = ship_node  # custom field, return raw XML data too
-            ships.append(ship)
+        if ship_nodes is not None:
+            for ship_node in ship_nodes:
+                ship = self.parse_ship_node(ship_node)
+                ship["pixyship_xml_element"] = ship_node  # custom field, return raw XML data too
+                ships.append(ship)
 
         return ships
 
@@ -539,9 +563,10 @@ class PixelStarshipsApi:
         researches = []
         research_nodes = root.find(".//ResearchDesigns")
 
-        for research_node in research_nodes:
-            research = self.parse_research_node(research_node)
-            research["pixyship_xml_element"] = research_node  # custom field, return raw XML data too
+        if research_nodes is not None:
+            for research_node in research_nodes:
+                research = self.parse_research_node(research_node)
+                research["pixyship_xml_element"] = research_node  # custom field, return raw XML data too
             researches.append(research)
 
         return researches
@@ -599,9 +624,9 @@ class PixelStarshipsApi:
 
         missile_design_node = list(room_node.iter("MissileDesign"))
         if missile_design_node:
-            room["MissileDesign"] = missile_design_node[0].attrib
+            room["MissileDesign"] = missile_design_node[0].attrib  # type: ignore[assignment]
         else:
-            room["MissileDesign"] = None
+            room["MissileDesign"] = None  # type: ignore[assignment]
 
         return room
 
@@ -620,11 +645,12 @@ class PixelStarshipsApi:
         missile_designs = []
         missile_design_nodes = root.find(".//MissileDesigns")
 
-        for missile_design_node in missile_design_nodes:
-            missile_design = self.parse_missile_design_node(missile_design_node)
+        if missile_design_nodes is not None:
+            for missile_design_node in missile_design_nodes:
+                missile_design = self.parse_missile_design_node(missile_design_node)
 
-            missile_design["pixyship_xml_element"] = missile_design_node  # custom field, return raw XML data too
-            missile_designs.append(missile_design)
+                missile_design["pixyship_xml_element"] = missile_design_node  # custom field, return raw XML data too
+                missile_designs.append(missile_design)
 
         return missile_designs
 
@@ -654,22 +680,24 @@ class PixelStarshipsApi:
         crafts = []
         craft_nodes = root.find(".//CraftDesigns")
 
-        for craft_node in craft_nodes:
-            missile_design = next(
-                (
-                    missile_design
-                    for missile_design in missile_designs
-                    if missile_design["MissileDesignId"] == craft_node.attrib["MissileDesignId"]
-                ),
-                None,
-            )
-
-            if not missile_design:
-                current_app.logger.error(
-                    "Cannot retrieve craft MissileDesign for MissileDesignId %s",
-                    craft_node.attrib["MissileDesignId"],
+        if craft_nodes is not None:
+            for craft_node in craft_nodes:
+                missile_design = next(
+                    (
+                        missile_design
+                        for missile_design in missile_designs
+                        if missile_design["MissileDesignId"] == craft_node.attrib["MissileDesignId"]
+                    ),
+                    None,
                 )
-                continue
+
+                if not missile_design:
+                    current_app.logger.error(
+                        "Cannot retrieve craft MissileDesign for MissileDesignId %s",
+                        craft_node.attrib["MissileDesignId"],
+                    )
+                    # Skip to next craft if missile design not found
+                    continue
 
             item_design = next(
                 (
@@ -683,7 +711,8 @@ class PixelStarshipsApi:
             if item_design:
                 craft_node.set("ReloadModifier", item_design["ReloadModifier"])
 
-            craft_node.append(missile_design["pixyship_xml_element"])
+            if missile_design:
+                craft_node.append(missile_design["pixyship_xml_element"])
             craft = self.parse_craft_node(craft_node)
 
             craft["pixyship_xml_element"] = craft_node  # custom field, return raw XML data too
@@ -697,7 +726,7 @@ class PixelStarshipsApi:
         craft: dict = craft_node.attrib.copy()
 
         missile_design_node = list(craft_node.iter("MissileDesign"))
-        craft["MissileDesign"] = missile_design_node[0].attrib
+        craft["MissileDesign"] = missile_design_node[0].attrib  # type: ignore[assignment]
 
         return craft
 
@@ -722,25 +751,27 @@ class PixelStarshipsApi:
         missiles = []
         item_nodes = root.find(".//ItemDesigns")
 
-        for item_node in item_nodes:
-            if item_node.attrib["ItemType"] != "Missile":
-                continue
+        if item_nodes is not None:
+            for item_node in item_nodes:
+                if item_node.attrib["ItemType"] != "Missile":
+                    continue
 
-            missile_design = next(
-                (
-                    missile_design
-                    for missile_design in missile_designs
-                    if missile_design["MissileDesignId"] == item_node.attrib["MissileDesignId"]
-                ),
-                None,
-            )
-
-            if not missile_design:
-                current_app.logger.error(
-                    "Cannot retrieve missile MissileDesign for MissileDesignId %s",
-                    item_node.attrib["MissileDesignId"],
+                missile_design = next(
+                    (
+                        missile_design
+                        for missile_design in missile_designs
+                        if missile_design["MissileDesignId"] == item_node.attrib["MissileDesignId"]
+                    ),
+                    None,
                 )
-                continue
+
+                if not missile_design:
+                    current_app.logger.error(
+                        "Cannot retrieve missile MissileDesign for MissileDesignId %s",
+                        item_node.attrib["MissileDesignId"],
+                    )
+                    # Skip to next missile if missile design not found
+                    continue
 
             item_design = next(
                 (
@@ -754,7 +785,8 @@ class PixelStarshipsApi:
             if item_design:
                 item_node.set("ReloadModifier", item_design["ReloadModifier"])
 
-            item_node.append(missile_design["pixyship_xml_element"])
+            if missile_design:
+                item_node.append(missile_design["pixyship_xml_element"])
             missile = self.parse_missile_node(item_node)
 
             missile["pixyship_xml_element"] = item_node  # custom field, return raw XML data too
@@ -768,7 +800,7 @@ class PixelStarshipsApi:
         missile: dict = missile_node.attrib.copy()
 
         missile_design_node = list(missile_node.iter("MissileDesign"))
-        missile["MissileDesign"] = missile_design_node[0].attrib
+        missile["MissileDesign"] = missile_design_node[0].attrib  # type: ignore[assignment]
 
         return missile
 
@@ -832,11 +864,12 @@ class PixelStarshipsApi:
         """Extract character data from XML node."""
         character: dict = character_node.attrib.copy()
 
-        character["CharacterParts"] = {}
+        character["CharacterParts"] = {}  # type: ignore[assignment]
         character_part_nodes = character_node.find(".//CharacterParts")
-        for character_part_node in character_part_nodes:
-            character_part = character_part_node.attrib
-            character["CharacterParts"][character_part["CharacterPartType"]] = character_part
+        if character_part_nodes is not None:
+            for character_part_node in character_part_nodes:
+                character_part = character_part_node.attrib
+                character["CharacterParts"][character_part["CharacterPartType"]] = character_part  # type: ignore[assignment]
 
         return character
 
@@ -855,10 +888,11 @@ class PixelStarshipsApi:
         collections = []
         collection_nodes = root.find(".//CollectionDesigns")
 
-        for collection_node in collection_nodes:
-            collection = self.parse_collection_node(collection_node)
-            collection["pixyship_xml_element"] = collection_node  # custom field, return raw XML data too
-            collections.append(collection)
+        if collection_nodes is not None:
+            for collection_node in collection_nodes:
+                collection = self.parse_collection_node(collection_node)
+                collection["pixyship_xml_element"] = collection_node  # custom field, return raw XML data too
+                collections.append(collection)
 
         return collections
 
@@ -882,10 +916,11 @@ class PixelStarshipsApi:
         items = []
         item_nodes = root.find(".//ItemDesigns")
 
-        for item_node in item_nodes:
-            item = self.parse_item_node(item_node)
-            item["pixyship_xml_element"] = item_node  # custom field, return raw XML data too
-            items.append(item)
+        if item_nodes is not None:
+            for item_node in item_nodes:
+                item = self.parse_item_node(item_node)
+                item["pixyship_xml_element"] = item_node  # custom field, return raw XML data too
+                items.append(item)
 
         return items
 
@@ -909,10 +944,11 @@ class PixelStarshipsApi:
         alliances = []
         alliance_nodes = root.find(".//Alliances")
 
-        for alliance_node in alliance_nodes:
-            alliance = self.parse_alliance_node(alliance_node)
-            alliance["pixyship_xml_element"] = alliance_node  # custom field, return raw XML data too
-            alliances.append(alliance)
+        if alliance_nodes is not None:
+            for alliance_node in alliance_nodes:
+                alliance = self.parse_alliance_node(alliance_node)
+                alliance["pixyship_xml_element"] = alliance_node  # custom field, return raw XML data too
+                alliances.append(alliance)
 
         return alliances
 
@@ -980,11 +1016,14 @@ class PixelStarshipsApi:
                 continue
 
             # no more sales available
-            if len(sale_nodes) == 0:
+            if sale_nodes is None or len(sale_nodes) == 0:
                 break
 
             for sale_node in sale_nodes:
-                sale_id = int(sale_node.get("SaleId"))
+                sale_id_str = sale_node.get("SaleId")
+                if sale_id_str is None:
+                    continue
+                sale_id = int(sale_id_str)
                 sale = self.parse_sale_node(sale_node)
 
                 if sale_id > max_sale_id:
@@ -1074,10 +1113,11 @@ class PixelStarshipsApi:
         users = []
         user_nodes = root.find(".//Users")
 
-        for user_node in user_nodes:
-            user = self.parse_user_node(user_node)
-            user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
-            users.append(user)
+        if user_nodes is not None:
+            for user_node in user_nodes:
+                user = self.parse_user_node(user_node)
+                user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
+                users.append(user)
 
         return users
 
@@ -1093,10 +1133,11 @@ class PixelStarshipsApi:
         users = []
         user_nodes = root.find(".//Users")
 
-        for user_node in user_nodes:
-            user = self.parse_user_node(user_node)
-            user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
-            users.append(user)
+        if user_nodes is not None:
+            for user_node in user_nodes:
+                user = self.parse_user_node(user_node)
+                user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
+                users.append(user)
 
         return users
 

@@ -27,6 +27,6 @@ def enforce_source(func: Callable) -> Callable:
         return func(*args, **kwargs)
 
     # lets flask see the underlying function
-    wrapper.__name__ = func.__name__
+    wrapper.__name__ = func.__name__  # type: ignore[attr-defined]
 
     return wrapper
