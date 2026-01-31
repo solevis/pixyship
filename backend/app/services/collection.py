@@ -146,8 +146,8 @@ class CollectionService(BaseService):
             else f"{base_chance}% chance to increase the current room's armor by {base_enhancement_value}.",
             "CastAbilitySkill": lambda: self.handle_cast_ability_skill(
                 base_chance,
-                base_enhancement_value,
-                int(argument),  # type: ignore[arg-type]
+                int(base_enhancement_value),
+                int(argument),
             ),
             "CastAssignedAbilitySkill": lambda: self.handle_cast_assigned_ability_skill(
                 base_chance, base_enhancement_value

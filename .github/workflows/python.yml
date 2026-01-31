@@ -31,3 +31,6 @@ jobs:
       - name: Test
         working-directory: ./backend
         run: uv run pytest
+      - name: Type Check
+        working-directory: ./backend
+        run: uv run ty check
