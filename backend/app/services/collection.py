@@ -144,7 +144,11 @@ class CollectionService(BaseService):
             "ApplyArmorSkill": lambda: f"{base_chance}% chance to increase the current room's armor by {base_enhancement_value}, up to a maximum of {argument} bonus armor (including bonuses from other sources)."
             if argument > 0
             else f"{base_chance}% chance to increase the current room's armor by {base_enhancement_value}.",
-            "CastAbilitySkill": lambda: self.handle_cast_ability_skill(base_chance, base_enhancement_value, argument),
+            "CastAbilitySkill": lambda: self.handle_cast_ability_skill(
+                base_chance,
+                int(base_enhancement_value),
+                int(argument),
+            ),
             "CastAssignedAbilitySkill": lambda: self.handle_cast_assigned_ability_skill(
                 base_chance, base_enhancement_value
             ),
@@ -203,7 +207,7 @@ class CollectionService(BaseService):
         return f"{base_chance}% chance to restore {base_enhancement_value}% of max hp."
 
     @staticmethod
-    def handle_cast_ability_skill(base_chance: int, base_enhancement_value: int, argument: int) -> str:
+    def handle_cast_ability_skill(base_chance: int, base_enhancement_value: int, argument: float) -> str:
         """Handle CastAbilitySkill ability."""
         special_ability_name = SPECIAL_ABILITY_TYPE_MAP[argument]
         ability_power = SHORT_ENHANCE_MAP["Ability"]

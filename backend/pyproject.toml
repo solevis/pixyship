@@ -24,12 +24,8 @@ requires-python = ">= 3.11"
 [dependency-groups]
 dev = [
     "pytest>=8.1.1",
-    "mypy>=1.10.0",
-    "types-Flask-Cors>=4.0.0.20240405",
-    "types-Flask-Migrate>=4.0.0.20240311",
-    "types-requests>=2.31.0.20240406",
-    "sqlalchemy[mypy]>=2.0.30",
     "ruff>=0.14.0",
+    "ty>=0.0.14",
 ]
 
 [tool.ruff]
@@ -73,13 +69,6 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "migrations/**" = ['ERA001', 'INP001', 'ARG001', 'D', 'ANN']
-"tests/**" = ['S101', 'INP001', 'D103', 'ANN']
+"tests/test_*" = ['S101', 'INP001', 'D103', 'ANN']
+"tests/*_mocks.py" = ['E501']
 "app/services/collection.py" = ['E501']
-
-[tool.mypy]
-python_version = "3.11"
-warn_unused_configs = true
-warn_unused_ignores = true
-plugins = [
-    "sqlalchemy.ext.mypy.plugin",
-]

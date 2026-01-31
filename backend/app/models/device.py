@@ -10,7 +10,7 @@ class Device(db.Model):  # type: ignore[name-defined]
 
     key: Mapped[str] = mapped_column(primary_key=True)
     checksum: Mapped[str]
-    client_datetime: Mapped[datetime.datetime]
+    client_datetime: Mapped[str]
     token: Mapped[str | None]
     expires_at: Mapped[datetime.datetime]
 
@@ -31,8 +31,8 @@ class Device(db.Model):  # type: ignore[name-defined]
 
         pixel_starships_api = PixelStarshipsApi()
         token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
-        if self.token is not None:
+        if token is not None:
             self.token = token
-            self.expires_at = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(hours=12)
+            self.expires_at = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=3)
 
         db.session.commit()

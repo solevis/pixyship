@@ -362,7 +362,7 @@ def api_last_sales(sale_type: str, sale_type_id: int) -> Response:
     daily_offer_service = DailyOfferService()
     return jsonify(
         {
-            "data": daily_offer_service.get_last_sales_from_db(type_enum, sale_type_id, 1000),
+            "data": daily_offer_service.get_last_sales_from_db(type_enum, sale_type_id, 1000),  # type: ignore[arg-type]
             "status": "success",
             "current_time": time.time(),
         },
