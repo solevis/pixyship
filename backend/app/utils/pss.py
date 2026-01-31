@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 from flask import current_app
 
@@ -139,3 +140,8 @@ def parse_price_from_pricestring(pricestring: str) -> tuple[int, str | None]:
 
     parts = pricestring.split(":")
     return int(parts[1]), parts[0]
+
+
+def convert_datetime_to_iso(datetime_str: str) -> str:
+    """Convert datetime to ISO format."""
+    return datetime.fromisoformat(datetime_str).strftime("%Y-%m-%dT%H:%M:%S")

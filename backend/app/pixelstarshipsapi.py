@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import random
 import re
+import uuid
 from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
@@ -15,7 +16,7 @@ from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, PSS_START_DATE
 from app.ext import cache
 from app.ext.db import db
 from app.models import Device
-from app.utils.pss import api_sleep
+from app.utils.pss import api_sleep, convert_datetime_to_iso
 
 
 class PixelStarshipsApi:
@@ -160,21 +161,7 @@ class PixelStarshipsApi:
     @staticmethod
     def create_device_key() -> str:
         """Generate random device key."""
-        sequence = "0123456789abcdef"
-        return "".join(
-            random.choice(sequence)
-            + random.choice("26ae")
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence)
-            + random.choice(sequence),
-        )
+        return str(uuid.uuid4())
 
     def generate_device_key_checksum(self, client_datetime: str) -> tuple[str, str]:
         """Generate new device key/checksum."""
@@ -206,13 +193,10 @@ class PixelStarshipsApi:
 
         return device
 
-    def get_device_token(self, device_key: str, client_datetime: datetime.datetime, device_checksum: str) -> str | None:
+    def get_device_token(self, device_key: str, client_datetime: str, device_checksum: str) -> str | None:
         """Get device token from API for the given generated device."""
-        # Convert datetime to string if it's a datetime object
-        if isinstance(client_datetime, datetime.datetime):
-            client_datetime_str = client_datetime.strftime("%Y-%m-%dT%H:%M:%S")
-        else:
-            client_datetime_str = client_datetime
+        # Convert client_datetime str in ISO
+        client_datetime_str = convert_datetime_to_iso(client_datetime)
 
         device_type = "DeviceTypeAndroid"
 

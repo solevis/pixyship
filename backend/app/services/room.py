@@ -4,6 +4,8 @@ import math
 from functools import cached_property
 from xml.etree import ElementTree as ET
 
+from flask import current_app
+
 from app.constants import (
     CAPACITY_RATIO_MAP,
     LABEL_CAPACITY_MAP,
@@ -74,12 +76,15 @@ class RoomService(BaseService):
 
             requirement = parse_requirement(room["RequirementString"])
             if requirement:
-                if requirement["type"] == TypeEnum.ITEM:
-                    requirement["object"] = self.item_service.items[requirement["id"]]
-                elif requirement["type"] == TypeEnum.RESEARCH:
-                    requirement["object"] = self.research_service.researches[requirement["id"]]
-                else:
-                    requirement["object"] = self.record_service.get_record(requirement["type"], requirement["id"])
+                try:
+                    if requirement["type"] == TypeEnum.ITEM:
+                        requirement["object"] = self.item_service.items[requirement["id"]]
+                    elif requirement["type"] == TypeEnum.RESEARCH:
+                        requirement["object"] = self.research_service.researches[requirement["id"]]
+                    else:
+                        requirement["object"] = self.record_service.get_record(requirement["type"], requirement["id"])
+                except KeyError:
+                    current_app.logger.exception("Unknown requirement: %s", requirement)
 
             rooms[record.type_id] = {
                 "id": record.type_id,
