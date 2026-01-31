@@ -12,7 +12,7 @@ def test_default_config(app):
         assert DefaultConfig.SECRET_KEY == "dev"
         assert DefaultConfig.SAVY_PUBLIC_API_TOKEN is None
         assert DefaultConfig.DEVICE_LOGIN_CHECKSUM_KEY is None
-        assert DefaultConfig.MIN_DEVICES == 2
+        assert DefaultConfig.MIN_DEVICES == 1
         assert DefaultConfig.SESSION_COOKIE_SECURE is True
         assert DefaultConfig.SESSION_COOKIE_HTTPONLY is True
         assert DefaultConfig.SESSION_COOKIE_SAMESITE == "Strict"

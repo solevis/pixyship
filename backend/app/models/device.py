@@ -33,6 +33,6 @@ class Device(db.Model):  # type: ignore[name-defined]
         token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
         if self.token is not None:
             self.token = token
-            self.expires_at = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(hours=12)
+            self.expires_at = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=3)
 
         db.session.commit()
