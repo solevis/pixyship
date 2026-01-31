@@ -8,7 +8,7 @@ from app import create_app
 @pytest.fixture
 def app() -> Flask:
     """Create and configure a new app instance for each test."""
-    return create_app({"TESTING": True})
+    return create_app({"TESTING": True, "CACHE_TYPE": "SimpleCache"})
 
 
 @pytest.fixture
