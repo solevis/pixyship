@@ -33,10 +33,10 @@ def mock_api_responses():
                 {"character1": 196, "character2": 338, "date": "2023-01-01"},
             ],
         },
-        "collections": [
-            {"id": 1, "name": "Federation", "bonus": "Diplomacy", "characters": [1, 2, 3]},
-            {"id": 2, "name": "Polaran", "bonus": "Science", "characters": [4, 5, 6]},
-        ],
+        "collections": {
+            1: {"id": 1, "name": "Federation", "bonus": "Diplomacy", "characters": [1, 2, 3]},
+            2: {"id": 2, "name": "Polaran", "bonus": "Science", "characters": [4, 5, 6]},
+        },
         "achievements": [
             {"id": 1, "name": "First Victory", "description": "Win your first battle"},
             {"id": 2, "name": "Master Trader", "description": "Complete 100 trades"},
@@ -69,10 +69,10 @@ def mock_api_responses():
             {"id": 1, "name": "Bridge", "level": 1, "type": "Command"},
             {"id": 2, "name": "Engine", "level": 1, "type": "Engineering"},
         ],
-        "skins": [
-            {"id": 1, "name": "Basic Skin", "type": "Ship", "rarity": "Common"},
-            {"id": 2, "name": "Advanced Skin", "type": "Ship", "rarity": "Rare"},
-        ],
+        "skins": {
+            1: {"id": 1, "name": "Basic Skin", "type": "Ship", "rarity": "Common"},
+            2: {"id": 2, "name": "Advanced Skin", "type": "Ship", "rarity": "Rare"},
+        },
         "sprites": [
             {"id": 1, "sprite_id": 100, "x": 0, "y": 0, "width": 32, "height": 32},
             {"id": 2, "sprite_id": 101, "x": 32, "y": 0, "width": 32, "height": 32},
@@ -277,34 +277,56 @@ def test_api_daily(client, app, mock_daily_offer_service):
     assert "shop" in data["data"]
 
 
-def test_api_changes(client, app):
+def test_api_changes(client, app, mock_api_responses):
     """Test changes endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_changes"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert "lastprestigeschanges" in data
+    with patch("app.blueprints.api.ChangesService") as mock_changes_service:
+        mock_instance = mock_changes_service.return_value
+        mock_instance.changes = mock_api_responses["changes"]["changes"]
+        mock_instance.last_prestiges_changes = mock_api_responses["changes"]["last_prestiges"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_changes"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert "lastprestigeschanges" in data
 
 
-def test_api_collections(client, app):
+def test_api_collections(client, app, mock_api_responses):
     """Test collections endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_collections"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with (
+        patch("app.blueprints.api.CollectionService") as mock_collection_service,
+        patch("app.blueprints.api.CharacterService") as mock_character_service,
+    ):
+        mock_collection_instance = mock_collection_service.return_value
+        mock_collection_instance.collections = mock_api_responses["collections"]
+
+        mock_character_instance = mock_character_service.return_value
+        mock_character_instance.characters = {
+            1: {"id": 1, "name": "Character 1", "collection": 1},
+            2: {"id": 2, "name": "Character 2", "collection": 1},
+        }
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_collections"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
-def test_api_achievements(client, app):
+def test_api_achievements(client, app, mock_api_responses):
     """Test achievements endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_achievements"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with patch("app.blueprints.api.AchievementService") as mock_achievement_service:
+        mock_instance = mock_achievement_service.return_value
+        mock_instance.achievements = mock_api_responses["achievements"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_achievements"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
 def test_api_research(client, app, mock_research_service):
@@ -317,71 +339,112 @@ def test_api_research(client, app, mock_research_service):
     assert len(data["data"]) > 0
 
 
-def test_api_prestige(client, app):
+def test_api_prestige(client, app, mock_api_responses):
     """Test prestige endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_prestige", char_id=196))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with (
+        patch("app.blueprints.api.PrestigeService") as mock_prestige_service,
+        patch("app.blueprints.api.CharacterService") as mock_character_service,
+        patch("app.blueprints.api.CollectionService") as mock_collection_service,
+    ):
+        # Mock character service
+        mock_character_instance = mock_character_service.return_value
+        mock_character_instance.characters = {196: {"id": 196, "name": "Test Character", "collection": 1}}
+
+        # Mock collection service
+        mock_collection_instance = mock_collection_service.return_value
+        mock_collection_instance.collections = {1: {"id": 1, "name": "Test Collection", "icon_sprite": "test_sprite"}}
+
+        # Mock prestige service
+        mock_prestige_instance = mock_prestige_service.return_value
+        mock_prestige_instance.get_prestiges_from_api = lambda _: mock_api_responses["prestige"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_prestige", char_id=196))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
-def test_api_crafts(client, app):
+def test_api_crafts(client, app, mock_api_responses):
     """Test crafts endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_crafts"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with patch("app.blueprints.api.CraftService") as mock_craft_service:
+        mock_instance = mock_craft_service.return_value
+        mock_instance.crafts = mock_api_responses["crafts"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_crafts"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
-def test_api_missiles(client, app):
+def test_api_missiles(client, app, mock_api_responses):
     """Test missiles endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_missiles"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with patch("app.blueprints.api.MissileService") as mock_missile_service:
+        mock_instance = mock_missile_service.return_value
+        mock_instance.missiles = mock_api_responses["missiles"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_missiles"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
-def test_api_ships(client, app):
+def test_api_ships(client, app, mock_api_responses):
     """Test ships endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_ships"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with patch("app.blueprints.api.ShipService") as mock_ship_service:
+        mock_instance = mock_ship_service.return_value
+        mock_instance.ships = mock_api_responses["ships"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_ships"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
-def test_api_items(client, app):
+def test_api_items(client, app, mock_api_responses):
     """Test items endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_items"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with patch("app.blueprints.api.ItemService") as mock_item_service:
+        mock_instance = mock_item_service.return_value
+        mock_instance.items = mock_api_responses["items"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_items"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
-def test_api_rooms(client, app):
+def test_api_rooms(client, app, mock_api_responses):
     """Test rooms endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_rooms"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with patch("app.blueprints.api.RoomService") as mock_room_service:
+        mock_instance = mock_room_service.return_value
+        mock_instance.rooms = mock_api_responses["rooms"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_rooms"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
 
 
-def test_api_skins(client, app):
+def test_api_skins(client, app, mock_api_responses):
     """Test skins endpoint with mocked data."""
-    with app.test_request_context():
-        response = client.get(url_for("api.api_skins"))
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "data" in data
-    assert len(data["data"]) > 0
+    with patch("app.blueprints.api.SkinService") as mock_skin_service:
+        mock_instance = mock_skin_service.return_value
+        mock_instance.skins = mock_api_responses["skins"]
+
+        with app.test_request_context():
+            response = client.get(url_for("api.api_skins"))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "data" in data
+        assert len(data["data"]) > 0
