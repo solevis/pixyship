@@ -28,3 +28,6 @@ jobs:
       - name: Format
         working-directory: ./backend
         run: uv run ruff format --check
+      - name: Test
+        working-directory: ./backend
+        run: uv run pytest
