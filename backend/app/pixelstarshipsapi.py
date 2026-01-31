@@ -465,8 +465,7 @@ class PixelStarshipsApi:
             for skinset_node in skinset_nodes:
                 skinset = self.parse_skinset_node(skinset_node)
                 skinset["pixyship_xml_element"] = skinset_node
-
-            skinsets.append(skinset)
+                skinsets.append(skinset)
 
         return skinsets
 
@@ -489,7 +488,6 @@ class PixelStarshipsApi:
             for skinset_node in skin_nodes:
                 skin = self.parse_skin_node(skinset_node)
                 skin["pixyship_xml_element"] = skinset_node
-
                 skins.append(skin)
 
         return skins
@@ -551,7 +549,7 @@ class PixelStarshipsApi:
             for research_node in research_nodes:
                 research = self.parse_research_node(research_node)
                 research["pixyship_xml_element"] = research_node  # custom field, return raw XML data too
-            researches.append(research)
+                researches.append(research)
 
         return researches
 
@@ -632,7 +630,6 @@ class PixelStarshipsApi:
         if missile_design_nodes is not None:
             for missile_design_node in missile_design_nodes:
                 missile_design = self.parse_missile_design_node(missile_design_node)
-
                 missile_design["pixyship_xml_element"] = missile_design_node  # custom field, return raw XML data too
                 missile_designs.append(missile_design)
 
@@ -683,24 +680,24 @@ class PixelStarshipsApi:
                     # Skip to next craft if missile design not found
                     continue
 
-            item_design = next(
-                (
-                    item_design
-                    for item_design in item_designs
-                    if item_design["CraftDesignId"] == craft_node.attrib["CraftDesignId"]
-                ),
-                None,
-            )
+                item_design = next(
+                    (
+                        item_design
+                        for item_design in item_designs
+                        if item_design["CraftDesignId"] == craft_node.attrib["CraftDesignId"]
+                    ),
+                    None,
+                )
 
-            if item_design:
-                craft_node.set("ReloadModifier", item_design["ReloadModifier"])
+                if item_design:
+                    craft_node.set("ReloadModifier", item_design["ReloadModifier"])
 
-            if missile_design:
-                craft_node.append(missile_design["pixyship_xml_element"])
-            craft = self.parse_craft_node(craft_node)
+                if missile_design:
+                    craft_node.append(missile_design["pixyship_xml_element"])
 
-            craft["pixyship_xml_element"] = craft_node  # custom field, return raw XML data too
-            crafts.append(craft)
+                craft = self.parse_craft_node(craft_node)
+                craft["pixyship_xml_element"] = craft_node  # custom field, return raw XML data too
+                crafts.append(craft)
 
         return crafts
 
@@ -757,24 +754,24 @@ class PixelStarshipsApi:
                     # Skip to next missile if missile design not found
                     continue
 
-            item_design = next(
-                (
-                    item_design
-                    for item_design in item_designs
-                    if item_design["CraftDesignId"] == item_node.attrib["CraftDesignId"]
-                ),
-                None,
-            )
+                item_design = next(
+                    (
+                        item_design
+                        for item_design in item_designs
+                        if item_design["CraftDesignId"] == item_node.attrib["CraftDesignId"]
+                    ),
+                    None,
+                )
 
-            if item_design:
-                item_node.set("ReloadModifier", item_design["ReloadModifier"])
+                if item_design:
+                    item_node.set("ReloadModifier", item_design["ReloadModifier"])
 
-            if missile_design:
-                item_node.append(missile_design["pixyship_xml_element"])
-            missile = self.parse_missile_node(item_node)
+                if missile_design:
+                    item_node.append(missile_design["pixyship_xml_element"])
 
-            missile["pixyship_xml_element"] = item_node  # custom field, return raw XML data too
-            missiles.append(missile)
+                missile = self.parse_missile_node(item_node)
+                missile["pixyship_xml_element"] = item_node  # custom field, return raw XML data too
+                missiles.append(missile)
 
         return missiles
 
