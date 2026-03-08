@@ -12,9 +12,9 @@ Forked by [Solevis](https://github.com/solevis/pixyship)
 
 ## Requirements
 
-- Python 3.11
+- Python 3.13
 - Node.js 16
-- PostgreSQL 15
+- PostgreSQL 17
 
 ## Getting Started
 
