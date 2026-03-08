@@ -11,14 +11,14 @@
 
   languages.python = {
     enable = true;
-    package = pkgs.python311;
+    package = pkgs.python313;
     uv.enable = true;
     uv.sync.enable = true;
   };
 
   services.postgres = {
     enable = true;
-    package = pkgs.postgresql_15;
+    package = pkgs.postgresql_17;
     listen_addresses = "127.0.0.1";
     initialScript = "CREATE USER pixyship SUPERUSER;";
     initialDatabases = [

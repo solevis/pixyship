@@ -19,7 +19,7 @@ dependencies = [
     "gunicorn>=22.0.0",
 ]
 readme = "README.md"
-requires-python = ">= 3.11"
+requires-python = ">= 3.13"
 
 [dependency-groups]
 dev = [
@@ -29,7 +29,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py313"
 line-length = 120
 indent-width = 4
 unsafe-fixes = true
