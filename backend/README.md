@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- [devenv](https://devenv.sh/) - Provides Python 3.11, PostgreSQL 15, Redis, and uv
+- [devenv](https://devenv.sh/) - Provides Python 3.13, PostgreSQL 17, Redis, and uv
 
 ## Getting Started locally
 
