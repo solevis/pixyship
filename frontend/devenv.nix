@@ -11,11 +11,6 @@ let
   };
 in
 {
-  packages = [
-    pkgs.git
-    pkgs.just
-  ];
-
   languages.javascript = {
     enable = true;
     package = nixpkgs-old.nodejs_16;
@@ -25,6 +20,4 @@ in
     echo "→ node version: $(node --version)"
     echo "→ npm version: $(npm --version)"
   '';
-
-  dotenv.disableHint = true;
 }
