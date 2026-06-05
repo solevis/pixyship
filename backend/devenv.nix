@@ -4,11 +4,6 @@
 }:
 
 {
-  packages = [
-    pkgs.git
-    pkgs.just
-  ];
-
   languages.python = {
     enable = true;
     package = pkgs.python313;
@@ -41,6 +36,4 @@
     echo "→ redis version: $(redis-server --version)"
     echo "→ venv path: $UV_PROJECT_ENVIRONMENT"
   '';
-
-  dotenv.disableHint = true;
 }
