@@ -25,6 +25,7 @@ ABILITY_NAME_MAP: dict[str, str] = {
     "Bloodlust": "Bloodlust",
     "Invulnerability": "Phase Shift",
     "ProtectRoom": "Stasis Shield",
+    "PoisonCrew": "Poison Blast",
     "None": "",
 }
 
@@ -43,6 +44,7 @@ ABILITY_SPRITE_MAP: dict[str, int] = {
     "Bloodlust": 13866,
     "Invulnerability": 13319,
     "ProtectRoom": 13320,
+    "PoisonCrew": 1537,
     "None": 110,  # Empty sprite
 }
 

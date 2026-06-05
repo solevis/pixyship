@@ -10,7 +10,7 @@ sync:
 
 # Run server
 run:
-    uv run flask run --debug
+    FLASK_RUN_PORT=5080 uv run flask run --debug
 
 # Generate pip-compatible requirements.lock for production
 lock:

@@ -46,4 +46,4 @@ deploy-all: build rsync rsync-staging rsync-beta
 
 # Update browser database
 update-browsers:
-    npx browserslist@latest --update-db
+    npx update-browserslist-db@latest
