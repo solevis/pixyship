@@ -10,6 +10,7 @@ __pycache__/
 .pg/
 data/
 pixyship.dump
+pixyship.dump.gz
 
 # Distribution / packaging
 .Python
