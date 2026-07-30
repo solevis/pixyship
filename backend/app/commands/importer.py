@@ -418,7 +418,7 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
         if one_item_only:
             break
 
-        api_sleep(3, force_sleep=True)
+        api_sleep(5, force_sleep=True)
 
     market_service.update_cache()
     current_app.logger.info("Done")
