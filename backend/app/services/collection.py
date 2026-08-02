@@ -153,6 +153,7 @@ class CollectionService(BaseService):
                 base_chance, base_enhancement_value
             ),
             "DamageReductionSkill": lambda: f"{base_chance}% chance to apply a {base_enhancement_value}% damage reduction to self or friendly crew for {argument / FRAME_SIZE:.1f} seconds.",
+            "DamageReductionSkillAll": lambda: f"{base_chance}% chance to apply a {base_enhancement_value}% damage reduction to all friendly crews in current room for {argument / FRAME_SIZE:.1f} seconds.",
             "DamageReductionTimeSkill": lambda: f"{base_chance}% chance to apply a {argument}% damage reduction to self or friendly crew for {base_enhancement_value / FRAME_SIZE:.1f} seconds.",
             "GainItemSkill": lambda: self.handle_gain_item_skill(base_chance, base_enhancement_value, argument),
             "MoveSpeedBoost": lambda: self.handle_move_speed_boost(base_chance, base_enhancement_value, argument),
@@ -179,6 +180,8 @@ class CollectionService(BaseService):
             "RoomDamageBoostInstance": lambda: f"{base_chance}% chance to increase the damage of the next {base_enhancement_value} weapon shots for the current room by {argument}%.",
             "DestroyModules": lambda: f"{base_chance}% chance to destroy up to {base_enhancement_value} enemy modules in the current room.",
             "Cloak": lambda: f"{base_chance}% chance to become untargetable for {base_enhancement_value / FRAME_SIZE:.1f} seconds.",
+            "CloakAttack": lambda: f"{base_chance}% chance to enter a stealth state, becoming untargetable for {argument / FRAME_SIZE:.1f} seconds and gain {base_enhancement_value:.0f}% bonus damage for the first attack while stealthed. The effect will be lost on any crew attack or ability activation if an enemy crew is present in the same room.",
+            "EMPModules": lambda: f"{base_chance}% chance to temporarily disable all modules in the current room for {base_enhancement_value / FRAME_SIZE:.1f} seconds.",
         }
 
         if enhancement_type in COLLECTION_BASIC_ABILITY_MAP:
@@ -318,6 +321,11 @@ class CollectionService(BaseService):
 
         if argument == 2:
             return f"{base_chance}% chance to reduce any EMP status duration on the current room by {duration_seconds:.1f} seconds."
+
+        if base_enhancement_value >= 10000:
+            return (
+                f"{base_chance}% chance to completely remove all negative status effects duration on the current room."
+            )
 
         return f"{base_chance}% chance to reduce all negative status effects' duration on the current room by {duration_seconds:.1f} seconds."
 

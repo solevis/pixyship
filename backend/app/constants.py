@@ -70,6 +70,9 @@ COLLECTION_ABILITY_MAP = {
     "DirectDamage": "Direct Damage",
     "ReduceRoomStatusSkill": "Reduce Room Status",
     "Cloak": "Cloak",
+    "CloakAttack": "Cloak",
+    "EMPModules": "EMP Discharge",
+    "DamageReductionSkillAll": "Damage Reduction",
     "DamageReductionSkill": "Damage Reduction",
     "RoomDamageBoostInstance": "Room Damage Boost",
     "ReduceFutureDamageInstance": "Reduce Future Damage",
@@ -100,6 +103,7 @@ COLLECTION_ABILITY_TRIGGER_MAP = {
     "ChangeRoom": "Change Room",
     "ModuleTrigger": "Module Trigger",
     "TakeFireDamage": "Take Fire Damage",
+    "CrewAction": "Crew Action",
     "None": "None",
 }
 
@@ -129,6 +133,7 @@ COLLECTION_ABILITY_TRIGGER_DESC_MAP = {
     "FriendlyAbilityUsed": "Triggers when a friendly crew activates an ability in the same room.",
     "EnemyAbilityUsed": "Triggers when an enemy crew activates an ability in the same room.",
     "ModuleTrigger": "Triggers when the crew causes a module in the current room to trigger.",
+    "CrewAction": "Triggers on every 1 attack or repair action.",
     "None": "None",
 }
 
