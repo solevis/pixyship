@@ -11,7 +11,7 @@ class MarketMessage(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     message: Mapped[str]
     sale_id: Mapped[int] = mapped_column(unique=True)
-    item_id: Mapped[int]
+    item_id: Mapped[int | None]
     user_id: Mapped[int]
     message_type: Mapped[str]
     channel_id: Mapped[str]

@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import random
 import time
@@ -8,6 +9,9 @@ from urllib import request
 import click
 from flask import current_app
 from flask.cli import AppGroup, with_appcontext
+from pssapi.enums import PusherChannelType
+from pssapi.exc import PusherConnectionClosed
+from pssapi.pusher import Channel, Pusher
 from sqlalchemy.dialects.postgresql import insert
 
 from app.constants import PSS_SPRITES_URL
@@ -22,6 +26,7 @@ from app.services.craft import CraftService
 from app.services.daily_offer import DailyOfferService
 from app.services.item import ItemService
 from app.services.market import MarketService
+from app.services.market_pusher import MarketPusherService
 from app.services.missile import MissileService
 from app.services.player import PlayerService
 from app.services.prestige import PrestigeService
@@ -488,6 +493,44 @@ def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
         api_sleep(1, force_sleep=True)
 
     current_app.logger.info("Done")
+
+
+@importer_cli.command(
+    "market-worker", help="Listen H24 to PSS market Pusher events and save sales/messages in database."
+)
+@with_appcontext
+def import_market_worker() -> None:
+    """Listen to the PSS market Pusher channel and save sales/messages in database as they happen."""
+    if current_app.config["USE_STAGING_API"]:
+        current_app.logger.info("In staging mode, no market pusher to listen to")
+        return
+
+    # PSS closes Pusher connections that aren't authorized within ~30 seconds, even to listen to
+    # public channels, so we still need an access token.
+    device = PixelStarshipsApi().get_device()
+    device.renew_token()
+
+    if not device.token or not device.user_id:
+        current_app.logger.error("Could not log in a device to authorize the market pusher connection")
+        raise SystemExit(1)
+
+    token, user_id = device.token, device.user_id
+
+    market_pusher_service = MarketPusherService()
+
+    market_channel = Channel(PusherChannelType.MARKET)
+    market_channel.on_message(market_pusher_service.handle_message)
+    Pusher.add(market_channel)
+
+    current_app.logger.info("Listening to PSS market pusher events...")
+
+    try:
+        asyncio.run(Pusher.run(token, int(user_id)))
+    except KeyboardInterrupt:
+        current_app.logger.info("Stopped")
+    except PusherConnectionClosed:
+        current_app.logger.exception("Market pusher connection closed")
+        raise SystemExit(1) from None
 
 
 def save_market_message(market_message: MarketMessage) -> None:

@@ -45,7 +45,10 @@ def mock_pixelstarships_api(app):
     with (
         app.app_context(),
         patch("app.pixelstarshipsapi.PixelStarshipsApi.get_api_settings", return_value=mock_api_settings()),
-        patch("app.pixelstarshipsapi.PixelStarshipsApi.get_device_token", return_value="mock-device-token"),
+        patch(
+            "app.pixelstarshipsapi.PixelStarshipsApi.get_device_token",
+            return_value=("mock-device-token", "mock-user-id"),
+        ),
         patch("app.pixelstarshipsapi.PixelStarshipsApi.get_device") as mock_get_device,
     ):
         mock_device = MagicMock()
@@ -62,9 +65,10 @@ def test_login(mock_pixelstarships_api):
     client_datetime = utc_now.strftime("%Y-%m-%dT%H:%M:%S")
 
     device_key, device_checksum = mock_pixelstarships_api.generate_device_key_checksum(client_datetime)
-    token = mock_pixelstarships_api.get_device_token(device_key, client_datetime, device_checksum)
+    token, user_id = mock_pixelstarships_api.get_device_token(device_key, client_datetime, device_checksum)
 
     assert isinstance(token, str)
+    assert isinstance(user_id, str)
     assert len(token) > 0
 
 
