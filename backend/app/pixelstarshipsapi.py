@@ -193,8 +193,8 @@ class PixelStarshipsApi:
 
         return device
 
-    def get_device_token(self, device_key: str, client_datetime: str, device_checksum: str) -> str | None:
-        """Get device token from API for the given generated device."""
+    def get_device_token(self, device_key: str, client_datetime: str, device_checksum: str) -> tuple[str, str] | None:
+        """Get device (access_token, user_id) from API for the given generated device."""
         # Convert client_datetime str in ISO
         client_datetime_str = convert_datetime_to_iso(client_datetime)
 
@@ -250,7 +250,14 @@ class PixelStarshipsApi:
             current_app.logger.error("Error when parsing response: %s", response.text)
             return None
 
-        return user_login_node.attrib["accessToken"]
+        access_token = user_login_node.attrib.get("accessToken")
+        user_id = user_login_node.attrib.get("UserId")
+
+        if not access_token or not user_id:
+            current_app.logger.error("Missing accessToken or UserId in response: %s", response.text)
+            return None
+
+        return access_token, user_id
 
     def inspect_ship(self, user_id: int) -> dict[str, dict]:
         """Get player ship data from API."""

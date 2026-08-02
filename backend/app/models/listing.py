@@ -15,10 +15,10 @@ class Listing(db.Model):  # type: ignore[name-defined]
     amount: Mapped[int]
     currency: Mapped[str]
     price: Mapped[int]
-    user_id: Mapped[int]
-    user_name: Mapped[str]
-    seller_id: Mapped[int]
-    seller_name: Mapped[str]
+    user_id: Mapped[int | None]
+    user_name: Mapped[str | None]
+    seller_id: Mapped[int | None]
+    seller_name: Mapped[str | None]
 
     def __repr__(self) -> str:
         """Return a string representation of the listing."""

@@ -37,6 +37,12 @@ uv run flask --debug run
 
 Access the backend at [http://localhost:5000](http://localhost:5000).
 
+Market Pusher worker (listens H24 to PSS market events instead of the periodic `import market`:
+
+```bash
+uv run flask import market-worker
+```
+
 Linter:
 
 ```bash

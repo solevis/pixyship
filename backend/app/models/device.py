@@ -12,6 +12,7 @@ class Device(db.Model):  # type: ignore[name-defined]
     checksum: Mapped[str]
     client_datetime: Mapped[str]
     token: Mapped[str | None]
+    user_id: Mapped[str | None]
     expires_at: Mapped[datetime.datetime]
 
     def __repr__(self) -> str:
@@ -30,9 +31,9 @@ class Device(db.Model):  # type: ignore[name-defined]
         from app.pixelstarshipsapi import PixelStarshipsApi
 
         pixel_starships_api = PixelStarshipsApi()
-        token = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
-        if token is not None:
-            self.token = token
+        login = pixel_starships_api.get_device_token(self.key, self.client_datetime, self.checksum)
+        if login is not None:
+            self.token, self.user_id = login
             self.expires_at = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=3)
 
         db.session.commit()
