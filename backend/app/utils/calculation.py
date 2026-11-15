@@ -4,11 +4,11 @@ import datetime
 def float_range(values: dict, start_key: str, end_key: str) -> tuple[float, float]:
     """Get the start and end of a range from a dictionary of float values."""
     start: float = 0
-    if values[start_key]:
+    if values.get(start_key):
         start = float(values[start_key])
 
     end: float = 0
-    if values[end_key]:
+    if values.get(end_key):
         end = float(values[end_key])
 
     return start, end
@@ -17,11 +17,11 @@ def float_range(values: dict, start_key: str, end_key: str) -> tuple[float, floa
 def int_range(values: dict, start_key: str, end_key: str) -> tuple[int, int]:
     """Get the start and end of a range from a dictionary of int values."""
     start: int = 0
-    if values[start_key]:
+    if values.get(start_key):
         start = int(values[start_key])
 
     end: int = 0
-    if values[end_key]:
+    if values.get(end_key):
         end = int(values[end_key])
 
     return start, end

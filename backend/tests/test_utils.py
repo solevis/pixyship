@@ -40,45 +40,45 @@ def test_get_type_enum_from_string_with_empty_string(app):
         assert result is None
 
 
-def float_range_handles_empty_values(app):
+def test_float_range_handles_empty_values(app):
     with app.app_context():
         result = float_range({}, "start", "end")
         assert result == (0.0, 0.0)
 
 
-def float_range_handles_non_empty_values(app):
+def test_float_range_handles_non_empty_values(app):
     with app.app_context():
         result = float_range({"start": "1.1", "end": "2.2"}, "start", "end")
         assert result == (1.1, 2.2)
 
 
-def int_range_handles_empty_values(app):
+def test_int_range_handles_empty_values(app):
     with app.app_context():
         result = int_range({}, "start", "end")
         assert result == (0, 0)
 
 
-def int_range_handles_non_empty_values(app):
+def test_int_range_handles_non_empty_values(app):
     with app.app_context():
         result = int_range({"start": "1", "end": "2"}, "start", "end")
         assert result == (1, 2)
 
 
-def sort_attributes_preserves_single_attribute(app):
+def test_sort_attributes_preserves_single_attribute(app):
     with app.app_context():
         root = Element("root", {"a": "1"})
         sort_attributes(root)
         assert root.attrib == {"a": "1"}
 
 
-def sort_attributes_sorts_multiple_attributes(app):
+def test_sort_attributes_sorts_multiple_attributes(app):
     with app.app_context():
         root = Element("root", {"b": "2", "a": "1"})
         sort_attributes(root)
         assert root.attrib == {"a": "1", "b": "2"}
 
 
-def sort_attributes_sorts_nested_elements(app):
+def test_sort_attributes_sorts_nested_elements(app):
     with app.app_context():
         root = Element("root", {"b": "2", "a": "1"})
         child = Element("child", {"d": "4", "c": "3"})
@@ -88,7 +88,7 @@ def sort_attributes_sorts_nested_elements(app):
         assert child.attrib == {"c": "3", "d": "4"}
 
 
-def sort_attributes_handles_empty_attributes(app):
+def test_sort_attributes_handles_empty_attributes(app):
     with app.app_context():
         root = Element("root")
         sort_attributes(root)
@@ -245,61 +245,61 @@ def test_format_delta_time_with_zero_time():
     assert result == ""
 
 
-def compute_pvp_ratio_returns_zero_for_no_battles(app):
+def test_compute_pvp_ratio_returns_zero_for_no_battles(app):
     with app.app_context():
         result = compute_pvp_ratio(0, 0, 0)
         assert result == 0.0
 
 
-def compute_pvp_ratio_returns_correct_ratio_for_wins_only(app):
+def test_compute_pvp_ratio_returns_correct_ratio_for_wins_only(app):
     with app.app_context():
         result = compute_pvp_ratio(10, 0, 0)
         assert result == 100.0
 
 
-def compute_pvp_ratio_returns_correct_ratio_for_draws_only(app):
+def test_compute_pvp_ratio_returns_correct_ratio_for_draws_only(app):
     with app.app_context():
         result = compute_pvp_ratio(0, 0, 10)
         assert result == 50.0
 
 
-def compute_pvp_ratio_returns_correct_ratio_for_losses_only(app):
+def test_compute_pvp_ratio_returns_correct_ratio_for_losses_only(app):
     with app.app_context():
         result = compute_pvp_ratio(0, 10, 0)
         assert result == 0.0
 
 
-def compute_pvp_ratio_returns_correct_ratio_for_mixed_results(app):
+def test_compute_pvp_ratio_returns_correct_ratio_for_mixed_results(app):
     with app.app_context():
         result = compute_pvp_ratio(5, 3, 2)
         assert result == 60.0
 
 
-def offstat_returns_false_for_non_equipment(app):
+def test_offstat_returns_false_for_non_equipment(app):
     with app.app_context():
         result = has_offstat("NonEquipment", "Head", 5, 1.0, "Enhancement")
         assert result is False
 
 
-def offstat_returns_false_for_invalid_slot(app):
+def test_offstat_returns_false_for_invalid_slot(app):
     with app.app_context():
         result = has_offstat("Equipment", "InvalidSlot", 5, 1.0, "Enhancement")
         assert result is False
 
 
-def offstat_returns_false_for_low_rarity(app):
+def test_offstat_returns_false_for_low_rarity(app):
     with app.app_context():
         result = has_offstat("Equipment", "Head", 1, 1.0, "Enhancement")
         assert result is False
 
 
-def offstat_returns_false_for_no_enhancement_and_no_bonus(app):
+def test_offstat_returns_false_for_no_enhancement_and_no_bonus(app):
     with app.app_context():
         result = has_offstat("Equipment", "Head", 5, 0.0, None)
         assert result is False
 
 
-def offstat_returns_true_for_valid_input(app):
+def test_offstat_returns_true_for_valid_input(app):
     with app.app_context():
         result = has_offstat("Equipment", "Head", 5, 1.0, "Enhancement")
         assert result is True

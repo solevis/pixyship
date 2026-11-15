@@ -360,7 +360,7 @@ class PixelStarshipsApi:
         if exact_match:
             user_node = root.find(f".//User[@Name={user_name!r}]")
 
-            if user_node:
+            if user_node is not None:
                 user = self.parse_user_node(user_node)
                 user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
                 users.append(user)
@@ -1142,7 +1142,7 @@ class PixelStarshipsApi:
         prestige_nodes = root.find(".//Prestiges")
 
         # it's possible to don't have prestiges for the given character
-        if prestige_nodes:
+        if prestige_nodes is not None:
             for prestige_node in prestige_nodes:
                 prestige = self.parse_prestige_node(prestige_node)
                 prestige["pixyship_xml_element"] = prestige_node  # custom field, return raw XML data too
@@ -1163,7 +1163,7 @@ class PixelStarshipsApi:
         prestige_nodes = root.find(".//Prestiges")
 
         # it's possible to don't have prestiges for the given character
-        if prestige_nodes:
+        if prestige_nodes is not None:
             for prestige_node in prestige_nodes:
                 prestige = self.parse_prestige_node(prestige_node)
                 prestige["pixyship_xml_element"] = prestige_node  # custom field, return raw XML data too
@@ -1214,7 +1214,7 @@ class PixelStarshipsApi:
         trainings = []
         training_nodes = root.find(".//TrainingDesigns")
 
-        if training_nodes:
+        if training_nodes is not None:
             for training_node in training_nodes:
                 training = self.parse_training_node(training_node)
                 training["pixyship_xml_element"] = training_node  # custom field, return raw XML data too
@@ -1242,7 +1242,7 @@ class PixelStarshipsApi:
         achievements = []
         achievement_nodes = root.find(".//AchievementDesigns")
 
-        if achievement_nodes:
+        if achievement_nodes is not None:
             for achievement_node in achievement_nodes:
                 achievement = self.parse_achievement_node(achievement_node)
                 achievement["pixyship_xml_element"] = achievement_node  # custom field, return raw XML data too
@@ -1270,7 +1270,7 @@ class PixelStarshipsApi:
         situations = []
         situation_nodes = root.find(".//SituationDesigns")
 
-        if situation_nodes:
+        if situation_nodes is not None:
             for situation_node in situation_nodes:
                 situation = self.parse_situation_node(situation_node)
                 situation["pixyship_xml_element"] = situation_node  # custom field, return raw XML data too
@@ -1298,7 +1298,7 @@ class PixelStarshipsApi:
         promotions = []
         promotion_nodes = root.find(".//PromotionDesigns")
 
-        if promotion_nodes:
+        if promotion_nodes is not None:
             for promotion_node in promotion_nodes:
                 promotion = self.parse_situation_node(promotion_node)
                 promotion["pixyship_xml_element"] = promotion_node  # custom field, return raw XML data too
@@ -1323,7 +1323,7 @@ class PixelStarshipsApi:
         markers = []
         markers_nodes = root.find(".//StarSystemMarkers")
 
-        if markers_nodes:
+        if markers_nodes is not None:
             for marker_node in markers_nodes:
                 marker = self.parse_star_system_marker_node(marker_node)
                 marker["pixyship_xml_element"] = marker_node  # custom field, return raw XML data too
