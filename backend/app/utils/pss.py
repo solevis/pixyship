@@ -33,6 +33,23 @@ def has_offstat(
     return not (item_disp_enhancement is None and item_bonus == 0.0)
 
 
+def get_offstat_count(
+    item_type: str,
+    item_slot: str,
+    item_rarity_order: int,
+    item_bonus: float,
+    item_disp_enhancement: str | None,
+) -> int:
+    """Get the number of offstat bonuses an item can roll: legendary items get a second one."""
+    if not has_offstat(item_type, item_slot, item_rarity_order, item_bonus, item_disp_enhancement):
+        return 0
+
+    if item_rarity_order >= RARITY_MAP["Legendary"]:
+        return 2
+
+    return 1
+
+
 def get_type_enum_from_string(type_string: str) -> TypeEnum | None:
     """Convert a string to a TypeEnum."""
     if type_string.lower() == "allrooms":

@@ -183,8 +183,8 @@
                   <template v-if="item.module_extra_disp_enhancement != null">
                     <br>{{ formatExtraBonus(item) }}
                   </template>
-                  <template v-if="item.has_offstat">
-                    <br>??&nbsp;+??
+                  <template v-for="n in item.offstat_count">
+                    <br :key="`offstat-${n}`">??&nbsp;+??
                   </template>
               </td>
 

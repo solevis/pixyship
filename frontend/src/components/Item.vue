@@ -33,7 +33,7 @@
             Bonus:
             <span>{{ formatBonus(item) }}</span>
             <span v-if="item.module_extra_disp_enhancement != null">&nbsp;/&nbsp;{{ formatExtraBonus(item) }}</span>
-            <span v-if="item.has_offstat">&nbsp;/&nbsp;??&nbsp;+??</span>
+            <span v-for="n in item.offstat_count" :key="`offstat-${n}`">&nbsp;/&nbsp;??&nbsp;+??</span>
           </td>
         </tr>
 

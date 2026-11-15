@@ -30,6 +30,7 @@ from app.ext.db import db
 from app.models import Listing, MarketMessage
 from app.services.base import BaseService
 from app.services.item import ItemService
+from app.services.market import MarketService
 from app.utils.pss import parse_price_from_pricestring
 
 # e.g. "Selling 11 Void Particle" / "Bought 3 Void Particle from SomeName"
@@ -41,6 +42,9 @@ SELLER_NAME_PATTERN = re.compile(r"\bfrom\s+(?P<seller>.+)$", re.IGNORECASE)
 # fallback when the quantity can't be parsed from the message text
 DEFAULT_SALE_AMOUNT = 1
 
+# minimum delay between two rebuilds of the market prices cache, after new sales are saved
+PRICES_CACHE_REFRESH_INTERVAL = 60
+
 
 class MarketPusherService(BaseService):
     """Resolve and persist PSS market Pusher events (item listed / sold / expired) in real time."""
@@ -49,6 +53,7 @@ class MarketPusherService(BaseService):
         super().__init__()
         self._items_by_name_cache: list[tuple[str, int]] | None = None
         self._items_by_name_cached_at: float = 0.0
+        self._prices_cache_refreshed_at: float | None = None
 
     @property
     def items_by_name(self) -> list[tuple[str, int]]:
@@ -151,8 +156,35 @@ class MarketPusherService(BaseService):
 
         self.save_market_message(message, item[0] if item else None)
 
-        if activity_type == ActivityType.MARKET_SOLD and item is not None:
-            self.save_listing(message, item[0], item[1])
+        if activity_type == ActivityType.MARKET_SOLD and item is not None and self.save_listing(message, *item):
+            self.refresh_prices_cache()
+
+    def refresh_prices_cache(self) -> None:
+        """Rebuild the market prices cache, at most once every PRICES_CACHE_REFRESH_INTERVAL seconds.
+
+        The "items" cache embeds the prices (it's what the API serves), so it's rebuilt right after
+        "prices", otherwise the new prices would only be visible once "items" expires on its own.
+        HTTP responses cached by @cache.cached still expire on their own (CACHE_DEFAULT_TIMEOUT).
+
+        Throttled since it's a percentile aggregation over the last 48h of sales plus a parse of all
+        item records.
+        """
+        now = time.monotonic()
+        if (
+            self._prices_cache_refreshed_at is not None
+            and (now - self._prices_cache_refreshed_at) < PRICES_CACHE_REFRESH_INTERVAL
+        ):
+            return
+
+        try:
+            MarketService().update_cache()
+            ItemService().update_cache()
+        except Exception:
+            current_app.logger.exception("Error when refreshing market prices cache")
+            db.session.rollback()
+            return
+
+        self._prices_cache_refreshed_at = now
 
     @staticmethod
     def save_market_message(message: Message, item_id: int | None) -> None:
@@ -187,8 +219,8 @@ class MarketPusherService(BaseService):
             db.session.rollback()
 
     @staticmethod
-    def save_listing(message: Message, item_id: int, item_name: str) -> None:
-        """Save a completed sale as a Listing, best-effort from the market pusher message."""
+    def save_listing(message: Message, item_id: int, item_name: str) -> bool:
+        """Save a completed sale as a Listing, best-effort from the market pusher message, return True if saved."""
         price_info = MarketPusherService.parse_price(message.activity_argument)
         if price_info is None:
             current_app.logger.warning(
@@ -196,7 +228,7 @@ class MarketPusherService(BaseService):
                 message.activity_argument,
                 message.sale_id,
             )
-            return
+            return False
 
         try:
             sale_id = int(message.sale_id)
@@ -204,7 +236,7 @@ class MarketPusherService(BaseService):
             current_app.logger.warning(
                 "Market pusher sold message %s has no valid SaleId, skipping listing", message.message_id
             )
-            return
+            return False
 
         price, currency = price_info
         amount = MarketPusherService.parse_quantity(message.message) or DEFAULT_SALE_AMOUNT
@@ -232,3 +264,6 @@ class MarketPusherService(BaseService):
         except Exception:
             current_app.logger.exception("Error when saving market pusher listing in database")
             db.session.rollback()
+            return False
+
+        return True

@@ -11,6 +11,9 @@ from app.models import Listing
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
+# one offstat in a market message, e.g. "(+12.2 Ability)", "(+5.1 Fire Resistance)" or "(+12,5 Ability)"
+OFFSTAT_PATTERN = re.compile(r"\(\+\s*(\d+(?:[.,]\d+)?)\s+([^()]+?)\s*\)")
+
 
 class MarketService(BaseService):
     """Service to manage market."""
@@ -126,19 +129,7 @@ class MarketService(BaseService):
         last_sales = []
 
         for row in result:
-            # offstat
-            offstat = None
-            if row[7]:
-                search_result = re.search(r"\(\+(.*?)\s(.*?)\)", row[7])
-                if search_result:
-                    result_value = search_result.group(1)
-                    if result_value:
-                        result_bonus = search_result.group(2)
-                        offstat = {
-                            "value": result_value,
-                            "bonus": result_bonus,
-                            "short_bonus": SHORT_ENHANCE_MAP.get(result_bonus, result_bonus),
-                        }
+            offstats = MarketService.parse_offstats(row[7])
 
             last_sales.append(
                 {
@@ -149,11 +140,27 @@ class MarketService(BaseService):
                     "price": row[3],
                     "buyer": row[4],
                     "seller": row[5],
-                    "offstat": offstat,
+                    "offstats": offstats,
                 },
             )
 
         return last_sales
+
+    @staticmethod
+    def parse_offstats(message: str | None) -> list[dict]:
+        """Parse all offstats from a market message, e.g. "Selling 1 Item (+12.2 Ability) (+1.5 Engine)"."""
+        if not message:
+            return []
+
+        return [
+            {
+                "value": value,
+                "bonus": bonus,
+                # the map keys are the API enhancement names, without spaces (e.g. "FireResistance")
+                "short_bonus": SHORT_ENHANCE_MAP.get(bonus.replace(" ", ""), bonus),
+            }
+            for value, bonus in OFFSTAT_PATTERN.findall(message)
+        ]
 
     @staticmethod
     def get_sales_from_api(pixel_starships_api: PixelStarshipsApi, item_id: int) -> list:

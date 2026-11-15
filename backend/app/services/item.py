@@ -13,7 +13,7 @@ from app.enums import TypeEnum
 from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
-from app.utils.pss import has_offstat
+from app.utils.pss import get_offstat_count
 
 
 class ItemService(BaseService):
@@ -56,7 +56,7 @@ class ItemService(BaseService):
             rarity_order = RARITY_MAP[item["Rarity"]]
             bonus = self.get_item_bonus(item)
             disp_enhancement = ENHANCE_MAP.get(item["EnhancementType"], item["EnhancementType"])
-            offstat = has_offstat(item_type, slot, rarity_order, bonus, disp_enhancement)
+            offstat_count = get_offstat_count(item_type, slot, rarity_order, bonus, disp_enhancement)
 
             items[record.type_id] = {
                 "name": item["ItemDesignName"],
@@ -75,7 +75,8 @@ class ItemService(BaseService):
                 "type": item_type,
                 "rarity": item["Rarity"].lower(),
                 "rarity_order": rarity_order,
-                "has_offstat": offstat,
+                "has_offstat": offstat_count > 0,
+                "offstat_count": offstat_count,
                 "ingredients": item["Ingredients"],
                 "content_string": item["Content"],
                 "number_of_rewards": number_of_rewards,
@@ -114,6 +115,8 @@ class ItemService(BaseService):
             "rarity": item["rarity"],
             "rarity_order": item["rarity_order"],
             "has_offstat": item["has_offstat"],
+            # items cached before "offstat_count" was added only have "has_offstat"
+            "offstat_count": item.get("offstat_count", int(item["has_offstat"])),
             "slot": item["slot"],
             "type": item["type"],
             "disp_enhancement": item["disp_enhancement"],

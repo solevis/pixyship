@@ -1,9 +1,18 @@
 import datetime
 from xml.etree.ElementTree import Element
 
+import pytest
+
+from app.constants import RARITY_MAP
 from app.enums import TypeEnum
 from app.utils.calculation import float_range, format_delta_time, int_range
-from app.utils.pss import compute_pvp_ratio, get_type_enum_from_string, has_offstat, parse_assets_string
+from app.utils.pss import (
+    compute_pvp_ratio,
+    get_offstat_count,
+    get_type_enum_from_string,
+    has_offstat,
+    parse_assets_string,
+)
 from app.utils.xml_helpers import sort_attributes
 
 
@@ -294,3 +303,16 @@ def offstat_returns_true_for_valid_input(app):
     with app.app_context():
         result = has_offstat("Equipment", "Head", 5, 1.0, "Enhancement")
         assert result is True
+
+
+@pytest.mark.parametrize(
+    ("rarity", "expected"),
+    [("Epic", 0), ("Hero", 1), ("Special", 1), ("Legendary", 2)],
+)
+def test_get_offstat_count_by_rarity(rarity, expected):
+    assert get_offstat_count("Equipment", "Head", RARITY_MAP[rarity], 1.0, "Enhancement") == expected
+
+
+def test_get_offstat_count_without_offstat():
+    assert get_offstat_count("Equipment", "Head", RARITY_MAP["Legendary"], 0.0, None) == 0
+    assert get_offstat_count("Equipment", "InvalidSlot", RARITY_MAP["Legendary"], 1.0, "Enhancement") == 0

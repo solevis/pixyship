@@ -60,8 +60,8 @@
                   <template v-if="item.module_extra_disp_enhancement != null">
                     <br>{{ formatExtraBonus(item) }}
                   </template>
-                  <template v-if="item.has_offstat">
-                    <br>??&nbsp;+??
+                  <template v-for="n in item.offstat_count">
+                    <br :key="`offstat-${n}`">??&nbsp;+??
                   </template>
                 </td>
 
@@ -274,7 +274,7 @@
             <span>Rarity: <span :class="['rarity', item.rarity]">{{ item.rarity }}</span></span><br>
             <span>Type/Subtype: {{ item.type }}/{{ item.slot }}</span><br>
             <template v-if="formatBonus(item)">
-              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><template v-if="item.has_offstat">&nbsp;/&nbsp;??&nbsp;+??</template></span><br>
+              <span>Bonus: {{ formatBonus(item) }}<template v-if="item.module_extra_disp_enhancement != null"> / {{ formatExtraBonus(item) }}</template><span v-for="n in item.offstat_count" :key="`offstat-${n}`">&nbsp;/&nbsp;??&nbsp;+??</span></span><br>
             </template>
 
             <div v-if="item.recipe.length > 0">Recipe:
@@ -486,8 +486,9 @@
                           <span>{{ item.price }}</span>
                         </td>
                         <td>
-                          <span v-if="item.offstat" class="font-weight-light">
-                            <span :title="item.offstat.bonus">+{{ item.offstat.value }} {{ item.offstat.short_bonus }}</span>
+                          <span v-for="(offstat, index) in saleOffstats(item)" :key="index" class="font-weight-light">
+                            <template v-if="index > 0">&nbsp;/&nbsp;</template>
+                            <span :title="offstat.bonus">+{{ offstat.value }} {{ offstat.short_bonus }}</span>
                           </span>
                         </td>
                         <td>{{ item.buyer }}</td>
@@ -720,13 +721,10 @@ export default {
         {
           text: "Offstat",
           align: "center",
-          value: "offstat.value",
+          value: "offstats",
+          sortable: false,
           filter: (value, search, item) => {
-            let filtered = null;
-            if (item.offstat !== null) {
-              filtered = item.offstat.short_bonus
-            }
-
+            const filtered = this.saleOffstats(item).map((offstat) => offstat.short_bonus).join(",")
             return this.filterCombobox(filtered, this.lastPlayersSalesOffstatSearch)
           },
         },
@@ -767,13 +765,10 @@ export default {
         {
           text: "Offstat",
           align: "center",
-          value: "offstat.value",
+          value: "offstats",
+          sortable: false,
           filter: (value, search, item) => {
-            let filtered = null;
-            if (item.offstat !== null) {
-              filtered = item.offstat.short_bonus
-            }
-
+            const filtered = this.saleOffstats(item).map((offstat) => offstat.short_bonus).join(",")
             return this.filterCombobox(filtered, this.lastPlayersSalesOffstatSearch)
           },
         },
@@ -810,6 +805,14 @@ export default {
   },
 
   methods: {
+    // sales cached before the multi-offstats change still have a single "offstat" field
+    saleOffstats(sale) {
+      if (Array.isArray(sale.offstats)) {
+        return sale.offstats
+      }
+      return sale.offstat ? [sale.offstat] : []
+    },
+
     getItem: async function () {
       const response = await axios.get(this.itemDetailEndpoint(this.itemId))
 
