@@ -80,7 +80,8 @@ class MarketService(BaseService):
                 FROM listing
                 WHERE item_id = :item_id
                   AND amount > 0
-                  AND sale_at::DATE >= now() - '6 months'::INTERVAL
+                  -- whole days only, written without a cast on sale_at so the index can be used
+                  AND sale_at >= date_trunc('day', now() - INTERVAL '6 months') + INTERVAL '1 day'
                 GROUP BY item_id, item_name, currency, sale_at::DATE
                 ORDER BY item_id, item_name, currency, sale_at::DATE
             """
