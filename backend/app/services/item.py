@@ -238,7 +238,7 @@ class ItemService(BaseService):
 
         enhancement = MODULE_ENHANCEMENT_MAP.get(module_type, None)
         disp_enhancement = ENHANCE_MAP.get(enhancement, enhancement)
-        short_disp_enhancement = (SHORT_ENHANCE_MAP.get(enhancement, enhancement),)
+        short_disp_enhancement = SHORT_ENHANCE_MAP.get(enhancement, enhancement)
         bonus = float(item["ModuleArgument"])
 
         return {
