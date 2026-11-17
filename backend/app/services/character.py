@@ -101,15 +101,22 @@ class CharacterService(BaseService):
 
         return [EQUIPMENT_SLOTS[5 - i] for i, b in enumerate(output) if b]
 
-    def update_character_with_collection_data(self, characters: dict[int, dict]) -> None:
-        """Updata character data with collection."""
-        # update crew with collection data
+    def add_collection_data(self, character: dict) -> dict:
+        """Add the collection name and sprite to the given character, if any."""
+        if character["collection"]:
+            collection = self.collection_service.collections[character["collection"]]
+            character["collection_sprite"] = collection["icon_sprite"]
+            character["collection_name"] = collection["name"]
+
+        return character
+
+    def get_characters_with_collection_data(self) -> dict[int, dict]:
+        """Get characters data, with the name and sprite of their collection."""
+        characters = self.characters
         for character in characters.values():
-            if character["collection"]:
-                character["collection_sprite"] = self.collection_service.collections[character["collection"]][
-                    "icon_sprite"
-                ]
-                character["collection_name"] = self.collection_service.collections[character["collection"]]["name"]
+            self.add_collection_data(character)
+
+        return characters
 
     def update_characters(self) -> None:
         """Get crews from API and save them in database."""

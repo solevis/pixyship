@@ -34,6 +34,20 @@ class CollectionService(BaseService):
 
         return collections
 
+    def get_collections_with_characters(self) -> dict[int, dict]:
+        """Get collections data with their characters, collections without characters are removed."""
+        characters_by_collection: dict[int, list[dict]] = {}
+        for character in self.character_service.characters.values():
+            characters_by_collection.setdefault(character["collection"], []).append(character)
+
+        collections = {}
+        for collection_id, collection in self.collections.items():
+            if collection_id in characters_by_collection:
+                collection["chars"] = characters_by_collection[collection_id]
+                collections[collection_id] = collection
+
+        return collections
+
     def update_cache(self) -> None:
         """Load collections in cache."""
         cache.set("collections", self.get_collections_from_records())

@@ -5,6 +5,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from flask import url_for
 
+from app.services.character import CharacterService
+from app.services.collection import CollectionService
+
 
 @pytest.fixture
 def mock_api_responses():
@@ -327,27 +330,28 @@ def test_api_changes(client, app, mock_api_responses):
         assert "lastprestigeschanges" in data
 
 
-def test_api_collections(client, app, mock_api_responses):
-    """Test collections endpoint with mocked data."""
+def test_api_collections(client, app):
+    """Test collections endpoint, with their characters, without empty collections."""
+    collections = {
+        1: {"id": 1, "name": "Federation"},
+        2: {"id": 2, "name": "Polaran"},
+    }
+    characters = {
+        1: {"id": 1, "name": "Character 1", "collection": 1},
+        2: {"id": 2, "name": "Character 2", "collection": 1},
+        3: {"id": 3, "name": "Character 3", "collection": 0},
+    }
     with (
-        patch("app.blueprints.api.CollectionService") as mock_collection_service,
-        patch("app.blueprints.api.CharacterService") as mock_character_service,
+        patch.object(CollectionService, "collections", collections),
+        patch.object(CharacterService, "characters", characters),
+        app.test_request_context(),
     ):
-        mock_collection_instance = mock_collection_service.return_value
-        mock_collection_instance.collections = mock_api_responses["collections"]
+        response = client.get(url_for("api.api_collections"))
 
-        mock_character_instance = mock_character_service.return_value
-        mock_character_instance.characters = {
-            1: {"id": 1, "name": "Character 1", "collection": 1},
-            2: {"id": 2, "name": "Character 2", "collection": 1},
-        }
-
-        with app.test_request_context():
-            response = client.get(url_for("api.api_collections"))
-        assert response.status_code == 200
-        data = response.get_json()
-        assert "data" in data
-        assert len(data["data"]) > 0
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert list(data) == ["1"]
+    assert [character["id"] for character in data["1"]["chars"]] == [1, 2]
 
 
 def test_api_achievements(client, app, mock_api_responses):
@@ -375,30 +379,43 @@ def test_api_research(client, app, mock_research_service):
 
 
 def test_api_prestige(client, app, mock_api_responses):
-    """Test prestige endpoint with mocked data."""
+    """Test prestige endpoint, the character has its collection data."""
+    characters = {196: {"id": 196, "name": "Test Character", "collection": 1}}
+    collections = {1: {"id": 1, "name": "Test Collection", "icon_sprite": "test_sprite"}}
     with (
         patch("app.blueprints.api.PrestigeService") as mock_prestige_service,
-        patch("app.blueprints.api.CharacterService") as mock_character_service,
-        patch("app.blueprints.api.CollectionService") as mock_collection_service,
+        patch.object(CharacterService, "characters", characters),
+        patch.object(CollectionService, "collections", collections),
     ):
-        # Mock character service
-        mock_character_instance = mock_character_service.return_value
-        mock_character_instance.characters = {196: {"id": 196, "name": "Test Character", "collection": 1}}
-
-        # Mock collection service
-        mock_collection_instance = mock_collection_service.return_value
-        mock_collection_instance.collections = {1: {"id": 1, "name": "Test Collection", "icon_sprite": "test_sprite"}}
-
-        # Mock prestige service
-        mock_prestige_instance = mock_prestige_service.return_value
-        mock_prestige_instance.get_prestiges_from_api = lambda _: mock_api_responses["prestige"]
+        mock_prestige_service.return_value.get_prestiges_from_api = lambda _: mock_api_responses["prestige"]
 
         with app.test_request_context():
             response = client.get(url_for("api.api_prestige", char_id=196))
-        assert response.status_code == 200
-        data = response.get_json()
-        assert "data" in data
-        assert len(data["data"]) > 0
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert len(data["data"]) > 0
+    assert data["character"]["collection_name"] == "Test Collection"
+    assert data["character"]["collection_sprite"] == "test_sprite"
+
+
+def test_api_crew(client, app):
+    """Test crew endpoint, characters have their collection data."""
+    characters = {
+        1: {"id": 1, "name": "Character 1", "collection": 1},
+        2: {"id": 2, "name": "Character 2", "collection": 0},
+    }
+    collections = {1: {"id": 1, "name": "Test Collection", "icon_sprite": "test_sprite"}}
+    with (
+        patch.object(CharacterService, "characters", characters),
+        patch.object(CollectionService, "collections", collections),
+        app.test_request_context(),
+    ):
+        response = client.get(url_for("api.api_crew"))
+
+    data = response.get_json()["data"]
+    assert data["1"]["collection_name"] == "Test Collection"
+    assert "collection_name" not in data["2"]
 
 
 def test_api_crafts(client, app, mock_api_responses):

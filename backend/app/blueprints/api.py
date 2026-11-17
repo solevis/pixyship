@@ -106,23 +106,7 @@ def api_changes() -> Response:
 def api_collections() -> Response:
     """Return the collections."""
     collection_service = CollectionService()
-    collections = collection_service.collections
-    character_service = CharacterService()
-    characters = character_service.characters
-
-    collections_to_remove = []
-    for collection_id, collection in collections.items():
-        collection_characters = [
-            character for character in characters.values() if character["collection"] == collection_id
-        ]
-        if collection_characters:
-            collection["chars"] = collection_characters
-        else:
-            collections_to_remove.append(collection_id)
-
-    # Remove collections without characters
-    for collection_id in collections_to_remove:
-        collections.pop(collection_id)
+    collections = collection_service.get_collections_with_characters()
 
     return success_response(collections)
 
@@ -150,16 +134,13 @@ def api_research() -> Response:
 @cache.cached()
 def api_prestige(char_id: int) -> Response:
     """Return the prestiges of a character."""
+    character_service = CharacterService()
     try:
-        character_service = CharacterService()
         character = character_service.characters[char_id]
     except KeyError:
         flask.abort(404)
 
-    collection_service = CollectionService()
-    if character["collection"]:
-        character["collection_sprite"] = collection_service.collections[character["collection"]]["icon_sprite"]
-        character["collection_name"] = collection_service.collections[character["collection"]]["name"]
+    character_service.add_collection_data(character)
 
     prestige_service = PrestigeService()
     return success_response(prestige_service.get_prestiges_from_api(character["id"]), character=character)
@@ -171,14 +152,7 @@ def api_prestige(char_id: int) -> Response:
 def api_crew() -> Response:
     """Return all crew."""
     character_service = CharacterService()
-    characters = character_service.characters
-    collection_service = CollectionService()
-    collections = collection_service.collections
-
-    for character in characters.values():
-        if character["collection"]:
-            character["collection_sprite"] = collections[character["collection"]]["icon_sprite"]
-            character["collection_name"] = collections[character["collection"]]["name"]
+    characters = character_service.get_characters_with_collection_data()
 
     return success_response(characters)
 
