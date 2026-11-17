@@ -45,7 +45,7 @@ class CollectionService(BaseService):
         collections = {}
         for record in records:
             collection_node = ET.fromstring(record.data)
-            collection = PixelStarshipsApi.parse_collection_node(collection_node)
+            collection = PixelStarshipsApi.parse_node(collection_node)
 
             max_use = int(collection["MaxUse"])
             cooldown_time = int(collection["CooldownTime"])

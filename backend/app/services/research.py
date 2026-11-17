@@ -35,7 +35,7 @@ class ResearchService(BaseService):
 
         researches = {}
         for record in records:
-            research = PixelStarshipsApi.parse_research_node(ET.fromstring(record.data))
+            research = PixelStarshipsApi.parse_node(ET.fromstring(record.data))
             researches[record.type_id] = {
                 **research,
                 "id": record.type_id,

@@ -28,6 +28,25 @@ def test_search_users_exact_match_not_found():
     assert make_api()[0].search_users("Bo", exact_match=True) == []
 
 
+def test_search_users_returns_attributes_and_xml_node_without_mutating_it():
+    api, call = make_api()
+    users = api.search_users("o")
+
+    call.assert_called_once_with(
+        "https://api.example/UserService/SearchUsers", params={"searchstring": "o"}, need_token=False
+    )
+    assert [user["Name"] for user in users] == ["Bob", 'It\'s "me"']
+    node = users[0]["pixyship_xml_element"]
+    assert node.tag == "User"
+    assert "pixyship_xml_element" not in node.attrib
+
+
+def test_get_entities_without_container():
+    api, _ = make_api("<UserService><SearchUsers /></UserService>")
+
+    assert api.search_users("o") == []
+
+
 def test_get_response_uses_shared_session_with_timeout():
     session = MagicMock()
 

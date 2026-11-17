@@ -33,7 +33,7 @@ class TrainingService(BaseService):
 
         trainings = {}
         for record in records:
-            training = PixelStarshipsApi.parse_training_node(ET.fromstring(record.data))
+            training = PixelStarshipsApi.parse_node(ET.fromstring(record.data))
 
             trainings[record.type_id] = {
                 "id": int(training["TrainingDesignId"]),

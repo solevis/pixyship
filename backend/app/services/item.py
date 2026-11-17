@@ -43,7 +43,7 @@ class ItemService(BaseService):
         items: dict = {}
         for record in records:
             item_node = ET.fromstring(record.data)
-            item = PixelStarshipsApi.parse_item_node(item_node)
+            item = PixelStarshipsApi.parse_node(item_node)
 
             number_of_rewards = 0
             if item["Content"] and float(item["ModuleArgument"]) != 0:
