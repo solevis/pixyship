@@ -358,7 +358,8 @@ class PixelStarshipsApi:
         users = []
 
         if exact_match:
-            user_node = root.find(f".//User[@Name={user_name!r}]")
+            # compare in Python, an XPath [@Name='...'] predicate can't express names containing both ' and "
+            user_node = next((node for node in root.iter("User") if node.get("Name") == user_name), None)
 
             if user_node is not None:
                 user = self.parse_user_node(user_node)
