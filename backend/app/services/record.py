@@ -7,7 +7,6 @@ from flask import current_app
 from sqlalchemy import func
 
 from app.enums import TypeEnum
-from app.ext import cache
 from app.ext.db import db
 from app.models import Record
 from app.services.base import BaseService
@@ -45,13 +44,12 @@ class RecordService(BaseService):
         try:
             return self.records[record_type][record_type_id]
         except KeyError:
-            # happens when there's new things, reload
+            # happens when there's new things, reload the records from the database (drop the cached_property)
             if reload_on_error:
-                self._records = {}
-                cache.clear()
+                self.__dict__.pop("records", None)
                 return self.get_record(record_type, record_type_id, False)
 
-            current_app.logger.exception("Cannot find record of type %s with id %d", record_type, record_type_id)
+            current_app.logger.warning("Cannot find record of type %s with id %d", record_type, record_type_id)
             return None
 
     def get_record_name(self, record_type: TypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:
