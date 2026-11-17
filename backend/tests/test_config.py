@@ -16,6 +16,8 @@ def test_default_config(app):
         assert DefaultConfig.SESSION_COOKIE_HTTPONLY is True
         assert DefaultConfig.SESSION_COOKIE_SAMESITE == "Strict"
         assert DefaultConfig.SENTRY_DSN is None
+        assert DefaultConfig.SENTRY_TRACES_SAMPLE_RATE == 0.1
+        assert DefaultConfig.SENTRY_PROFILES_SAMPLE_RATE == 0.1
         assert DefaultConfig.CACHE_TYPE == "RedisCache"
         assert DefaultConfig.CACHE_DEFAULT_TIMEOUT == 600
         assert DefaultConfig.SPRITE_URL == "//pixelstarships.s3.amazonaws.com/"

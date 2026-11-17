@@ -38,6 +38,10 @@ class DefaultConfig:
     # Sentry DSN (https://sentry.io)
     SENTRY_DSN = None
 
+    # Share of requests traced and profiled by Sentry
+    SENTRY_TRACES_SAMPLE_RATE = 0.1
+    SENTRY_PROFILES_SAMPLE_RATE = 0.1
+
     # Cache configuration
     CACHE_TYPE = "RedisCache"
     CACHE_REDIS_HOST = "localhost"

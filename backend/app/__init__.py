@@ -91,8 +91,8 @@ def create_app(test_config: dict | None = None) -> Flask:
         sentry_sdk.init(
             dsn=app.config["SENTRY_DSN"],
             integrations=[FlaskIntegration()],
-            traces_sample_rate=1.0,
-            profiles_sample_rate=1.0,
+            traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
+            profiles_sample_rate=app.config["SENTRY_PROFILES_SAMPLE_RATE"],
         )
 
     # Initialize database
