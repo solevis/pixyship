@@ -96,3 +96,20 @@ def test_get_market_messages_returns_nothing_on_non_xml_error_page(app):
 def test_find_node_in_response():
     assert PixelStarshipsApi.find_node_in_response("not xml", ".//Sales") is None
     assert PixelStarshipsApi.find_node_in_response("<a><Sales /></a>", ".//Sales") is not None
+
+
+def test_get_device_starts_at_random_device_then_round_robins():
+    api, _ = make_api()
+    devices = [MagicMock(name=f"device{i}") for i in range(3)]
+    api._devices = devices  # noqa: SLF001
+    api._device_next_index = None  # noqa: SLF001
+
+    with (
+        patch("app.pixelstarshipsapi.random.randrange", return_value=2) as randrange,
+        patch("app.pixelstarshipsapi.db") as db,
+    ):
+        db.session.merge.side_effect = lambda device: device
+        picked = [api.get_device() for _ in range(4)]
+
+    randrange.assert_called_once_with(3)
+    assert picked == [devices[2], devices[0], devices[1], devices[2]]

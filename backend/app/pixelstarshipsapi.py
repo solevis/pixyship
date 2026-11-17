@@ -62,7 +62,8 @@ class PixelStarshipsApi:
             self._main_pixelstarships_api_url = API_URLS.get("MAIN")
             self._forced_pixelstarships_api_url = current_app.config.get("FORCED_PIXELSTARSHIPS_API_URL")
 
-        self._device_next_index: int = 0
+        # random first device, so processes started together spread their calls over devices
+        self._device_next_index: int | None = None
         self._devices: list[Device] | None = None
         self._api_settings: dict = self.get_api_settings()
 
@@ -204,14 +205,12 @@ class PixelStarshipsApi:
         """Get the next device."""
         devices = self.devices
 
-        if self._device_next_index is None:
-            self._device_next_index = random.randrange(len(self.devices))
+        index = random.randrange(len(devices)) if self._device_next_index is None else self._device_next_index
+        if index >= len(devices):
+            index = 0
 
-        if self._device_next_index >= len(devices):
-            self._device_next_index = 0
-
-        device = devices[self._device_next_index]
-        self._device_next_index += 1
+        device = devices[index]
+        self._device_next_index = index + 1
 
         device = db.session.merge(device)
         db.session.refresh(device)
