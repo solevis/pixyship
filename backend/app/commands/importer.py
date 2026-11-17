@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib import request
 
 import click
+import requests
 from flask import current_app
 from flask.cli import AppGroup, with_appcontext
 from pssapi.enums import PusherChannelType
@@ -400,7 +401,12 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
     for count, (current_item_id, current_item) in enumerate(saleable_items_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        sales = market_service.get_sales_from_api(pixel_starships_api, current_item_id)
+        try:
+            sales = market_service.get_sales_from_api(pixel_starships_api, current_item_id)
+        except requests.RequestException:
+            current_app.logger.exception("[%d/%d] error when retrieving sales, skipping item", count, total)
+            continue
+
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(sales))
 
         for sale in sales:
@@ -470,7 +476,12 @@ def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     for count, (current_item_id, current_item) in enumerate(items_with_offstat_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        messages = MarketService.get_market_messages_from_api(current_item_id)
+        try:
+            messages = MarketService.get_market_messages_from_api(current_item_id)
+        except requests.RequestException:
+            current_app.logger.exception("[%d/%d] error when retrieving messages, skipping item", count, total)
+            continue
+
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(messages))
 
         for message in messages:

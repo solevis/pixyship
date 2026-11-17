@@ -971,6 +971,14 @@ class PixelStarshipsApi:
         """Extract alliance data from XML node."""
         return alliance_node.attrib.copy()
 
+    @staticmethod
+    def find_node_in_response(response_text: str, path: str) -> Element | None:
+        """Find a node in an XML response, None if not found or if the response isn't XML (e.g. HTML 5xx page)."""
+        try:
+            return ET.fromstring(response_text).find(path)
+        except ET.ParseError:
+            return None
+
     def get_sales(self, item_id: int, max_sale_id: int = 0, take: int | None = None) -> list:
         """Download sales for given item from PSS API."""
         sales = []
@@ -1010,10 +1018,8 @@ class PixelStarshipsApi:
                 api_sleep(30, force_sleep=True)
                 continue
 
-            root = ET.fromstring(response.text)
-
             # parse HTTP body as XML and find sales nodes
-            sale_nodes = root.find(".//Sales")
+            sale_nodes = self.find_node_in_response(response.text, ".//Sales")
 
             # error when parsing the response
             if sale_nodes is None:
@@ -1093,10 +1099,8 @@ class PixelStarshipsApi:
 
             return []
 
-        root = ET.fromstring(response.text)
-
         # parse HTTP body as XML and find market_messages nodes
-        market_messsage_nodes = root.find(".//Messages")
+        market_messsage_nodes = self.find_node_in_response(response.text, ".//Messages")
 
         # error when parsing the response
         if market_messsage_nodes is None:

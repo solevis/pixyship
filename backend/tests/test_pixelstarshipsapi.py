@@ -8,22 +8,24 @@ SEARCH_USERS_RESPONSE = """<UserService><SearchUsers><Users>
 </Users></SearchUsers></UserService>"""
 
 
-def make_api() -> PixelStarshipsApi:
+def make_api(response_text: str = SEARCH_USERS_RESPONSE, status_code: int = 200) -> tuple[PixelStarshipsApi, MagicMock]:
+    """Create an API client whose calls all return the given response, return it with the call mock."""
     # skip __init__, it fetches the API settings (network call)
     api = PixelStarshipsApi.__new__(PixelStarshipsApi)
     api.server = "api.example"
-    api.call = MagicMock(return_value=MagicMock(text=SEARCH_USERS_RESPONSE))
-    return api
+    call = MagicMock(return_value=MagicMock(text=response_text, status_code=status_code))
+    api.call = call
+    return api, call
 
 
 def test_search_users_exact_match_with_both_quotes_in_name():
-    users = make_api().search_users('It\'s "me"', exact_match=True)
+    users = make_api()[0].search_users('It\'s "me"', exact_match=True)
 
     assert [user["Id"] for user in users] == ["2"]
 
 
 def test_search_users_exact_match_not_found():
-    assert make_api().search_users("Bo", exact_match=True) == []
+    assert make_api()[0].search_users("Bo", exact_match=True) == []
 
 
 def test_get_response_uses_shared_session_with_timeout():
@@ -54,3 +56,24 @@ def test_empty_api_settings_are_not_cached(app):
         assert api.get_api_settings() == settings
 
     assert fetch.call_count == 2
+
+
+def test_get_sales_skips_item_on_non_xml_error_pages(app):
+    api, call = make_api("<html><body>Bad Gateway</body>", 502)
+
+    with app.app_context(), patch("app.pixelstarshipsapi.api_sleep"):
+        assert api.get_sales(73) == []
+
+    assert call.call_count == 3
+
+
+def test_get_market_messages_returns_nothing_on_non_xml_error_page(app):
+    api, _ = make_api("<html><body>Bad Gateway</body>", 502)
+
+    with app.app_context():
+        assert api.get_market_messages(73) == []
+
+
+def test_find_node_in_response():
+    assert PixelStarshipsApi.find_node_in_response("not xml", ".//Sales") is None
+    assert PixelStarshipsApi.find_node_in_response("<a><Sales /></a>", ".//Sales") is not None
