@@ -1,16 +1,15 @@
+import functools
 from collections.abc import Callable
-from typing import ParamSpec
 
 import flask
 from flask import current_app
 
-P = ParamSpec("P")
 
-
-def enforce_source(func: Callable) -> Callable:
+def enforce_source[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     """Check in production if the referrer is really PixyShip."""
 
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Callable:
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         # no need to check referrer on DEV
         if current_app.config["DEV_MODE"]:
             return func(*args, **kwargs)
@@ -25,8 +24,5 @@ def enforce_source(func: Callable) -> Callable:
 
         # everything is ok, continue
         return func(*args, **kwargs)
-
-    # lets flask see the underlying function
-    wrapper.__name__ = func.__name__  # type: ignore[attr-defined]
 
     return wrapper
