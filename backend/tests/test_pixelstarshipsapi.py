@@ -1,6 +1,6 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-from app.pixelstarshipsapi import PixelStarshipsApi
+from app.pixelstarshipsapi import REQUEST_TIMEOUT, PixelStarshipsApi, get_http_session
 
 SEARCH_USERS_RESPONSE = """<UserService><SearchUsers><Users>
 <User Id="1" Name="Bob" />
@@ -24,3 +24,19 @@ def test_search_users_exact_match_with_both_quotes_in_name():
 
 def test_search_users_exact_match_not_found():
     assert make_api().search_users("Bo", exact_match=True) == []
+
+
+def test_get_response_uses_shared_session_with_timeout():
+    session = MagicMock()
+
+    with patch("app.pixelstarshipsapi.get_http_session", return_value=session):
+        PixelStarshipsApi.get_response("https://api.example/Endpoint", {"a": 1})
+
+    session.get.assert_called_once_with("https://api.example/Endpoint", params={"a": 1}, timeout=REQUEST_TIMEOUT)
+
+
+def test_http_session_is_shared_and_retries():
+    session = get_http_session()
+
+    assert get_http_session() is session
+    assert session.get_adapter("https://api.example").max_retries.total == 3

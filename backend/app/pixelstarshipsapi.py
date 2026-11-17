@@ -10,6 +10,8 @@ from xml.etree.ElementTree import Element
 import requests
 from flask import current_app
 from requests import Response
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from app.api_errors import TOKEN_EXPIRED_REGEX
 from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, PSS_START_DATE
@@ -17,6 +19,33 @@ from app.ext import cache
 from app.ext.db import db
 from app.models import Device
 from app.utils.pss import api_sleep, convert_datetime_to_iso
+
+# (connect, read) timeouts in seconds for PSS API calls, so a hanging call can't block a worker forever
+REQUEST_TIMEOUT = (10, 60)
+
+# retry connection errors and transient server errors, with an exponential backoff (2s, 4s, 8s)
+REQUEST_RETRY = Retry(
+    total=3,
+    backoff_factor=2,
+    status_forcelist=(502, 503, 504),
+    allowed_methods=frozenset({"GET"}),
+    raise_on_status=False,
+)
+
+_http_session: requests.Session | None = None
+
+
+def get_http_session() -> requests.Session:
+    """Get the process-wide HTTP session, created lazily (after a worker fork), to reuse connections."""
+    global _http_session  # noqa: PLW0603
+
+    if _http_session is None:
+        session = requests.Session()
+        session.mount("https://", HTTPAdapter(max_retries=REQUEST_RETRY))
+        session.mount("http://", HTTPAdapter(max_retries=REQUEST_RETRY))
+        _http_session = session
+
+    return _http_session
 
 
 class PixelStarshipsApi:
@@ -148,15 +177,8 @@ class PixelStarshipsApi:
 
     @staticmethod
     def get_response(endpoint: str, params: dict) -> Response:
-        """Get response from API."""
-        try:
-            response = requests.get(endpoint, params=params)
-        except requests.exceptions.ConnectionError:
-            current_app.logger.exception("Connection error, retry")
-            api_sleep(10, force_sleep=True)
-            response = requests.get(endpoint, params=params)
-
-        return response
+        """Get response from API, connection errors and transient server errors are retried by the session."""
+        return get_http_session().get(endpoint, params=params, timeout=REQUEST_TIMEOUT)
 
     @staticmethod
     def create_device_key() -> str:
@@ -241,7 +263,9 @@ class PixelStarshipsApi:
             "Content-Type": "application/json",
         }
 
-        response = requests.post(endpoint, headers=headers, json=data, params=uri_params)
+        response = get_http_session().post(
+            endpoint, headers=headers, json=data, params=uri_params, timeout=REQUEST_TIMEOUT
+        )
 
         root = ET.fromstring(response.content.decode("utf-8"))
         user_login_node = root.find(".//UserLogin")
