@@ -1,6 +1,6 @@
 import click
 from flask import current_app
-from flask.cli import AppGroup, with_appcontext
+from flask.cli import AppGroup
 
 from app.api_errors import EXPIRED_TOKEN_RESP2
 from app.pixelstarshipsapi import PixelStarshipsApi
@@ -9,7 +9,6 @@ check_cli = AppGroup("check", help="Check various aspects of the app.")
 
 
 @check_cli.command("config")
-@with_appcontext
 def config() -> None:
     """Print the current app's configuration."""
     # current_app.config is a dictionary-like object that holds the configuration for the application.
@@ -19,7 +18,6 @@ def config() -> None:
 
 
 @check_cli.command("token")
-@with_appcontext
 def token() -> None:
     """Check if the token given by Savy has expired."""
     # no need to check if token not defined

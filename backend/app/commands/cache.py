@@ -1,7 +1,7 @@
 import time
 
 import click
-from flask.cli import AppGroup, with_appcontext
+from flask.cli import AppGroup
 
 from app.ext import cache
 from app.services.achievement import AchievementService
@@ -42,7 +42,6 @@ CACHED_SERVICES = (
 
 
 @cache_cli.command("clear")
-@with_appcontext
 def clear_cache_command() -> None:
     """Clear the Flask cache."""
     click.echo("Clearing cache...")
@@ -51,7 +50,6 @@ def clear_cache_command() -> None:
 
 
 @cache_cli.command("update")
-@with_appcontext
 def update_cache_command() -> None:
     """Update the Flask cache."""
     for name, service_class in CACHED_SERVICES:

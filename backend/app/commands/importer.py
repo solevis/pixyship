@@ -9,7 +9,7 @@ from urllib import request
 import click
 import requests
 from flask import current_app
-from flask.cli import AppGroup, with_appcontext
+from flask.cli import AppGroup
 from pssapi.enums import PusherChannelType
 from pssapi.exc import PusherConnectionClosed
 from pssapi.pusher import Channel, Pusher
@@ -59,7 +59,6 @@ def log_command(func: Callable) -> Callable:
 
 
 @importer_cli.command("players", help="Get top players and save them in database.")
-@with_appcontext
 @log_command
 def import_players() -> None:
     """Get all top 100 players and top 100 alliances' players and save them in database."""
@@ -106,7 +105,6 @@ def import_players() -> None:
 
 
 @importer_cli.command("assets", help="Get all assets and save them in database.")
-@with_appcontext
 @log_command
 def import_assets() -> None:
     """Get all items, crews, rooms, ships and save them in database."""
@@ -183,7 +181,6 @@ def import_assets() -> None:
 
 
 @importer_cli.command("prestiges", help="Get all prestiges and save them in database.")
-@with_appcontext
 @log_command
 def import_prestiges() -> None:
     """Import prestiges for checking changes."""
@@ -196,7 +193,6 @@ def import_prestiges() -> None:
 
 
 @importer_cli.command("daily-sales", help="Get all daily sales and save them in database.")
-@with_appcontext
 @log_command
 def import_daily_sales() -> None:
     """Get all items, crews, rooms, ships on sale today and save them in database."""
@@ -366,7 +362,6 @@ def save_daily_sale(daily_sale: DailySale) -> None:
 @importer_cli.command("market", help="Get last market sales and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
 @click.option("--item-id", type=int, default=None, help="Import only the given item")
-@with_appcontext
 @log_command
 def import_market(one_item_only: bool, item_id: int | None) -> None:
     """Get last market sales and save them in database."""
@@ -441,7 +436,6 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
 @importer_cli.command("market-messages", help="Get last market messages and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
 @click.option("--item-id", type=int, default=None, help="Import only the given item")
-@with_appcontext
 @log_command
 def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     """Get last market messages and save them in database."""
@@ -512,7 +506,6 @@ def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
 @importer_cli.command(
     "market-worker", help="Listen H24 to PSS market Pusher events and save sales/messages in database."
 )
-@with_appcontext
 def import_market_worker() -> None:
     """Listen to the PSS market Pusher channel and save sales/messages in database as they happen."""
     if current_app.config["USE_STAGING_API"]:
@@ -574,7 +567,6 @@ def save_market_message(market_message: MarketMessage) -> None:
 
 
 @importer_cli.command("sprites", help="Download sprites from PSS.")
-@with_appcontext
 @log_command
 def dowload_sprites() -> None:
     """Download sprites from PSS."""
