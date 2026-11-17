@@ -42,9 +42,9 @@ class MarketService(BaseService):
                 SELECT l.item_id
                      , l.currency
                      , SUM(l.amount)                                                    AS count
-                     , percentile_disc(.25) WITHIN GROUP (ORDER BY l.price / l.amount)  AS p25
-                     , percentile_disc(.5) WITHIN GROUP (ORDER BY l.price / l.amount)   AS p50
-                     , percentile_disc(.75) WITHIN GROUP (ORDER BY l.price /l. amount)  AS p75
+                     , percentile_disc(.25) WITHIN GROUP (ORDER BY l.price::float8 / l.amount)  AS p25
+                     , percentile_disc(.5) WITHIN GROUP (ORDER BY l.price::float8 / l.amount)   AS p50
+                     , percentile_disc(.75) WITHIN GROUP (ORDER BY l.price::float8 / l.amount)  AS p75
                 FROM listing l
                 WHERE l.amount > 0
                   AND l.sale_at > (now() - INTERVAL '48 HOURS')
@@ -74,9 +74,9 @@ class MarketService(BaseService):
                      , currency
                      , sale_at::DATE                                               AS sale_date
                      , SUM(amount)                                                 AS count
-                     , percentile_disc(.25) WITHIN GROUP (ORDER BY price / amount) AS p25
-                     , percentile_disc(.5) WITHIN GROUP (ORDER BY price / amount)  AS p50
-                     , percentile_disc(.75) WITHIN GROUP (ORDER BY price / amount) AS p75
+                     , percentile_disc(.25) WITHIN GROUP (ORDER BY price::float8 / amount) AS p25
+                     , percentile_disc(.5) WITHIN GROUP (ORDER BY price::float8 / amount)  AS p50
+                     , percentile_disc(.75) WITHIN GROUP (ORDER BY price::float8 / amount) AS p75
                 FROM listing
                 WHERE item_id = :item_id
                   AND amount > 0
