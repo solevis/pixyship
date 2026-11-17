@@ -86,17 +86,20 @@ def import_players() -> None:
         except Exception:
             current_app.logger.exception("Error when importing alliance (%d) users", alliance_id)
 
+    if not top_users:
+        current_app.logger.error("No players retrieved from API, keeping current players in database")
+        return
+
+    # replace old data with new data in a single transaction, so the players search is never empty or partial
     try:
-        # purge old data
         db.session.query(Player).delete()
         db.session.query(Alliance).delete()
+        save_users(top_users)
         db.session.commit()
     except Exception:
         current_app.logger.exception("Error when saving players in database")
         db.session.rollback()
-
-    # save new data
-    save_users(top_users)
+        return
 
     current_app.logger.info("Done")
 
@@ -586,7 +589,7 @@ def dowload_sprites() -> None:
 
 
 def save_users(users: list) -> None:
-    """Save users and attached alliance in database."""
+    """Add users and attached alliances to the session, the caller is responsible for committing."""
     for user_id, user in users:
         player = Player(
             id=user_id,
@@ -604,5 +607,3 @@ def save_users(users: list) -> None:
                 sprite_id=user["alliance_sprite_id"],
             )
             db.session.merge(alliance)
-
-        db.session.commit()
