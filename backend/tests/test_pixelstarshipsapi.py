@@ -40,3 +40,17 @@ def test_http_session_is_shared_and_retries():
 
     assert get_http_session() is session
     assert session.get_adapter("https://api.example").max_retries.total == 3
+
+
+def test_empty_api_settings_are_not_cached(app):
+    api = PixelStarshipsApi.__new__(PixelStarshipsApi)
+    api._forced_pixelstarships_api_url = "https://api.example"  # noqa: SLF001
+    api._main_pixelstarships_api_url = "https://api.example"  # noqa: SLF001
+    settings = {"ProductionServer": "api.example"}
+
+    with app.app_context(), patch.object(PixelStarshipsApi, "fetch_settings", side_effect=[{}, settings]) as fetch:
+        assert api.get_api_settings() == {}
+        assert api.get_api_settings() == settings
+        assert api.get_api_settings() == settings
+
+    assert fetch.call_count == 2

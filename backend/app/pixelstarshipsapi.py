@@ -108,7 +108,8 @@ class PixelStarshipsApi:
 
         return devices
 
-    @cache.cached(timeout=60 * 60 * 12, key_prefix="api_settings")
+    # don't cache empty settings (parsing error, maintenance...), it would break every API call for 12 hours
+    @cache.cached(timeout=60 * 60 * 12, key_prefix="api_settings", response_filter=bool)
     def get_api_settings(self) -> dict:
         """Get last game settings from API."""
         params = {"languageKey": "en", "deviceType": "DeviceTypeAndroid"}
