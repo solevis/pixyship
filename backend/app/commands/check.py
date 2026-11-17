@@ -1,3 +1,5 @@
+import re
+
 import click
 from flask import current_app
 from flask.cli import AppGroup
@@ -7,14 +9,28 @@ from app.pixelstarshipsapi import PixelStarshipsApi
 
 check_cli = AppGroup("check", help="Check various aspects of the app.")
 
+SECRET_KEY_REGEX = re.compile(r"SECRET|TOKEN|KEY|PASSWORD|DSN", re.IGNORECASE)
+
+# password in URLs like postgresql://user:password@host/db
+URL_PASSWORD_REGEX = re.compile(r"(?<=://)([^:/@]*):[^@/]+@")
+
+
+def mask_config_value(key: str, value: object) -> object:
+    """Mask secrets (tokens, keys, DSN, passwords in URLs) of a configuration value."""
+    if value and SECRET_KEY_REGEX.search(key):
+        return "***"
+
+    if isinstance(value, str):
+        return URL_PASSWORD_REGEX.sub(r"\1:***@", value)
+
+    return value
+
 
 @check_cli.command("config")
 def config() -> None:
-    """Print the current app's configuration."""
-    # current_app.config is a dictionary-like object that holds the configuration for the application.
-    # print it line by line
+    """Print the current app's configuration, secrets are masked."""
     for key, value in current_app.config.items():
-        click.echo(f"{key} = {value}")
+        click.echo(f"{key} = {mask_config_value(key, value)}")
 
 
 @check_cli.command("token")
