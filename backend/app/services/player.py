@@ -5,7 +5,6 @@ from flask import current_app
 from app.constants import RACE_SPECIFIC_SPRITE_MAP, RACES
 from app.ext import db
 from app.models import Alliance, Player
-from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import compute_pvp_ratio
 
@@ -15,7 +14,6 @@ class PlayerService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
     def get_ship_data(self, player_name: str) -> dict | None:
         """Get user and ship data from API."""

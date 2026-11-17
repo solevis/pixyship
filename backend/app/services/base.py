@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from app.pixelstarshipsapi import PixelStarshipsApi
     from app.services.achievement import AchievementService
     from app.services.changes import ChangesService
     from app.services.character import CharacterService
@@ -28,6 +29,13 @@ if TYPE_CHECKING:
 
 class BaseService:
     """Base service class."""
+
+    @cached_property
+    def pixel_starships_api(self) -> PixelStarshipsApi:
+        """Get the PSS API client, created on first use since it fetches the API settings (network call)."""
+        from app.pixelstarshipsapi import PixelStarshipsApi
+
+        return PixelStarshipsApi()
 
     @cached_property
     def record_service(self) -> RecordService:

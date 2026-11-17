@@ -1,9 +1,13 @@
+from unittest.mock import patch
+
 from app.services.daily_offer import DailyOfferService
+from app.services.missile import MissileService
+from app.services.player import PlayerService
+from app.services.prestige import PrestigeService
 
 
 def make_service() -> DailyOfferService:
-    # skip __init__, it creates a PixelStarshipsApi (network call)
-    service = DailyOfferService.__new__(DailyOfferService)
+    service = DailyOfferService()
     service.__dict__["item_service"] = type("FakeItemService", (), {"items": {73: {"id": 73}, 74: {"id": 74}}})()
     return service
 
@@ -28,3 +32,11 @@ def test_parse_daily_cargo_with_item_price(app):
     assert cargo[0]["cost"]["price"] == 74
     assert cargo[0]["cost"]["count"] == "3"
     assert cargo[0]["cost"]["object"] == {"id": 74}
+
+
+def test_services_dont_call_pss_api_until_needed(app):
+    with app.app_context(), patch("app.pixelstarshipsapi.PixelStarshipsApi.__init__") as api_init:
+        for service_class in (DailyOfferService, MissileService, PlayerService, PrestigeService):
+            service_class()
+
+    api_init.assert_not_called()

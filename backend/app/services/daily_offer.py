@@ -28,7 +28,6 @@ class DailyOfferService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
     @cached_property
     @cache.cached(key_prefix="daily_offers")
