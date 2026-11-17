@@ -4,6 +4,9 @@ class DefaultConfig:
     # Database URI
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://pixyship@localhost:5432/pixyship"
 
+    # Check pooled connections before use, so long-running processes (market worker) survive a database restart
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}  # noqa: RUF012
+
     # Enable features specific to development
     DEV_MODE = True
 
