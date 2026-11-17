@@ -52,3 +52,15 @@ def test_purge_old_records_ignores_empty_api_response(app):
 
         assert list(current_records()) == [1]
         db.session.rollback()
+
+
+def test_get_record(app):
+    with app.app_context():
+        import_items({1: item("Gun")})
+        service = RecordService()
+
+        record = service.get_record(TypeEnum.ITEM, 1)
+        assert record is not None
+        assert record.name == "Gun"
+        assert service.get_record(TypeEnum.ITEM, 2) is None
+        assert service.get_record(TypeEnum.SHIP, 1) is None

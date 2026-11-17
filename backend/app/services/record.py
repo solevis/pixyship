@@ -1,6 +1,5 @@
 import hashlib
 import uuid
-from functools import cached_property
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
 
@@ -20,47 +19,28 @@ class RecordService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self._current_records: dict[TypeEnum, dict[int, Record]] = {}
-
-    @cached_property
-    def records(self) -> dict[TypeEnum, dict[int, Record]]:
-        """Get records data."""
-        records: dict[TypeEnum, dict[int, Record]] = {}
-        current_records: list[Record] = Record.query.filter_by(current=True).all()
-
-        for record in current_records:
-            db.session.expunge(record)
-            if record.type not in records:
-                records[record.type] = {}
-
-            records[record.type][record.type_id] = record
-
-        return records
+        self._records: dict[tuple[TypeEnum, int], Record | None] = {}
 
     @staticmethod
     def get_records_from_type(record_type: TypeEnum) -> list[Record]:
         """Get records from given PSS API type (LimitedCatalogType for example)."""
         return Record.query.filter_by(current=True, type=record_type).order_by(Record.type_id).all()
 
-    def get_record(self, record_type: TypeEnum, record_type_id: int, reload_on_error: bool = True) -> Record | None:
-        """Get PixyShip record from given PSS API type (LimitedCatalogType for example)."""
-        try:
-            return self.records[record_type][record_type_id]
-        except KeyError:
-            # happens when there's new things, reload the records from the database (drop the cached_property)
-            if reload_on_error:
-                self.__dict__.pop("records", None)
-                return self.get_record(record_type, record_type_id, False)
+    def get_record(self, record_type: TypeEnum, record_type_id: int) -> Record | None:
+        """Get the current record of the given type and id (memoized for this service instance)."""
+        key = (record_type, record_type_id)
+        if key not in self._records:
+            record = Record.query.filter_by(type=record_type, type_id=record_type_id, current=True).first()
+            if record is not None:
+                db.session.expunge(record)
 
-            current_app.logger.warning("Cannot find record of type %s with id %d", record_type, record_type_id)
-            return None
+            self._records[key] = record
 
-    def get_record_name(self, record_type: TypeEnum, type_id: int, reload_on_error: bool = True) -> str | None:
-        """Get sprite date for the given record ID."""
-        record = self.get_record(record_type, type_id, reload_on_error)
+        record = self._records[key]
         if record is None:
-            return None
+            current_app.logger.warning("Cannot find record of type %s with id %d", record_type, record_type_id)
 
-        return record.name
+        return record
 
     def get_current_records_by_type_id(self, record_type: TypeEnum) -> dict[int, Record]:
         """Get current records of the given type by type_id, loaded with a single query and kept until committed."""
@@ -159,14 +139,6 @@ class RecordService(BaseService):
 
         db.session.commit()
         self._current_records.pop(record_type, None)
-
-    def get_record_sprite_id(self, record_type: TypeEnum, type_id: int) -> int | None:
-        """Get sprite date for the given record ID."""
-        record = self.get_record(record_type, type_id)
-        if record is None:
-            return None
-
-        return record.sprite_id
 
     @staticmethod
     def get_last_prestige_record() -> Record | None:

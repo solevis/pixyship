@@ -29,10 +29,10 @@ class MissileService(BaseService):
 
     def get_missiles_from_records(self) -> dict[int, dict]:
         """Load missiles from database."""
-        records = self.record_service.records[TypeEnum.MISSILE]
+        records = self.record_service.get_records_from_type(TypeEnum.MISSILE)
 
         missiles = {}
-        for record in records.values():
+        for record in records:
             missile = PixelStarshipsApi.parse_missile_node(ET.fromstring(record.data))
             missile_design = missile["MissileDesign"]
 

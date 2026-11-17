@@ -29,10 +29,10 @@ class TrainingService(BaseService):
 
     def get_trainings_from_records(self) -> dict[int, dict]:
         """Load trainings from database."""
-        records = self.record_service.records[TypeEnum.TRAINING]
+        records = self.record_service.get_records_from_type(TypeEnum.TRAINING)
 
         trainings = {}
-        for record in records.values():
+        for record in records:
             training = PixelStarshipsApi.parse_training_node(ET.fromstring(record.data))
 
             trainings[record.type_id] = {
