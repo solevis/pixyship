@@ -1,6 +1,6 @@
 """Mocked blueprint API tests - avoid real API calls and database queries."""
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from flask import url_for
@@ -251,6 +251,26 @@ def test_api_players(client, app, mock_player_service):
     assert "data" in data
     assert len(data["data"]) > 0
     assert data["data"][0]["name"] == "Solevis"
+
+
+def test_api_players_search_is_normalized(client, app, mock_player_service):
+    """Searches differing only by case, spaces or extra length share the same cache entry."""
+    with app.test_request_context():
+        from app.ext import cache
+
+        cache.clear()
+
+    long_search = "x" * 500
+    get_player_data = MagicMock(return_value=[])
+    mock_player_service.get_player_data = get_player_data
+    with app.test_request_context(), patch("app.blueprints.api.PlayerService", return_value=mock_player_service):
+        client.get(url_for("api.api_players", search=" Solevis "))
+        client.get(url_for("api.api_players", search="SOLEVIS"))
+        client.get(url_for("api.api_players", search=long_search))
+        client.get(url_for("api.api_players", search=long_search + "y"))
+
+    searches = [call.args[0] for call in get_player_data.call_args_list]
+    assert searches == ["solevis", "x" * 50]
 
 
 def test_api_player(client, app, mock_player_service):

@@ -27,10 +27,19 @@ from app.utils.pss import get_type_enum_from_string
 api_blueprint = Blueprint("api", __name__)
 
 
+# longer than any player name, avoids unbounded cache keys
+MAX_PLAYERS_SEARCH_LENGTH = 50
+
+
+def get_players_search() -> str:
+    """Get the normalized players search (the search is case-insensitive)."""
+    search = request.args.get("search") or ""
+    return search.strip().lower()[:MAX_PLAYERS_SEARCH_LENGTH]
+
+
 def make_players_search_key() -> str:
     """Make the cache key for the players search."""
-    search = request.args.get("search") or ""
-    return f"api_players_{search}"
+    return f"api_players_{get_players_search()}"
 
 
 @api_blueprint.route("/players")
@@ -39,7 +48,7 @@ def make_players_search_key() -> str:
 def api_players() -> Response:
     """Return all players."""
     player_service = PlayerService()
-    search = request.args.get("search") or ""
+    search = get_players_search()
 
     return jsonify(
         {
