@@ -264,6 +264,21 @@ def test_api_player(client, app, mock_player_service):
     assert data["data"]["ship"]["name"] == "Test Ship"
 
 
+def test_api_player_name_is_not_html_escaped(client, app, mock_player_service):
+    """Player names with HTML special chars must reach the service unchanged."""
+    received_names = []
+
+    def get_ship_data(name):
+        received_names.append(name)
+
+    mock_player_service.get_ship_data = get_ship_data
+
+    with app.test_request_context(), patch("app.blueprints.api.PlayerService", return_value=mock_player_service):
+        client.get(url_for("api.api_player", name="O'Neil & Co"))
+
+    assert received_names == ["O'Neil & Co"]
+
+
 def test_api_daily(client, app, mock_daily_offer_service):
     """Test daily endpoint with mocked data."""
     with (

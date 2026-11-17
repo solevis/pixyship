@@ -59,7 +59,7 @@ def api_player(name: str) -> Response:
         flask.abort(400)
 
     player_service = PlayerService()
-    ship_data = player_service.get_ship_data(escape(name))
+    ship_data = player_service.get_ship_data(name)
 
     if ship_data is None:
         flask.abort(404)
@@ -355,7 +355,7 @@ def api_ships() -> Response:
 @cache.cached()
 def api_last_sales(sale_type: str, sale_type_id: int) -> Response:
     """Return the last sales of a given type."""
-    type_enum = get_type_enum_from_string(escape(sale_type))
+    type_enum = get_type_enum_from_string(sale_type)
     if type_enum is None:
         flask.abort(404)
 
@@ -377,7 +377,7 @@ def api_last_sales_by_type(sale_from: str) -> Response:
     daily_offer_service = DailyOfferService()
     return jsonify(
         {
-            "data": daily_offer_service.get_last_sales_by_sale_from_from_db(escape(sale_from), 5000),
+            "data": daily_offer_service.get_last_sales_by_sale_from_from_db(sale_from, 5000),
             "status": "success",
             "current_time": time.time(),
         },
