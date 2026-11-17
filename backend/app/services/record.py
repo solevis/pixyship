@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 from functools import cached_property
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
@@ -18,6 +19,7 @@ class RecordService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
+        self._current_records: dict[TypeEnum, dict[int, Record]] = {}
 
     @cached_property
     def records(self) -> dict[TypeEnum, dict[int, Record]]:
@@ -60,8 +62,16 @@ class RecordService(BaseService):
 
         return record.name
 
-    @staticmethod
+    def get_current_records_by_type_id(self, record_type: TypeEnum) -> dict[int, Record]:
+        """Get current records of the given type by type_id, loaded with a single query and kept until committed."""
+        if record_type not in self._current_records:
+            records = Record.query.filter_by(type=record_type, current=True).all()
+            self._current_records[record_type] = {record.type_id: record for record in records}
+
+        return self._current_records[record_type]
+
     def add_record(
+        self,
         record_type: TypeEnum,
         record_id: int,
         record_name: str,
@@ -70,7 +80,7 @@ class RecordService(BaseService):
         url: str,
         ignore_list: list[str] | None = None,
     ) -> None:
-        """Save a record to the DB with hash."""
+        """Add a record to the session with hash, committed by purge_old_records() at the end of the import."""
         ignore_list = ignore_list or []
 
         if isinstance(raw_data, Element):
@@ -93,7 +103,8 @@ class RecordService(BaseService):
         md5_hash = hashlib.md5(md5_str.encode("utf-8")).hexdigest()
 
         # check if this is already in the db as the current
-        existing = Record.query.filter_by(type=record_type, type_id=record_id, current=True).first()
+        current_records = self.get_current_records_by_type_id(record_type)
+        existing = current_records.get(record_id)
 
         if existing:
             # hash is stored as uuid with extra dashes, remove them when comparing hashes
@@ -101,29 +112,26 @@ class RecordService(BaseService):
                 # if we ignored fields, update them, but don't make a new record.
                 if ignore_list and existing.data != data:
                     existing.data = data
-                    db.session.commit()
 
                 # if we haven't a name, add it
                 if not existing.name or existing.name != record_name:
                     existing.name = record_name
-                    db.session.commit()
 
                 # if we haven't a sprite id, add it
                 if not existing.sprite_id or existing.sprite_id != record_sprite_id:
                     existing.sprite_id = record_sprite_id
-                    db.session.commit()
 
                 return
 
             # new hash and data, previous record is no more the current
             existing.current = False
 
-        # create the new record and save it in database
+        # create the new record
         new_record = Record(
             type=record_type,
             type_id=record_id,
             current=True,
-            md5_hash=md5_hash,
+            md5_hash=uuid.UUID(md5_hash),
             data=data,
             url=url,
             name=record_name,
@@ -131,24 +139,26 @@ class RecordService(BaseService):
         )
 
         db.session.add(new_record)
+        current_records[record_id] = new_record
+
+    def purge_old_records(self, record_type: TypeEnum, still_presents_ids: list[int]) -> None:
+        """Disable old records not presents in API anymore, and commit all the records added for this type."""
+        if not still_presents_ids:
+            # most likely an API error, don't disable every record of this type
+            current_app.logger.warning("No %s records retrieved from API, not purging old records", record_type)
+        else:
+            current_ids = set(self.get_current_records_by_type_id(record_type))
+            no_more_presents_ids = current_ids - set(still_presents_ids)
+
+            if no_more_presents_ids:
+                db.session.query(Record).filter(
+                    Record.type == record_type,
+                    Record.current.is_(True),
+                    Record.type_id.in_(no_more_presents_ids),
+                ).update({Record.current: False}, synchronize_session=False)
+
         db.session.commit()
-
-    @staticmethod
-    def set_not_current(record_type: TypeEnum, type_id: int) -> None:
-        """Set record's current state to False in the DB."""
-        existing = Record.query.filter_by(type=record_type, type_id=type_id, current=True).first()
-        existing.current = False
-        db.session.commit()
-
-    @staticmethod
-    def purge_old_records(record_type: TypeEnum, still_presents_ids: list[int]) -> None:
-        """Disable old records not presents in API."""
-        current_ids = Record.query.filter_by(type=record_type, current=True).with_entities(Record.type_id).all()
-        current_ids = [current_id[0] for current_id in current_ids]
-        no_more_presents_ids = list(set(current_ids) - set(still_presents_ids))
-
-        for no_more_presents_id in no_more_presents_ids:
-            RecordService.set_not_current(record_type, no_more_presents_id)
+        self._current_records.pop(record_type, None)
 
     def get_record_sprite_id(self, record_type: TypeEnum, type_id: int) -> int | None:
         """Get sprite date for the given record ID."""
