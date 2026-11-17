@@ -127,6 +127,7 @@ class RecordService(BaseService):
             data=data,
             url=url,
             name=record_name,
+            sprite_id=record_sprite_id,
         )
 
         db.session.add(new_record)
