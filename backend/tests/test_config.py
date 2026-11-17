@@ -3,13 +3,12 @@ def test_default_config(app):
         from app.config import DefaultConfig
 
         assert DefaultConfig.SQLALCHEMY_DATABASE_URI == "postgresql+psycopg://pixyship@localhost:5432/pixyship"
-        assert DefaultConfig.DEV_MODE is True
+        assert DefaultConfig.DEV_MODE is False
         assert DefaultConfig.DOMAIN == "localhost:8080"
         assert DefaultConfig.SPRITES_DIRECTORY == "../sprites"
         assert DefaultConfig.FORCED_PIXELSTARSHIPS_API_URL is None
         assert DefaultConfig.USE_STAGING_API is False
         assert DefaultConfig.CHANGES_MAX_ASSETS == 5000
-        assert DefaultConfig.SECRET_KEY == "dev"
         assert DefaultConfig.SAVY_PUBLIC_API_TOKEN is None
         assert DefaultConfig.DEVICE_LOGIN_CHECKSUM_KEY is None
         assert DefaultConfig.MIN_DEVICES == 1

@@ -9,7 +9,14 @@ from app.ext.db import db
 @pytest.fixture
 def app() -> Flask:
     """Create and configure a new app instance for each test."""
-    app = create_app({"TESTING": True, "CACHE_TYPE": "SimpleCache", "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"})
+    app = create_app(
+        {
+            "TESTING": True,
+            "DEV_MODE": True,
+            "CACHE_TYPE": "SimpleCache",
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        },
+    )
 
     # Create all tables for in-memory database
     with app.app_context():

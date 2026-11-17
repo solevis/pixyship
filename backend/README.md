@@ -15,7 +15,7 @@ devenv shell
 # Launch services
 devenv up -d
 
-# Set your SAVY_ACCESS_TOKEN and DEVICE_LOGIN_CHECKSUM_KEY in instance/config.cfg
+# Set DEV_MODE = True, your SAVY_ACCESS_TOKEN and DEVICE_LOGIN_CHECKSUM_KEY in instance/config.cfg
 mkdir -p instance
 ${EDITOR} instance/config.cfg
 
