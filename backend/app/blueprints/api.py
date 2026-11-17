@@ -442,11 +442,13 @@ def api_config() -> Response:
 @enforce_source
 def api_time() -> Response:
     """Return the current time."""
-    return jsonify(
+    response = jsonify(
         {
             "current_time": time.time(),
         },
     )
+    response.cache_control.no_store = True
+    return response
 
 
 @api_blueprint.route("/<path:path>")

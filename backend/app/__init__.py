@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from flask import Flask, Response
 from flask_cors import CORS
@@ -38,8 +39,12 @@ def init_headers(app: Flask) -> None:
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
 
-        # Default cache control (only in production)
-        if not app.config["DEV_MODE"]:
+        # Default cache control (only in production), for successful responses without their own cache control
+        if (
+            not app.config["DEV_MODE"]
+            and response.status_code == HTTPStatus.OK
+            and "Cache-Control" not in response.headers
+        ):
             response.cache_control.max_age = 300
 
         return response

@@ -30,3 +30,14 @@ def test_cors_only_allows_https_domain_in_production():
 
     response = client.get("/api/time", headers={**referer, "Origin": "http://pixyship.example"})
     assert "Access-Control-Allow-Origin" not in response.headers
+
+
+def test_cache_control_only_on_successful_responses():
+    app = create_app({"TESTING": True, "DEV_MODE": False, "CACHE_TYPE": "SimpleCache", "DOMAIN": "pixyship.example"})
+    client = app.test_client()
+    referer = {"Referer": "https://pixyship.example/"}
+
+    assert client.get("/api/config", headers=referer).headers["Cache-Control"] == "max-age=300"
+    assert client.get("/api/time", headers=referer).headers["Cache-Control"] == "no-store"
+    assert "Cache-Control" not in client.get("/api/unknown", headers=referer).headers
+    assert "Cache-Control" not in client.get("/api/time").headers
