@@ -12,9 +12,6 @@ def test_default_config(app):
         assert DefaultConfig.SAVY_PUBLIC_API_TOKEN is None
         assert DefaultConfig.DEVICE_LOGIN_CHECKSUM_KEY is None
         assert DefaultConfig.MIN_DEVICES == 1
-        assert DefaultConfig.SESSION_COOKIE_SECURE is True
-        assert DefaultConfig.SESSION_COOKIE_HTTPONLY is True
-        assert DefaultConfig.SESSION_COOKIE_SAMESITE == "Strict"
         assert DefaultConfig.SENTRY_DSN is None
         assert DefaultConfig.SENTRY_TRACES_SAMPLE_RATE == 0.1
         assert DefaultConfig.SENTRY_PROFILES_SAMPLE_RATE == 0.1

@@ -46,22 +46,13 @@ def init_headers(app: Flask) -> None:
 
 
 def init_cors(app: Flask) -> None:
-    """Initialize CORS."""
+    """Initialize CORS, the API is public and doesn't use cookies."""
     if app.config["DEV_MODE"]:
-        CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+        origins: str | list[str] = "*"
     else:
-        CORS(
-            app,
-            supports_credentials=True,
-            resources={
-                r"/api/*": {
-                    "origins": [
-                        "https://{}".format(app.config["DOMAIN"]),
-                        "http://{}".format(app.config["DOMAIN"]),
-                    ],
-                },
-            },
-        )
+        origins = ["https://{}".format(app.config["DOMAIN"])]
+
+    CORS(app, resources={r"/api/*": {"origins": origins}})
 
 
 def create_app(test_config: dict | None = None) -> Flask:
