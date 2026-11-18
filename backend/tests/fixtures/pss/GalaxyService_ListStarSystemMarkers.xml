@@ -1,0 +1,7 @@
+<GalaxyService>
+  <ListStarSystemMarkers>
+    <StarSystemMarkers>
+      <StarSystemMarker StarSystemMarkerId="98974870" StarSystemId="29" FromStarSystemId="19" NextStarSystemId="12" OriginStarSystemId="19" OriginNextStarSystemId="12" MarkerFlags="73" MarkerType="MerchantShip" CostString="item:778x60|item:741x12|item:778x166|item:778x166|item:778x200|item:744x17|item:744x9" RewardString="item:275|item:153|item:268|item:269|item:793|item:378|item:1466" IsCollected="false" IsRepeatable="false" Title="Gray Bazaar" TravelTimeMultiplier="300" PurchaseFlags="0" Metadata="{&quot;BackgroundSpriteId&quot;:&quot;18215&quot;, &quot;TitleImageSpriteId&quot;:&quot;18216&quot;}" ShipIds="" MovementType="Wander" TravelCoolDownTime="0" CompletionOriginalValue="0" CompletionValueType="None" CompletionRemainingValue="0" RequirementString="" CostType="None" Description="A strange craft rarely seen in this sector, boasting rarely seen deals at rarely seen prices. Be quick! Stock is updated regularly across its voyage." EngagementId="0" StarSystemArrivalDate="2026-11-17T22:24:06" ExpiryDate="2026-11-17T23:59:55" UserId="0" MissionDesignId="0" CompletionDate="2000-01-01T00:00:00" SpriteId="18214" MissionEventId="0" MarkerDesignId="11" ShipId="0" TravelStartDate="2026-11-17T22:02:21" LastUpdateDate="2026-11-17T12:01:28" StarSystemMarkerGeneratorId="11" />
+    </StarSystemMarkers>
+  </ListStarSystemMarkers>
+</GalaxyService>

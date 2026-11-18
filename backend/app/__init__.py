@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from flask import Flask, Response
 from flask_cors import CORS
@@ -38,30 +39,25 @@ def init_headers(app: Flask) -> None:
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
 
-        # Default cache control (only in production)
-        if not app.config["DEV_MODE"]:
+        # Default cache control (only in production), for successful responses without their own cache control
+        if (
+            not app.config["DEV_MODE"]
+            and response.status_code == HTTPStatus.OK
+            and "Cache-Control" not in response.headers
+        ):
             response.cache_control.max_age = 300
 
         return response
 
 
 def init_cors(app: Flask) -> None:
-    """Initialize CORS."""
+    """Initialize CORS, the API is public and doesn't use cookies."""
     if app.config["DEV_MODE"]:
-        CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+        origins: str | list[str] = "*"
     else:
-        CORS(
-            app,
-            supports_credentials=True,
-            resources={
-                r"/api/*": {
-                    "origins": [
-                        "https://{}".format(app.config["DOMAIN"]),
-                        "http://{}".format(app.config["DOMAIN"]),
-                    ],
-                },
-            },
-        )
+        origins = ["https://{}".format(app.config["DOMAIN"])]
+
+    CORS(app, resources={r"/api/*": {"origins": origins}})
 
 
 def create_app(test_config: dict | None = None) -> Flask:
@@ -91,8 +87,8 @@ def create_app(test_config: dict | None = None) -> Flask:
         sentry_sdk.init(
             dsn=app.config["SENTRY_DSN"],
             integrations=[FlaskIntegration()],
-            traces_sample_rate=1.0,
-            profiles_sample_rate=1.0,
+            traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
+            profiles_sample_rate=app.config["SENTRY_PROFILES_SAMPLE_RATE"],
         )
 
     # Initialize database

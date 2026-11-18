@@ -1,23 +1,29 @@
 """Mocked blueprint API tests - avoid real API calls and database queries."""
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from flask import url_for
+
+from app.services.character import CharacterService
+from app.services.collection import CollectionService
 
 
 @pytest.fixture
 def mock_api_responses():
     """Fixture providing mock API responses for blueprint testing."""
     return {
+        # same shapes as PlayerService.get_player_data() and get_ship_data()
         "players": [
-            {"name": "Solevis", "id": 6635604, "trophy": 1000, "ship": "Test Ship"},
-            {"name": "Test Player", "id": 1, "trophy": 500, "ship": "Basic Ship"},
+            {"name": "Solevis", "lower": "solevis", "trophies": 1000, "alliance": "Alliance", "alliance_sprite": None},
+            {"name": "Test Player", "lower": "test player", "trophies": 500, "alliance": None, "alliance_sprite": None},
         ],
         "player_ship": {
-            "player": {"name": "Solevis", "id": 6635604, "trophy": 1000},
-            "ship": {"name": "Test Ship", "level": 10, "hp": 1000},
             "rooms": [{"name": "Bridge", "level": 5}, {"name": "Engine", "level": 3}],
+            "user": {"name": "Solevis", "id": 6635604, "trophies": 1000},
+            "ship": {"name": "Test Ship", "level": 10, "hp": 1000},
+            "stickers": [],
+            "status": "found",
         },
         "daily": {
             "shop": {"currency": "Starbux", "amount": 100, "items": ["Item1", "Item2"]},
@@ -78,8 +84,8 @@ def mock_api_responses():
             {"id": 2, "sprite_id": 101, "x": 32, "y": 0, "width": 32, "height": 32},
         ],
         "search": [
-            {"name": "Solevis", "id": 6635604, "trophy": 1000},
-            {"name": "Test Player", "id": 1, "trophy": 500},
+            {"name": "Solevis", "id": 6635604, "trophies": 1000},
+            {"name": "Test Player", "id": 1, "trophies": 500},
         ],
     }
 
@@ -253,6 +259,26 @@ def test_api_players(client, app, mock_player_service):
     assert data["data"][0]["name"] == "Solevis"
 
 
+def test_api_players_search_is_normalized(client, app, mock_player_service):
+    """Searches differing only by case, spaces or extra length share the same cache entry."""
+    with app.test_request_context():
+        from app.ext import cache
+
+        cache.clear()
+
+    long_search = "x" * 500
+    get_player_data = MagicMock(return_value=[])
+    mock_player_service.get_player_data = get_player_data
+    with app.test_request_context(), patch("app.blueprints.api.PlayerService", return_value=mock_player_service):
+        client.get(url_for("api.api_players", search=" Solevis "))
+        client.get(url_for("api.api_players", search="SOLEVIS"))
+        client.get(url_for("api.api_players", search=long_search))
+        client.get(url_for("api.api_players", search=long_search + "y"))
+
+    searches = [call.args[0] for call in get_player_data.call_args_list]
+    assert searches == ["solevis", "x" * 50]
+
+
 def test_api_player(client, app, mock_player_service):
     """Test player endpoint with mocked data."""
     with app.test_request_context(), patch("app.blueprints.api.PlayerService", return_value=mock_player_service):
@@ -260,8 +286,23 @@ def test_api_player(client, app, mock_player_service):
     assert response.status_code == 200
     data = response.get_json()
     assert "data" in data
-    assert data["data"]["player"]["name"] == "Solevis"
+    assert data["data"]["user"]["name"] == "Solevis"
     assert data["data"]["ship"]["name"] == "Test Ship"
+
+
+def test_api_player_name_is_not_html_escaped(client, app, mock_player_service):
+    """Player names with HTML special chars must reach the service unchanged."""
+    received_names = []
+
+    def get_ship_data(name):
+        received_names.append(name)
+
+    mock_player_service.get_ship_data = get_ship_data
+
+    with app.test_request_context(), patch("app.blueprints.api.PlayerService", return_value=mock_player_service):
+        client.get(url_for("api.api_player", name="O'Neil & Co"))
+
+    assert received_names == ["O'Neil & Co"]
 
 
 def test_api_daily(client, app, mock_daily_offer_service):
@@ -292,27 +333,28 @@ def test_api_changes(client, app, mock_api_responses):
         assert "lastprestigeschanges" in data
 
 
-def test_api_collections(client, app, mock_api_responses):
-    """Test collections endpoint with mocked data."""
+def test_api_collections(client, app):
+    """Test collections endpoint, with their characters, without empty collections."""
+    collections = {
+        1: {"id": 1, "name": "Federation"},
+        2: {"id": 2, "name": "Polaran"},
+    }
+    characters = {
+        1: {"id": 1, "name": "Character 1", "collection": 1},
+        2: {"id": 2, "name": "Character 2", "collection": 1},
+        3: {"id": 3, "name": "Character 3", "collection": 0},
+    }
     with (
-        patch("app.blueprints.api.CollectionService") as mock_collection_service,
-        patch("app.blueprints.api.CharacterService") as mock_character_service,
+        patch.object(CollectionService, "collections", collections),
+        patch.object(CharacterService, "characters", characters),
+        app.test_request_context(),
     ):
-        mock_collection_instance = mock_collection_service.return_value
-        mock_collection_instance.collections = mock_api_responses["collections"]
+        response = client.get(url_for("api.api_collections"))
 
-        mock_character_instance = mock_character_service.return_value
-        mock_character_instance.characters = {
-            1: {"id": 1, "name": "Character 1", "collection": 1},
-            2: {"id": 2, "name": "Character 2", "collection": 1},
-        }
-
-        with app.test_request_context():
-            response = client.get(url_for("api.api_collections"))
-        assert response.status_code == 200
-        data = response.get_json()
-        assert "data" in data
-        assert len(data["data"]) > 0
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert list(data) == ["1"]
+    assert [character["id"] for character in data["1"]["chars"]] == [1, 2]
 
 
 def test_api_achievements(client, app, mock_api_responses):
@@ -340,30 +382,43 @@ def test_api_research(client, app, mock_research_service):
 
 
 def test_api_prestige(client, app, mock_api_responses):
-    """Test prestige endpoint with mocked data."""
+    """Test prestige endpoint, the character has its collection data."""
+    characters = {196: {"id": 196, "name": "Test Character", "collection": 1}}
+    collections = {1: {"id": 1, "name": "Test Collection", "icon_sprite": "test_sprite"}}
     with (
         patch("app.blueprints.api.PrestigeService") as mock_prestige_service,
-        patch("app.blueprints.api.CharacterService") as mock_character_service,
-        patch("app.blueprints.api.CollectionService") as mock_collection_service,
+        patch.object(CharacterService, "characters", characters),
+        patch.object(CollectionService, "collections", collections),
     ):
-        # Mock character service
-        mock_character_instance = mock_character_service.return_value
-        mock_character_instance.characters = {196: {"id": 196, "name": "Test Character", "collection": 1}}
-
-        # Mock collection service
-        mock_collection_instance = mock_collection_service.return_value
-        mock_collection_instance.collections = {1: {"id": 1, "name": "Test Collection", "icon_sprite": "test_sprite"}}
-
-        # Mock prestige service
-        mock_prestige_instance = mock_prestige_service.return_value
-        mock_prestige_instance.get_prestiges_from_api = lambda _: mock_api_responses["prestige"]
+        mock_prestige_service.return_value.get_prestiges_from_api = lambda _: mock_api_responses["prestige"]
 
         with app.test_request_context():
             response = client.get(url_for("api.api_prestige", char_id=196))
-        assert response.status_code == 200
-        data = response.get_json()
-        assert "data" in data
-        assert len(data["data"]) > 0
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert len(data["data"]) > 0
+    assert data["character"]["collection_name"] == "Test Collection"
+    assert data["character"]["collection_sprite"] == "test_sprite"
+
+
+def test_api_crew(client, app):
+    """Test crew endpoint, characters have their collection data."""
+    characters = {
+        1: {"id": 1, "name": "Character 1", "collection": 1},
+        2: {"id": 2, "name": "Character 2", "collection": 0},
+    }
+    collections = {1: {"id": 1, "name": "Test Collection", "icon_sprite": "test_sprite"}}
+    with (
+        patch.object(CharacterService, "characters", characters),
+        patch.object(CollectionService, "collections", collections),
+        app.test_request_context(),
+    ):
+        response = client.get(url_for("api.api_crew"))
+
+    data = response.get_json()["data"]
+    assert data["1"]["collection_name"] == "Test Collection"
+    assert "collection_name" not in data["2"]
 
 
 def test_api_crafts(client, app, mock_api_responses):

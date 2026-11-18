@@ -316,3 +316,13 @@ def test_get_offstat_count_by_rarity(rarity, expected):
 def test_get_offstat_count_without_offstat():
     assert get_offstat_count("Equipment", "Head", RARITY_MAP["Legendary"], 0.0, None) == 0
     assert get_offstat_count("Equipment", "InvalidSlot", RARITY_MAP["Legendary"], 1.0, "Enhancement") == 0
+
+
+def test_parse_assets_string_skips_empty_and_malformed_assets():
+    assert parse_assets_string("") == []
+    assert parse_assets_string(None) == []
+    assert parse_assets_string("item:83x6||item:1011 >= 1|starbux:abc|gas:10|item:994x[USD/3]") == [
+        {"type": "item", "id": 83, "count": 6},
+        {"type": "gas", "id": 10, "count": None},
+        {"type": "item", "id": 994, "count": None},
+    ]

@@ -1,0 +1,8 @@
+<SituationService>
+  <ListSituationDesigns version="1304">
+    <SituationDesigns>
+      <SituationDesign SituationDesignId="63" SituationName="Triple Season Points!" SituationDescription="Triple Season Points rewarded when completing Daily Season Tasks." SituationType="Environmental" Flags="109" ChangeType="AddPassPoints" ChangeArgumentString="200" RequirementString="shipLevel &gt;= 3" DailyOccurrenceLimit="9999" TriggerType="PvP" Chance="100" SituationTags="" FromDate="2026-11-19T00:00:00" EndDate="2026-11-20T00:00:00" IconSpriteId="20199" />
+      <SituationDesign SituationDesignId="64" SituationName="Year of the Snake!" SituationDescription="Lucky Red Coins can drop in Missions and PvP Battles." SituationType="Environmental" Flags="45" ChangeType="AddLoot" ChangeArgumentString="item:1029x3" RequirementString="shipLevel &gt; 2" DailyOccurrenceLimit="10" TriggerType="PvP" Chance="100" SituationTags="" FromDate="2025-01-17T00:00:00" EndDate="2025-01-31T00:00:00" IconSpriteId="15651" />
+    </SituationDesigns>
+  </ListSituationDesigns>
+</SituationService>

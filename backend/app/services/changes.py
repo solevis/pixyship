@@ -65,10 +65,14 @@ class ChangesService(BaseService):
 
         min_changes_dates_conditions = [
             f"(c.type = '{record[0]}' AND o.data IS NULL AND (o.id IS NOT NULL OR c.created_at > '{record[1]}'))"
-            if record[0] == "sprite"
+            if record[0] == TypeEnum.SPRITE
             else f"(c.type = '{record[0]}' AND (o.id IS NOT NULL OR c.created_at > '{record[1]}'))"
             for record in min_changes_dates_result
         ]
+
+        # no records yet (fresh database), nothing changed
+        if not min_changes_dates_conditions:
+            return []
 
         sql = """
             SELECT sub.name, sub.sprite_id, sub.type, sub.type_id, sub.data, sub.created_at, sub.old_data

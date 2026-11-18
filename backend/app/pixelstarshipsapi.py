@@ -3,6 +3,8 @@ import hashlib
 import random
 import re
 import uuid
+from collections.abc import Callable
+from typing import Any
 from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
@@ -10,6 +12,8 @@ from xml.etree.ElementTree import Element
 import requests
 from flask import current_app
 from requests import Response
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from app.api_errors import TOKEN_EXPIRED_REGEX
 from app.constants import API_URLS, IAP_OPTIONS_MASK_LOOKUP, PSS_START_DATE
@@ -17,6 +21,33 @@ from app.ext import cache
 from app.ext.db import db
 from app.models import Device
 from app.utils.pss import api_sleep, convert_datetime_to_iso
+
+# (connect, read) timeouts in seconds for PSS API calls, so a hanging call can't block a worker forever
+REQUEST_TIMEOUT = (10, 60)
+
+# retry connection errors and transient server errors, with an exponential backoff (2s, 4s, 8s)
+REQUEST_RETRY = Retry(
+    total=3,
+    backoff_factor=2,
+    status_forcelist=(502, 503, 504),
+    allowed_methods=frozenset({"GET"}),
+    raise_on_status=False,
+)
+
+_http_session: requests.Session | None = None
+
+
+def get_http_session() -> requests.Session:
+    """Get the process-wide HTTP session, created lazily (after a worker fork), to reuse connections."""
+    global _http_session  # noqa: PLW0603
+
+    if _http_session is None:
+        session = requests.Session()
+        session.mount("https://", HTTPAdapter(max_retries=REQUEST_RETRY))
+        session.mount("http://", HTTPAdapter(max_retries=REQUEST_RETRY))
+        _http_session = session
+
+    return _http_session
 
 
 class PixelStarshipsApi:
@@ -31,7 +62,8 @@ class PixelStarshipsApi:
             self._main_pixelstarships_api_url = API_URLS.get("MAIN")
             self._forced_pixelstarships_api_url = current_app.config.get("FORCED_PIXELSTARSHIPS_API_URL")
 
-        self._device_next_index: int = 0
+        # random first device, so processes started together spread their calls over devices
+        self._device_next_index: int | None = None
         self._devices: list[Device] | None = None
         self._api_settings: dict = self.get_api_settings()
 
@@ -79,7 +111,8 @@ class PixelStarshipsApi:
 
         return devices
 
-    @cache.cached(timeout=60 * 60 * 12, key_prefix="api_settings")
+    # don't cache empty settings (parsing error, maintenance...), it would break every API call for 12 hours
+    @cache.cached(timeout=60 * 60 * 12, key_prefix="api_settings", response_filter=bool)
     def get_api_settings(self) -> dict:
         """Get last game settings from API."""
         params = {"languageKey": "en", "deviceType": "DeviceTypeAndroid"}
@@ -148,15 +181,8 @@ class PixelStarshipsApi:
 
     @staticmethod
     def get_response(endpoint: str, params: dict) -> Response:
-        """Get response from API."""
-        try:
-            response = requests.get(endpoint, params=params)
-        except requests.exceptions.ConnectionError:
-            current_app.logger.exception("Connection error, retry")
-            api_sleep(10, force_sleep=True)
-            response = requests.get(endpoint, params=params)
-
-        return response
+        """Get response from API, connection errors and transient server errors are retried by the session."""
+        return get_http_session().get(endpoint, params=params, timeout=REQUEST_TIMEOUT)
 
     @staticmethod
     def create_device_key() -> str:
@@ -179,14 +205,12 @@ class PixelStarshipsApi:
         """Get the next device."""
         devices = self.devices
 
-        if self._device_next_index is None:
-            self._device_next_index = random.randrange(len(self.devices))
+        index = random.randrange(len(devices)) if self._device_next_index is None else self._device_next_index
+        if index >= len(devices):
+            index = 0
 
-        if self._device_next_index >= len(devices):
-            self._device_next_index = 0
-
-        device = devices[self._device_next_index]
-        self._device_next_index += 1
+        device = devices[index]
+        self._device_next_index = index + 1
 
         device = db.session.merge(device)
         db.session.refresh(device)
@@ -241,7 +265,9 @@ class PixelStarshipsApi:
             "Content-Type": "application/json",
         }
 
-        response = requests.post(endpoint, headers=headers, json=data, params=uri_params)
+        response = get_http_session().post(
+            endpoint, headers=headers, json=data, params=uri_params, timeout=REQUEST_TIMEOUT
+        )
 
         root = ET.fromstring(response.content.decode("utf-8"))
         user_login_node = root.find(".//UserLogin")
@@ -258,6 +284,52 @@ class PixelStarshipsApi:
             return None
 
         return access_token, user_id
+
+    def get_nodes(
+        self, service_path: str, params: dict, container_path: str, need_token: bool = False, required: bool = False
+    ) -> list[Element]:
+        """Call the PSS API and return the children of the container node, empty if the container is missing."""
+        endpoint = f"https://{self.server}/{service_path}"
+        response = self.call(endpoint, params=params, need_token=need_token)
+        container = ET.fromstring(response.text).find(container_path)
+
+        if container is None:
+            if required:
+                current_app.logger.error("Error when parsing response: %s", response.text)
+            return []
+
+        return list(container)
+
+    def get_entities(
+        self,
+        service_path: str,
+        params: dict,
+        container_path: str,
+        parse: Callable[[Element], dict] | None = None,
+        need_token: bool = False,
+    ) -> list[dict]:
+        """Get entities from the PSS API, parsed from the container children, with their raw XML node."""
+        parse = parse or self.parse_node
+        nodes = self.get_nodes(service_path, params, container_path, need_token=need_token)
+        return [self.add_xml_element(parse(node), node) for node in nodes]
+
+    def design_params(self, version_setting: str) -> dict:
+        """Get the parameters of a design list call, for the given version in API settings."""
+        return {
+            "designVersion": self._api_settings[version_setting],
+            "languageKey": "en",
+        }
+
+    @staticmethod
+    def parse_node(node: Element) -> dict[str, Any]:
+        """Extract data from XML node attributes."""
+        return dict(node.attrib)
+
+    @staticmethod
+    def add_xml_element(data: dict, node: Element) -> dict:
+        """Add the raw XML node to the parsed data (custom field)."""
+        data["pixyship_xml_element"] = node
+        return data
 
     def inspect_ship(self, user_id: int) -> dict[str, dict]:
         """Get player ship data from API."""
@@ -279,21 +351,14 @@ class PixelStarshipsApi:
             raise ValueError(error_msg)
 
         inspect_ship: dict = {
-            "User": user_node.attrib.copy(),
-            "Ship": ship_node.attrib.copy(),
+            "User": self.add_xml_element(self.parse_node(user_node), user_node),
+            "Ship": self.add_xml_element(self.parse_node(ship_node), ship_node),
         }
 
-        inspect_ship["User"]["pixyship_xml_element"] = user_node
-        inspect_ship["Ship"]["pixyship_xml_element"] = ship_node
-
-        # get rooms
         rooms_node = root.find(".//Rooms")
-        inspect_ship["Ship"]["Rooms"] = []
-        if rooms_node is not None:
-            for room_node in rooms_node:
-                room = room_node.attrib.copy()
-                room["pixyship_xml_element"] = room_node  # type: ignore[assignment]
-                inspect_ship["Ship"]["Rooms"].append(room)
+        inspect_ship["Ship"]["Rooms"] = (
+            [] if rooms_node is None else [self.add_xml_element(self.parse_node(node), node) for node in rooms_node]
+        )
 
         return inspect_ship
 
@@ -315,70 +380,31 @@ class PixelStarshipsApi:
             error_msg = "Missing required Ship or User element in XML"
             raise ValueError(error_msg)
 
-        ship: dict = ship_node.attrib.copy()
-        ship["pixyship_xml_element"] = ship_node  # type: ignore[assignment]
-
-        user: dict = user_node.attrib.copy()
-        user["pixyship_xml_element"] = user_node  # type: ignore[assignment]
+        ship = self.add_xml_element(self.parse_node(ship_node), ship_node)
+        user = self.add_xml_element(self.parse_node(user_node), user_node)
 
         return ship, user
 
     def ship_room_details(self, user_id: int) -> list:
         """Get player ship room details from API."""
-        params = {
-            "UserId": user_id,
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/PublicService/GetShipRoomDetails"
-        response = self.call(endpoint, params=params, need_token=True)
-        root = ET.fromstring(response.text)
-
-        ship_room_details_node = root.find(".//Rooms")
-        ship_room_details = []
-        if ship_room_details_node is not None:
-            for room_node in ship_room_details_node:
-                room = room_node.attrib.copy()
-                room["pixyship_xml_element"] = room_node  # type: ignore[assignment]
-                ship_room_details.append(room)
-
-        return ship_room_details
+        return self.get_entities("PublicService/GetShipRoomDetails", {"UserId": user_id}, ".//Rooms", need_token=True)
 
     def search_users(self, user_name: str, exact_match: bool = False) -> list:
-        """Get player ship data from API."""
-        params = {
-            "searchstring": user_name,
-        }
+        """Search players by name from API."""
+        if not exact_match:
+            return self.get_entities("UserService/SearchUsers", {"searchstring": user_name}, ".//Users")
 
         # retrieve data as XML from Pixel Starships API
         endpoint = f"https://{self.server}/UserService/SearchUsers"
-        response = self.call(endpoint, params=params)
+        response = self.call(endpoint, params={"searchstring": user_name})
         root = ET.fromstring(response.text)
 
-        users = []
+        # compare in Python, an XPath [@Name='...'] predicate can't express names containing both ' and "
+        user_node = next((node for node in root.iter("User") if node.get("Name") == user_name), None)
+        if user_node is None:
+            return []
 
-        if exact_match:
-            user_node = root.find(f".//User[@Name={user_name!r}]")
-
-            if user_node is not None:
-                user = self.parse_user_node(user_node)
-                user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
-                users.append(user)
-        else:
-            users_node = root.find(".//Users")
-            if users_node is not None:
-                for user_node in users_node:
-                    user = self.parse_user_node(user_node)
-
-                    user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
-                    users.append(user)
-
-        return users
-
-    @staticmethod
-    def parse_user_node(user_node: Element) -> dict:
-        """Extract user data from XML node."""
-        return user_node.attrib
+        return [self.add_xml_element(self.parse_node(user_node), user_node)]
 
     def get_dailies(self) -> dict:
         """Get dailies from settings service from API."""
@@ -395,10 +421,7 @@ class PixelStarshipsApi:
             error_msg = "Missing required LiveOps element in XML"
             raise ValueError(error_msg)
 
-        dailies: dict = dailies_node.attrib.copy()
-        dailies["pixyship_xml_element"] = dailies_node  # type: ignore[assignment]  # custom field, return raw XML data too
-
-        return dailies
+        return self.add_xml_element(self.parse_node(dailies_node), dailies_node)
 
     def get_sprites(self) -> list:
         """Get sprites from API."""
@@ -406,516 +429,201 @@ class PixelStarshipsApi:
             "designVersion": self._api_settings["FileVersion"],
             "deviceType": "DeviceTypeAndroid",
         }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/FileService/ListSprites"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        sprites = []
-        sprite_nodes = root.find(".//Sprites")
-
-        if sprite_nodes is not None:
-            for sprite_node in sprite_nodes:
-                sprite = self.parse_sprite_node(sprite_node)
-                sprite["pixyship_xml_element"] = sprite_node  # custom field, return raw XML data too
-                sprites.append(sprite)
-
-        return sprites
-
-    @staticmethod
-    def parse_sprite_node(sprite_node: Element) -> dict:
-        """Extract character data from XML node."""
-        return sprite_node.attrib.copy()
+        return self.get_entities("FileService/ListSprites", params, ".//Sprites")
 
     def get_rooms_sprites(self) -> list:
         """Get rooms sprites from API."""
         params = {"designVersion": self._api_settings["RoomDesignSpriteVersion"]}
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/RoomDesignSpriteService/ListRoomDesignSprites"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        rooms_sprites = []
-        room_sprites_nodes = root.find(".//RoomDesignSprites")
-
-        if room_sprites_nodes is not None:
-            for room_sprites_node in room_sprites_nodes:
-                room_sprites = self.parse_room_sprite_node(room_sprites_node)
-                room_sprites["pixyship_xml_element"] = room_sprites_node  # custom field, return raw XML data too
-                rooms_sprites.append(room_sprites)
-
-        return rooms_sprites
-
-    @staticmethod
-    def parse_room_sprite_node(room_sprite_node: Element) -> dict:
-        """Extract room sprite data from XML node."""
-        return room_sprite_node.attrib.copy()
+        return self.get_entities("RoomDesignSpriteService/ListRoomDesignSprites", params, ".//RoomDesignSprites")
 
     def get_skinsets(self) -> list:
         """Get skinsets from API."""
-        params = {
-            "designVersion": self._api_settings["SkinSetVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/UserService/ListSkinsets2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        skinsets = []
-        skinset_nodes = root.find(".//SkinSets")
-
-        if skinset_nodes is not None:
-            for skinset_node in skinset_nodes:
-                skinset = self.parse_skinset_node(skinset_node)
-                skinset["pixyship_xml_element"] = skinset_node
-                skinsets.append(skinset)
-
-        return skinsets
+        return self.get_entities("UserService/ListSkinsets2", self.design_params("SkinSetVersion"), ".//SkinSets")
 
     def get_skins(self) -> list:
         """Get skins from API."""
-        params = {
-            "designVersion": self._api_settings["SkinVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/UserService/ListSkins2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        skins = []
-        skin_nodes = root.find(".//Skins")
-
-        if skin_nodes is not None:
-            for skinset_node in skin_nodes:
-                skin = self.parse_skin_node(skinset_node)
-                skin["pixyship_xml_element"] = skinset_node
-                skins.append(skin)
-
-        return skins
-
-    @staticmethod
-    def parse_skinset_node(skinset_node: Element) -> dict:
-        """Extract skinset data from XML node."""
-        return skinset_node.attrib.copy()
-
-    @staticmethod
-    def parse_skin_node(skin_node: Element) -> dict:
-        """Extract skin data from XML node."""
-        return skin_node.attrib.copy()
+        return self.get_entities("UserService/ListSkins2", self.design_params("SkinVersion"), ".//Skins")
 
     def get_ships(self) -> list:
         """Get ships designs from API."""
-        params = {
-            "designVersion": self._api_settings["ShipDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/ShipService/ListAllShipDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        ships = []
-        ship_nodes = root.find(".//ShipDesigns")
-
-        if ship_nodes is not None:
-            for ship_node in ship_nodes:
-                ship = self.parse_ship_node(ship_node)
-                ship["pixyship_xml_element"] = ship_node  # custom field, return raw XML data too
-                ships.append(ship)
-
-        return ships
-
-    @staticmethod
-    def parse_ship_node(ship_node: Element) -> dict:
-        """Extract character data from XML node."""
-        return ship_node.attrib.copy()
+        return self.get_entities(
+            "ShipService/ListAllShipDesigns2", self.design_params("ShipDesignVersion"), ".//ShipDesigns"
+        )
 
     def get_researches(self) -> list:
         """Get research designs from API."""
-        params = {
-            "designVersion": self._api_settings["ResearchDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/ResearchService/ListAllResearchDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        researches = []
-        research_nodes = root.find(".//ResearchDesigns")
-
-        if research_nodes is not None:
-            for research_node in research_nodes:
-                research = self.parse_research_node(research_node)
-                research["pixyship_xml_element"] = research_node  # custom field, return raw XML data too
-                researches.append(research)
-
-        return researches
-
-    @staticmethod
-    def parse_research_node(research_node: Element) -> dict:
-        """Extract research data from XML node."""
-        return research_node.attrib.copy()
+        return self.get_entities(
+            "ResearchService/ListAllResearchDesigns2", self.design_params("ResearchDesignVersion"), ".//ResearchDesigns"
+        )
 
     def get_rooms(self) -> list:
         """Get room designs from API."""
-        # get room purchase
-        rooms_purchase = self.get_rooms_purchase()
+        # availability of rooms, by root room design id
+        rooms_purchase: dict[str | None, dict] = {}
+        for room_purchase in self.get_rooms_purchase():
+            rooms_purchase.setdefault(room_purchase.get("RoomDesignId"), room_purchase)
 
-        params = {
-            "designVersion": self._api_settings["RoomDesignSpriteVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/RoomService/ListRoomDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
+        room_nodes = self.get_nodes(
+            "RoomService/ListRoomDesigns2", self.design_params("RoomDesignSpriteVersion"), ".//RoomDesigns"
+        )
 
         rooms = []
-        room_nodes = root.find(".//RoomDesigns")
-        if room_nodes is None:
-            return []
-
         for room_node in room_nodes:
             # if room purchase, add node to room node
-            room_purchase = next(
-                (
-                    room_purchase
-                    for room_purchase in rooms_purchase
-                    if room_purchase["RoomDesignId"] == room_node.attrib["RootRoomDesignId"]
-                ),
-                None,
-            )
-
+            room_purchase = rooms_purchase.get(room_node.attrib.get("RootRoomDesignId"))
             if room_purchase:
                 room_node.set("AvailabilityMask", room_purchase["AvailabilityMask"])
 
-            room = self.parse_room_node(room_node)
-
-            room["pixyship_xml_element"] = room_node  # custom field, return raw XML data too
-            rooms.append(room)
+            rooms.append(self.add_xml_element(self.parse_room_node(room_node), room_node))
 
         return rooms
 
     @staticmethod
     def parse_room_node(room_node: Element) -> dict:
         """Extract room data from XML node."""
-        room: dict = room_node.attrib.copy()
+        room: dict[str, Any] = dict(room_node.attrib)
 
         missile_design_node = list(room_node.iter("MissileDesign"))
         if missile_design_node:
-            room["MissileDesign"] = missile_design_node[0].attrib  # type: ignore[assignment]
+            room["MissileDesign"] = missile_design_node[0].attrib
         else:
-            room["MissileDesign"] = None  # type: ignore[assignment]
+            room["MissileDesign"] = None
 
         return room
 
     def get_missile_designs(self) -> list:
         """Get missile designs from API."""
-        params = {
-            "designVersion": self._api_settings["MissileDesignVersion"],
-            "languageKey": "en",
-        }
+        return self.get_entities(
+            "RoomService/ListMissileDesigns", self.design_params("MissileDesignVersion"), ".//MissileDesigns"
+        )
 
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/RoomService/ListMissileDesigns"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
+    def add_missile_design_nodes(self, nodes: list[Element], kind: str) -> list[Element]:
+        """Add the missile design and the reload modifier of their item to craft or missile nodes.
 
-        missile_designs = []
-        missile_design_nodes = root.find(".//MissileDesigns")
+        Nodes without missile design are skipped.
+        """
+        missile_designs: dict[str | None, dict] = {}
+        for missile_design in self.get_missile_designs():
+            missile_designs.setdefault(missile_design.get("MissileDesignId"), missile_design)
 
-        if missile_design_nodes is not None:
-            for missile_design_node in missile_design_nodes:
-                missile_design = self.parse_missile_design_node(missile_design_node)
-                missile_design["pixyship_xml_element"] = missile_design_node  # custom field, return raw XML data too
-                missile_designs.append(missile_design)
+        item_designs: dict[str | None, dict] = {}
+        for item_design in self.get_items():
+            item_designs.setdefault(item_design.get("CraftDesignId"), item_design)
 
-        return missile_designs
+        complete_nodes = []
+        for node in nodes:
+            missile_design = missile_designs.get(node.attrib["MissileDesignId"])
+            if not missile_design:
+                current_app.logger.error(
+                    "Cannot retrieve %s MissileDesign for MissileDesignId %s",
+                    kind,
+                    node.attrib["MissileDesignId"],
+                )
+                continue
 
-    @staticmethod
-    def parse_missile_design_node(missile_design_node: Element) -> dict:
-        """Extract missile design data from XML node."""
-        return missile_design_node.attrib.copy()
+            item_design = item_designs.get(node.attrib.get("CraftDesignId"))
+            if item_design:
+                node.set("ReloadModifier", item_design["ReloadModifier"])
+
+            node.append(missile_design["pixyship_xml_element"])
+            complete_nodes.append(node)
+
+        return complete_nodes
 
     def get_crafts(self) -> list:
         """Get crafts designs from API."""
-        # get missile designs
-        missile_designs = self.get_missile_designs()
+        craft_nodes = self.get_nodes(
+            "RoomService/ListCraftDesigns", self.design_params("CraftDesignVersion"), ".//CraftDesigns"
+        )
 
-        # get item designs
-        item_designs = self.get_items()
-
-        params = {
-            "designVersion": self._api_settings["CraftDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/RoomService/ListCraftDesigns"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        crafts = []
-        craft_nodes = root.find(".//CraftDesigns")
-
-        if craft_nodes is not None:
-            for craft_node in craft_nodes:
-                missile_design = next(
-                    (
-                        missile_design
-                        for missile_design in missile_designs
-                        if missile_design["MissileDesignId"] == craft_node.attrib["MissileDesignId"]
-                    ),
-                    None,
-                )
-
-                if not missile_design:
-                    current_app.logger.error(
-                        "Cannot retrieve craft MissileDesign for MissileDesignId %s",
-                        craft_node.attrib["MissileDesignId"],
-                    )
-                    # Skip to next craft if missile design not found
-                    continue
-
-                item_design = next(
-                    (
-                        item_design
-                        for item_design in item_designs
-                        if item_design["CraftDesignId"] == craft_node.attrib["CraftDesignId"]
-                    ),
-                    None,
-                )
-
-                if item_design:
-                    craft_node.set("ReloadModifier", item_design["ReloadModifier"])
-
-                if missile_design:
-                    craft_node.append(missile_design["pixyship_xml_element"])
-
-                craft = self.parse_craft_node(craft_node)
-                craft["pixyship_xml_element"] = craft_node  # custom field, return raw XML data too
-                crafts.append(craft)
-
-        return crafts
+        return [
+            self.add_xml_element(self.parse_craft_node(craft_node), craft_node)
+            for craft_node in self.add_missile_design_nodes(craft_nodes, "craft")
+        ]
 
     @staticmethod
     def parse_craft_node(craft_node: Element) -> dict:
         """Extract craft data from XML node."""
-        craft: dict = craft_node.attrib.copy()
+        craft: dict[str, Any] = dict(craft_node.attrib)
 
         missile_design_node = list(craft_node.iter("MissileDesign"))
-        craft["MissileDesign"] = missile_design_node[0].attrib  # type: ignore[assignment]
+        craft["MissileDesign"] = missile_design_node[0].attrib
 
         return craft
 
     def get_missiles(self) -> list:
         """Get missiles designs from API."""
-        # get room purchase
-        missile_designs = self.get_missile_designs()
+        item_nodes = self.get_nodes(
+            "ItemService/ListItemDesigns2", self.design_params("ItemDesignVersion"), ".//ItemDesigns"
+        )
+        missile_nodes = [item_node for item_node in item_nodes if item_node.attrib["ItemType"] == "Missile"]
 
-        # get item designs
-        item_designs = self.get_items()
-
-        params = {
-            "designVersion": self._api_settings["ItemDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/ItemService/ListItemDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        missiles = []
-        item_nodes = root.find(".//ItemDesigns")
-
-        if item_nodes is not None:
-            for item_node in item_nodes:
-                if item_node.attrib["ItemType"] != "Missile":
-                    continue
-
-                missile_design = next(
-                    (
-                        missile_design
-                        for missile_design in missile_designs
-                        if missile_design["MissileDesignId"] == item_node.attrib["MissileDesignId"]
-                    ),
-                    None,
-                )
-
-                if not missile_design:
-                    current_app.logger.error(
-                        "Cannot retrieve missile MissileDesign for MissileDesignId %s",
-                        item_node.attrib["MissileDesignId"],
-                    )
-                    # Skip to next missile if missile design not found
-                    continue
-
-                item_design = next(
-                    (
-                        item_design
-                        for item_design in item_designs
-                        if item_design["CraftDesignId"] == item_node.attrib["CraftDesignId"]
-                    ),
-                    None,
-                )
-
-                if item_design:
-                    item_node.set("ReloadModifier", item_design["ReloadModifier"])
-
-                if missile_design:
-                    item_node.append(missile_design["pixyship_xml_element"])
-
-                missile = self.parse_missile_node(item_node)
-                missile["pixyship_xml_element"] = item_node  # custom field, return raw XML data too
-                missiles.append(missile)
-
-        return missiles
+        return [
+            self.add_xml_element(self.parse_missile_node(missile_node), missile_node)
+            for missile_node in self.add_missile_design_nodes(missile_nodes, "missile")
+        ]
 
     @staticmethod
     def parse_missile_node(missile_node: Element) -> dict:
         """Extract missile data from XML node."""
-        missile: dict = missile_node.attrib.copy()
+        missile: dict[str, Any] = dict(missile_node.attrib)
 
         missile_design_node = list(missile_node.iter("MissileDesign"))
-        missile["MissileDesign"] = missile_design_node[0].attrib  # type: ignore[assignment]
+        missile["MissileDesign"] = missile_design_node[0].attrib
 
         return missile
 
     def get_rooms_purchase(self) -> list:
-        """Get room designs from API."""
-        params = {
-            "designVersion": self._api_settings["RoomDesignPurchaseVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/RoomService/ListRoomDesignPurchase"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        rooms_purchase = []
-        room_purchase_nodes = root.find(".//RoomDesignPurchases")
-
-        if room_purchase_nodes is None:
-            return []
-
-        for room_purchase_node in room_purchase_nodes:
-            room_purchase = self.parse_room_node(room_purchase_node)
-            room_purchase["pixyship_xml_element"] = room_purchase_node  # custom field, return raw XML data too
-            rooms_purchase.append(room_purchase)
-
-        return rooms_purchase
-
-    @staticmethod
-    def parse_room_purchase_node(room_purchase_node: Element) -> dict:
-        """Extract room purchase data from XML node."""
-        return room_purchase_node.attrib.copy()
+        """Get room designs purchase from API."""
+        return self.get_entities(
+            "RoomService/ListRoomDesignPurchase",
+            self.design_params("RoomDesignPurchaseVersion"),
+            ".//RoomDesignPurchases",
+            parse=self.parse_room_node,
+        )
 
     def get_characters(self) -> list:
         """Get character designs from API."""
-        params = {
-            "designVersion": self._api_settings["CharacterDesignVersion"],
-            "languageKey": "en",
-        }
+        character_nodes = self.get_nodes(
+            "CharacterService/ListAllCharacterDesigns2",
+            self.design_params("CharacterDesignVersion"),
+            ".//CharacterDesigns",
+            required=True,
+        )
 
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/CharacterService/ListAllCharacterDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        characters = []
-        character_nodes = root.find(".//CharacterDesigns")
-        if character_nodes is None:
-            current_app.logger.error("Error when parsing response: %s", response.text)
-            return []
-
-        for character_node in character_nodes:
-            character = self.parse_character_node(character_node)
-            character["pixyship_xml_element"] = character_node  # custom field, return raw XML data too
-            characters.append(character)
-
-        return characters
+        return [
+            self.add_xml_element(self.parse_character_node(character_node), character_node)
+            for character_node in character_nodes
+        ]
 
     @staticmethod
     def parse_character_node(character_node: Element) -> dict:
         """Extract character data from XML node."""
-        character: dict = character_node.attrib.copy()
+        character: dict[str, Any] = dict(character_node.attrib)
 
-        character["CharacterParts"] = {}  # type: ignore[assignment]
+        character_parts: dict[str, dict] = {}
+        character["CharacterParts"] = character_parts
         character_part_nodes = character_node.find(".//CharacterParts")
         if character_part_nodes is not None:
             for character_part_node in character_part_nodes:
                 character_part = character_part_node.attrib
-                character["CharacterParts"][character_part["CharacterPartType"]] = character_part  # type: ignore[assignment]
+                character_parts[character_part["CharacterPartType"]] = character_part
 
         return character
 
     def get_collections(self) -> list:
         """Get collection designs from API."""
-        params = {
-            "designVersion": self._api_settings["CollectionDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/CollectionService/ListAllCollectionDesigns"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        collections = []
-        collection_nodes = root.find(".//CollectionDesigns")
-
-        if collection_nodes is not None:
-            for collection_node in collection_nodes:
-                collection = self.parse_collection_node(collection_node)
-                collection["pixyship_xml_element"] = collection_node  # custom field, return raw XML data too
-                collections.append(collection)
-
-        return collections
-
-    @staticmethod
-    def parse_collection_node(collection_node: Element) -> dict:
-        """Extract collection data from XML node."""
-        return collection_node.attrib.copy()
+        return self.get_entities(
+            "CollectionService/ListAllCollectionDesigns",
+            self.design_params("CollectionDesignVersion"),
+            ".//CollectionDesigns",
+        )
 
     def get_items(self) -> list:
         """Get item designs from API."""
-        params = {
-            "designVersion": self._api_settings["ItemDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/ItemService/ListItemDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        items = []
-        item_nodes = root.find(".//ItemDesigns")
-
-        if item_nodes is not None:
-            for item_node in item_nodes:
-                item = self.parse_item_node(item_node)
-                item["pixyship_xml_element"] = item_node  # custom field, return raw XML data too
-                items.append(item)
-
-        return items
-
-    @staticmethod
-    def parse_item_node(item_node: Element) -> dict:
-        """Extract item data from XML node."""
-        return item_node.attrib.copy()
+        return self.get_entities(
+            "ItemService/ListItemDesigns2", self.design_params("ItemDesignVersion"), ".//ItemDesigns"
+        )
 
     def get_alliances(self, take: int = 100) -> list:
         """Get alliances from API, top 100 by default."""
@@ -923,27 +631,15 @@ class PixelStarshipsApi:
             "designVersion": self._api_settings["ItemDesignVersion"],
             "take": take,
         }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/AllianceService/ListAlliancesByRanking"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        alliances = []
-        alliance_nodes = root.find(".//Alliances")
-
-        if alliance_nodes is not None:
-            for alliance_node in alliance_nodes:
-                alliance = self.parse_alliance_node(alliance_node)
-                alliance["pixyship_xml_element"] = alliance_node  # custom field, return raw XML data too
-                alliances.append(alliance)
-
-        return alliances
+        return self.get_entities("AllianceService/ListAlliancesByRanking", params, ".//Alliances")
 
     @staticmethod
-    def parse_alliance_node(alliance_node: Element) -> dict:
-        """Extract alliance data from XML node."""
-        return alliance_node.attrib.copy()
+    def find_node_in_response(response_text: str, path: str) -> Element | None:
+        """Find a node in an XML response, None if not found or if the response isn't XML (e.g. HTML 5xx page)."""
+        try:
+            return ET.fromstring(response_text).find(path)
+        except ET.ParseError:
+            return None
 
     def get_sales(self, item_id: int, max_sale_id: int = 0, take: int | None = None) -> list:
         """Download sales for given item from PSS API."""
@@ -984,10 +680,8 @@ class PixelStarshipsApi:
                 api_sleep(30, force_sleep=True)
                 continue
 
-            root = ET.fromstring(response.text)
-
             # parse HTTP body as XML and find sales nodes
-            sale_nodes = root.find(".//Sales")
+            sale_nodes = self.find_node_in_response(response.text, ".//Sales")
 
             # error when parsing the response
             if sale_nodes is None:
@@ -1012,7 +706,7 @@ class PixelStarshipsApi:
                 if sale_id_str is None:
                     continue
                 sale_id = int(sale_id_str)
-                sale = self.parse_sale_node(sale_node)
+                sale = self.parse_node(sale_node)
 
                 if sale_id > max_sale_id:
                     sales.append(sale)
@@ -1035,11 +729,6 @@ class PixelStarshipsApi:
             api_sleep(3, force_sleep=True)
 
         return sales
-
-    @staticmethod
-    def parse_sale_node(sale_node: Element) -> dict:
-        """Extract sale data from XML node."""
-        return sale_node.attrib.copy()
 
     def get_market_messages(self, item_id: int) -> list:
         """Download market messages for given item from PSS API."""
@@ -1067,10 +756,8 @@ class PixelStarshipsApi:
 
             return []
 
-        root = ET.fromstring(response.text)
-
         # parse HTTP body as XML and find market_messages nodes
-        market_messsage_nodes = root.find(".//Messages")
+        market_messsage_nodes = self.find_node_in_response(response.text, ".//Messages")
 
         # error when parsing the response
         if market_messsage_nodes is None:
@@ -1079,102 +766,30 @@ class PixelStarshipsApi:
             return []
 
         for market_message_node in market_messsage_nodes:
-            market_message = self.parse_market_message_node(market_message_node)
+            market_message = self.parse_node(market_message_node)
             market_messages.append(market_message)
 
         return market_messages
 
-    @staticmethod
-    def parse_market_message_node(message_node: Element) -> dict:
-        """Extract sale data from XML node."""
-        return message_node.attrib.copy()
-
     def get_alliance_users(self, alliance_id: int, skip: int = 0, take: int = 100) -> list:
         """Get alliance users from API, top 100 by default."""
         params = {"allianceId": alliance_id, "take": take, "skip": skip}
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/AllianceService/ListUsers"
-        response = self.call(endpoint, params=params, need_token=True)
-        root = ET.fromstring(response.text)
-
-        users = []
-        user_nodes = root.find(".//Users")
-
-        if user_nodes is not None:
-            for user_node in user_nodes:
-                user = self.parse_user_node(user_node)
-                user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
-                users.append(user)
-
-        return users
+        return self.get_entities("AllianceService/ListUsers", params, ".//Users", need_token=True)
 
     def get_users(self, start: int = 1, end: int = 100) -> list:
         """Get users from API, top 100 by default."""
         params = {"from": start, "to": end}
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/LadderService/ListUsersByRanking"
-        response = self.call(endpoint, params=params, need_token=True)
-        root = ET.fromstring(response.text)
-
-        users = []
-        user_nodes = root.find(".//Users")
-
-        if user_nodes is not None:
-            for user_node in user_nodes:
-                user = self.parse_user_node(user_node)
-                user["pixyship_xml_element"] = user_node  # custom field, return raw XML data too
-                users.append(user)
-
-        return users
+        return self.get_entities("LadderService/ListUsersByRanking", params, ".//Users", need_token=True)
 
     def get_prestiges_character_to(self, character_id: int) -> list:
-        """Get prestiges recipe creating given character from API."""
+        """Get prestiges recipe creating given character from API (possibly none)."""
         params = {"characterDesignId": character_id}
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/CharacterService/PrestigeCharacterTo"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        prestiges = []
-        prestige_nodes = root.find(".//Prestiges")
-
-        # it's possible to don't have prestiges for the given character
-        if prestige_nodes is not None:
-            for prestige_node in prestige_nodes:
-                prestige = self.parse_prestige_node(prestige_node)
-                prestige["pixyship_xml_element"] = prestige_node  # custom field, return raw XML data too
-                prestiges.append(prestige)
-
-        return prestiges
+        return self.get_entities("CharacterService/PrestigeCharacterTo", params, ".//Prestiges")
 
     def get_prestiges_character_from(self, character_id: int) -> list:
-        """Get prestiges recipe created with given character from API."""
+        """Get prestiges recipe created with given character from API (possibly none)."""
         params = {"characterDesignId": character_id}
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/CharacterService/PrestigeCharacterFrom"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        prestiges = []
-        prestige_nodes = root.find(".//Prestiges")
-
-        # it's possible to don't have prestiges for the given character
-        if prestige_nodes is not None:
-            for prestige_node in prestige_nodes:
-                prestige = self.parse_prestige_node(prestige_node)
-                prestige["pixyship_xml_element"] = prestige_node  # custom field, return raw XML data too
-                prestiges.append(prestige)
-
-        return prestiges
-
-    @staticmethod
-    def parse_prestige_node(prestige_node: Element) -> dict:
-        """Extract prestige data from XML node."""
-        return prestige_node.attrib.copy()
+        return self.get_entities("CharacterService/PrestigeCharacterFrom", params, ".//Prestiges")
 
     @staticmethod
     def get_stardate() -> int:
@@ -1201,137 +816,34 @@ class PixelStarshipsApi:
 
     def get_trainings(self) -> list:
         """Get trainings data from API."""
-        params = {
-            "designVersion": self._api_settings["TrainingDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/TrainingService/ListAllTrainingDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        trainings = []
-        training_nodes = root.find(".//TrainingDesigns")
-
-        if training_nodes is not None:
-            for training_node in training_nodes:
-                training = self.parse_training_node(training_node)
-                training["pixyship_xml_element"] = training_node  # custom field, return raw XML data too
-                trainings.append(training)
-
-        return trainings
-
-    @staticmethod
-    def parse_training_node(training_node: Element) -> dict:
-        """Extract training data from XML node."""
-        return training_node.attrib.copy()
+        return self.get_entities(
+            "TrainingService/ListAllTrainingDesigns2", self.design_params("TrainingDesignVersion"), ".//TrainingDesigns"
+        )
 
     def get_achievements(self) -> list:
         """Get achievements data from API."""
-        params = {
-            "designVersion": self._api_settings["AchievementDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/AchievementService/ListAchievementDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        achievements = []
-        achievement_nodes = root.find(".//AchievementDesigns")
-
-        if achievement_nodes is not None:
-            for achievement_node in achievement_nodes:
-                achievement = self.parse_achievement_node(achievement_node)
-                achievement["pixyship_xml_element"] = achievement_node  # custom field, return raw XML data too
-                achievements.append(achievement)
-
-        return achievements
-
-    @staticmethod
-    def parse_achievement_node(achievement_node: Element) -> dict:
-        """Extract achievement data from XML node."""
-        return achievement_node.attrib.copy()
+        return self.get_entities(
+            "AchievementService/ListAchievementDesigns2",
+            self.design_params("AchievementDesignVersion"),
+            ".//AchievementDesigns",
+        )
 
     def get_situations(self) -> list:
         """Get situations data from API."""
-        params = {
-            "designVersion": self._api_settings["SituationDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/SituationService/ListSituationDesigns"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        situations = []
-        situation_nodes = root.find(".//SituationDesigns")
-
-        if situation_nodes is not None:
-            for situation_node in situation_nodes:
-                situation = self.parse_situation_node(situation_node)
-                situation["pixyship_xml_element"] = situation_node  # custom field, return raw XML data too
-                situations.append(situation)
-
-        return situations
-
-    @staticmethod
-    def parse_situation_node(situation_node: Element) -> dict:
-        """Extract situation data from XML node."""
-        return situation_node.attrib.copy()
+        return self.get_entities(
+            "SituationService/ListSituationDesigns", self.design_params("SituationDesignVersion"), ".//SituationDesigns"
+        )
 
     def get_promotions(self) -> list:
         """Get promotions data from API."""
-        params = {
-            "designVersion": self._api_settings["PromotionDesignVersion"],
-            "languageKey": "en",
-        }
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/PromotionService/ListAllPromotionDesigns2"
-        response = self.call(endpoint, params=params)
-        root = ET.fromstring(response.text)
-
-        promotions = []
-        promotion_nodes = root.find(".//PromotionDesigns")
-
-        if promotion_nodes is not None:
-            for promotion_node in promotion_nodes:
-                promotion = self.parse_situation_node(promotion_node)
-                promotion["pixyship_xml_element"] = promotion_node  # custom field, return raw XML data too
-                promotions.append(promotion)
-
-        return promotions
-
-    @staticmethod
-    def parse_promotion_node(promotion_node: Element) -> dict:
-        """Extract promotion data from XML node."""
-        return promotion_node.attrib.copy()
+        return self.get_entities(
+            "PromotionService/ListAllPromotionDesigns2",
+            self.design_params("PromotionDesignVersion"),
+            ".//PromotionDesigns",
+        )
 
     def get_star_system_markers(self) -> list:
         """Get Star System Markers data from API."""
-        params = {"languageKey": "en"}
-
-        # retrieve data as XML from Pixel Starships API
-        endpoint = f"https://{self.server}/GalaxyService/ListStarSystemMarkers"
-        response = self.call(endpoint, params=params, need_token=True)
-        root = ET.fromstring(response.text)
-
-        markers = []
-        markers_nodes = root.find(".//StarSystemMarkers")
-
-        if markers_nodes is not None:
-            for marker_node in markers_nodes:
-                marker = self.parse_star_system_marker_node(marker_node)
-                marker["pixyship_xml_element"] = marker_node  # custom field, return raw XML data too
-                markers.append(marker)
-
-        return markers
-
-    @staticmethod
-    def parse_star_system_marker_node(marker_node: Element) -> dict:
-        """Extract Star System Marker data from XML node."""
-        return marker_node.attrib.copy()
+        return self.get_entities(
+            "GalaxyService/ListStarSystemMarkers", {"languageKey": "en"}, ".//StarSystemMarkers", need_token=True
+        )

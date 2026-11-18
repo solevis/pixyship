@@ -1,0 +1,7 @@
+<TrainingService>
+  <ListAllTrainingDesigns version="574">
+    <TrainingDesigns>
+      <TrainingDesign TrainingDesignId="126" TrainingName="Instant Attack 7" GasCost="0" MineralCost="0" Duration="0" RequiredRoomLevel="0" HpChance="1" AttackChance="96" PilotChance="0" RepairChance="0" WeaponChance="2" ScienceChance="0" EngineChance="0" StaminaChance="1" AbilityChance="2" TrainingSpriteId="454" TrainingDescription="Instant Attack Training" Rank="100" TrainingAnimationStyle="Punching" XpChance="3200" Fatigue="0" MinimumGuarantee="4" VariableChance="0.4" RequiredResearchDesignId="0" RequiredTrainingDesignId="0" />
+    </TrainingDesigns>
+  </ListAllTrainingDesigns>
+</TrainingService>

@@ -17,7 +17,6 @@ def test_config(app):
     assert "SQLALCHEMY_DATABASE_URI" in app.config
     assert "DEV_MODE" in app.config
     assert "DOMAIN" in app.config
-    assert "SECRET_KEY" in app.config
     assert "SPRITES_DIRECTORY" in app.config
     assert "CHANGES_MAX_ASSETS" in app.config
     assert "FORCED_PIXELSTARSHIPS_API_URL" in app.config

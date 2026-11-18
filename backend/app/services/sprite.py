@@ -49,7 +49,7 @@ class SpriteService(BaseService):
 
         sprites = {}
         for record in records:
-            sprite = PixelStarshipsApi.parse_sprite_node(ET.fromstring(record.data))
+            sprite = PixelStarshipsApi.parse_node(ET.fromstring(record.data))
 
             sprites[record.type_id] = {
                 "image_file": int(sprite["ImageFileId"]),

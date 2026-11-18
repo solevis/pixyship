@@ -1,9 +1,10 @@
+from xml.etree.ElementTree import ParseError
+
 from flask import current_app
 
 from app.constants import RACE_SPECIFIC_SPRITE_MAP, RACES
 from app.ext import db
 from app.models import Alliance, Player
-from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 from app.utils.pss import compute_pvp_ratio
 
@@ -13,7 +14,6 @@ class PlayerService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
     def get_ship_data(self, player_name: str) -> dict | None:
         """Get user and ship data from API."""
@@ -40,7 +40,12 @@ class PlayerService(BaseService):
             current_app.logger.error("Cannot find user %s", player_name)
             return None, None, None, None
 
-        ship_data, user_data = self.pixel_starships_api.ship_details(user_id)
+        try:
+            ship_data, user_data = self.pixel_starships_api.ship_details(user_id)
+        except (ValueError, ParseError):
+            current_app.logger.exception("Invalid ship details response for user %s", player_name)
+            return None, None, None, None
+
         if not ship_data or not user_data:
             current_app.logger.error("Cannot find ship data for user %s", player_name)
             return None, None, None, None

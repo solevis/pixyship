@@ -73,44 +73,36 @@ def compute_pvp_ratio(wins: int, losses: int, draws: int) -> float:
     return round(ratio, 2)
 
 
-def parse_assets_string(assets_string: str) -> list[dict]:
-    """Parse an assets string and return a list of assets."""
+def parse_assets_string(assets_string: str | None) -> list[dict]:
+    """Parse an assets string from API (type:idxcount|type:id|idxcount...), the type and the count are optional.
+
+    Return a list of {"type": str | None, "id": int, "count": int | None}, assets without a numeric id are skipped.
+    The count is None when missing or not a number, like the IAP price of a sale reward (item:994x[USD/3]).
+    """
     assets = []
-    if assets_string:
-        # Split the string by "|" to get individual assets
-        asset_items = assets_string.split("|")
+    for asset_item in (assets_string or "").split("|"):
+        if not asset_item:
+            continue
 
-        for asset_item in asset_items:
-            # Check if ":" is in the asset_item
-            if ":" in asset_item:
-                # Split the reward by ":" to get the type and id/count
-                asset_type, asset_id_count = asset_item.split(":")
-            else:
-                # If ":" is not in the asset_item, the type is None and asset_item is the id/count
-                asset_type = None
-                asset_id_count = asset_item
+        type_and_id_count = asset_item.split(":")
+        if len(type_and_id_count) > 1:
+            asset_type: str | None = type_and_id_count[0]
+            asset_id_count = type_and_id_count[1]
+        else:
+            asset_type = None
+            asset_id_count = type_and_id_count[0]
 
-            # Check if the id/count contains an "x"
-            if "x" in asset_id_count:
-                # Split the id/count by "x" to get the id and count
-                asset_id, asset_count = asset_id_count.split("x")
-            else:
-                # If there's no "x", the count is None
-                asset_id = asset_id_count
-                asset_count = None
+        id_and_count = asset_id_count.split("x")
+        try:
+            asset_id = int(id_and_count[0])
+        except ValueError:
+            continue
 
-            if "[USD/" in assets_string:
-                asset_count = None
+        asset_count = None
+        if len(id_and_count) > 1 and id_and_count[1].isdigit():
+            asset_count = int(id_and_count[1])
 
-            # Store the type, id, and count in a dictionary
-            asset = {
-                "type": asset_type,
-                "id": int(asset_id) if asset_id is not None else None,
-                "count": int(asset_count) if asset_count is not None else None,
-            }
-
-            # Add the asset to the list of assets
-            assets.append(asset)
+        assets.append({"type": asset_type, "id": asset_id, "count": asset_count})
 
     return assets
 

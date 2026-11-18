@@ -42,9 +42,9 @@ class MarketService(BaseService):
                 SELECT l.item_id
                      , l.currency
                      , SUM(l.amount)                                                    AS count
-                     , percentile_disc(.25) WITHIN GROUP (ORDER BY l.price / l.amount)  AS p25
-                     , percentile_disc(.5) WITHIN GROUP (ORDER BY l.price / l.amount)   AS p50
-                     , percentile_disc(.75) WITHIN GROUP (ORDER BY l.price /l. amount)  AS p75
+                     , percentile_disc(.25) WITHIN GROUP (ORDER BY l.price::float8 / l.amount)  AS p25
+                     , percentile_disc(.5) WITHIN GROUP (ORDER BY l.price::float8 / l.amount)   AS p50
+                     , percentile_disc(.75) WITHIN GROUP (ORDER BY l.price::float8 / l.amount)  AS p75
                 FROM listing l
                 WHERE l.amount > 0
                   AND l.sale_at > (now() - INTERVAL '48 HOURS')
@@ -74,13 +74,14 @@ class MarketService(BaseService):
                      , currency
                      , sale_at::DATE                                               AS sale_date
                      , SUM(amount)                                                 AS count
-                     , percentile_disc(.25) WITHIN GROUP (ORDER BY price / amount) AS p25
-                     , percentile_disc(.5) WITHIN GROUP (ORDER BY price / amount)  AS p50
-                     , percentile_disc(.75) WITHIN GROUP (ORDER BY price / amount) AS p75
+                     , percentile_disc(.25) WITHIN GROUP (ORDER BY price::float8 / amount) AS p25
+                     , percentile_disc(.5) WITHIN GROUP (ORDER BY price::float8 / amount)  AS p50
+                     , percentile_disc(.75) WITHIN GROUP (ORDER BY price::float8 / amount) AS p75
                 FROM listing
                 WHERE item_id = :item_id
                   AND amount > 0
-                  AND sale_at::DATE >= now() - '6 months'::INTERVAL
+                  -- whole days only, written without a cast on sale_at so the index can be used
+                  AND sale_at >= date_trunc('day', now() - INTERVAL '6 months') + INTERVAL '1 day'
                 GROUP BY item_id, item_name, currency, sale_at::DATE
                 ORDER BY item_id, item_name, currency, sale_at::DATE
             """
