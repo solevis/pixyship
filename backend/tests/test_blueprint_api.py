@@ -13,14 +13,17 @@ from app.services.collection import CollectionService
 def mock_api_responses():
     """Fixture providing mock API responses for blueprint testing."""
     return {
+        # same shapes as PlayerService.get_player_data() and get_ship_data()
         "players": [
-            {"name": "Solevis", "id": 6635604, "trophy": 1000, "ship": "Test Ship"},
-            {"name": "Test Player", "id": 1, "trophy": 500, "ship": "Basic Ship"},
+            {"name": "Solevis", "lower": "solevis", "trophies": 1000, "alliance": "Alliance", "alliance_sprite": None},
+            {"name": "Test Player", "lower": "test player", "trophies": 500, "alliance": None, "alliance_sprite": None},
         ],
         "player_ship": {
-            "player": {"name": "Solevis", "id": 6635604, "trophy": 1000},
-            "ship": {"name": "Test Ship", "level": 10, "hp": 1000},
             "rooms": [{"name": "Bridge", "level": 5}, {"name": "Engine", "level": 3}],
+            "user": {"name": "Solevis", "id": 6635604, "trophies": 1000},
+            "ship": {"name": "Test Ship", "level": 10, "hp": 1000},
+            "stickers": [],
+            "status": "found",
         },
         "daily": {
             "shop": {"currency": "Starbux", "amount": 100, "items": ["Item1", "Item2"]},
@@ -81,8 +84,8 @@ def mock_api_responses():
             {"id": 2, "sprite_id": 101, "x": 32, "y": 0, "width": 32, "height": 32},
         ],
         "search": [
-            {"name": "Solevis", "id": 6635604, "trophy": 1000},
-            {"name": "Test Player", "id": 1, "trophy": 500},
+            {"name": "Solevis", "id": 6635604, "trophies": 1000},
+            {"name": "Test Player", "id": 1, "trophies": 500},
         ],
     }
 
@@ -283,7 +286,7 @@ def test_api_player(client, app, mock_player_service):
     assert response.status_code == 200
     data = response.get_json()
     assert "data" in data
-    assert data["data"]["player"]["name"] == "Solevis"
+    assert data["data"]["user"]["name"] == "Solevis"
     assert data["data"]["ship"]["name"] == "Test Ship"
 
 
