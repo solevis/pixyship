@@ -64,3 +64,14 @@ def test_get_record(app):
         assert record.name == "Gun"
         assert service.get_record(TypeEnum.ITEM, 2) is None
         assert service.get_record(TypeEnum.SHIP, 1) is None
+
+
+def test_get_missing_record_keeps_cache(app):
+    """Regression: a missing record used to clear the whole cache."""
+    from app.ext import cache
+
+    with app.app_context():
+        cache.set("items", {"cached": True})
+
+        assert RecordService().get_record(TypeEnum.ITEM, 404) is None
+        assert cache.get("items") == {"cached": True}
