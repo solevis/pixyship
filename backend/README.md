@@ -52,5 +52,7 @@ uv run ruff check
 Tests:
 
 ```bash
+# Postgres tests use the pixyship_test database (created and migrated automatically), they are skipped if
+# Postgres isn't running (devenv up), set TEST_DATABASE_URL to use another database
 uv run pytest
 ```
