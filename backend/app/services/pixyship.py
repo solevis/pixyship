@@ -5,6 +5,9 @@ import datetime
 from app.services.base import BaseService
 from app.services.item import ItemService
 from app.utils.calculation import format_delta_time
+from app.utils.pss import parse_assets_string
+
+CURRENCY_ASSET_TYPES = ("starbux", "purchasePoints", "points", "gas", "mineral")
 
 
 class PixyShipService(BaseService):
@@ -14,86 +17,45 @@ class PixyShipService(BaseService):
         super().__init__()
 
     def parse_assets_from_string(self, assets_string: str) -> list[dict]:
-        """Parse RewardString from API."""
+        """Parse RewardString from API, with the data of each asset."""
         assets = []
-        if assets_string:
-            assets_items = assets_string.split("|")
-            for asset_item in assets_items:
-                if not asset_item:
-                    continue
+        for asset in parse_assets_string(assets_string):
+            asset_type = asset["type"]
+            asset_type_id: int | None = asset["id"]
 
-                asset_item_unpacked = asset_item.split(":")
-                asset_item_type = asset_item_unpacked[0]
-                asset_item_type_id = None
-
-                asset_item_id_count_unpacked = asset_item_unpacked[1].split("x")
-                asset_item_data = asset_item_id_count_unpacked[0]
-
-                line = {}
-
-                # if change's a Character, get all infos of the crew
-                if asset_item_type == "character":
-                    try:
-                        asset_item_type_id = int(asset_item_data)
-                        data: dict | int | None = self.character_service.characters[asset_item_type_id]
-                    except KeyError:
-                        continue
-
-                # if change's an Item, get all infos of the item
-                elif asset_item_type == "item":
-                    try:
-                        asset_item_type_id = int(asset_item_data)
-                        item = self.item_service.items[asset_item_type_id]
-                        data = ItemService.create_light_item(item)
-                    except KeyError:
-                        continue
-
-                # if change's an Item, get all infos of the item
-                elif asset_item_type == "room":
-                    try:
-                        asset_item_type_id = int(asset_item_data)
-                        data = self.room_service.rooms[asset_item_type_id]
-                    except KeyError:
-                        continue
-
-                # if change's is Starbux, Dove, Gas or Mineral
-                elif (
-                    asset_item_type == "starbux"
-                    or asset_item_type == "purchasePoints"
-                    or asset_item_type == "points"
-                    or asset_item_type == "gas"
-                    or asset_item_type == "mineral"
-                ):
-                    data = int(asset_item_data)
-
-                # if change's a Skin, get all infos of the crew
-                elif asset_item_type == "skin":
-                    try:
-                        asset_item_type_id = int(asset_item_data)
-                        data = self.skin_service.skinsets[asset_item_type_id]
-                    except KeyError:
-                        continue
-
-                # Unknown type
+            try:
+                if asset_type == "character":
+                    data: dict | int | None = self.character_service.characters[asset["id"]]
+                elif asset_type == "item":
+                    data = ItemService.create_light_item(self.item_service.items[asset["id"]])
+                elif asset_type == "room":
+                    data = self.room_service.rooms[asset["id"]]
+                elif asset_type == "skin":
+                    data = self.skin_service.skinsets[asset["id"]]
+                elif asset_type in CURRENCY_ASSET_TYPES:
+                    # the "id" is the amount
+                    data = asset["id"]
+                    asset_type_id = None
                 else:
+                    # unknown type
                     continue
+            except KeyError:
+                continue
 
-                asset_item_count: int | None = 1
-                if len(asset_item_id_count_unpacked) > 1:
-                    # TODO @solevis: handle count based in IAP value, for now ignore it
-                    # https://github.com/solevis/pixyship/issues/114
-                    asset_item_count = None if "[USD/" in assets_string else int(asset_item_id_count_unpacked[1])
+            # TODO @solevis: handle count based in IAP value, for now ignore it
+            # https://github.com/solevis/pixyship/issues/114
+            asset_count = asset["count"]
+            if asset_count is None:
+                asset_count = None if "[USD/" in assets_string else 1
 
-                line.update(
-                    {
-                        "count": asset_item_count,
-                        "data": data,
-                        "id": asset_item_type_id,
-                        "type": asset_item_type,
-                    },
-                )
-
-                assets.append(line)
+            assets.append(
+                {
+                    "count": asset_count,
+                    "data": data,
+                    "id": asset_type_id,
+                    "type": asset_type,
+                },
+            )
 
         return assets
 

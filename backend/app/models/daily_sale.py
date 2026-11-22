@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import UniqueConstraint, func
+from sqlalchemy import Enum, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import TypeEnum
@@ -11,7 +11,8 @@ class DailySale(db.Model):  # type: ignore[name-defined]
     """Daily sale model."""
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    type: Mapped[TypeEnum]
+    # the Postgres type is named type_enum (see migrations), not typeenum as derived from the class name
+    type: Mapped[TypeEnum] = mapped_column(Enum(TypeEnum, name="type_enum"))
     type_id: Mapped[int]
     sale_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
     sale_from: Mapped[str]

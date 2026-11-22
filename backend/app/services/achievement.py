@@ -35,7 +35,7 @@ class AchievementService(BaseService):
         all_parent_achievement_design_id = []
 
         for record in records:
-            achievement = PixelStarshipsApi.parse_achievement_node(ET.fromstring(record.data))
+            achievement = PixelStarshipsApi.parse_node(ET.fromstring(record.data))
 
             starbux_reward = 0
             mineral_reward = 0

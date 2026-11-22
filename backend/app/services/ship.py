@@ -36,7 +36,7 @@ class ShipService(BaseService):
 
         ships = {}
         for record in records:
-            ship = PixelStarshipsApi.parse_ship_node(ET.fromstring(record.data))
+            ship = PixelStarshipsApi.parse_node(ET.fromstring(record.data))
             starbux_cost, mineral_cost, points_cost, items_cost = self.parse_ship_unlock_costs(
                 ship["MineralCost"],
                 ship["StarbuxCost"],

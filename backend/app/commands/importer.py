@@ -7,8 +7,9 @@ from pathlib import Path
 from urllib import request
 
 import click
+import requests
 from flask import current_app
-from flask.cli import AppGroup, with_appcontext
+from flask.cli import AppGroup
 from pssapi.enums import PusherChannelType
 from pssapi.exc import PusherConnectionClosed
 from pssapi.pusher import Channel, Pusher
@@ -58,7 +59,6 @@ def log_command(func: Callable) -> Callable:
 
 
 @importer_cli.command("players", help="Get top players and save them in database.")
-@with_appcontext
 @log_command
 def import_players() -> None:
     """Get all top 100 players and top 100 alliances' players and save them in database."""
@@ -86,23 +86,25 @@ def import_players() -> None:
         except Exception:
             current_app.logger.exception("Error when importing alliance (%d) users", alliance_id)
 
+    if not top_users:
+        current_app.logger.error("No players retrieved from API, keeping current players in database")
+        return
+
+    # replace old data with new data in a single transaction, so the players search is never empty or partial
     try:
-        # purge old data
         db.session.query(Player).delete()
         db.session.query(Alliance).delete()
+        save_users(top_users)
         db.session.commit()
     except Exception:
         current_app.logger.exception("Error when saving players in database")
         db.session.rollback()
-
-    # save new data
-    save_users(top_users)
+        return
 
     current_app.logger.info("Done")
 
 
 @importer_cli.command("assets", help="Get all assets and save them in database.")
-@with_appcontext
 @log_command
 def import_assets() -> None:
     """Get all items, crews, rooms, ships and save them in database."""
@@ -179,7 +181,6 @@ def import_assets() -> None:
 
 
 @importer_cli.command("prestiges", help="Get all prestiges and save them in database.")
-@with_appcontext
 @log_command
 def import_prestiges() -> None:
     """Import prestiges for checking changes."""
@@ -192,7 +193,6 @@ def import_prestiges() -> None:
 
 
 @importer_cli.command("daily-sales", help="Get all daily sales and save them in database.")
-@with_appcontext
 @log_command
 def import_daily_sales() -> None:
     """Get all items, crews, rooms, ships on sale today and save them in database."""
@@ -362,7 +362,6 @@ def save_daily_sale(daily_sale: DailySale) -> None:
 @importer_cli.command("market", help="Get last market sales and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
 @click.option("--item-id", type=int, default=None, help="Import only the given item")
-@with_appcontext
 @log_command
 def import_market(one_item_only: bool, item_id: int | None) -> None:
     """Get last market sales and save them in database."""
@@ -397,7 +396,12 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
     for count, (current_item_id, current_item) in enumerate(saleable_items_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        sales = market_service.get_sales_from_api(pixel_starships_api, current_item_id)
+        try:
+            sales = market_service.get_sales_from_api(pixel_starships_api, current_item_id)
+        except requests.RequestException:
+            current_app.logger.exception("[%d/%d] error when retrieving sales, skipping item", count, total)
+            continue
+
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(sales))
 
         for sale in sales:
@@ -432,7 +436,6 @@ def import_market(one_item_only: bool, item_id: int | None) -> None:
 @importer_cli.command("market-messages", help="Get last market messages and save them in database.")
 @click.option("--one-item-only", is_flag=True, help="Import randomly only one item")
 @click.option("--item-id", type=int, default=None, help="Import only the given item")
-@with_appcontext
 @log_command
 def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     """Get last market messages and save them in database."""
@@ -467,7 +470,12 @@ def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
     for count, (current_item_id, current_item) in enumerate(items_with_offstat_ordered, start=1):
         current_app.logger.info("[%d/%d] item: %s (%d)", count, total, current_item["name"], current_item_id)
 
-        messages = MarketService.get_market_messages_from_api(current_item_id)
+        try:
+            messages = MarketService.get_market_messages_from_api(current_item_id)
+        except requests.RequestException:
+            current_app.logger.exception("[%d/%d] error when retrieving messages, skipping item", count, total)
+            continue
+
         current_app.logger.info("[%d/%d] retrieved: %d", count, total, len(messages))
 
         for message in messages:
@@ -498,7 +506,6 @@ def import_market_messages(one_item_only: bool, item_id: int | None) -> None:
 @importer_cli.command(
     "market-worker", help="Listen H24 to PSS market Pusher events and save sales/messages in database."
 )
-@with_appcontext
 def import_market_worker() -> None:
     """Listen to the PSS market Pusher channel and save sales/messages in database as they happen."""
     if current_app.config["USE_STAGING_API"]:
@@ -560,7 +567,6 @@ def save_market_message(market_message: MarketMessage) -> None:
 
 
 @importer_cli.command("sprites", help="Download sprites from PSS.")
-@with_appcontext
 @log_command
 def dowload_sprites() -> None:
     """Download sprites from PSS."""
@@ -586,7 +592,7 @@ def dowload_sprites() -> None:
 
 
 def save_users(users: list) -> None:
-    """Save users and attached alliance in database."""
+    """Add users and attached alliances to the session, the caller is responsible for committing."""
     for user_id, user in users:
         player = Player(
             id=user_id,
@@ -604,5 +610,3 @@ def save_users(users: list) -> None:
                 sprite_id=user["alliance_sprite_id"],
             )
             db.session.merge(alliance)
-
-        db.session.commit()

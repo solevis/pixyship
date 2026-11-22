@@ -63,8 +63,8 @@ def mock_database_data():
             {"id": 2, "sprite_id": 101, "x": 32, "y": 0, "width": 32, "height": 32},
         ],
         "players": [
-            {"name": "Solevis", "id": 6635604, "trophy": 1000},
-            {"name": "Test Player", "id": 1, "trophy": 500},
+            {"name": "Solevis", "id": 6635604, "trophies": 1000},
+            {"name": "Test Player", "id": 1, "trophies": 500},
         ],
         "changes": [
             {"id": 1, "change_type": "update", "table": "players", "record_id": 6635604},

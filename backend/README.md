@@ -15,7 +15,7 @@ devenv shell
 # Launch services
 devenv up -d
 
-# Set your SAVY_ACCESS_TOKEN and DEVICE_LOGIN_CHECKSUM_KEY in instance/config.cfg
+# Set DEV_MODE = True, your SAVY_ACCESS_TOKEN and DEVICE_LOGIN_CHECKSUM_KEY in instance/config.cfg
 mkdir -p instance
 ${EDITOR} instance/config.cfg
 
@@ -26,7 +26,7 @@ uv run flask db upgrade
 uv run flask import assets
 uv run flask import players
 uv run flask import market  # very long, several hours
-uv run flask import market --item 73  # retrieve market history for only one item, much faster for dev
+uv run flask import market --item-id 73  # retrieve market history for only one item, much faster for dev
 ```
 
 Run:
@@ -37,7 +37,7 @@ uv run flask --debug run
 
 Access the backend at [http://localhost:5000](http://localhost:5000).
 
-Market Pusher worker (listens H24 to PSS market events instead of the periodic `import market`:
+Market Pusher worker (listens H24 to PSS market events instead of the periodic `import market`):
 
 ```bash
 uv run flask import market-worker
@@ -52,5 +52,7 @@ uv run ruff check
 Tests:
 
 ```bash
+# Postgres tests use the pixyship_test database (created and migrated automatically), they are skipped if
+# Postgres isn't running (devenv up), set TEST_DATABASE_URL to use another database
 uv run pytest
 ```

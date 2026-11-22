@@ -1,0 +1,12 @@
+<RoomService>
+  <ListRoomDesignPurchase version="942">
+    <RoomDesignPurchases>
+      <RoomDesignPurchase RoomDesignPurchaseId="11" RoomDesignId="6" Level="1" Quantity="1" AvailabilityMask="1" RequirementString="" />
+      <RoomDesignPurchase RoomDesignPurchaseId="12" RoomDesignId="6" Level="4" Quantity="1" AvailabilityMask="1" RequirementString="" />
+      <RoomDesignPurchase RoomDesignPurchaseId="115" RoomDesignId="517" Level="12" Quantity="1" AvailabilityMask="1" RequirementString="originalRaceId == 2" />
+      <RoomDesignPurchase RoomDesignPurchaseId="182" RoomDesignId="711" Level="6" Quantity="1" AvailabilityMask="1" RequirementString="originalRaceId == 2" />
+      <RoomDesignPurchase RoomDesignPurchaseId="194" RoomDesignId="711" Level="9" Quantity="1" AvailabilityMask="1" RequirementString="originalRaceId == 2" />
+      <RoomDesignPurchase RoomDesignPurchaseId="195" RoomDesignId="711" Level="12" Quantity="1" AvailabilityMask="1" RequirementString="originalRaceId == 2" />
+    </RoomDesignPurchases>
+  </ListRoomDesignPurchase>
+</RoomService>

@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import func
+from sqlalchemy import Enum, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import TypeEnum
@@ -14,7 +14,8 @@ class Record(db.Model):  # type: ignore[name-defined]
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=True)
     sprite_id: Mapped[int] = mapped_column(nullable=True)
-    type: Mapped[TypeEnum]
+    # the Postgres type is named type_enum (see migrations), not typeenum as derived from the class name
+    type: Mapped[TypeEnum] = mapped_column(Enum(TypeEnum, name="type_enum"))
     type_id: Mapped[int]
     current: Mapped[bool]
     md5_hash: Mapped[uuid.UUID]

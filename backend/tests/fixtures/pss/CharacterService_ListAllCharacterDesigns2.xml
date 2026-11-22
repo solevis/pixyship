@@ -1,0 +1,20 @@
+<CharacterService>
+  <ListAllCharacterDesigns version="1370">
+    <CharacterDesigns>
+      <CharacterDesign CharacterDesignId="157" CharacterDesignName="Mama" CharacterHeadPartId="504" CharacterBodyPartId="505" GenderType="Female" RaceType="Asian" Hp="2" Pilot="1" Attack="1.3" FireResistance="1" Repair="1.1" Weapon="2" Science="3" Engine="3" Research="2" Level="1" WalkingSpeed="1" MinShipLevel="1" FinalHp="6" FinalPilot="10" FinalAttack="2.3" FinalRepair="1.8" FinalWeapon="9" FinalScience="9" FinalEngine="13" FinalResearch="8" CharacterLegPartId="506" Rarity="Unique" ProgressionType="Linear" CharacterDesignDescription="Cooks, cleans, decimates your enemies." XpRequirementScale="1" MaxCharacterLevel="40" SpecialAbilityType="DamageToCurrentEnemy" SpecialAbilityArgument="3" SpecialAbilityFinalArgument="7" ProfileSpriteId="4732" RunSpeed="2" TrainingCapacity="70" EquipmentMask="12" SpeechVoice="" SpeechPhrases="" SpeechRate="1" SpeechPitch="1" Flags="19" RootCharacterDesignId="157" MaxCount="0" Tags="" BoostValuesString="6,4,0" Metadata="{&quot;CharacterAttackType&quot;:&quot;Melee&quot;,&quot;WeaponSpriteId&quot;:&quot;17803&quot;}" TapSoundFileId="5751" ActionSoundFileId="5753" CollectionDesignId="0">
+        <CharacterParts>
+          <CharacterPart CharacterPartId="504" CharacterPartName="BigMamaHead" CharacterPartType="Head" StandardSpriteId="4720" Flags="0" StandardFileId="0" ActionFileId="0" StandardBorderFileId="0" ActionBorderFileId="0" ActionSpriteId="4721" />
+          <CharacterPart CharacterPartId="505" CharacterPartName="BigMamaBody" CharacterPartType="Body" StandardSpriteId="4724" Flags="0" StandardFileId="0" ActionFileId="0" StandardBorderFileId="0" ActionBorderFileId="0" ActionSpriteId="4725" />
+          <CharacterPart CharacterPartId="506" CharacterPartName="BigMamaLeg" CharacterPartType="Leg" StandardSpriteId="4728" Flags="0" StandardFileId="0" ActionFileId="0" StandardBorderFileId="0" ActionBorderFileId="0" ActionSpriteId="4729" />
+        </CharacterParts>
+      </CharacterDesign>
+      <CharacterDesign CharacterDesignId="299" CharacterDesignName="Handsome Michael" CharacterHeadPartId="1077" CharacterBodyPartId="1078" GenderType="Male" RaceType="Asian" Hp="2" Pilot="0" Attack="1" FireResistance="1" Repair="1" Weapon="1" Science="1" Engine="1.1" Research="1" Level="1" WalkingSpeed="1" MinShipLevel="1" FinalHp="6" FinalPilot="18" FinalAttack="1.9" FinalRepair="1.7" FinalWeapon="3" FinalScience="5" FinalEngine="6" FinalResearch="3" CharacterLegPartId="1079" Rarity="Common" ProgressionType="Linear" CharacterDesignDescription="The looker of his graduate class, unfortunately prone to busting out his guitar at parties." XpRequirementScale="1" MaxCharacterLevel="40" SpecialAbilityType="None" SpecialAbilityArgument="0" SpecialAbilityFinalArgument="0" ProfileSpriteId="10758" RunSpeed="2" TrainingCapacity="50" EquipmentMask="12" SpeechVoice="" SpeechPhrases="" SpeechRate="1" SpeechPitch="1" Flags="17" RootCharacterDesignId="299" MaxCount="0" Tags="" BoostValuesString="6,4,0" Metadata="" TapSoundFileId="5764" ActionSoundFileId="5763" CollectionDesignId="7">
+        <CharacterParts>
+          <CharacterPart CharacterPartId="1077" CharacterPartName="FedAisanMaleCrewHead" CharacterPartType="Head" StandardSpriteId="10746" Flags="0" StandardFileId="0" ActionFileId="0" StandardBorderFileId="0" ActionBorderFileId="0" ActionSpriteId="10747" />
+          <CharacterPart CharacterPartId="1078" CharacterPartName="FedAisanMaleCrewBody" CharacterPartType="Body" StandardSpriteId="10750" Flags="0" StandardFileId="0" ActionFileId="0" StandardBorderFileId="0" ActionBorderFileId="0" ActionSpriteId="10751" />
+          <CharacterPart CharacterPartId="1079" CharacterPartName="FedAisanMaleCrewLeg" CharacterPartType="Leg" StandardSpriteId="10754" Flags="0" StandardFileId="0" ActionFileId="0" StandardBorderFileId="0" ActionBorderFileId="0" ActionSpriteId="10755" />
+        </CharacterParts>
+      </CharacterDesign>
+    </CharacterDesigns>
+  </ListAllCharacterDesigns>
+</CharacterService>

@@ -5,6 +5,21 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      # database of the Postgres tests (postgres_app fixture)
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: pixyship
+          POSTGRES_DB: pixyship_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     strategy:
       matrix:
         python-version: ["3.13"]
@@ -30,6 +45,8 @@ jobs:
         run: uv run ruff format --check
       - name: Test
         working-directory: ./backend
+        env:
+          REQUIRE_POSTGRES_TESTS: "1"
         run: uv run pytest
       - name: Type Check
         working-directory: ./backend

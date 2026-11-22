@@ -28,7 +28,6 @@ class DailyOfferService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
     @cached_property
     @cache.cached(key_prefix="daily_offers")
@@ -256,25 +255,13 @@ class DailyOfferService(BaseService):
         """Split daily cargo data into prices and items."""
         items = self.parse_daily_items(item_list_string)
 
-        splitted_prices = [i.split(":") for i in cost_list_string.split("|")]
-        prices = []
-        for splitted_price in splitted_prices:
-            if len(splitted_price) < 2:
-                current_app.logger.error("Cannot parse cost_list_string %s", splitted_price)
-                continue
+        # keep one entry per cargo slot (None when unparsable) so prices stay aligned with items
+        prices = [self.parse_daily_cargo_price(price_string) for price_string in cost_list_string.split("|")]
 
-            price: dict = {"currency": splitted_price[0]}
-
-            amount = splitted_price[1].split("x")
-            if len(amount) > 1:
-                item_id = int(amount[0])
-                price["price"] = item_id
-                price["count"] = amount[1]
-                price["object"] = self.item_service.items[item_id]
-            else:
-                price["price"] = int(splitted_price[1])
-
-            prices.append(price)
+        if len(items) != len(prices):
+            current_app.logger.error(
+                "Daily cargo items and prices count mismatch: %s / %s", item_list_string, cost_list_string
+            )
 
         return [
             {
@@ -284,8 +271,29 @@ class DailyOfferService(BaseService):
                 "details": None,
                 "expires": None,
             }
-            for item, price in zip(items, prices, strict=True)
+            for item, price in zip(items, prices, strict=False)
+            if price is not None
         ]
+
+    def parse_daily_cargo_price(self, price_string: str) -> dict | None:
+        """Parse one daily cargo price, e.g. "starbux:10" or "item:73x5", return None if unparsable."""
+        splitted_price = price_string.split(":")
+        if len(splitted_price) < 2:
+            current_app.logger.error("Cannot parse daily cargo price %s", price_string)
+            return None
+
+        price: dict = {"currency": splitted_price[0]}
+
+        amount = splitted_price[1].split("x")
+        if len(amount) > 1:
+            item_id = int(amount[0])
+            price["price"] = item_id
+            price["count"] = amount[1]
+            price["object"] = self.item_service.items[item_id]
+        else:
+            price["price"] = int(splitted_price[1])
+
+        return price
 
     def parse_daily_items(self, item_list_string: str) -> list[dict]:
         """Parse daily items from API."""

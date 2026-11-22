@@ -4,7 +4,6 @@ from collections import Counter, defaultdict
 from typing import Any
 
 from app.enums import TypeEnum
-from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
 
 
@@ -13,7 +12,6 @@ class PrestigeService(BaseService):
 
     def __init__(self) -> None:
         super().__init__()
-        self.pixel_starships_api = PixelStarshipsApi()
 
     def get_prestige_from_from_api(self, character_id: int) -> tuple[list, dict]:
         """Get prestige paires and groups created with given char_id."""

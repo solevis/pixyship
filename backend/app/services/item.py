@@ -13,7 +13,7 @@ from app.enums import TypeEnum
 from app.ext import cache
 from app.pixelstarshipsapi import PixelStarshipsApi
 from app.services.base import BaseService
-from app.utils.pss import get_offstat_count
+from app.utils.pss import get_offstat_count, parse_assets_string
 
 
 class ItemService(BaseService):
@@ -43,7 +43,7 @@ class ItemService(BaseService):
         items: dict = {}
         for record in records:
             item_node = ET.fromstring(record.data)
-            item = PixelStarshipsApi.parse_item_node(item_node)
+            item = PixelStarshipsApi.parse_node(item_node)
 
             number_of_rewards = 0
             if item["Content"] and float(item["ModuleArgument"]) != 0:
@@ -154,76 +154,50 @@ class ItemService(BaseService):
     def parse_item_content(self, item_content_string: str, last_item: dict, items: dict[int, dict]) -> list:
         """Parse content infos from API."""
         content = []
-        if item_content_string:
-            content_items = item_content_string.split("|")
-            for content_item in content_items:
-                if not content_item:
+        for asset in parse_assets_string(item_content_string):
+            content_item_type = asset["type"]
+            content_item_id: str | None = str(asset["id"])
+            content_item_count = asset["count"] if asset["count"] is not None else 1
+
+            if content_item_type == "character":
+                content_item_data = self.character_service.characters.get(asset["id"])
+                if content_item_data is None:
                     continue
 
-                content_item_unpacked = content_item.split(":")
-                if len(content_item_unpacked) < 2:
+            elif content_item_type == "item":
+                item = items.get(asset["id"])
+                if item is None:
                     continue
 
-                content_item_type = content_item_unpacked[0]
+                content_item_data = self.create_light_item(item)
 
-                content_item_id_count_unpacked = content_item_unpacked[1].split("x")
-                content_item_id: str | None = content_item_id_count_unpacked[0]
+                # avoid infinite recursion when item reward can be the item itself
+                if last_item["id"] != item["id"]:
+                    content_item_data["content"] = self.parse_item_content(item["content_string"], item, items)
 
-                content_item_count = 1
+            elif content_item_type in ("starbux", "purchasePoints", "points"):
+                # the "id" is the amount
+                content_item_data = None
+                content_item_id = None
+                content_item_count = asset["id"]
 
-                # if content's a Character, get all infos of the crew
-                if content_item_type == "character":
-                    try:
-                        content_item_data = self.character_service.characters[int(content_item_id)]
-                        if len(content_item_id_count_unpacked) > 1:
-                            content_item_count = int(content_item_id_count_unpacked[1])
-                    except KeyError:
-                        continue
-
-                # if content's an Item, get all infos of the item
-                elif content_item_type == "item":
-                    try:
-                        item = items[int(content_item_id)]
-                        if len(content_item_id_count_unpacked) > 1:
-                            content_item_count = int(content_item_id_count_unpacked[1])
-                    except KeyError:
-                        continue
-
-                    content_item_data = self.create_light_item(item)
-
-                    # avoid infinite recursion when item reward can be the item itself
-                    if last_item["id"] != item["id"]:
-                        content_item_data["content"] = self.parse_item_content(item["content_string"], item, items)
-
-                # if content's is Starbux
-                elif content_item_type == "starbux" or (
-                    content_item_type == "purchasePoints" or content_item_type == "points"
-                ):
-                    content_item_data = None
-                    content_item_id = None
-                    content_item_count = int(content_item_unpacked[1])
-
-                # if content's is Skin
-                elif content_item_type == "skin":
-                    try:
-                        content_item_data = self.skin_service.skinsets[int(content_item_id)]
-                        if len(content_item_id_count_unpacked) > 1:
-                            content_item_count = int(content_item_id_count_unpacked[1])
-                    except KeyError:
-                        continue
-
-                # Unknown type
-                else:
+            elif content_item_type == "skin":
+                content_item_data = self.skin_service.skinsets.get(asset["id"])
+                if content_item_data is None:
                     continue
 
-                line = {
+            # unknown type
+            else:
+                continue
+
+            content.append(
+                {
                     "type": content_item_type,
                     "id": content_item_id,
                     "data": content_item_data,
                     "count": content_item_count,
-                }
-
-                content.append(line)
+                },
+            )
 
         return content
 
@@ -238,7 +212,7 @@ class ItemService(BaseService):
 
         enhancement = MODULE_ENHANCEMENT_MAP.get(module_type, None)
         disp_enhancement = ENHANCE_MAP.get(enhancement, enhancement)
-        short_disp_enhancement = (SHORT_ENHANCE_MAP.get(enhancement, enhancement),)
+        short_disp_enhancement = SHORT_ENHANCE_MAP.get(enhancement, enhancement)
         bonus = float(item["ModuleArgument"])
 
         return {
